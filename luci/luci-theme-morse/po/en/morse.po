@@ -1,0 +1,63 @@
+msgid ""
+msgstr "Content-Type: text/plain; charset=UTF-8\n"
+
+#: luci/luci-theme-morse/htdocs/luci-static/resources/view/morse/sysauth.js:11
+msgid "Authorization Required"
+msgstr ""
+
+#: luci/luci-theme-morse/luasrc/view/themes/morse/header.htm:75
+msgid "Go to password configuration..."
+msgstr ""
+
+#: luci/luci-theme-morse/luasrc/view/themes/morse/sysauth.htm:49
+msgid "Invalid username and/or password! Please try again."
+msgstr ""
+
+#: luci/luci-theme-morse/luasrc/view/themes/morse/header.htm:81
+msgid "JavaScript required!"
+msgstr ""
+
+#: luci/luci-theme-morse/luasrc/view/themes/morse/sysauth.htm:57
+msgid "Loading view…"
+msgstr ""
+
+#: luci/luci-theme-morse/htdocs/luci-static/resources/view/morse/sysauth.js:23
+msgid "Logging in…"
+msgstr ""
+
+#: luci/luci-theme-morse/luasrc/view/themes/morse/sysauth.htm:53
+msgid "Login"
+msgstr ""
+
+#: luci/luci-theme-morse/luasrc/view/themes/morse/header.htm:73
+msgid "No password set!"
+msgstr ""
+
+#: luci/luci-theme-morse/luasrc/view/themes/morse/sysauth.htm:36
+msgid "Password"
+msgstr ""
+
+#: luci/luci-theme-morse/luasrc/view/themes/morse/header.htm:66
+msgid "Region not set!"
+msgstr ""
+
+#: luci/luci-theme-morse/luasrc/view/themes/morse/header.htm:74
+msgid ""
+"There is no password set on this router. Please configure a root password to "
+"protect the web interface."
+msgstr ""
+
+#: luci/luci-theme-morse/luasrc/view/themes/morse/header.htm:67
+msgid ""
+"There is no region set for your morse interface. Please set your region "
+"first."
+msgstr ""
+
+#: luci/luci-theme-morse/luasrc/view/themes/morse/sysauth.htm:30
+msgid "Username"
+msgstr ""
+
+#: luci/luci-theme-morse/luasrc/view/themes/morse/header.htm:82
+msgid ""
+"You must enable JavaScript in your browser or LuCI will not work properly."
+msgstr ""

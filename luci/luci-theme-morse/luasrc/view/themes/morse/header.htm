@@ -1,0 +1,157 @@
+<%
+	local sys  = require "luci.sys"
+	local util = require "luci.util"
+	local http = require "luci.http"
+	local disp = require "luci.dispatcher"
+	local posix = require "nixio.fs"
+
+	local boardinfo = util.ubus("system", "board")
+
+	local node = disp.context.dispatched
+
+	-- send as HTML5
+	http.prepare_content("text/html")
+
+	local uci_cursor = luci.model.uci.cursor()
+
+	local morse_dev
+	luci.model.uci.cursor():foreach("wireless", "wifi-device",
+		function (section)
+			if section.type == "morse" then
+				morse_dev = section[".name"]
+			end
+		end
+	)
+
+	local morse_region = uci_cursor:get("wireless", morse_dev, "country")
+	local morse_bcf = uci_cursor:get("wireless", morse_dev, "bcf")
+
+	function is_morse_dev(dev)
+		if dev == "." or dev == ".." then
+			return false
+		end
+
+		local driver_path = "/sys/class/ieee80211/" .. dev .. "/device/driver/"
+		if posix.stat(driver_path, "type") ~= "dir" then
+			return false
+		end
+
+		local driver = posix.realpath(driver_path)
+		local driver_name = driver:match("/([^/]+)$")
+		return driver_name and driver_name:sub(1, 6) == "morse_"
+
+	end
+
+	local morse_no_otp = false
+	for dev in posix.dir("/sys/class/ieee80211/") do
+		if is_morse_dev(dev) then
+			local board_type_file = io.open("/sys/class/ieee80211/" .. dev .. "/device/board_type", "r")
+			if board_type_file then
+				local board_type = tonumber(board_type_file:read("*all"))
+				if board_type == 0 or board_type == 65535 then
+					morse_no_otp = true
+				end
+				board_type_file:close()
+			end
+		end
+	end
+
+	local user_configured = luci.model.uci.cursor():get("luci", "wizard", "used") ~= nil;
+	local virtual_wire = luci.sys.process.exec(
+		{"/sbin/persistent_vars_storage.sh", "READ", "mm_virtual_wire"},
+		true
+	).stdout == "1\n";
+-%>
+
+<!DOCTYPE html>
+<html lang="<%=luci.i18n.context.lang%>">
+	<head>
+		<meta charset="utf-8">
+		<title><%=striptags( (boardinfo.hostname or "?") .. ( (node and node.title) and ' - ' .. translate(node.title) or '')) %> - LuCI</title>
+		<meta name="viewport" content="initial-scale=1.0">
+		<link rel="stylesheet" href="<%=media%>/cascade.css">
+		<link rel="stylesheet" media="only screen and (max-width: 854px)" href="<%=media%>/mobile.css" type="text/css" />
+		<link rel="shortcut icon" href="<%=media%>/ICON-BLACK-FULL-White-fill-32x32.png">
+		<% if node and node.css then %>
+			<link rel="stylesheet" href="<%=resource%>/<%=node.css%>">
+		<% end -%>
+		<% if css then %>
+			<style title="text/css"><%= css %></style>
+		<% end -%>
+		<script src="<%=url('admin/translations', luci.i18n.context.lang)%><%# ?v=PKG_VERSION %>"></script>
+		<script src="<%=resource%>/cbi.js"></script>
+	</head>
+
+	<body class="lang_<%=luci.i18n.context.lang%> <% if node then %><%= striptags( node.title ) %><%- end %>" data-page="<%= pcdata(table.concat(disp.context.requestpath, "-")) %>">
+		<% if not blank_page then %>
+		<header>
+			<% if wizard then %>
+				<a class="brand" href="/cgi-bin/luci/">
+					<img src="<%=media%>/mmlogo.png" alt="Morse Micro">
+				</a>
+				<div id="header-space" style="flex-grow: 1"></div>
+				<div id="language-select"></div>
+				<button class="close"></button>
+			<%- else -%>
+				<input id="hamburger-toggle" class="hamburger hamburger-toggle" type="checkbox" />
+				<label class="hamburger hamburger-toggle-label" for="hamburger-toggle">
+					<div></div>
+					<div></div>
+					<div></div>
+				</label>
+				<a class="brand" href="/cgi-bin/luci/">
+					<img src="<%=media%>/mmlogo.png" alt="Morse Micro">
+				</a>
+				<!-- <a class="brand" href="/"><%=striptags(boardinfo.hostname or "?")%></a> //removed device name-->
+				<ul class="nav" id="topmenu"></ul>
+				<div id="header-space" style="flex-grow: 1"></div>
+				<div id="indicators"></div>
+				<div id="language-select"></div>
+			<% end -%>
+		</header>
+
+		<div id="maincontent" class="container">
+			<%- if not wizard then %>
+				<%- if not morse_region then -%>
+					<div class="alert-message warning">
+						<h4><%: Region not set! %></h4>
+						<p><%: There is no region set for your morse interface. Please set your region first. %></p>
+					</div>
+				<%- end -%>
+				<%- if luci.sys.process.info("uid") == 0 and luci.sys.user.getuser("root") and not luci.sys.user.getpasswd("root") then -%>
+					<!-- This div id is used in menu-morse.js to decide whether to render the logout option -->
+					<div id="password-warning" class="alert-message warning">
+						<h4><%:No password set!%></h4>
+						<p><%:There is no password set on this router. Please configure a root password to protect the web interface.%></p>
+						<div class="right"><a class="btn" href="<%=url("admin/system/admin")%>"><%:Go to password configuration...%></a></div>
+					</div>
+				<%- end -%>
+			<%- end -%>
+			<%- if morse_no_otp and not morse_bcf then -%>
+				<div id="bcf-warning" class="alert-message warning">
+					<h4><%:BCF may not be appropriate!%></h4>
+					<p><%:The BCF file on this device must be specified via UCI as the board type isn't set in the OTP bits. Currently, your HaLow device is using the non-functional failsafe BCF.%></p>
+				</div>
+			<%- end -%>
+			<%- if virtual_wire and not user_configured then -%>
+				<div class="alert-message warning warning-virtualwire">
+					<h4>
+						<%:Virtual Wire Device%>
+					</h4>
+					<p>
+						<%:This device is a virtual wire kit.
+						Saving any configuration will disable virtual wire mode.
+						A factory reset will restore virtual wire mode.%>
+					</p>
+				</div>
+			<%- end -%>
+
+			<noscript>
+				<div class="alert-message warning">
+					<h4><%:JavaScript required!%></h4>
+					<p><%:You must enable JavaScript in your browser or LuCI will not work properly.%></p>
+				</div>
+			</noscript>
+
+			<div id="tabmenu" style="display:none"></div>
+		<% end %>
