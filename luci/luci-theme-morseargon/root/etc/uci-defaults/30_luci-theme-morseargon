@@ -1,0 +1,12 @@
+#!/bin/sh
+
+if [ "$PKG_UPGRADE" != 1 ]; then
+	uci get luci.themes.MorseArgon >/dev/null 2>&1 || \
+	uci batch <<-EOF
+		set luci.themes.MorseArgon=/luci-static/morseargon
+		set luci.main.mediaurlbase=/luci-static/morseargon
+		commit luci
+	EOF
+fi
+
+exit 0
