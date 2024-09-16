@@ -1,0 +1,390 @@
+:root {
+	--max-content-width: 1250px;
+	--box-shadow: #e0e2e4;
+	--box-shadow-highlight: #a0a2a4;
+}
+
+morse-config-diagram {
+	margin: auto;
+}
+
+/* Settings icon for config link.
+ */
+.bs-icon {
+	display: block;
+	width: 20px;
+	height: 20px;
+	min-width: 20px;
+	min-height: 20px;
+}
+
+.bs-icon:hover {
+	cursor: pointer;
+	filter: invert(32%) sepia(70%) saturate(7405%) hue-rotate(273deg) brightness(81%) contrast(103%);
+}
+
+.bs-icon:focus {
+	filter: invert(32%) sepia(70%) saturate(7405%) hue-rotate(273deg) brightness(81%) contrast(103%);
+}
+
+.bs-icon-settings-cog {
+	background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-gear" viewBox="0 0 16 16"><path d="M8 4.754a3.246 3.246 0 1 0 0 6.492 3.246 3.246 0 0 0 0-6.492M5.754 8a2.246 2.246 0 1 1 4.492 0 2.246 2.246 0 0 1-4.492 0"/><path d="M9.796 1.343c-.527-1.79-3.065-1.79-3.592 0l-.094.319a.873.873 0 0 1-1.255.52l-.292-.16c-1.64-.892-3.433.902-2.54 2.541l.159.292a.873.873 0 0 1-.52 1.255l-.319.094c-1.79.527-1.79 3.065 0 3.592l.319.094a.873.873 0 0 1 .52 1.255l-.16.292c-.892 1.64.901 3.434 2.541 2.54l.292-.159a.873.873 0 0 1 1.255.52l.094.319c.527 1.79 3.065 1.79 3.592 0l.094-.319a.873.873 0 0 1 1.255-.52l.292.16c1.64.893 3.434-.902 2.54-2.541l-.159-.292a.873.873 0 0 1 .52-1.255l.319-.094c1.79-.527 1.79-3.065 0-3.592l-.319-.094a.873.873 0 0 1-.52-1.255l.16-.292c.893-1.64-.902-3.433-2.541-2.54l-.292.159a.873.873 0 0 1-1.255-.52zm-2.633.283c.246-.835 1.428-.835 1.674 0l.094.319a1.873 1.873 0 0 0 2.693 1.115l.291-.16c.764-.415 1.6.42 1.184 1.185l-.159.292a1.873 1.873 0 0 0 1.116 2.692l.318.094c.835.246.835 1.428 0 1.674l-.319.094a1.873 1.873 0 0 0-1.115 2.693l.16.291c.415.764-.42 1.6-1.185 1.184l-.291-.159a1.873 1.873 0 0 0-2.693 1.116l-.094.318c-.246.835-1.428.835-1.674 0l-.094-.319a1.873 1.873 0 0 0-2.692-1.115l-.292.16c-.764.415-1.6-.42-1.184-1.185l.159-.291A1.873 1.873 0 0 0 1.945 8.93l-.319-.094c-.835-.246-.835-1.428 0-1.674l.319-.094A1.873 1.873 0 0 0 3.06 4.377l-.16-.292c-.415-.764.42-1.6 1.185-1.184l.292.159a1.873 1.873 0 0 0 2.692-1.115z"/></svg>')
+}
+
+.bs-icon-arrows-angle-expand {
+	background-image: url('data:image/svg+xml, <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-arrows-angle-expand" viewBox="0 0 16 16"> <path fill-rule="evenodd" d="M5.828 10.172a.5.5 0 0 0-.707 0l-4.096 4.096V11.5a.5.5 0 0 0-1 0v3.975a.5.5 0 0 0 .5.5H4.5a.5.5 0 0 0 0-1H1.732l4.096-4.096a.5.5 0 0 0 0-.707m4.344-4.344a.5.5 0 0 0 .707 0l4.096-4.096V4.5a.5.5 0 1 0 1 0V.525a.5.5 0 0 0-.5-.5H11.5a.5.5 0 0 0 0 1h2.768l-4.096 4.096a.5.5 0 0 0 0 .707"/> </svg> ');
+}
+
+.bs-icon-x-lg {
+	background-image: url('data:image/svg+xml, <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16"> <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z"/> </svg>');
+}
+
+/* luci-theme-morseargon supports basic/advanced UI modes by setting
+ * the relevant classes on the body.
+ */
+body.uimode-normal {
+	a.advanced-config {
+		display: none;
+	}
+}
+
+body.uimode-advanced {
+	a.advanced-config {
+		display: block;
+	}
+}
+
+.cards {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+	grid-gap: 30px;
+	max-width: var(--max-content-width);
+	margin: auto;
+}
+
+.card {
+	display: flex;
+	flex-direction: column;
+	min-height: 340px;
+	text-decoration: none;
+	color: inherit;
+	background-color: var(--background-color-high);
+	border-radius: 0.25rem;
+	box-shadow: 0 0 1rem 0 var(--box-shadow);
+	transition: box-shadow  0.3s ease-in-out;
+	padding:  14px;
+
+	&.highlight {
+		box-shadow: 0 0 1rem 0 var(--box-shadow-highlight);
+	}
+
+	.header {
+		display: flex;
+		justify-content: space-between;
+		align-items: space-between;
+		gap: 4px;
+
+		.collapse {
+			display: none;
+		}
+	}
+
+	h1, h2, h3, h4, h5 {
+		color: inherit;
+		background-color: var(--background-color-high);
+	}
+
+	h1, h2, h3, h4 {
+		padding: 0;
+		box-shadow: none;
+		flex-grow: 1;
+	}
+
+	h4 {
+		margin: 0;
+	}
+
+	.small-contents {
+		display: flex;
+		flex-direction: column;
+		justify-content: space-between;
+		gap: 1rem;
+		height: 100%;
+
+		morse-config-diagram {
+			width: 100%;
+			cursor: pointer;
+			margin-bottom: 0px;
+		}
+	}
+
+	.max-contents {
+		display: none;
+		flex-direction: column;
+		gap: 1.5rem;
+
+		details {
+			summary {
+				cursor: pointer;
+				font-weight: bold;
+				font-size: 1rem;
+				margin-bottom: 0.5rem;
+			}
+
+			> dl {
+				border: 2px dotted lightgrey;
+				padding: 0.7rem;
+				gap: 0.8rem;
+			}
+
+			.cbi-section {
+				box-shadow: none;
+				padding: 0;
+				margin: 0;
+
+				.cbi-value-title, .cbi-value {
+					text-align: left;
+					padding: 0;
+					margin: 0;
+				}
+
+				.cbi-value-title {
+					width: 8rem;
+				}
+			}
+		}
+	}
+}
+
+.main-image {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+}
+
+.main-counter {
+	width: 100%;
+	color: var(--primary);
+	flex-direction: column;
+	gap: 1rem;
+	padding-bottom: 1rem;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	button {
+		line-height: inherit;
+		background: transparent;
+		border: 0;
+		padding: 0;
+		cursor: pointer;
+		color: inherit;
+
+		&:hover {
+			text-decoration: underline;
+		}
+	}
+
+	.big-number {
+		font-weight: bold;
+		font-size: 4rem;
+	}
+
+	.medium-number {
+		font-weight: bold;
+		font-size: 3rem;
+	}
+
+	.big-text {
+		font-size: 1.3rem;
+	}
+}
+
+.network-interfaces {
+	display: grid;
+	grid-template-columns: auto auto 1fr;
+	grid-auto-flow: row;
+	gap: 0.5rem 0.5rem;
+
+	> div {
+		display: flex;
+		align-items: center;
+	}
+
+	.network-name {
+		cursor: help;
+	}
+
+	.devices-box {
+		border: 2px dotted lightgray;
+		border-radius: 5px;
+	}
+}
+
+div.ifacebox {
+	margin: 0.3rem;
+	text-align: center;
+	cursor: help;
+	min-width: 4rem;
+
+	.ifacebox-head {
+		font-weight: bold;
+	}
+
+	.ifacebox-body {
+		padding: 0.4rem;
+
+		img {
+			image-rendering: pixelated;
+		}
+	}
+}
+
+dl {
+	display: grid;
+	grid-template-columns: auto 1fr;
+	grid-auto-flow: row;
+	gap: 4px 16px;
+}
+  
+dt {
+	font-weight: bold;
+	grid-column: 1;
+}
+  
+dd {
+	margin: 0;
+	grid-column: 2;
+}
+
+.titleinfo {
+	cursor: help;
+	text-decoration: dotted underline;
+}
+
+#networks .small-contents {
+	padding-top: 0.2rem;
+}
+
+#devicemode .small-contents {
+	justify-content: space-around;
+}
+
+#prplmesh-topology {
+	border: 1px dotted gray;
+	height: 600px;
+	margin-bottom: 10px;
+	position: relative;
+
+	div.graphbuttons {
+		position: absolute;
+		right: 0px;
+	}
+
+	div.graphbuttons button {
+		margin: 2px;
+	}
+
+	div.graphcontainer > svg {
+		cursor: grab;
+		width: 100%; height: 100%;
+	}
+
+	div.graphcontainer > svg line {
+		cursor: help;
+	}
+
+	div.graphcontainer > svg div.node {
+		border: 2px dotted black;
+		border-radius: 10px;
+		background: var(--background-color-high);
+		display: flex;
+		align-items: center;
+	}
+
+	div.graphcontainer > svg div.node > div {
+		padding: 4px;
+	}
+
+	div.graphcontainer > svg div.node-agent {
+		border: 3px dashed purple;
+	}
+
+	div.graphcontainer > svg div.node-controller {
+		border: 4px solid purple;
+	}
+
+	div.graphcontainer > svg div.node-disabled {
+		border-color: grey;
+		background: #F4F4F4;
+	}
+}
+
+/* The default modal_overlay takes over the whole screen, which we don't want
+ * for the card expansion (I think?), therefore we need to define a new modal.
+ */
+#homepage-modal-overlay {
+	position: absolute;
+	z-index: 900;
+	overflow-y: scroll;
+	transition: opacity 0.125s ease-in;
+	background: rgb(0 0 0 / 70%);
+	-webkit-overflow-scrolling: touch;
+	opacity: 0;
+	inset: 0 10000px 0 -10000px;
+
+	&.active {
+		left: 0;
+		right: 0;
+		height: 10000px;
+		opacity: 1;
+	}
+
+	.modal {
+		max-width: calc(var(--max-content-width) * 0.9);
+		padding: 0;
+		.card {
+			box-shadow: none;
+			height: auto;
+			display: flex;
+
+			.header .expand {
+				display: none;
+			}
+
+			.header .collapse {
+				display: block;
+			}
+
+			.small-contents {
+				display: none;
+			}
+
+			.max-contents {
+				display: flex;
+			}
+		}
+	}
+}
+
+.cbi-button.cbi-button-inline {
+	margin: 0;
+	padding: 0.05rem 0.75rem;
+	font-size: 90%;
+}
+
+/* Warning: we really wanted an eye, but I didn't want to bother including the svg manually, so
+ * I've currently tied this to the morseargon icons (i.e. it won't work with non-morseargon themes).
+ */
+.password-field {
+	span::before {
+		font-family: var(--icon-font) !important;
+		content: var(--eye) " ";
+	}
+
+	span {
+		cursor: pointer;
+		border-bottom: 2px dotted black;
+	}
+}
