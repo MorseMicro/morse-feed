@@ -1,0 +1,111 @@
+{
+    "admin/help/": {
+        "title": "Help",
+        "order": 998,
+
+        "action": {
+            "type": "firstchild"
+        }
+    },
+
+    "admin/help/regulatoryinfo": {
+        "title": "Regulatory Information",
+        "order": 2,
+        "action": {
+            "type": "view",
+            "path": "morse/morseregulatoryinfo"
+        },
+        "depends": {
+            "acl": [ "luci-app-morseconfig" ]
+        }
+    },
+
+    "admin/statistics": {
+        "title": "Statistics",
+        "order": 80,
+
+        "action": {
+            "type": "firstchild"
+        }
+    },
+
+    "admin/statistics/morse/logs": {
+        "title": "Logs",
+        "order": 1,
+        "action": {
+            "type": "view",
+            "path": "morse/morsestats"
+        }
+    },
+  
+    "admin/morse/landing": {
+        "order": 2,
+        "action": {
+            "type": "template",
+            "path": "morse/landing"
+        }
+    },
+
+    "admin/config": {
+        "title": "Quick Config",
+        "order": 2,
+        "action": {
+            "type": "view",
+            "path": "morse/config"
+        }
+    },
+
+    "admin/selectwizard": {
+        "title": "Wizards",
+        "order": 3,
+        "action": {
+            "type": "template",
+            "path": "morse/selectwizard",
+        }
+    },
+
+    "admin/morse/wizard": {
+        "order": 90,
+        "action": {
+            "type": "template",
+            "path": "morse/wizard",
+        }
+    },
+
+    "admin/morse/meshwizard": {
+        "order": 91,
+        "action": {
+            "type": "template",
+            "path": "morse/meshwizard",
+        }
+    },
+
+    "admin/morse/easymeshwizard": {
+        "order": 92,
+        "action": {
+            "type": "template",
+            "path": "morse/easymeshwizard",
+        }
+    },
+
+    "admin/statistics/morse": {
+        "title": "Morse",
+        "order": 2,
+        "action": {
+            "type": "alias",
+            "path": "admin/statistics/morse/logs"
+        },
+        "depends": {
+          "acl": [ "luci-app-morseconfig" ]
+        }
+    },
+
+    "admin/help/support": {
+        "title": "Support",
+        "order": 101,
+        "action": {
+            "type": "view",
+            "path": "morse/support"
+        }
+    }
+}

@@ -1,0 +1,1580 @@
+msgid ""
+msgstr "Content-Type: text/plain; charset=UTF-8\n"
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/morseregulatoryinfo.js:35
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/morseregulatoryinfo.js:36
+msgctxt "Percentage unit"
+msgid "%"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:686
+msgid "%s (%s) on %s"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:756
+msgid "%s exists in networks %s and %s"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:688
+msgid "%s on %s"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/morseregulatoryinfo.js:99
+msgid "* Channel not supported on the MM6108"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/morseregulatoryinfo.js:90
+msgctxt "A dropdown prompt for a country list filter"
+msgid "--- select country ---"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/meshwizard.js:683
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/wizard.js:688
+msgid "2.4 GHz Wi-Fi Access Point"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:384
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:385
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:554
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:556
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:560
+msgid "2.4GHz WiFi"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:44
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/selectwizard.js:57
+msgid "802.11s Mesh"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:396
+msgid "802.11s Mesh Settings"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/meshwizard.js:28
+msgid "802.11s Mesh Wizard"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:504
+msgid ""
+"802.11s Mesh can only be configured using the wizard or the normal wireless "
+"configuration pages."
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/meshwizard.js:563
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/meshwizard.js:700
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/wizard.js:363
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/wizard.js:455
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/wizard.js:610
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/wizard.js:706
+msgid "<abbr title=\"Service Set Identifier\">SSID</abbr>"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/wizard.js:422
+msgid ""
+"<b>DPP</b> (Device Provisioning Protocol) lets you scan a QR code to "
+"automatically connect to a HaLow access point."
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/morseregulatoryinfo.js:14
+msgid "AP Duty Cycle Per Hour"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:48
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:41
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/wizard.js:337
+msgid "Access Point"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/morsestats.js:61
+msgctxt "Prompting the user to take an action"
+msgid "Action"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:51
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:43
+msgid "Ad-Hoc"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:434
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:435
+msgid "Ad-Hoc Device"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:433
+msgid "Ad-Hoc HaLow Device"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:432
+msgid "Ad-Hoc<br>HaLow<br>Device"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:423
+msgid "Advanced - Wireless"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:59
+msgid "Agent"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/meshwizard.js:387
+msgid ""
+"All devices in the mesh must have the same <b>Mesh ID</b>, which is a "
+"arbitrary string that identifies the mesh similar to an SSID."
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/meshwizard.js:728
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/wizard.js:734
+msgid "Almost there..."
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/meshwizard.js:356
+msgid ""
+"An 802.11s <b>Mesh Gate</b> provides both a Mesh Point and a co-located non-"
+"mesh network (e.g. an AP, an upstream Ethernet connection, etc.). It "
+"broadcasts mesh gate announcements to help align the mesh nodes, making it "
+"easier for traffic to reach the non-mesh network."
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/meshwizard.js:357
+msgid "An 802.11s <b>Mesh Point</b> is a node in an 802.11s mesh network."
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:335
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/landing.js:156
+msgid "An error occurred while saving the form:"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/morsestats.js:33
+msgctxt "Statistics from a chip component"
+msgid "Application Statistics"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/landing.js:250
+msgid "Apply"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/wizard.js:319
+msgid ""
+"As with any Wi-Fi network, HaLow has <b>Clients</b> (also known as stations) "
+"which discover and connect to an <b>Access Point</b>. If you select client, "
+"non-HaLow devices can use the HaLow link by connecting to the other "
+"interfaces."
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/wizard.js:436
+msgid "Authentication method"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/wizard.js:353
+msgid ""
+"Available <b>Bandwidths</b> and <b>Channels</b> differ greatly across "
+"regions. The higher your bandwidth, the greater the potential throughput of "
+"the connection. If you're deploying multiple HaLow access points you may "
+"want to select distinct channels and a lower bandwidth to reduce "
+"interference."
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/meshwizard.js:416
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/morseregulatoryinfo.js:9
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/wizard.js:379
+msgctxt "Radio frequency bandwidth"
+msgid "Bandwidth"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:398
+msgid "Basic Wireless"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:165
+msgctxt "An interval for Wi-Fi beacon frames"
+msgid "Beacon Interval (ms)"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:167
+msgid "Beacon interval must be between 15 and 65535 ms"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/meshwizard.js:494
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/meshwizard.js:626
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/wizard.js:540
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/wizard.js:673
+msgid "Bridge"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:353
+msgid "Bridge - Off"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:352
+msgid "Bridge - On"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/meshwizard.js:620
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/wizard.js:667
+msgid "Bridge/Router"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:415
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:458
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:476
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:480
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:482
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:580
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:584
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:591
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:611
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:615
+msgid "Bridged"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:826
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:840
+msgid "Can't set two gateways!"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/morseregulatoryinfo.js:13
+msgctxt "Wi-Fi radio frequency"
+msgid "Center Frequency"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:160
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/meshwizard.js:449
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/wizard.js:413
+msgid "Channel"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/morseregulatoryinfo.js:10
+msgctxt "Wi-Fi radio channel index"
+msgid "Channel Center Frequency Index"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/meshwizard.js:729
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/wizard.js:735
+msgid "Click <b>Apply</b> to persist your configuration."
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/meshwizard.js:785
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/wizard.js:812
+msgid "Click below to exit the wizard"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/wpsbuttonelement.js:113
+msgid ""
+"Click this WPS (client) button to connect to an EasyMesh network. You must "
+"also push the normal WPS button on an existing Controller/Agent or Agent."
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/wpsbuttonelement.js:115
+msgid ""
+"Click this WPS button to allow another EasyMesh device to connect. You must "
+"also push the WPS (client) button on the new device."
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:49
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/wizard.js:338
+msgid "Client"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/support.js:41
+msgctxt "User action to close a dialog box"
+msgid "Close"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/support.js:85
+msgid ""
+"Collect a snapshot of the system for the purpose of debugging any issues "
+"experienced. This can be sent to the support team for further analysis."
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:292
+msgid "Configure security on the Wireless page. You may want to Save first."
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:293
+msgid "Configure..."
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/landing.js:212
+msgid "Confirmation"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/meshwizard.js:760
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/wizard.js:790
+msgid "Connect 2.4 GHz devices to your network."
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/meshwizard.js:766
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/wizard.js:796
+msgid "Connect Ethernet devices to your network."
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/wizard.js:771
+msgid ""
+"Connect another device via <b>2.4 GHz Wi-Fi</b> to use your new HaLow link."
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/meshwizard.js:746
+msgid ""
+"Connect another device via <b>2.4 GHz wifi</b> to use your new HaLow link."
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/wizard.js:765
+msgid "Connect another device via <b>Ethernet</b> to use your new HaLow link."
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/wizard.js:784
+msgid "Connect other HaLow-enabled devices to use your new HaLow network."
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/wizard.js:753
+msgid ""
+"Connect this device to your HaLow access point by scanning the QR code in "
+"the mobile application <br />"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/meshwizard.js:754
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/wizard.js:779
+msgid "Connect this device to your existing network via an Ethernet cable."
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/wizard.js:426
+msgid "Connect to a HaLow Network"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:58
+msgid "Controller/Agent (AP)"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:465
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/landing.js:184
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/morseregulatoryinfo.js:16
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/morseregulatoryinfo.js:110
+msgid "Country"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/morseregulatoryinfo.js:8
+msgctxt "ISO-3166 two character country code"
+msgid "Country Code"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/support.js:50
+msgid "Create Archive"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:260
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:767
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:188
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:254
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:262
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:366
+msgid "DHCP Client"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:233
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:310
+msgid "DHCP Range End"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:224
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:301
+msgid "DHCP Range Start"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:252
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:189
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:246
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:263
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:367
+msgid "DHCP Server"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:776
+msgid "DHCP/DNS"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:528
+msgid "DPP"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/wizard.js:441
+msgid "DPP (Device Provisioning Protocol)"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:130
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:135
+msgctxt "A button to start DPP"
+msgid "DPP Push Button"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:78
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:79
+msgid "DPP QR code"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:171
+msgctxt "An interval for Wi-Fi DTIM frames"
+msgid "DTIM Period"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:503
+msgid "Device"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:338
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/landing.js:159
+msgid "Dismiss"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:86
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:24
+msgid "Do I need to set a gateway?"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/support.js:34
+msgid "Download"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:76
+msgid "Easy Connect (DPP)"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:65
+msgid "EasyMesh"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:68
+msgctxt "EasyMesh feature disabled"
+msgid "EasyMesh - Off"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:67
+msgctxt "EasyMesh feature enabled"
+msgid "EasyMesh - On"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/meshwizard.js:648
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/meshwizard.js:691
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/wizard.js:697
+msgid "Enable Access Point"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/meshwizard.js:641
+msgid ""
+"Enable an <b>Access Point</b> (AP) on this mesh gate to let non-mesh HaLow "
+"devices connect to the network. This interface will be bridged with the mesh "
+"interface."
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:321
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:335
+msgid "Enable traffic forwarding"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:498
+msgid "Enabled"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:544
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/meshwizard.js:594
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/meshwizard.js:716
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/wizard.js:641
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/wizard.js:722
+msgid "Encryption"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/wizard.js:758
+msgid "Error: Unable to generate QR code locally."
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:378
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:380
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:382
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:389
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:550
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:552
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:558
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:699
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/meshwizard.js:546
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/wizard.js:593
+msgid "Ethernet"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:377
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:388
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:549
+msgid "Existing router"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/support.js:35
+msgid "Export snapshot"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/meshwizard.js:495
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/wizard.js:541
+msgid "Extender"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/support.js:42
+msgid "Failed to gather snapshot"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/wizard.js:421
+msgid "Fill in the credentials to connect to a HaLow Access Point."
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/meshwizard.js:772
+msgid ""
+"For advanced 802.11s mesh settings, you can navigate to Network->Wireless "
+"page once you exit the wizard"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:609
+msgid "Forward"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:859
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:383
+msgid "Gateway"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/support.js:19
+msgid "Getting snapshot..."
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/morseregulatoryinfo.js:12
+msgid "Global Operating Class (802.11 Table E-4)"
+msgstr ""
+
+#: luci/luci-app-morseconfig/root/usr/share/rpcd/acl.d/luci-app-morseconfig.json:3
+msgid "Grant access to Morse Single File configuration and supporting tools"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:102
+msgid "HaLow Ad-Hoc networks only support open encryption methods"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:372
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:373
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:411
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:412
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:425
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:426
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:430
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:438
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:547
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:548
+msgid "HaLow Client"
+msgstr ""
+
+#: luci/luci-app-morseconfig/root/usr/share/luci/menu.d/luci-app-morseconfig.json:61
+msgid "HaLow Config"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:944
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:950
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/landing.js:181
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/status/include/00_morsestatus.js:62
+msgid "HaLow Configuration"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:442
+msgid "HaLow Device"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:268
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/status/include/00_morsestatus.js:14
+msgid "HaLow IP Address"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:289
+msgid "HaLow IP Gateway"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:244
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:252
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:260
+msgid "HaLow IP Method"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:279
+msgid "HaLow IP Netmask"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/status/include/00_morsestatus.js:15
+msgid "HaLow MAC Address"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:402
+msgid "HaLow Mesh Agent"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/preload/morsemode.js:26
+msgid "HaLow Mode:"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/meshwizard.js:640
+msgid "HaLow Wi-Fi Access Point"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:429
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:437
+msgid "HaLow<br>Access<br>Point"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:441
+msgid "HaLow<br>Device"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:401
+msgid "HaLow<br>Mesh<br>Controller"
+msgstr ""
+
+#: luci/luci-app-morseconfig/root/usr/share/luci/menu.d/luci-app-morseconfig.json:3
+msgid "Help"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/landing.js:200
+msgid "Hostname"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/landing.js:200
+msgid "Hostname is used for many device id purposes, including DNS."
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/support.js:77
+msgid ""
+"I agree to send information (logs and debug command output) about this "
+"system and its configuration to Morse Micro servers when a problem is "
+"detected. This is for the purpose of debugging and improving the system, and "
+"is an optional feature."
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:373
+msgid "IP Address"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:361
+msgid "IP Method"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:408
+msgid "IP Settings"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:418
+msgid "IP Settings - Ethernet"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:413
+msgid "IP Settings - HaLow"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:840
+msgid "IPv4 address %s is in networks %s and %s"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:89
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:27
+msgid ""
+"If this interface is not the connection to external subnets, you don't need "
+"to set a gateway. Leave it blank."
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/meshwizard.js:511
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/wizard.js:557
+msgid ""
+"If you use a <b>Wi-Fi</b> upstream, fill in the Wi-Fi AP credentials. The "
+"HaLow connected devices obtain IP addresses from the DHCP server on this "
+"device, and this device uses NAT to forward IP traffic."
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/meshwizard.js:509
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/wizard.js:555
+msgid ""
+"If you use an <b>Ethernet</b> upstream, we recommend choosing <b>Bridge</b>. "
+"This allows HaLow connected devices to obtain IPs from your Ethernet network."
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/wizard.js:323
+msgid ""
+"In <b>Access Point</b> mode, the device can accept connections from HaLow "
+"clients."
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/meshwizard.js:516
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/wizard.js:562
+msgid ""
+"In <b>Bridge</b> mode this device and the HaLow connected devices obtain IP "
+"addresses from your current upstream network."
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/meshwizard.js:472
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/wizard.js:520
+msgid ""
+"In <b>Bridged</b> traffic mode, non-HaLow devices obtain IPs from your HaLow "
+"link."
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/wizard.js:324
+msgid ""
+"In <b>Client</b> mode, the device discovers and connects to a HaLow access "
+"point (AP)."
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/meshwizard.js:473
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/wizard.js:521
+msgid ""
+"In <b>Extender</b> traffic mode, non-HaLow devices obtain IPs from the DHCP "
+"server on this device and this device uses NAT to forward IP traffic."
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/meshwizard.js:514
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/wizard.js:560
+msgid ""
+"In <b>None</b> mode, your device will have a static IP address and run a "
+"DHCP server on all interfaces, the HaLow and non-HaLow networks will be "
+"isolated from each other."
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/meshwizard.js:470
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/wizard.js:518
+msgid ""
+"In <b>None</b> traffic mode, non-HaLow and HaLow networks are isolated. This "
+"device will use a static IP address and run a DHCP server on the non-HaLow "
+"interface."
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/meshwizard.js:518
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/wizard.js:564
+msgid ""
+"In <b>Router</b> mode the HaLow connected devices obtain IP addresses from "
+"the DHCP server on this device, and this device uses NAT to forward IP "
+"traffic."
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:376
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:390
+msgid "Internet"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:565
+msgid "Key/Security"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:379
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:381
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:383
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:551
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:553
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:557
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:559
+msgid "Laptop/Device"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/morsestats.js:60
+msgid "Log"
+msgstr ""
+
+#: luci/luci-app-morseconfig/root/usr/share/luci/menu.d/luci-app-morseconfig.json:36
+msgid "Logs"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/morsestats.js:28
+msgctxt "Statistics from a chip component"
+msgid "MAC Statistics"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/morseregulatoryinfo.js:33
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/morseregulatoryinfo.js:34
+msgctxt "Frequency unit"
+msgid "MHz"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/morseregulatoryinfo.js:22
+msgid "MM6108 compatibility"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/wizard.js:440
+msgid "Manual credentials"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:180
+msgctxt "A time period before a client is disassciated from a Wi-Fi network"
+msgid "Max Inactivity (1-65536)"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:182
+msgid "Max Inactivity must be between 1 and 65536"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/morseregulatoryinfo.js:21
+msgid "Maximum transmit time"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:569
+msgid "Mesh Gate"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/meshwizard.js:372
+msgid "Mesh Gate (Mesh Point with collocated network)"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:48
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/meshwizard.js:398
+msgid "Mesh ID"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:76
+msgid "Mesh Id: %s"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/meshwizard.js:368
+msgid "Mesh Mode"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/meshwizard.js:406
+msgid "Mesh Passphrase"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:374
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:375
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:562
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:563
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:602
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:50
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/meshwizard.js:371
+msgid "Mesh Point"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/meshwizard.js:47
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/meshwizard.js:51
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/wizard.js:47
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/wizard.js:51
+msgid "Missing critical configuration file"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:517
+msgid "Mode"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/wizard.js:334
+msgid "Mode selection"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:52
+msgid "Monitor"
+msgstr ""
+
+#: luci/luci-app-morseconfig/root/usr/share/luci/menu.d/luci-app-morseconfig.json:24
+msgid "Morse"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/support.js:76
+msgid "Morse Crash Reporter"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/morsestats.js:92
+msgid "Morse Statistics"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:603
+msgid "Name"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:848
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:378
+msgid "Netmask"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:508
+msgid "Network"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:594
+msgid "Network Interface"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:409
+msgid "Network Interfaces"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:653
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/wizard.js:476
+msgid "No Halow APs found."
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:53
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:242
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:700
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/meshwizard.js:493
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/meshwizard.js:545
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/meshwizard.js:602
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/wizard.js:539
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/wizard.js:592
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/wizard.js:649
+msgid "None"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:45
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:60
+msgid "Off"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/morseregulatoryinfo.js:18
+msgid "Omit control response frames from duty cycle"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:119
+msgid "Only ASCII characters"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:155
+msgid "Operating Bandwidth (MHz)"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/meshwizard.js:604
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/meshwizard.js:668
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/meshwizard.js:709
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/wizard.js:372
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/wizard.js:492
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/wizard.js:651
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/wizard.js:715
+msgid "Passphrase"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:115
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/landing.js:208
+msgid "Password"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:118
+msgid "Password should be between 8 and 63 characters."
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/morseregulatoryinfo.js:20
+msgid "Pause after transmit"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/morseregulatoryinfo.js:19
+msgid "Pause length after transmit"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:724
+msgid "Please <b>Save</b> your configuration to reveal the QR code."
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:470
+msgid "Preferred frequency"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:140
+msgctxt "Enable/disable a Wi-Fi security feature"
+msgid "Protected Management Frames"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:766
+msgid "Protocol"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:721
+msgid "QR Text"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/morsestats.js:68
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/morsestats.js:76
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/morsestats.js:84
+msgid "Read"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:72
+msgid "Region"
+msgstr ""
+
+#: luci/luci-app-morseconfig/root/usr/share/luci/menu.d/luci-app-morseconfig.json:12
+msgid "Regulatory Information"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/morseregulatoryinfo.js:108
+msgctxt "802.11ah Wi-Fi regulations"
+msgid "Regulatory Information"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/morsestats.js:69
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/morsestats.js:77
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/morsestats.js:85
+msgid "Reset"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/meshwizard.js:627
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/wizard.js:674
+msgid "Router"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/morseregulatoryinfo.js:11
+msgid "S1G Operating Class (802.11 Table E-5)"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:44
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:531
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:84
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:90
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:97
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/meshwizard.js:659
+msgid "SSID"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:86
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:93
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:100
+msgid "SSID should be between 1 and 32 characters."
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:72
+msgid "SSID: %s"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/morseregulatoryinfo.js:15
+msgid "STA Duty Cycle Per Hour"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:334
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/landing.js:155
+msgid "Save error"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/meshwizard.js:572
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/wizard.js:458
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/wizard.js:619
+msgid "Scan"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:717
+msgid "Scan this QR code with Morse Micro DPP app<br>to connect to AP."
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:778
+msgctxt "Requesting the user to set the region the device will operate in"
+msgid "Set your Region"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/wizard.js:352
+msgid "Setup HaLow Network - AP"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/meshwizard.js:386
+msgid "Setup Mesh Network"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/selectwizard.js:52
+msgid "Setup your device as a normal Access Point (AP) or Client (Station)."
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/selectwizard.js:58
+msgid ""
+"Setup your device as part of an 802.11s Mesh (either as a Mesh Point or a "
+"Mesh Gate)."
+msgstr ""
+
+#: luci/luci-app-morseconfig/root/usr/share/luci/menu.d/luci-app-morseconfig.json:107
+msgid "Shell"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/shell.js:14
+msgid ""
+"Shell access is currently not supported via https. <a href=\"%s\">Connect "
+"via http</a>."
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/support.js:84
+msgid "Snapshot"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/support.js:33
+msgid "Snapshot collected successfully."
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/support.js:73
+msgid "Snapshots"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/support.js:40
+msgid "Something went wrong, error:"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/selectwizard.js:51
+msgid "Standard WiFi HaLow"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/wpsbuttonelement.js:128
+msgid "Start WPS"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/wpsbuttonelement.js:128
+msgid "Start WPS (client)"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:230
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:307
+msgid "Start must be between 2 and DHCP Range End (%d)"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:239
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:316
+msgid "Start must be between DHCP Range Start (%d) and 254"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:190
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:247
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:255
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:264
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:368
+msgctxt "Always present"
+msgid "Static"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:768
+msgid "Static IP"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:42
+msgid "Station"
+msgstr ""
+
+#: luci/luci-app-morseconfig/root/usr/share/luci/menu.d/luci-app-morseconfig.json:95
+msgid "Statistics"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/wpsbuttonelement.js:92
+msgid "Stop WPS"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/support.js:71
+#: luci/luci-app-morseconfig/root/usr/share/luci/menu.d/luci-app-morseconfig.json:116
+msgid "Support"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/landing.js:197
+msgid "System Configuration"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:719
+msgid "The QR-Code could not be generated!"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/landing.js:185
+msgid ""
+"The country determines the capabilities of your HaLow network. "
+"<strong>Warning:</strong> If you are currently using HaLow, modifying this "
+"value may cause you to lose access to this device. For details, see the <a "
+"href=\"%s\" target=\"_blank\">regulatory data table</a>."
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:865
+msgid ""
+"The gateway address must not be the local IP address (usually you can leave "
+"this unset)."
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/support.js:20
+msgid "The system is gathering required information."
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:386
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:387
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:555
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:561
+msgid "This Device"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/meshwizard.js:684
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/wizard.js:689
+msgid ""
+"This HaLow device is also capable of 2.4 GHz Wi-Fi. If you enable a 2.4 GHz "
+"Wi-Fi <b>Access Point</b>, this device will run a DHCP server on the 2.4 GHz "
+"Wi-Fi interface and traffic will be forwarded with NAT."
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:527
+msgid ""
+"This enables DPP via QRCode for clients (access points automatically support "
+"DPP)."
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/meshwizard.js:29
+msgid ""
+"This wizard will guide you in setting up this device as part of an 802.11s "
+"mesh. <p>You can exit now if you prefer to complete your configuration "
+"manually.</p>"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/wizard.js:30
+msgid ""
+"This wizard will guide you in setting up your device as a simple <b>Client</"
+"b> or <b>Access Point</b>. <p>You can exit now if you prefer to complete "
+"your configuration manually.</p>"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/landing.js:226
+msgid "This wizard will guide you through the initial setup of this device."
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/meshwizard.js:737
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/wizard.js:743
+msgid ""
+"To access this admin interface after clicking <b>Apply</b>, you will need to "
+"find the IP address allocated by your network's DHCP server. If you lose "
+"access, see the <a target=\"_blank\" href=\"%s\">User Guide</a> for reset "
+"instructions."
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:325
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:339
+msgid "Traffic Forwarding - Off"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:324
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:338
+msgid "Traffic Forwarding - On"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:403
+msgid "Traffic Management"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/meshwizard.js:460
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/meshwizard.js:616
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/wizard.js:505
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/wizard.js:663
+msgid "Traffic Mode"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/meshwizard.js:487
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/wizard.js:533
+msgid "Traffic mode"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:87
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:25
+msgid ""
+"Traffic will be forwarded to the gateway when there is no available route."
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/morseregulatoryinfo.js:17
+msgctxt "A transmit power limit"
+msgid "Tx&nbsp;Power Max (EIRP in dBm)"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/morsestats.js:25
+msgctxt "Statistics from a chip component"
+msgid "UPhy Statistics"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/wpsbuttonelement.js:121
+msgid "Unable to read current WPS status."
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:710
+msgid "Unable to show QR code. QR code text isn't found."
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:682
+msgid "Unknown"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/meshwizard.js:522
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/wizard.js:568
+msgid "Upstream Network"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/meshwizard.js:540
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/wizard.js:587
+msgid "Upstream network"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:587
+msgid "WDS"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:63
+msgid "WEP Open System"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:64
+msgid "WEP Shared Key"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/meshwizard.js:600
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/meshwizard.js:718
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/wizard.js:647
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/wizard.js:724
+msgid "WPA-PSK"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/meshwizard.js:599
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/meshwizard.js:717
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/wizard.js:646
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/wizard.js:723
+msgid "WPA2-PSK"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/meshwizard.js:601
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/meshwizard.js:719
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/wizard.js:648
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/wizard.js:725
+msgid "WPA3-SAE"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/wpsbuttonelement.js:101
+msgid ""
+"Waiting to connect - make sure you push the WPS button on the other device."
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/wizard.js:506
+msgid ""
+"We recommend configuring this device as a <b>Bridge</b>. This allows non-"
+"HaLow devices to obtain IPs over your HaLow link. <p>However, if the HaLow "
+"Access Point you connect to does not have <abbr title=\"Wireless "
+"Distribution System\">WDS</abbr> (aka 4 address mode) enabled, select "
+"<b>Extender</b> to create a separate network for the non-HaLow devices. "
+"<em>All HaLow access points configured via this wizard have WDS enabled.</"
+"em> This device will run a DHCP server on the non-HaLow interfaces, and it "
+"will use NAT to forward IP traffic between HaLow and non-HaLow networks. "
+"<p>Choose <b>None</b> to keep the HaLow and non-HaLow networks isolated, "
+"this is the mode the device uses after factory reset."
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/meshwizard.js:461
+msgid ""
+"We recommend configuring this device as a <b>Bridge</b>. This allows non-"
+"HaLow devices to obtain IPs over your HaLow link. <p>To create a separate "
+"network for the HaLow and the non-HaLow devices select <b>Extender</b>. In "
+"which case, this device will run a DHCP server on the non-HaLow interfaces, "
+"and it will use NAT to forward IP traffic between HaLow and non-HaLow "
+"networks. <p>Choose <b>None</b> to keep the HaLow and non-HaLow networks "
+"isolated, this is the mode the device uses after factory reset."
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/landing.js:209
+msgid ""
+"We recommend setting a password. This will protect both the web interface "
+"and ssh access."
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/landing.js:225
+msgid "Welcome!"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:88
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:26
+msgid "When configured as a DHCP Server, the address is sent to DHCP clients."
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:350
+msgid ""
+"When enabled, the LAN and HaLow interfaces are joined to form a single "
+"network."
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:322
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:336
+msgid "When enabled, traffic is routed between the LAN and HaLow interfaces"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/meshwizard.js:548
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/wizard.js:595
+msgid "Wi-Fi (2.4 GHz)"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/wizard.js:29
+msgid "WiFi HaLow Wizard"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:195
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/status/include/00_morsestatus.js:12
+msgid "Wired IP Address"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:207
+msgid "Wired IP Gateway"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:186
+msgid "Wired IP Method"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/configpage.js:201
+msgid "Wired IP Netmask"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/status/include/00_morsestatus.js:13
+msgid "Wired MAC Address"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:675
+msgid "Wireless"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/meshwizard.js:784
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/wizard.js:811
+msgid "Wizard Complete"
+msgstr ""
+
+#: luci/luci-app-morseconfig/root/usr/share/luci/menu.d/luci-app-morseconfig.json:70
+msgid "Wizard Config"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/meshwizard.js:523
+msgid ""
+"You are using this HaLow device as a mesh gate, you should configure how it "
+"connects to the internet (or some other network). <p> If you choose <b>None</"
+"b>, your device will have a static IP address and run a DHCP server on all "
+"interfaces, the HaLow and non-HaLow networks will be isolated from each "
+"other. If you choose an upstream network, your HaLow and non-HaLow networks "
+"will be connected. </p>"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/wizard.js:569
+msgid ""
+"You are using this HaLow device as an access point, you should configure how "
+"it connects to the internet (or some other network). <p> If you choose "
+"<b>None</b>, your device will have a static IP address and run a DHCP server "
+"on all interfaces, the HaLow and non-HaLow networks will be isolated from "
+"each other. If you choose an upstream network, your HaLow and non-HaLow "
+"networks will be connected. <p>"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/meshwizard.js:354
+msgid ""
+"You can configure your device as a <b>Mesh Point</b> or a <b>Mesh Gate</b>, "
+"which is a Mesh Point with a co-located non-mesh network (e.g. an AP, an "
+"upstream Ethernet connection, etc.)."
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/meshwizard.js:773
+msgid ""
+"You can enable B.A.T.M.A.N for 802.11s mesh from the advanced 802.11s mesh "
+"settings"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/landing.js:227
+msgid "You can exit now if you'd prefer to configure manually."
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/wpsbuttonelement.js:139
+msgid "You must save the current mesh setting before starting WPS."
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/morseregulatoryinfo.js:37
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/morseregulatoryinfo.js:38
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/morseregulatoryinfo.js:39
+msgctxt "Millisecond time unit"
+msgid "ms"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:238
+msgid "via DPP"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/tools/morse/morsewizard.js:521
+msgid "Abort HaLow Configuration Wizard"
+msgstr "Abort HaLow Configuration Wizard"
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/tools/morse/morsewizard.js:795
+msgid "An error occurred while saving the form:"
+msgstr "An error occurred while saving the form:"
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/tools/morse/morsewizard.js:642
+msgid "Apply"
+msgstr "Apply"
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/tools/morse/morsewizard.js:814
+msgid "Applying configuration changes…"
+msgstr "Applying configuration changes…"
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/tools/morse/morsewizard.js:632
+msgctxt "Navigate backwards through a process"
+msgid "Back"
+msgstr "Back"
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/tools/morse/morsewizard.js:528
+msgid "Cancel"
+msgstr "Cancel"
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/tools/morse/morsewizard.js:513
+msgctxt "User action to close a dialog box"
+msgid "Close"
+msgstr "Close"
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/tools/morse/morsewizard.js:549
+msgid ""
+"Configuration incompatible with config wizard detected (%s). If you wish to "
+"use the wizard, you should <a href=\"%s\">reset or reflash your device</a>."
+msgstr ""
+"Configuration incompatible with config wizard detected (%s). If you wish to "
+"use the wizard, you should <a href=\"%s\">reset or reflash your device</a>."
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/tools/morse/morsewizard.js:758
+msgid "Dismiss"
+msgstr "Dismiss"
+
+#: luci/luci-app-morseconfig/root/usr/share/rpcd/acl.d/luci-app-morseconfig.json:3
+msgid "Grant access to configuration library and dependencies"
+msgstr "Grant access to configuration library and dependencies"
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/tools/morse/morsewizard.js:505
+msgid ""
+"It looks like the device has been configured as a DHCP client. Cannot "
+"redirect!"
+msgstr ""
+"It looks like the device has been configured as a DHCP client. Cannot "
+"redirect!"
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/tools/morse/morsewizard.js:646
+msgctxt "Exit a configuration wizard"
+msgid "Leave wizard"
+msgstr "Leave wizard"
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/tools/morse/morsewizard.js:522
+msgid ""
+"Leaving the wizard will discard any selections you've made. You can return "
+"to the wizard by going to the 'Morse' menu."
+msgstr ""
+"Leaving the wizard will discard any selections you've made. You can return "
+"to the wizard by going to the 'Morse' menu."
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/tools/morse/morsewizard.js:507
+msgid "Network changes detected!"
+msgstr "Network changes detected!"
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/tools/morse/morsewizard.js:637
+msgctxt "Navigate forwards through a process"
+msgid "Next"
+msgstr "Next"
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/tools/morse/morsewizard.js:506
+msgid ""
+"Oops, the URL <a href=http://%s>%s</a> doesn't appear to be reachable. "
+"Please check your network configuration and try again."
+msgstr ""
+"Oops, the URL <a href=http://%s>%s</a> doesn't appear to be reachable. "
+"Please check your network configuration and try again."
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/tools/morse/morsewizard.js:532
+msgid "Proceed"
+msgstr "Proceed"
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/tools/morse/device/remote.js:72
+msgid "RPC call to %s/%s failed with HTTP error %d: %s"
+msgstr "RPC call to %s/%s failed with HTTP error %d: %s"
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/tools/morse/morsewizard.js:798
+msgid "Reload"
+msgstr "Reload"
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/tools/morse/morsewizard.js:794
+msgid "Save error"
+msgstr "Save error"
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/tools/morse/morsewizard.js:755
+msgid "Selections not completed"
+msgstr "Selections not completed"

@@ -1,0 +1,341 @@
+<mxfile host="Electron" modified="2024-07-22T05:13:32.246Z" agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/24.6.4 Chrome/124.0.6367.207 Electron/30.0.6 Safari/537.36" etag="WEARvmvyjFz14Jz_O6V0" version="24.6.4" type="device">
+  <diagram name="Template" id="oneHeHX74wjatnCjrBri">
+    <mxGraphModel dx="2956" dy="669" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="IulhXAhDTtXNDePGMQHC-0" />
+        <mxCell id="IulhXAhDTtXNDePGMQHC-1" parent="IulhXAhDTtXNDePGMQHC-0" />
+        <object label="" group="GATE_SELECT" id="IulhXAhDTtXNDePGMQHC-3">
+          <mxCell style="rounded=1;whiteSpace=wrap;html=1;sketch=1;curveFitting=1;jiggle=2;shadow=0;glass=0;fillColor=#e1d5e7;strokeColor=#9673a6;" parent="IulhXAhDTtXNDePGMQHC-1" vertex="1">
+            <mxGeometry x="100" y="147.5" width="380" height="196" as="geometry" />
+          </mxCell>
+        </object>
+        <object label="" group="POINT_SELECT" id="IulhXAhDTtXNDePGMQHC-2">
+          <mxCell style="rounded=1;whiteSpace=wrap;html=1;sketch=1;curveFitting=1;jiggle=2;shadow=0;glass=0;fillColor=#e1d5e7;strokeColor=#9673a6;" parent="IulhXAhDTtXNDePGMQHC-1" vertex="1">
+            <mxGeometry x="570" y="145" width="300" height="200" as="geometry" />
+          </mxCell>
+        </object>
+        <object label="&lt;font style=&quot;font-size: 17px;&quot;&gt;&lt;b&gt;POINT_SELECT_TEXT&lt;/b&gt;&lt;/font&gt;" group="POINT_SELECT" slot="POINT_SELECT_TEXT" id="IulhXAhDTtXNDePGMQHC-53">
+          <mxCell style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="IulhXAhDTtXNDePGMQHC-1" vertex="1">
+            <mxGeometry x="557" y="115" width="110" height="30" as="geometry" />
+          </mxCell>
+        </object>
+        <mxCell id="IulhXAhDTtXNDePGMQHC-6" value="" style="group" parent="IulhXAhDTtXNDePGMQHC-1" vertex="1" connectable="0">
+          <mxGeometry x="763" y="375" width="100" height="55" as="geometry" />
+        </mxCell>
+        <object label="&lt;div&gt;POINT_MGMT_ETH_DEVICE&lt;/div&gt;" group="POINT_MGMT_ETH" slot="POINT_MGMT_ETH_DEVICE" id="IulhXAhDTtXNDePGMQHC-7">
+          <mxCell style="fontColor=#0066CC;verticalAlign=top;verticalLabelPosition=bottom;labelPosition=center;align=center;html=1;outlineConnect=0;fillColor=#CCCCCC;strokeColor=#6881B3;gradientColor=none;gradientDirection=north;strokeWidth=2;shape=mxgraph.networks.laptop;" parent="IulhXAhDTtXNDePGMQHC-6" vertex="1">
+            <mxGeometry width="100" height="55" as="geometry" />
+          </mxCell>
+        </object>
+        <object label="" group="GATE_UPLINK_WIFI24" id="IulhXAhDTtXNDePGMQHC-12">
+          <mxCell style="html=1;outlineConnect=0;fillColor=#CCCCCC;strokeColor=#6881B3;gradientColor=none;gradientDirection=north;strokeWidth=2;shape=mxgraph.networks.comm_link_edge;html=1;rounded=0;exitX=0.55;exitY=0;exitDx=0;exitDy=0;exitPerimeter=0;targetPerimeterSpacing=20;" parent="IulhXAhDTtXNDePGMQHC-1" target="IulhXAhDTtXNDePGMQHC-14" edge="1">
+            <mxGeometry width="100" height="100" relative="1" as="geometry">
+              <mxPoint x="287" y="190.5" as="sourcePoint" />
+              <mxPoint x="337" y="94.5" as="targetPoint" />
+              <Array as="points">
+                <mxPoint x="430" y="453.5" />
+                <mxPoint x="270" y="143.5" />
+              </Array>
+            </mxGeometry>
+          </mxCell>
+        </object>
+        <object label="GATE_UPLINK_WIFI24_LINK" group="GATE_UPLINK_WIFI24" slot="GATE_UPLINK_WIFI24_LINK" id="IulhXAhDTtXNDePGMQHC-13">
+          <mxCell style="edgeLabel;html=1;align=left;verticalAlign=middle;resizable=0;points=[];" parent="IulhXAhDTtXNDePGMQHC-12" vertex="1" connectable="0">
+            <mxGeometry x="0.8119" y="28" relative="1" as="geometry">
+              <mxPoint x="19" y="-30" as="offset" />
+            </mxGeometry>
+          </mxCell>
+        </object>
+        <object label="GATE_UPLINK_DEVICE" group="GATE_UPLINK" slot="GATE_UPLINK_DEVICE" id="IulhXAhDTtXNDePGMQHC-14">
+          <mxCell style="fontColor=#0066CC;verticalAlign=top;verticalLabelPosition=bottom;labelPosition=center;align=center;html=1;outlineConnect=0;fillColor=#CCCCCC;strokeColor=#6881B3;gradientColor=none;gradientDirection=north;strokeWidth=2;shape=mxgraph.networks.router;" parent="IulhXAhDTtXNDePGMQHC-1" vertex="1">
+            <mxGeometry x="161" y="45" width="100" height="30" as="geometry" />
+          </mxCell>
+        </object>
+        <UserObject label="" group="GATE_UPLINK_ETH" id="IulhXAhDTtXNDePGMQHC-15">
+          <mxCell style="curved=1;endArrow=none;html=1;rounded=0;startArrow=none;startFill=0;strokeWidth=4;endFill=0;targetPerimeterSpacing=30;sourcePerimeterSpacing=0;startSize=5;endSize=5;fillColor=#f5f5f5;strokeColor=#CCCCCC;" parent="IulhXAhDTtXNDePGMQHC-1" edge="1">
+            <mxGeometry width="50" height="50" relative="1" as="geometry">
+              <mxPoint x="280" y="240" as="sourcePoint" />
+              <mxPoint x="228.25" y="105" as="targetPoint" />
+              <Array as="points" />
+            </mxGeometry>
+          </mxCell>
+        </UserObject>
+        <object label="GATE_UPLINK_ETH_LINK" group="GATE_UPLINK_ETH" slot="GATE_UPLINK_ETH_LINK" id="IulhXAhDTtXNDePGMQHC-16">
+          <mxCell style="edgeLabel;html=1;align=left;verticalAlign=middle;resizable=0;points=[];" parent="IulhXAhDTtXNDePGMQHC-15" vertex="1" connectable="0">
+            <mxGeometry x="0.0671" y="4" relative="1" as="geometry">
+              <mxPoint x="-14" y="-54" as="offset" />
+            </mxGeometry>
+          </mxCell>
+        </object>
+        <UserObject label="" group="POINT_MGMT_ETH" id="IulhXAhDTtXNDePGMQHC-18">
+          <mxCell style="curved=1;endArrow=none;html=1;rounded=0;startArrow=none;startFill=0;strokeWidth=4;endFill=0;targetPerimeterSpacing=30;sourcePerimeterSpacing=10;startSize=5;endSize=5;fillColor=#f5f5f5;strokeColor=#CCCCCC;entryX=0.38;entryY=1.138;entryDx=0;entryDy=0;entryPerimeter=0;" parent="IulhXAhDTtXNDePGMQHC-1" source="IulhXAhDTtXNDePGMQHC-7" target="IulhXAhDTtXNDePGMQHC-33" edge="1">
+            <mxGeometry width="50" height="50" relative="1" as="geometry">
+              <mxPoint x="688.5" y="432.5" as="sourcePoint" />
+              <mxPoint x="688.5" y="307.5" as="targetPoint" />
+              <Array as="points" />
+            </mxGeometry>
+          </mxCell>
+        </UserObject>
+        <object label="POINT_MGMT_ETH_LINK" group="POINT_MGMT_ETH" slot="POINT_MGMT_ETH_LINK" id="IulhXAhDTtXNDePGMQHC-19">
+          <mxCell style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="IulhXAhDTtXNDePGMQHC-18" vertex="1" connectable="0">
+            <mxGeometry x="0.0671" y="4" relative="1" as="geometry">
+              <mxPoint x="32" y="-14" as="offset" />
+            </mxGeometry>
+          </mxCell>
+        </object>
+        <object label="GATE_HALOW_AP_CL2" group="GATE_HALOW_AP" slot="GATE_HALOW_AP_CL2" id="IulhXAhDTtXNDePGMQHC-21">
+          <mxCell style="verticalAlign=top;verticalLabelPosition=bottom;labelPosition=center;align=center;html=1;outlineConnect=0;fillColor=#e1d5e7;strokeColor=#9673a6;gradientDirection=north;strokeWidth=2;shape=mxgraph.networks.wireless_hub;" parent="IulhXAhDTtXNDePGMQHC-1" vertex="1">
+            <mxGeometry x="306.5" y="401" width="50" height="40" as="geometry" />
+          </mxCell>
+        </object>
+        <object label="POINT_HALOW_AP_CL1" group="POINT_HALOW_AP" slot="POINT_HALOW_AP_CL1" id="IulhXAhDTtXNDePGMQHC-22">
+          <mxCell style="verticalAlign=top;verticalLabelPosition=bottom;labelPosition=center;align=center;html=1;outlineConnect=0;fillColor=#e1d5e7;strokeColor=#9673a6;gradientDirection=north;strokeWidth=2;shape=mxgraph.networks.wireless_hub;" parent="IulhXAhDTtXNDePGMQHC-1" vertex="1">
+            <mxGeometry x="633" y="393.87" width="50" height="40" as="geometry" />
+          </mxCell>
+        </object>
+        <object label="" group="GATE_HALOW_AP" id="IulhXAhDTtXNDePGMQHC-26">
+          <mxCell style="shape=image;verticalLabelPosition=bottom;labelBackgroundColor=default;verticalAlign=top;aspect=fixed;imageAspect=0;image=data:image/svg+xml,PHN2ZyBpZD0ic3ZnODY5IiB2ZXJzaW9uPSIxLjEiIHZpZXdCb3g9IjAgMCAxNiAxNiIgY2xhc3M9ImJpIGJpLXdpZmkiIGZpbGw9ImN1cnJlbnRDb2xvciIgaGVpZ2h0PSIxNiIgd2lkdGg9IjE2IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPiYjeGE7ICA8bWV0YWRhdGEgaWQ9Im1ldGFkYXRhODc1Ij4mI3hhOyAgICAmI3hhOyAgICAgICYjeGE7ICAgICAgICBpbWFnZS9zdmcreG1sJiN4YTsgICAgICAgICYjeGE7ICAgICAgJiN4YTsgICAgJiN4YTsgIDwvbWV0YWRhdGE+JiN4YTsgIDxkZWZzIGlkPSJkZWZzODczIi8+JiN4YTsgICYjeGE7ICA8ZyBzdHlsZT0iZmlsbDojOTY3M2E2O2ZpbGwtb3BhY2l0eToxIiB0cmFuc2Zvcm09Im1hdHJpeCgwLjQ1ODM5NjA1LDAsMCwwLjU2MTU0NDgzLDQuMDkyNTY5OSwxLjA2OTIzNjgpIiBpZD0iZzQ1ODYiPiYjeGE7ICAgIDxwYXRoIGQ9Ik0gMTQuMjUyNjQ1LDUuODk1MzMwNiBBIDAuNDE1MTQ1NDMsMS4yMDAyNTcxIDAgMCAwIDE0LjIxMjQxNCw0LjA3MzkwOTUgMTAuNjUxNjksMzAuNzk1ODc1IDAgMCAwIDcuOTMyMTYyOSwtMS44MTM1MzczIGMgLTIuMzQ2MjEzNiwwIC00LjUxNjk1MzQsMi4xODI3MzU1OCAtNi4yODAyNTE1LDUuODg3NDQ2OCBhIDAuNDE1MTQ1NDMsMS4yMDAyNTcxIDAgMCAwIC0wLjA0MTA4NywxLjgyMTQyMTEgMC40NDMzOTI0MywxLjI4MTkyNDEgMCAwIDAgMC41NzE3ODgsMC4xMjM3Mzc4IDkuNzk5MTQ0NSwyOC4zMzEwMTggMCAwIDEgNS43NDk1NTAxLC01LjM1Nzg0ODggYyAyLjE0NTkxNjUsMCA0LjEzMTc2NjUsMS45ODQ3NTUxIDUuNzQ4Njk0NSw1LjM1NTM3NDEgMC4xNzU0NzQsMC4zNjYyNjQgMC40MTk0MjUsMC4zMjE3MTg0IDAuNTcxNzg4LC0wLjEyMTI2MzEgeiIgaWQ9InBhdGg4NjUiIHN0eWxlPSJmaWxsOiM5NjczYTY7ZmlsbC1vcGFjaXR5OjE7c3Ryb2tlLXdpZHRoOjEuNDU1NDQ0MSIvPiYjeGE7ICAgIDxwYXRoIGQ9Ik0gMTMuMjI5LDEyLjI4MjUzMiBBIDAuNDgyLDEuMzMzNDA4MSAwIDAgMCAxMy4xNjYsMTAuMjIxNTU5IDkuNDU1LDI2LjE1NjM3NyAwIDAgMCA4LDYuMDAwMDIyMyBjIC0xLjkwNSwwIC0zLjY4LDEuNTQ5MTg3OSAtNS4xNjYsNC4yMjE1MzY3IEEgMC40OCwxLjMyNzg3NTMgMCAwIDAgMi43NzEsMTIuMjgyNTMyIDAuNTI1LDEuNDUyMzYzNiAwIDAgMCAzLjQyMywxMi40NjIzNDkgOC40NiwyMy40MDM4MDIgMCAwIDEgOCw4Ljc2NjQyOTIgOC40NiwyMy40MDM4MDIgMCAwIDEgMTIuNTc2LDEyLjQ2MjM0OSBjIDAuMjA2LDAuMzY1MTY1IDAuNDgsMC4yOTg3NzIgMC42NTMsLTAuMTc5ODE3IHogbSAtMi4xODMsNi4wMzkwNjcgYyAwLjIyNiwtMC42MjUyMDggMC4xODUsLTEuNjczNjc3IC0wLjEsLTIuMDc0ODA2IEEgNi40NzMsMTcuOTA2OTUyIDAgMCAwIDgsMTQuMjk5MjQzIGMgLTEuMDYsMCAtMi4wNjIsMC43MDI2NjcgLTIuOTQ2LDEuOTQ3NTUgLTAuMjg1LDAuNDAxMTI5IC0wLjMyNiwxLjQ0OTU5OCAtMC4xLDIuMDc0ODA2IGwgMC4wMTUsMC4wNDE1IGMgMC4xNiwwLjQ0MjYyNSAwLjQwNywwLjUyNTYxNyAwLjYxMSwwLjI0ODk3NiBBIDUuNDc4LDE1LjE1NDM3NyAwIDAgMSA4LDE3LjA2NTY1IGMgMC44NjgsMCAxLjY5LDAuNTU2MDQ4IDIuNDIsMS41NDkxODggMC4yMDMsMC4yNzY2NCAwLjQ1LDAuMTkzNjQ4IDAuNjEsLTAuMjUxNzQzIHogTSA5LjA2LDIzLjgxNTY4MyBDIDkuMjU2LDIzLjI3MzQ2NyA5LjI1OCwyMi4zNzcxNTEgOS4wMiwyMS45ODk4NTQgQSAxLjk5LDUuNTA1MTQ5NyAwIDAgMCA4LDIxLjIxNTI2IDEuOTksNS41MDUxNDk3IDAgMCAwIDYuOTgsMjEuOTg5ODU0IGMgLTAuMjM4LDAuMzg3Mjk3IC0wLjIzNiwxLjI4MzYxMyAtMC4wNCwxLjgyNTgyOSBsIDAuNzA2LDEuOTUzMDgzIGEgMC41LDEuMzgzMjAzNCAwIDAgMCAwLjcwNywwIGwgMC43MDcsLTEuOTU1ODUgeiIgaWQ9InBhdGg4NjciIHN0eWxlPSJmaWxsOiM5NjczYTY7ZmlsbC1vcGFjaXR5OjE7c3Ryb2tlLXdpZHRoOjEuNjYzMjUxODgiLz4mI3hhOyAgPC9nPiYjeGE7PC9zdmc+;rotation=-160;" parent="IulhXAhDTtXNDePGMQHC-1" vertex="1">
+            <mxGeometry x="238" y="340.5" width="38.35" height="38.35" as="geometry" />
+          </mxCell>
+        </object>
+        <object label="" group="GATE_HALOW_AP" id="IulhXAhDTtXNDePGMQHC-27">
+          <mxCell style="shape=image;verticalLabelPosition=bottom;labelBackgroundColor=default;verticalAlign=top;aspect=fixed;imageAspect=0;image=data:image/svg+xml,PHN2ZyBpZD0ic3ZnODY5IiB2ZXJzaW9uPSIxLjEiIHZpZXdCb3g9IjAgMCAxNiAxNiIgY2xhc3M9ImJpIGJpLXdpZmkiIGZpbGw9ImN1cnJlbnRDb2xvciIgaGVpZ2h0PSIxNiIgd2lkdGg9IjE2IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPiYjeGE7ICA8bWV0YWRhdGEgaWQ9Im1ldGFkYXRhODc1Ij4mI3hhOyAgICAmI3hhOyAgICAgICYjeGE7ICAgICAgICBpbWFnZS9zdmcreG1sJiN4YTsgICAgICAgICYjeGE7ICAgICAgJiN4YTsgICAgJiN4YTsgIDwvbWV0YWRhdGE+JiN4YTsgIDxkZWZzIGlkPSJkZWZzODczIi8+JiN4YTsgICYjeGE7ICA8ZyBzdHlsZT0iZmlsbDojOTY3M2E2O2ZpbGwtb3BhY2l0eToxIiB0cmFuc2Zvcm09Im1hdHJpeCgwLjQ1ODM5NjA1LDAsMCwwLjU2MTU0NDgzLDQuMDkyNTY5OSwxLjA2OTIzNjgpIiBpZD0iZzQ1ODYiPiYjeGE7ICAgIDxwYXRoIGQ9Ik0gMTQuMjUyNjQ1LDUuODk1MzMwNiBBIDAuNDE1MTQ1NDMsMS4yMDAyNTcxIDAgMCAwIDE0LjIxMjQxNCw0LjA3MzkwOTUgMTAuNjUxNjksMzAuNzk1ODc1IDAgMCAwIDcuOTMyMTYyOSwtMS44MTM1MzczIGMgLTIuMzQ2MjEzNiwwIC00LjUxNjk1MzQsMi4xODI3MzU1OCAtNi4yODAyNTE1LDUuODg3NDQ2OCBhIDAuNDE1MTQ1NDMsMS4yMDAyNTcxIDAgMCAwIC0wLjA0MTA4NywxLjgyMTQyMTEgMC40NDMzOTI0MywxLjI4MTkyNDEgMCAwIDAgMC41NzE3ODgsMC4xMjM3Mzc4IDkuNzk5MTQ0NSwyOC4zMzEwMTggMCAwIDEgNS43NDk1NTAxLC01LjM1Nzg0ODggYyAyLjE0NTkxNjUsMCA0LjEzMTc2NjUsMS45ODQ3NTUxIDUuNzQ4Njk0NSw1LjM1NTM3NDEgMC4xNzU0NzQsMC4zNjYyNjQgMC40MTk0MjUsMC4zMjE3MTg0IDAuNTcxNzg4LC0wLjEyMTI2MzEgeiIgaWQ9InBhdGg4NjUiIHN0eWxlPSJmaWxsOiM5NjczYTY7ZmlsbC1vcGFjaXR5OjE7c3Ryb2tlLXdpZHRoOjEuNDU1NDQ0MSIvPiYjeGE7ICAgIDxwYXRoIGQ9Ik0gMTMuMjI5LDEyLjI4MjUzMiBBIDAuNDgyLDEuMzMzNDA4MSAwIDAgMCAxMy4xNjYsMTAuMjIxNTU5IDkuNDU1LDI2LjE1NjM3NyAwIDAgMCA4LDYuMDAwMDIyMyBjIC0xLjkwNSwwIC0zLjY4LDEuNTQ5MTg3OSAtNS4xNjYsNC4yMjE1MzY3IEEgMC40OCwxLjMyNzg3NTMgMCAwIDAgMi43NzEsMTIuMjgyNTMyIDAuNTI1LDEuNDUyMzYzNiAwIDAgMCAzLjQyMywxMi40NjIzNDkgOC40NiwyMy40MDM4MDIgMCAwIDEgOCw4Ljc2NjQyOTIgOC40NiwyMy40MDM4MDIgMCAwIDEgMTIuNTc2LDEyLjQ2MjM0OSBjIDAuMjA2LDAuMzY1MTY1IDAuNDgsMC4yOTg3NzIgMC42NTMsLTAuMTc5ODE3IHogbSAtMi4xODMsNi4wMzkwNjcgYyAwLjIyNiwtMC42MjUyMDggMC4xODUsLTEuNjczNjc3IC0wLjEsLTIuMDc0ODA2IEEgNi40NzMsMTcuOTA2OTUyIDAgMCAwIDgsMTQuMjk5MjQzIGMgLTEuMDYsMCAtMi4wNjIsMC43MDI2NjcgLTIuOTQ2LDEuOTQ3NTUgLTAuMjg1LDAuNDAxMTI5IC0wLjMyNiwxLjQ0OTU5OCAtMC4xLDIuMDc0ODA2IGwgMC4wMTUsMC4wNDE1IGMgMC4xNiwwLjQ0MjYyNSAwLjQwNywwLjUyNTYxNyAwLjYxMSwwLjI0ODk3NiBBIDUuNDc4LDE1LjE1NDM3NyAwIDAgMSA4LDE3LjA2NTY1IGMgMC44NjgsMCAxLjY5LDAuNTU2MDQ4IDIuNDIsMS41NDkxODggMC4yMDMsMC4yNzY2NCAwLjQ1LDAuMTkzNjQ4IDAuNjEsLTAuMjUxNzQzIHogTSA5LjA2LDIzLjgxNTY4MyBDIDkuMjU2LDIzLjI3MzQ2NyA5LjI1OCwyMi4zNzcxNTEgOS4wMiwyMS45ODk4NTQgQSAxLjk5LDUuNTA1MTQ5NyAwIDAgMCA4LDIxLjIxNTI2IDEuOTksNS41MDUxNDk3IDAgMCAwIDYuOTgsMjEuOTg5ODU0IGMgLTAuMjM4LDAuMzg3Mjk3IC0wLjIzNiwxLjI4MzYxMyAtMC4wNCwxLjgyNTgyOSBsIDAuNzA2LDEuOTUzMDgzIGEgMC41LDEuMzgzMjAzNCAwIDAgMCAwLjcwNywwIGwgMC43MDcsLTEuOTU1ODUgeiIgaWQ9InBhdGg4NjciIHN0eWxlPSJmaWxsOiM5NjczYTY7ZmlsbC1vcGFjaXR5OjE7c3Ryb2tlLXdpZHRoOjEuNjYzMjUxODgiLz4mI3hhOyAgPC9nPiYjeGE7PC9zdmc+;rotation=-190;" parent="IulhXAhDTtXNDePGMQHC-1" vertex="1">
+            <mxGeometry x="300.57000000000005" y="340.93" width="50.93" height="50.93" as="geometry" />
+          </mxCell>
+        </object>
+        <mxCell id="IulhXAhDTtXNDePGMQHC-28" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;exitPerimeter=0;" parent="IulhXAhDTtXNDePGMQHC-1" source="IulhXAhDTtXNDePGMQHC-21" target="IulhXAhDTtXNDePGMQHC-21" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="IulhXAhDTtXNDePGMQHC-29" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;exitPerimeter=0;" parent="IulhXAhDTtXNDePGMQHC-1" source="IulhXAhDTtXNDePGMQHC-21" target="IulhXAhDTtXNDePGMQHC-21" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <object label="POINT_MGMT_ETH_INT" group="POINT_MGMT_ETH" slot="POINT_MGMT_ETH_INT" id="IulhXAhDTtXNDePGMQHC-33">
+          <mxCell style="text;html=1;strokeColor=#9673a6;fillColor=#e1d5e7;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontSize=11;strokeWidth=1;sketch=1;curveFitting=1;jiggle=2;" parent="IulhXAhDTtXNDePGMQHC-1" vertex="1">
+            <mxGeometry x="756" y="245.5" width="108" height="40" as="geometry" />
+          </mxCell>
+        </object>
+        <object label="POINT_WIFI24_INT" group="POINT_WIFI24" slot="POINT_WIFI24_INT" id="IulhXAhDTtXNDePGMQHC-35">
+          <mxCell style="text;html=1;strokeColor=#9673a6;fillColor=#e1d5e7;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontSize=11;sketch=1;curveFitting=1;jiggle=2;" parent="IulhXAhDTtXNDePGMQHC-1" vertex="1">
+            <mxGeometry x="738" y="169.5" width="116" height="40" as="geometry" />
+          </mxCell>
+        </object>
+        <object label="POINT_HALOW_INT" group="POINT_HALOW" slot="POINT_HALOW_INT" id="IulhXAhDTtXNDePGMQHC-36">
+          <mxCell style="text;html=1;strokeColor=#9673a6;fillColor=#e1d5e7;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontSize=11;sketch=1;curveFitting=1;jiggle=2;" parent="IulhXAhDTtXNDePGMQHC-1" vertex="1">
+            <mxGeometry x="574" y="213.5" width="111" height="40" as="geometry" />
+          </mxCell>
+        </object>
+        <object label="GATE_HALOW_MESH_INT" group="GATE_HALOW_MESH" slot="GATE_HALOW_MESH_INT" id="IulhXAhDTtXNDePGMQHC-37">
+          <mxCell style="text;html=1;strokeColor=#9673a6;fillColor=#e1d5e7;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontSize=11;sketch=1;curveFitting=1;jiggle=2;" parent="IulhXAhDTtXNDePGMQHC-1" vertex="1">
+            <mxGeometry x="344" y="242.5" width="130" height="40" as="geometry" />
+          </mxCell>
+        </object>
+        <object label="GATE_MGMT_ETH_INT" group="GATE_MGMT_ETH" slot="GATE_MGMT_ETH_INT" id="IulhXAhDTtXNDePGMQHC-38">
+          <mxCell style="text;html=1;strokeColor=#9673a6;fillColor=#e1d5e7;align=right;verticalAlign=middle;whiteSpace=wrap;rounded=1;strokeWidth=1;fontSize=11;sketch=1;curveFitting=1;jiggle=2;" parent="IulhXAhDTtXNDePGMQHC-1" vertex="1">
+            <mxGeometry x="100" y="254" width="130" height="40" as="geometry" />
+          </mxCell>
+        </object>
+        <object label="GATE_UPLINK_ETH_INT" group="GATE_UPLINK_ETH" slot="GATE_UPLINK_ETH_INT" id="IulhXAhDTtXNDePGMQHC-39">
+          <mxCell style="text;html=1;strokeColor=#9673a6;fillColor=#e1d5e7;align=right;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontSize=11;sketch=1;curveFitting=1;jiggle=2;" parent="IulhXAhDTtXNDePGMQHC-1" vertex="1">
+            <mxGeometry x="130" y="201.5" width="130" height="40" as="geometry" />
+          </mxCell>
+        </object>
+        <object label="GATE_UPLINK_WIFI24_INT" group="GATE_UPLINK_WIFI24" slot="GATE_UPLINK_WIFI24_INT" id="IulhXAhDTtXNDePGMQHC-40">
+          <mxCell style="text;html=1;strokeColor=#9673a6;fillColor=#e1d5e7;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontSize=11;sketch=1;curveFitting=1;jiggle=2;" parent="IulhXAhDTtXNDePGMQHC-1" vertex="1">
+            <mxGeometry x="277" y="147.5" width="130" height="40" as="geometry" />
+          </mxCell>
+        </object>
+        <object label="&lt;b&gt;802.11ah&lt;br&gt;HaLow&lt;br&gt;Mesh&lt;br&gt;&lt;/b&gt;" group="POINT" id="IulhXAhDTtXNDePGMQHC-41">
+          <mxCell style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="IulhXAhDTtXNDePGMQHC-1" vertex="1">
+            <mxGeometry x="487" y="199.5" width="70" height="50" as="geometry" />
+          </mxCell>
+        </object>
+        <object label="&lt;p&gt;&lt;font style=&quot;font-size: 12px;&quot;&gt;DEVICE_POINT&lt;/font&gt;&lt;/p&gt;" group="POINT_SELECT" slot="DEVICE_POINT" id="IulhXAhDTtXNDePGMQHC-42">
+          <mxCell style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="IulhXAhDTtXNDePGMQHC-1" vertex="1">
+            <mxGeometry x="582" y="147.5" width="120" height="30" as="geometry" />
+          </mxCell>
+        </object>
+        <object label="&lt;font style=&quot;font-size: 12px;&quot;&gt;DEVICE_GATE&lt;/font&gt;" group="GATE_SELECT" slot="DEVICE_GATE" id="IulhXAhDTtXNDePGMQHC-43">
+          <mxCell style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="IulhXAhDTtXNDePGMQHC-1" vertex="1">
+            <mxGeometry x="109" y="147.5" width="130" height="30" as="geometry" />
+          </mxCell>
+        </object>
+        <object label="GATE_UPLINK_XIP" group="GATE_UPLINK" slot="GATE_UPLINK_XIP" id="IulhXAhDTtXNDePGMQHC-44">
+          <mxCell style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="IulhXAhDTtXNDePGMQHC-1" vertex="1">
+            <mxGeometry x="263" y="42.5" width="127" height="30" as="geometry" />
+          </mxCell>
+        </object>
+        <object label="POINT_MGMT_ETH_XIP" group="POINT_MGMT_ETH" slot="POINT_MGMT_ETH_XIP" id="IulhXAhDTtXNDePGMQHC-45">
+          <mxCell style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="IulhXAhDTtXNDePGMQHC-1" vertex="1">
+            <mxGeometry x="731" y="446" width="164" height="30" as="geometry" />
+          </mxCell>
+        </object>
+        <UserObject label="" group="GATE_MGMT_ETH" id="IulhXAhDTtXNDePGMQHC-47">
+          <mxCell style="curved=1;endArrow=none;html=1;rounded=0;startArrow=none;startFill=0;strokeWidth=4;endFill=0;targetPerimeterSpacing=30;sourcePerimeterSpacing=10;startSize=5;endSize=5;fillColor=#f5f5f5;strokeColor=#CCCCCC;entryX=0.75;entryY=1;entryDx=0;entryDy=0;" parent="IulhXAhDTtXNDePGMQHC-1" source="IulhXAhDTtXNDePGMQHC-50" target="IulhXAhDTtXNDePGMQHC-38" edge="1">
+            <mxGeometry width="50" height="50" relative="1" as="geometry">
+              <mxPoint x="460" y="422.5" as="sourcePoint" />
+              <mxPoint x="243" y="323.5" as="targetPoint" />
+              <Array as="points" />
+            </mxGeometry>
+          </mxCell>
+        </UserObject>
+        <object label="GATE_MGMT_ETH_LINK" group="GATE_MGMT_ETH" slot="GATE_MGMT_ETH_LINK" id="IulhXAhDTtXNDePGMQHC-48">
+          <mxCell style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="IulhXAhDTtXNDePGMQHC-47" vertex="1" connectable="0">
+            <mxGeometry x="0.0671" y="4" relative="1" as="geometry">
+              <mxPoint x="-2" y="8" as="offset" />
+            </mxGeometry>
+          </mxCell>
+        </object>
+        <mxCell id="IulhXAhDTtXNDePGMQHC-54" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;exitPerimeter=0;" parent="IulhXAhDTtXNDePGMQHC-1" source="IulhXAhDTtXNDePGMQHC-22" target="IulhXAhDTtXNDePGMQHC-22" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <UserObject label="" id="IulhXAhDTtXNDePGMQHC-49">
+          <mxCell style="group" parent="IulhXAhDTtXNDePGMQHC-1" vertex="1" connectable="0">
+            <mxGeometry x="70" y="390" width="100" height="55" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <object label="GATE_MGMT_ETH_DEVICE" group="GATE_MGMT_ETH" slot="GATE_MGMT_ETH_DEVICE" id="IulhXAhDTtXNDePGMQHC-50">
+          <mxCell style="fontColor=#0066CC;verticalAlign=top;verticalLabelPosition=bottom;labelPosition=center;align=center;html=1;outlineConnect=0;fillColor=#CCCCCC;strokeColor=#6881B3;gradientColor=none;gradientDirection=north;strokeWidth=2;shape=mxgraph.networks.laptop;" parent="IulhXAhDTtXNDePGMQHC-49" vertex="1">
+            <mxGeometry x="-40" y="-19.16" width="100" height="55" as="geometry" />
+          </mxCell>
+        </object>
+        <object label="GATE_MGMT_ETH_XIP" group="GATE_MGMT_ETH" slot="GATE_MGMT_ETH_XIP" id="IulhXAhDTtXNDePGMQHC-51">
+          <mxCell style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="IulhXAhDTtXNDePGMQHC-1" vertex="1">
+            <mxGeometry y="340.5" width="142" height="30" as="geometry" />
+          </mxCell>
+        </object>
+        <object label="POINT_WIFI24_DEVICE" group="POINT_WIFI24" slot="POINT_WIFI24_DEVICE" id="IulhXAhDTtXNDePGMQHC-9">
+          <mxCell style="fontColor=#0066CC;verticalAlign=top;verticalLabelPosition=bottom;labelPosition=center;align=center;html=1;outlineConnect=0;fillColor=#CCCCCC;strokeColor=#6881B3;gradientColor=none;gradientDirection=north;strokeWidth=2;shape=mxgraph.networks.laptop;" parent="IulhXAhDTtXNDePGMQHC-1" vertex="1">
+            <mxGeometry x="759" y="42.5" width="100" height="55" as="geometry" />
+          </mxCell>
+        </object>
+        <object label="" group="POINT_WIFI24" id="IulhXAhDTtXNDePGMQHC-10">
+          <mxCell style="html=1;outlineConnect=0;fillColor=#CCCCCC;strokeColor=#6881B3;gradientColor=none;gradientDirection=north;strokeWidth=2;shape=mxgraph.networks.comm_link_edge;html=1;rounded=0;sourcePerimeterSpacing=0;targetPerimeterSpacing=20;" parent="IulhXAhDTtXNDePGMQHC-1" edge="1">
+            <mxGeometry width="100" height="100" relative="1" as="geometry">
+              <mxPoint x="728.7416201117319" y="201.5" as="sourcePoint" />
+              <mxPoint x="750" y="120" as="targetPoint" />
+            </mxGeometry>
+          </mxCell>
+        </object>
+        <object label="&lt;p&gt;&lt;font style=&quot;font-size: 12px;&quot;&gt;GATE_WIFI24_XIP&lt;/font&gt;&lt;/p&gt;" group="GATE_WIFI24" slot="GATE_WIFI24_XIP" id="IulhXAhDTtXNDePGMQHC-11">
+          <mxCell style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="IulhXAhDTtXNDePGMQHC-1" vertex="1">
+            <mxGeometry x="511" y="53" width="120" height="30" as="geometry" />
+          </mxCell>
+        </object>
+        <object label="GATE_DESC" slot="GATE_DESC" id="IulhXAhDTtXNDePGMQHC-4">
+          <mxCell style="verticalAlign=top;verticalLabelPosition=bottom;labelPosition=center;align=center;html=1;outlineConnect=0;fillColor=#e1d5e7;strokeColor=#9673a6;gradientDirection=north;strokeWidth=2;shape=mxgraph.networks.wireless_hub;fontSize=12;" parent="IulhXAhDTtXNDePGMQHC-1" vertex="1">
+            <mxGeometry x="238" y="192.5" width="100" height="85" as="geometry" />
+          </mxCell>
+        </object>
+        <object label="POINT_DESC" slot="POINT_DESC" group="POINT" id="IulhXAhDTtXNDePGMQHC-5">
+          <mxCell style="verticalAlign=top;verticalLabelPosition=bottom;labelPosition=center;align=center;html=1;outlineConnect=0;fillColor=#e1d5e7;strokeColor=#9673a6;gradientDirection=north;strokeWidth=2;shape=mxgraph.networks.wireless_hub;fontSize=12;labelBackgroundColor=none;labelBorderColor=none;" parent="IulhXAhDTtXNDePGMQHC-1" vertex="1">
+            <mxGeometry x="653" y="199.5" width="100" height="85" as="geometry" />
+          </mxCell>
+        </object>
+        <object label="&lt;div&gt;POINT_WIFI24_LINK&lt;/div&gt;" group="POINT_WIFI24" slot="POINT_WIFI24_LINK" id="IulhXAhDTtXNDePGMQHC-17">
+          <mxCell style="edgeLabel;html=1;align=right;verticalAlign=middle;resizable=0;points=[];" parent="IulhXAhDTtXNDePGMQHC-1" vertex="1" connectable="0">
+            <mxGeometry x="920.997207456327" y="158.50239457568415" as="geometry">
+              <mxPoint x="-76" y="-27" as="offset" />
+            </mxGeometry>
+          </mxCell>
+        </object>
+        <object label="GATE_WIFI24_INT" group="GATE_WIFI24" slot="GATE_WIFI24_INT" id="R9p38fF2jwn0xRpW_Cbg-2">
+          <mxCell style="text;html=1;strokeColor=#9673a6;fillColor=#e1d5e7;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontSize=11;sketch=1;curveFitting=1;jiggle=2;imageAspect=1;" parent="IulhXAhDTtXNDePGMQHC-1" vertex="1">
+            <mxGeometry x="328" y="190.5" width="116" height="40" as="geometry" />
+          </mxCell>
+        </object>
+        <object label="" group="GATE_WIFI24" id="R9p38fF2jwn0xRpW_Cbg-4">
+          <mxCell style="html=1;outlineConnect=0;fillColor=#CCCCCC;strokeColor=#6881B3;gradientColor=none;gradientDirection=north;strokeWidth=2;shape=mxgraph.networks.comm_link_edge;html=1;rounded=0;sourcePerimeterSpacing=0;targetPerimeterSpacing=20;exitX=0.75;exitY=0;exitDx=0;exitDy=0;" parent="IulhXAhDTtXNDePGMQHC-1" source="R9p38fF2jwn0xRpW_Cbg-2" edge="1">
+            <mxGeometry width="100" height="100" relative="1" as="geometry">
+              <mxPoint x="410.0016201117319" y="187.5" as="sourcePoint" />
+              <mxPoint x="460" y="118.5" as="targetPoint" />
+            </mxGeometry>
+          </mxCell>
+        </object>
+        <object label="GATE_WIFI24_LINK" group="GATE_WIFI24" slot="GATE_WIFI24_LINK" id="f1LH3PB-_ZYXccllSD4o-1">
+          <mxCell style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="R9p38fF2jwn0xRpW_Cbg-4" vertex="1" connectable="0">
+            <mxGeometry x="0.2759" y="-3" relative="1" as="geometry">
+              <mxPoint x="13" y="-11" as="offset" />
+            </mxGeometry>
+          </mxCell>
+        </object>
+        <object label="GATE_WIFI24_DEVICE" group="GATE_WIFI24" slot="GATE_WIFI24_DEVICE" id="R9p38fF2jwn0xRpW_Cbg-5">
+          <mxCell style="fontColor=#0066CC;verticalAlign=top;verticalLabelPosition=bottom;labelPosition=center;align=center;html=1;outlineConnect=0;fillColor=#CCCCCC;strokeColor=#6881B3;gradientColor=none;gradientDirection=north;strokeWidth=2;shape=mxgraph.networks.laptop;" parent="IulhXAhDTtXNDePGMQHC-1" vertex="1">
+            <mxGeometry x="422" y="42.5" width="100" height="55" as="geometry" />
+          </mxCell>
+        </object>
+        <object label="&lt;p&gt;&lt;font style=&quot;font-size: 12px;&quot;&gt;POINT_WIFI24_XIP&lt;/font&gt;&lt;/p&gt;" group="POINT_WIFI24" slot="POINT_WIFI24_XIP" id="R9p38fF2jwn0xRpW_Cbg-6">
+          <mxCell style="text;html=1;strokeColor=none;fillColor=none;align=right;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="IulhXAhDTtXNDePGMQHC-1" vertex="1">
+            <mxGeometry x="652.65" y="42.5" width="120" height="30" as="geometry" />
+          </mxCell>
+        </object>
+        <object label="GATE_HALOW_AP_INT" group="GATE_HALOW_AP" slot="GATE_HALOW_AP_INT" id="R9p38fF2jwn0xRpW_Cbg-8">
+          <mxCell style="text;html=1;strokeColor=#9673a6;fillColor=#e1d5e7;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontSize=11;sketch=1;curveFitting=1;jiggle=2;" parent="IulhXAhDTtXNDePGMQHC-1" vertex="1">
+            <mxGeometry x="223" y="300.93" width="130" height="40" as="geometry" />
+          </mxCell>
+        </object>
+        <object label="OTHER_POINT_DESC" slot="OTHER_POINT_DESC" group="OTHER_POINT" id="R9p38fF2jwn0xRpW_Cbg-10">
+          <mxCell style="verticalAlign=top;verticalLabelPosition=bottom;labelPosition=center;align=center;html=1;outlineConnect=0;fillColor=#e1d5e7;strokeColor=#9673a6;gradientDirection=north;strokeWidth=2;shape=mxgraph.networks.wireless_hub;fontSize=12;labelBackgroundColor=none;labelBorderColor=none;" parent="IulhXAhDTtXNDePGMQHC-1" vertex="1">
+            <mxGeometry x="446" y="409" width="100" height="85" as="geometry" />
+          </mxCell>
+        </object>
+        <mxCell id="R9p38fF2jwn0xRpW_Cbg-25" value="" style="shape=flexArrow;endArrow=classic;startArrow=classic;html=1;rounded=0;fillColor=#e1d5e7;strokeColor=#9673a6;" parent="IulhXAhDTtXNDePGMQHC-1" edge="1">
+          <mxGeometry width="100" height="100" relative="1" as="geometry">
+            <mxPoint x="487.00189368770754" y="402" as="sourcePoint" />
+            <mxPoint x="399" y="294" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="R9p38fF2jwn0xRpW_Cbg-26" value="" style="shape=flexArrow;endArrow=classic;startArrow=classic;html=1;rounded=0;fillColor=#e1d5e7;strokeColor=#9673a6;" parent="IulhXAhDTtXNDePGMQHC-1" edge="1">
+          <mxGeometry width="100" height="100" relative="1" as="geometry">
+            <mxPoint x="536" y="402" as="sourcePoint" />
+            <mxPoint x="626" y="292" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="R9p38fF2jwn0xRpW_Cbg-27" value="" style="shape=flexArrow;endArrow=classic;startArrow=classic;html=1;rounded=0;fillColor=#e1d5e7;strokeColor=#9673a6;exitX=-0.007;exitY=0.585;exitDx=0;exitDy=0;exitPerimeter=0;" parent="IulhXAhDTtXNDePGMQHC-1" source="IulhXAhDTtXNDePGMQHC-2" edge="1">
+          <mxGeometry width="100" height="100" relative="1" as="geometry">
+            <mxPoint x="505" y="428" as="sourcePoint" />
+            <mxPoint x="480" y="260" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <object label="GATE_UPLINK_SOURCE" group="GATE_UPLINK" slot="GATE_UPLINK_SOURCE" id="-6RDewJCPy8s6rmZ0lge-0">
+          <mxCell style="html=1;outlineConnect=0;fillColor=#CCCCCC;strokeColor=#6881B3;gradientColor=none;gradientDirection=north;strokeWidth=2;shape=mxgraph.networks.cloud;fontColor=#ffffff;" parent="IulhXAhDTtXNDePGMQHC-1" vertex="1">
+            <mxGeometry x="19" y="35" width="90" height="50" as="geometry" />
+          </mxCell>
+        </object>
+        <UserObject label="" group="GATE_UPLINK" id="-6RDewJCPy8s6rmZ0lge-1">
+          <mxCell style="curved=1;endArrow=none;html=1;rounded=0;startArrow=none;startFill=0;strokeWidth=4;endFill=0;targetPerimeterSpacing=30;sourcePerimeterSpacing=0;startSize=5;endSize=5;fillColor=#f5f5f5;strokeColor=#CCCCCC;" parent="IulhXAhDTtXNDePGMQHC-1" edge="1">
+            <mxGeometry width="50" height="50" relative="1" as="geometry">
+              <mxPoint x="150" y="60" as="sourcePoint" />
+              <mxPoint x="120" y="60" as="targetPoint" />
+              <Array as="points" />
+            </mxGeometry>
+          </mxCell>
+        </UserObject>
+        <mxCell id="-6RDewJCPy8s6rmZ0lge-3" value="&lt;br&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="-6RDewJCPy8s6rmZ0lge-1" vertex="1" connectable="0">
+          <mxGeometry y="-3" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <object label="POINT_HALOW_AP_INT" group="POINT_HALOW_AP" slot="POINT_HALOW_AP_INT" id="ND1V-cbZyNVW2CCfw9Sj-0">
+          <mxCell style="text;html=1;strokeColor=#9673a6;fillColor=#e1d5e7;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontSize=11;sketch=1;curveFitting=1;jiggle=2;" parent="IulhXAhDTtXNDePGMQHC-1" vertex="1">
+            <mxGeometry x="635" y="305" width="130" height="40" as="geometry" />
+          </mxCell>
+        </object>
+        <object label="GATE_HALOW_AP_CL1" group="GATE_HALOW_AP" slot="GATE_HALOW_AP_CL1" id="ND1V-cbZyNVW2CCfw9Sj-3">
+          <mxCell style="verticalAlign=top;verticalLabelPosition=bottom;labelPosition=center;align=center;html=1;outlineConnect=0;fillColor=#e1d5e7;strokeColor=#9673a6;gradientDirection=north;strokeWidth=2;shape=mxgraph.networks.wireless_hub;" parent="IulhXAhDTtXNDePGMQHC-1" vertex="1">
+            <mxGeometry x="210" y="385.87" width="50" height="40" as="geometry" />
+          </mxCell>
+        </object>
+        <object label="" group="POINT_HALOW_AP" id="ND1V-cbZyNVW2CCfw9Sj-6">
+          <mxCell style="shape=image;verticalLabelPosition=bottom;labelBackgroundColor=default;verticalAlign=top;aspect=fixed;imageAspect=0;image=data:image/svg+xml,PHN2ZyBpZD0ic3ZnODY5IiB2ZXJzaW9uPSIxLjEiIHZpZXdCb3g9IjAgMCAxNiAxNiIgY2xhc3M9ImJpIGJpLXdpZmkiIGZpbGw9ImN1cnJlbnRDb2xvciIgaGVpZ2h0PSIxNiIgd2lkdGg9IjE2IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPiYjeGE7ICA8bWV0YWRhdGEgaWQ9Im1ldGFkYXRhODc1Ij4mI3hhOyAgICAmI3hhOyAgICAgICYjeGE7ICAgICAgICBpbWFnZS9zdmcreG1sJiN4YTsgICAgICAgICYjeGE7ICAgICAgJiN4YTsgICAgJiN4YTsgIDwvbWV0YWRhdGE+JiN4YTsgIDxkZWZzIGlkPSJkZWZzODczIi8+JiN4YTsgICYjeGE7ICA8ZyBzdHlsZT0iZmlsbDojOTY3M2E2O2ZpbGwtb3BhY2l0eToxIiB0cmFuc2Zvcm09Im1hdHJpeCgwLjQ1ODM5NjA1LDAsMCwwLjU2MTU0NDgzLDQuMDkyNTY5OSwxLjA2OTIzNjgpIiBpZD0iZzQ1ODYiPiYjeGE7ICAgIDxwYXRoIGQ9Ik0gMTQuMjUyNjQ1LDUuODk1MzMwNiBBIDAuNDE1MTQ1NDMsMS4yMDAyNTcxIDAgMCAwIDE0LjIxMjQxNCw0LjA3MzkwOTUgMTAuNjUxNjksMzAuNzk1ODc1IDAgMCAwIDcuOTMyMTYyOSwtMS44MTM1MzczIGMgLTIuMzQ2MjEzNiwwIC00LjUxNjk1MzQsMi4xODI3MzU1OCAtNi4yODAyNTE1LDUuODg3NDQ2OCBhIDAuNDE1MTQ1NDMsMS4yMDAyNTcxIDAgMCAwIC0wLjA0MTA4NywxLjgyMTQyMTEgMC40NDMzOTI0MywxLjI4MTkyNDEgMCAwIDAgMC41NzE3ODgsMC4xMjM3Mzc4IDkuNzk5MTQ0NSwyOC4zMzEwMTggMCAwIDEgNS43NDk1NTAxLC01LjM1Nzg0ODggYyAyLjE0NTkxNjUsMCA0LjEzMTc2NjUsMS45ODQ3NTUxIDUuNzQ4Njk0NSw1LjM1NTM3NDEgMC4xNzU0NzQsMC4zNjYyNjQgMC40MTk0MjUsMC4zMjE3MTg0IDAuNTcxNzg4LC0wLjEyMTI2MzEgeiIgaWQ9InBhdGg4NjUiIHN0eWxlPSJmaWxsOiM5NjczYTY7ZmlsbC1vcGFjaXR5OjE7c3Ryb2tlLXdpZHRoOjEuNDU1NDQ0MSIvPiYjeGE7ICAgIDxwYXRoIGQ9Ik0gMTMuMjI5LDEyLjI4MjUzMiBBIDAuNDgyLDEuMzMzNDA4MSAwIDAgMCAxMy4xNjYsMTAuMjIxNTU5IDkuNDU1LDI2LjE1NjM3NyAwIDAgMCA4LDYuMDAwMDIyMyBjIC0xLjkwNSwwIC0zLjY4LDEuNTQ5MTg3OSAtNS4xNjYsNC4yMjE1MzY3IEEgMC40OCwxLjMyNzg3NTMgMCAwIDAgMi43NzEsMTIuMjgyNTMyIDAuNTI1LDEuNDUyMzYzNiAwIDAgMCAzLjQyMywxMi40NjIzNDkgOC40NiwyMy40MDM4MDIgMCAwIDEgOCw4Ljc2NjQyOTIgOC40NiwyMy40MDM4MDIgMCAwIDEgMTIuNTc2LDEyLjQ2MjM0OSBjIDAuMjA2LDAuMzY1MTY1IDAuNDgsMC4yOTg3NzIgMC42NTMsLTAuMTc5ODE3IHogbSAtMi4xODMsNi4wMzkwNjcgYyAwLjIyNiwtMC42MjUyMDggMC4xODUsLTEuNjczNjc3IC0wLjEsLTIuMDc0ODA2IEEgNi40NzMsMTcuOTA2OTUyIDAgMCAwIDgsMTQuMjk5MjQzIGMgLTEuMDYsMCAtMi4wNjIsMC43MDI2NjcgLTIuOTQ2LDEuOTQ3NTUgLTAuMjg1LDAuNDAxMTI5IC0wLjMyNiwxLjQ0OTU5OCAtMC4xLDIuMDc0ODA2IGwgMC4wMTUsMC4wNDE1IGMgMC4xNiwwLjQ0MjYyNSAwLjQwNywwLjUyNTYxNyAwLjYxMSwwLjI0ODk3NiBBIDUuNDc4LDE1LjE1NDM3NyAwIDAgMSA4LDE3LjA2NTY1IGMgMC44NjgsMCAxLjY5LDAuNTU2MDQ4IDIuNDIsMS41NDkxODggMC4yMDMsMC4yNzY2NCAwLjQ1LDAuMTkzNjQ4IDAuNjEsLTAuMjUxNzQzIHogTSA5LjA2LDIzLjgxNTY4MyBDIDkuMjU2LDIzLjI3MzQ2NyA5LjI1OCwyMi4zNzcxNTEgOS4wMiwyMS45ODk4NTQgQSAxLjk5LDUuNTA1MTQ5NyAwIDAgMCA4LDIxLjIxNTI2IDEuOTksNS41MDUxNDk3IDAgMCAwIDYuOTgsMjEuOTg5ODU0IGMgLTAuMjM4LDAuMzg3Mjk3IC0wLjIzNiwxLjI4MzYxMyAtMC4wNCwxLjgyNTgyOSBsIDAuNzA2LDEuOTUzMDgzIGEgMC41LDEuMzgzMjAzNCAwIDAgMCAwLjcwNywwIGwgMC43MDcsLTEuOTU1ODUgeiIgaWQ9InBhdGg4NjciIHN0eWxlPSJmaWxsOiM5NjczYTY7ZmlsbC1vcGFjaXR5OjE7c3Ryb2tlLXdpZHRoOjEuNjYzMjUxODgiLz4mI3hhOyAgPC9nPiYjeGE7PC9zdmc+;rotation=-160;" parent="IulhXAhDTtXNDePGMQHC-1" vertex="1">
+            <mxGeometry x="663.65" y="345" width="38.35" height="38.35" as="geometry" />
+          </mxCell>
+        </object>
+        <object label="&lt;font style=&quot;font-size: 17px;&quot;&gt;&lt;b&gt;GATE_SELECT_TEXT&lt;/b&gt;&lt;/font&gt;" group="GATE_SELECT" slot="GATE_SELECT_TEXT" id="IulhXAhDTtXNDePGMQHC-52">
+          <mxCell style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="IulhXAhDTtXNDePGMQHC-1" vertex="1">
+            <mxGeometry x="90" y="117.5" width="110" height="30" as="geometry" />
+          </mxCell>
+        </object>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
