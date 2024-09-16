@@ -1,0 +1,139 @@
+/*!
+ * LuCI Morse UI Element Additions
+ *
+ */
+ :root {
+	--morse-border-color-high: var(--border-color-high, hsl(0, 0%, 75%));
+	--morse-background-color-low: var(--background-color-low, hsl(0, 0%, 96%));
+	--morse-background-color-high: var(--background-color-high, hsl(0, 0%, 100%));
+	--morse-primary-color-low: var(--primary-color-low,  #601489);
+	--morse-primary-color-medium:  var(--primary-color-medium, #7719aa);
+	--morse-primary-color-high: var(--primary-color-high, #901ece);
+	--morse-text-color-low:  var(--text-color-low, hsl(0, 0%, 20%));
+ }
+
+.morse-switch {
+	position: relative;
+	display: inline-block;
+	width: 50px;
+	height: 24px;
+}
+
+.morse-switch input {
+	opacity: 0;
+	width: 0;
+	height: 0;
+}
+
+.morse-slider {
+	position: absolute;
+	cursor: pointer;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: var(--morse-border-color-high);
+	-webkit-transition: .4s;
+	transition: .4s;
+}
+  
+.morse-slider:before {
+	position: absolute;
+	content: "";
+	height: 18px;
+	width: 18px;
+	left: 4px;
+	bottom: 3px;
+	background-color: var(--morse-background-color-high);
+	-webkit-transition: .4s;
+	transition: .4s;
+}
+  
+input:checked + .morse-slider {
+	background-color: var(--morse-primary-color-medium);
+}
+  
+input:focus + .morse-slider {
+	box-shadow: 0 0 1px var(--morse-primary-color-medium);
+}
+  
+input:checked + .morse-slider:before {
+	-webkit-transform: translateX(24px);
+	-ms-transform: translateX(24px);
+	transform: translateX(24px);
+}
+
+.morse-slider.round {
+	border-radius: 24px;
+}
+  
+.morse-slider.round:before {
+	border-radius: 50%;
+} 
+
+.morse-toggle input[type="radio"] {
+	opacity: 0;
+    width: 0;
+}
+
+.morse-toggle label {
+  background: linear-gradient(var(--morse-background-color-high), 
+  								var(--morse-background-color-high,) 25%, 
+								var(--morse-background-color-low));
+  color: var(--morse-primary-color-high);
+  border: 1px solid var(--morse-primary-color-high);
+  min-width: 155px;
+  padding: 7px 10px; /* Some padding */
+  cursor: pointer; /* Pointer/hand icon */
+  float: left; /* Float the buttons side by side */
+  text-align: center;
+  
+  transition: box-shadow 0.2s ease;
+  -webkit-transition: box-shadow 0.2s ease;
+  -moz-transition: box-shadow 0.2s ease;
+  -o-transition: box-shadow 0.2s ease;
+  -ms-transition: box-shadow 0.2s ease;
+}
+
+@media screen and (max-width: 600px) {
+	.morse-toggle label {
+		min-width: auto;
+	}
+}
+
+/* Clear floats (clearfix hack) */
+.morse-toggle:after {
+  content: "";
+  clear: both;
+  display: table;
+}
+
+
+.morse-toggle label:not(:last-of-type) {
+  border-right: none; /* Prevent double borders */
+}
+
+.morse-toggle label:first-of-type {
+    border-radius: 4px 0 0 4px;
+}
+
+.morse-toggle label:last-of-type {
+    border-radius: 0 4px 4px 0;
+}
+
+/* Add a background color on hover */
+.morse-toggle label:hover {
+  box-shadow: 0 0 10px var(--morse-primary-color-high);
+  z-index: -1 !important;
+}
+
+.morse-toggle input[type="radio"]:focus + label {
+  box-shadow: 0 0 10px var(--morse-primary-color-high);
+  z-index: -1 !important;
+}
+
+.morse-toggle input[type="radio"]:checked + label {
+	box-shadow: none;
+    background:linear-gradient(var(--morse-primary-color-low), var(--morse-primary-color-medium));
+    color: var(--morse-text-color-low);
+}

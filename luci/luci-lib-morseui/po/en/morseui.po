@@ -1,0 +1,54 @@
+msgid ""
+msgstr "Content-Type: text/plain; charset=UTF-8\n"
+
+#: luci/luci-lib-morseui/htdocs/luci-static/resources/tools/morse/morseui.js:572
+msgid ""
+"Applying configuration changes %ds. The page will reload on successful "
+"reconnect"
+msgstr ""
+
+#: luci/luci-lib-morseui/htdocs/luci-static/resources/tools/morse/morseui.js:578
+msgid ""
+"Couldn't reconnect to device. If you've set your device to DHCP Client, or "
+"changed the device subnet, you may need to reconnect manually."
+msgstr ""
+
+#: luci/luci-lib-morseui/htdocs/luci-static/resources/tools/morse/morseui.js:620
+msgid ""
+"Necessary sections not found. Reset your configuration to re-enable this "
+"menu!"
+msgstr ""
+
+#: luci/luci-lib-morseui/htdocs/luci-static/resources/tools/morse/morseui.js:614
+msgid "Page can't load! Missing configuration sections."
+msgstr ""
+
+#: luci/luci-lib-morseui/htdocs/luci-static/resources/tools/morse/morseui.js:619
+msgid "Reset"
+msgstr ""
+
+#: luci/luci-lib-morseui/htdocs/luci-static/resources/tools/morse/morseui.js:624
+msgid "Reset Configuration"
+msgstr ""
+
+#: luci/luci-lib-morseui/htdocs/luci-static/resources/tools/morse/morseui.js:571
+msgid "Saving"
+msgstr ""
+
+#: luci/luci-lib-morseui/htdocs/luci-static/resources/tools/morse/morseui.js:727
+#: luci/luci-lib-morseui/htdocs/luci-static/resources/tools/morse/morseui.js:728
+msgid "Scan for wifi networks"
+msgstr ""
+
+#: luci/luci-lib-morseui/htdocs/luci-static/resources/tools/morse/morseui.js:44
+#: luci/luci-lib-morseui/htdocs/luci-static/resources/tools/morse/morseui.js:67
+msgid "Start"
+msgstr ""
+
+#: luci/luci-lib-morseui/htdocs/luci-static/resources/tools/morse/morseui.js:21
+msgid "The input doesn't seem to be a valid IPv4 address!"
+msgstr ""
+
+#: luci/luci-lib-morseui/htdocs/luci-static/resources/tools/morse/morseui.js:577
+msgid "Unable to reconnect"
+msgstr ""
