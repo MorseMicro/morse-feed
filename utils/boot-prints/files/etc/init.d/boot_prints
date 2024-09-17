@@ -1,0 +1,10 @@
+#!/bin/sh /etc/rc.common
+
+START=99
+start() {
+	(
+		# Wait so that the network settles, including association/DHCP client.
+		sleep 20
+		/morse/scripts/boot_prints.sh > /dev/kmsg
+	) & 
+}
