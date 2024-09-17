@@ -1,0 +1,233 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: none\n"
+"Language: ja\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Poedit 3.4.1\n"
+
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:402
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:433
+msgid "<br> New image is of format:"
+msgstr "<br>新しい画像の形式は次のとおりです:"
+
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:151
+msgid "Already up to date"
+msgstr "すでに最新です"
+
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:275
+msgid "Cancel"
+msgstr "キャンセル"
+
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:491
+msgid "Checking for updates"
+msgstr "アップデートを確認しています"
+
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:165
+msgid "Checking image…"
+msgstr "画像を確認しています…"
+
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:385
+msgid "Configuration error occurred. Can not use upgrade service"
+msgstr "設定エラーが発生しました。アップグレードサービスが利用できません"
+
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:249
+msgid "Continue"
+msgstr "続行"
+
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:145
+msgid "Couldn't access the MorseMicro image server"
+msgstr "MorseMicro画像サーバーにアクセスできませんでした"
+
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:393
+msgid "Data received:"
+msgstr "受信済みデータ:"
+
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:481
+msgid "Download and Upgrade"
+msgstr "ダウンロードとアップグレード"
+
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:150
+msgid "Download completed successfully"
+msgstr "ダウンロードが正常に完了しました"
+
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:144
+msgid "Download failed"
+msgstr "ダウンロードが失敗しました"
+
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:406
+msgid "Download failed with code %s."
+msgstr "ダウンロードが失敗しました（コード %s）。"
+
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:148
+msgid "Download started"
+msgstr "ダウンロードが開始されました"
+
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:213
+msgid "Error details:"
+msgstr "エラーの詳細:"
+
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:153
+msgid "File available on MorseMicro image server"
+msgstr "MorseMicro画像サーバーで利用可能なファイル"
+
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:288
+msgid "Flash image?"
+msgstr "画像をフラッシュ？"
+
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:295
+msgid "Flashing…"
+msgstr "フラッシュ中…"
+
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:262
+msgid "Force upgrade"
+msgstr "強制アップグレード"
+
+#: luci/luci-app-morseupgrade/root/usr/share/rpcd/acl.d/luci-app-morseupgrade.json:3
+msgid "Grant access to configuration library and dependencies"
+msgstr "設定ライブラリと依存関係へのアクセスを許可する"
+
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:332
+msgid "HTTP Request failed with code %s."
+msgstr "HTTPリクエストが失敗しました（コード %s)。"
+
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:253
+msgid "Image check failed."
+msgstr "画像チェックが失敗しました。"
+
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:242
+msgid ""
+"Include in backup a list of current installed packages at /etc/backup/"
+"installed_packages.txt"
+msgstr ""
+"現在インストールされているパッケージのリスト/etc/backup/installed_packages."
+"txtをバックアップに含める"
+
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:142
+msgid "Invalid arguments passed to ubus"
+msgstr "無効な引数がubusに渡されました"
+
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:208
+msgid ""
+"It appears that you are trying to flash an image that does not fit into the "
+"flash memory, please verify the image file!"
+msgstr ""
+"フラッシュメモリー向けではない画像ファイルをフラッシュしようとしているようで"
+"す。画像ファイルをご確認ください!"
+
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:200
+msgid "Keep settings and retain the current configuration"
+msgstr "設定を維持し、現在の設定を保持します"
+
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:195
+msgid "MD5"
+msgstr "MD5"
+
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:496
+msgid "Morse Upgrade"
+msgstr "Morseのアップグレード"
+
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:403
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:434
+msgid "New firmware version available: %s"
+msgstr "利用可能な新しいファームウェアバージョン: %s"
+
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:147
+msgid "No image found"
+msgstr "画像が見つかりません"
+
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:143
+msgid "No images found for the current device"
+msgstr "現在のデバイス用の画像が見つかりません"
+
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:149
+msgid "Previous download in progress"
+msgstr "以前のダウンロードが進行中です"
+
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:440
+msgid "Ready to upgrade!"
+msgstr "アップグレードの準備ができました!"
+
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:196
+msgid "SHA256"
+msgstr "SHA256"
+
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:154
+msgid "SHA256 OK"
+msgstr "SHA256 OK"
+
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:264
+msgid ""
+"Select 'Force upgrade' to flash the image even if the image format check "
+"fails. Use only if you are sure that the firmware is correct and meant for "
+"your device!"
+msgstr ""
+"\"強制アップグレード\"を選択すると、画像形式のチェックが失敗した場合でも画像"
+"がフラッシュします。ファームウェアが正しく、お使いのデバイス向けであることが"
+"確実な場合にのみご使用ください!"
+
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:194
+msgid "Size"
+msgstr "サイズ"
+
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:237
+msgid "Skip from backup files that are equal to those in /rom"
+msgstr "/romにあるバックアップファイルと同じバックアップファイルからスキップ"
+
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:192
+msgid ""
+"The flash image was uploaded. Below is the checksum and file size listed, "
+"compare them with the original file to ensure data integrity. <br /> Click "
+"'Continue' below to start the flash procedure."
+msgstr ""
+"フラッシュ画像をアップロードしました。以下にチェックサムとファイルサイズを示"
+"します。元のファイルと比較して、データの整合性を確認してください。<br />フ"
+"ラッシュ手順を開始するには、下の「続行」をクリックします。"
+
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:296
+msgid ""
+"The system is flashing now.<br /> DO NOT POWER OFF THE DEVICE!<br /> Wait a "
+"few minutes before you try to reconnect. It might be necessary to renew the "
+"address of your computer to reach the device again, depending on your "
+"settings."
+msgstr ""
+"システムが現在フラッシュしています。<br />デバイスの電源を切らないでくださ"
+"い。<br />数分待ってから再接続してください。設定によっては、デバイスに再度ア"
+"クセスするためにコンピューターのアドレスを更新する必要がある場合があります。"
+
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:228
+msgid "The uploaded firmware does not allow keeping current configuration."
+msgstr "アップロードされたファームウェアでは、現在の設定を維持できません。"
+
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:220
+msgid ""
+"The uploaded image file does not contain a supported format. If you are "
+"using EKH01 make sure that you HAVEN'T decompressed the image before "
+"uploading."
+msgstr ""
+"アップロードされた画像ファイルには、サポートされている形式が含まれていませ"
+"ん。EKH01を使用している場合は、アップロードする前に画像を解凍しないようにして"
+"ください。"
+
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:487
+#: luci/luci-app-morseupgrade/root/usr/share/luci/menu.d/luci-app-morseupgrade.json:3
+msgid "Upgrade"
+msgstr "アップグレード"
+
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:166
+msgid "Verifying the uploaded image file."
+msgstr "アップロードされた画像ファイルを検証しています。"
+
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:152
+msgid "Waiting for download"
+msgstr "ダウンロードを待機しています"
+
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:146
+msgid "sha256sum does not match"
+msgstr "sha256sumが一致しません"

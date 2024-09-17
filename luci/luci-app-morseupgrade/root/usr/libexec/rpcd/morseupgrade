@@ -1,0 +1,279 @@
+#!/bin/sh
+
+. /usr/share/libubox/jshn.sh
+
+USERNAME=$(uci -q get upgrade.@upgrade[0].user)
+PASSWORD=$(uci -q get upgrade.@upgrade[0].password)
+LOGGER="morseupgrade"
+UCLIENT_PARAMS="--user=$USERNAME --password=$PASSWORD"
+MORSE_SWAPPS_REPO="https://repo.apps.morsemicro.com/openwrt/releases/latest/targets"
+OUTPUTBIN="/tmp/sysupgrade.bin"
+
+if [ -z "$USERNAME" ] || [ -z "$PASSWORD" ]; then
+	logger -t "$LOGGER" "Failed to read upgrade configuration"
+	exit 1;
+fi
+
+query () {
+	board=$(ubus call system board)
+	json_load "$board"
+
+	json_get_vars board_name
+	json_get_vars rootfs_type
+	json_select release
+	json_get_vars description target
+
+	device_openwrt_version="$(echo $description | cut -d' ' -f2)"
+	device_morse_version="$(echo $description | cut -d' ' -f3)"
+
+	cat <<-JSON_EOF
+	{
+	    "board": "${board_name}",
+	    "openwrt_version": "${device_openwrt_version}",
+	    "morse_version": "${device_morse_version}",
+	    "target": "${target}",
+	    "rootfs_type": "${rootfs_type}"
+	}
+	JSON_EOF
+}
+
+search () {
+	board_name=
+	device_morse_version=
+	target=
+	rootfs_type=
+	query &> /dev/null
+	targets=$(uclient-fetch $UCLIENT_PARAMS -O - "$MORSE_SWAPPS_REPO"/"$target"/profiles.json 2>/dev/null)
+	target_status=$?
+	if [ "$target_status" -ne "0" ]; then
+		# Note, the error string and message strings (for oks) are mainly for ubus, and probably shouldn't be parsed by a UI.
+		cat <<-JSON_EOF
+		{
+		    "status": "HTTPError",
+		    "error": "Couldn't access $MORSE_SWAPPS_REPO/$target/profiles.json",
+		    "code": "$target_status"
+		}
+		JSON_EOF
+		return;
+	fi
+	json_load "$targets"
+	json_get_vars version_code version_number
+
+	encoded_server_version=$(echo "$version_code" | cut -d'-' -f2- | awk -F. '{ printf("%03d%03d%03d%03d", $1, $2, $3, $4); }';)
+	device_morse_version=$(echo "$device_morse_version" | cut -d'-' -f2- | awk -F. '{ printf("%03d%03d%03d%03d", $1, $2, $3, $4); }';)
+	if ! [ "$encoded_server_version" \>  "$device_morse_version" ]; then
+		cat <<-JSON_EOF
+		{
+		    "status": "NoUpdateNeededOK",
+		    "message": "Already up to date!"
+		}
+		JSON_EOF
+		return;
+	fi
+
+	json_select profiles
+	json_get_keys profiles
+	images=
+	for p in $profiles; do
+		json_select $p
+		json_get_values supps "supported_devices"
+		for s in $supps; do
+			if [ "$s" = "$board_name" ]; then
+				logger -t "${LOGGER}" "Found $board_name in $p"
+				json_get_values images "images"
+				break;
+			fi
+		done
+		json_select ..
+		[ -n "$images" ] && break;
+	done
+
+	if [ -z "$images" ]; then
+		cat <<-JSON_EOF
+		{
+		    "status": "UpdateImageNotFoundError",
+		    "error": "No images found for $board_name"
+		}
+		JSON_EOF
+		return;
+	fi
+
+	json_select $p
+	json_select images
+
+	i=1
+	while json_is_a $i object; do
+		json_select $i
+		json_get_vars type sha256 name filesystem
+		# decision is to force people to squashfs.
+		if [ "$type" = "sysupgrade" ] && [ "squashfs" = "$filesystem" ]; then
+			logger -t "${LOGGER}" "Image is $type with $filesystem: $name $sha256"
+			break;
+		fi
+		json_select ..
+	done
+
+	if [ -z "$name" ]; then
+		cat <<-JSON_EOF
+		{
+		    "status": "UpdateImageNotFoundError",
+		    "error": "No sysupgrade image found for $board_name"
+		}
+		JSON_EOF
+		return;
+	fi
+
+	cat <<-JSON_EOF
+	{
+	    "status": "UpdateImageFoundOK",
+	    "name": "$name",
+	    "version": "$version_code",
+	    "filesystem": "$filesystem",
+	    "sum": "$sha256"
+	}
+	JSON_EOF
+}
+
+download () {
+	if [ -z "$1" ] || [ -z "$2" ]; then
+		cat <<-JSON_EOF
+		{
+		    "status": "ArgumentError",
+		    "error": "Download target and sha256sum required"
+		}
+		JSON_EOF
+		return;
+	fi
+
+	board_name=
+	device_morse_version=
+	target=
+	query &> /dev/null
+
+	rm /tmp/sysupgrade.* &> /dev/null
+
+	echo 0 > /tmp/sysupgrade.status
+	{(uclient-fetch $UCLIENT_PARAMS -O "$OUTPUTBIN" "$MORSE_SWAPPS_REPO"/"$target"/"$1" &> /dev/null; echo $? > /tmp/sysupgrade.status) &}
+	echo $! > /tmp/sysupgrade.pid
+	cat <<-JSON_EOF
+	{
+	    "status": "DownloadStartedOK",
+	    "file":"$OUTPUTBIN",
+	    "process":"$(cat /tmp/sysupgrade.pid)"
+	}
+	JSON_EOF
+}
+
+stat () {
+	pid=$(cat /tmp/sysupgrade.pid 2>/dev/null)
+	pid_exist=$?
+	status=$(cat /tmp/sysupgrade.status 2>/dev/null)
+	status_exist=$?
+	if [ "$pid_exist" -ne "0" ] && [ "$status_exist" -ne "0" ]; then
+		cat <<-JSON_EOF
+		{
+		    "status": "ReadyForDownloadOK",
+		    "message": "No previous download"
+		}
+		JSON_EOF
+		return
+	fi
+
+	if [ -e "/proc/$pid" ]; then
+		cat <<-JSON_EOF
+		{
+		    "status": "DownloadInProgressOK",
+		    "code": "$status",
+		    "message": "Previous download in progress",
+		    "process": "$pid",
+		    "bytes": "$(du -h $OUTPUTBIN | cut -f1)"
+		}
+		JSON_EOF
+		return
+	fi
+
+	if [ "$status" -ne "0" ]; then
+		cat <<-JSON_EOF
+		{
+		    "status": "DownloadError",
+		    "error": "Download failed",
+		    "code": "$status",
+		    "process": "$pid"
+		}
+		JSON_EOF
+		return
+	fi
+
+	cat <<-JSON_EOF
+	{
+	    "status": "DownloadFinishOK",
+	    "message": "Download complete",
+	    "code": "0",
+	    "process": "$pid",
+	    "size": "$(du -h $OUTPUTBIN | cut -f1)",
+	    "sum": "$(sha256sum $OUTPUTBIN | cut -f1 -d' ')"
+	}
+	JSON_EOF
+}
+
+verify () {
+	if [ -z "$1" ]; then
+		cat <<-JSON_EOF
+		{
+		    "status": "ArgumentError",
+		    "message": "sha256 sum required!",
+		}
+		JSON_EOF
+		return
+	fi
+
+	if ! echo "$1  /tmp/sysupgrade.bin" | sha256sum -c &/dev/null; then
+		cat <<-JSON_EOF
+		{
+		    "status": "SHAMismatchError",
+		    "message": "sha256 sum does not match!",
+		}
+		JSON_EOF
+		return
+	fi
+
+	cat <<-JSON_EOF
+	{
+	    "status": "VerifyOK",
+	    "message": "Success"
+	}
+	JSON_EOF
+	return
+}
+
+json_init
+case "$1" in
+	list)
+		echo '{ "query": { }, "search": { }, "download": { "name": "str", "sum": "str" }, "stat": { }, "verify": { "sum": "str" } }'
+	;;
+	call)
+		case "$2" in
+			query)
+				query
+			;;
+			search)
+				search
+			;;
+			download)
+				read input
+				json_load "$input"
+				json_get_vars name sum
+				download "$name" "$sum"
+			;;
+			stat)
+				stat
+			;;
+			verify)
+				read input
+				json_load "$input"
+				json_get_vars sum
+				verify "$sum"
+			;;
+		esac
+	;;
+esac

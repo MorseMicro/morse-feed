@@ -1,0 +1,13 @@
+{
+	"admin/system/upgrade": {
+		"title": "Upgrade",
+		"order": 40,
+		"action": {
+			"type": "view",
+			"path": "morse/upgrade"
+		},
+		"depends": {
+			"acl": ["luci-app-morseupgrade"]
+		}
+	}
+}

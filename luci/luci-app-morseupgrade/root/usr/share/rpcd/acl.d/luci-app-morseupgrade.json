@@ -1,0 +1,50 @@
+{
+	"luci-app-morseupgrade": {
+		"description": "Grant access to configuration library and dependencies",
+		"read": {
+			"file": {
+				"/dev/mtdblock[0-9]*": [ "read" ],
+				"/etc/sysupgrade.conf": [ "read" ],
+				"/lib/upgrade/platform.sh": [ "list" ],
+				"/proc/mounts": [ "read" ],
+				"/proc/mtd": [ "read" ],
+				"/proc/partitions": [ "read" ],
+				"/proc/sys/kernel/hostname": [ "read" ],
+				"/morse/scripts/morse_default.sh": ["read", "exec"],
+				"/sbin/sysupgrade --list-backup": [ "exec" ]
+			},
+			"ubus": {
+				"morseupgrade": [ "*" ],
+				"sysupgrade": ["*"],
+				"file": [ "exec", "read", "stat" ]
+			}
+		},
+		"write": {
+			"file": {
+				"/bin/tar -tzf /tmp/backup.tar.gz": [ "exec" ],
+				"/etc/sysupgrade.conf": [ "write" ],
+				"/sbin/firstboot -r -y": [ "exec" ],
+				"/sbin/reboot": [ "exec" ],
+				"/sbin/sysupgrade --force /tmp/sysupgrade.bin": [ "exec" ],
+				"/sbin/sysupgrade -n --force /tmp/sysupgrade.bin": [ "exec" ],
+				"/sbin/sysupgrade --force -k /tmp/sysupgrade.bin": [ "exec" ],
+				"/sbin/sysupgrade --force -u /tmp/sysupgrade.bin": [ "exec" ],
+				"/sbin/sysupgrade --force -u -k /tmp/sysupgrade.bin": [ "exec" ],
+				"/sbin/sysupgrade -n /tmp/sysupgrade.bin": [ "exec" ],
+				"/sbin/sysupgrade -k /tmp/sysupgrade.bin": [ "exec" ],
+				"/sbin/sysupgrade -u /tmp/sysupgrade.bin": [ "exec" ],
+				"/sbin/sysupgrade -u -k /tmp/sysupgrade.bin": [ "exec" ],
+				"/sbin/sysupgrade --restore-backup /tmp/backup.tar.gz": [ "exec" ],
+				"/sbin/sysupgrade --test /tmp/sysupgrade.bin": [ "exec" ],
+				"/sbin/sysupgrade /tmp/sysupgrade.bin": [ "exec" ],
+				"/tmp/backup.tar.gz": [ "write" ],
+				"/tmp/sysupgrade.bin": [ "write" ]
+			},
+			"ubus": {
+				"morseupgrade": [ "*" ],
+				"sysupgrade": ["*"],
+				"system": [ "validate_firmware_image" ]
+			}
+		}
+	}
+}
