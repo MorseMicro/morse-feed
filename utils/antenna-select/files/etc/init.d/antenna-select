@@ -1,0 +1,10 @@
+#!/bin/sh /etc/rc.common
+#
+# Copyright (C) 2021-2022 Morse Micro Pty Ltd. All rights reserved.
+#
+
+START=01
+
+boot() {
+    /sbin/antenna-select 2
+}

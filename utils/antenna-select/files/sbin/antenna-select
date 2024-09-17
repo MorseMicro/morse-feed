@@ -1,0 +1,38 @@
+#!/bin/sh
+
+target_byte=52
+tempfile=/tmp/mtd2
+
+change_byte() {
+  dd if=$1 of=/tmp/cbtmpf bs=1 count=$2;
+  echo -ne "\x$3" >> /tmp/cbtmpf;
+  let "pos=$2+1";
+  dd if=$1 of=/tmp/cbtmpf bs=1 skip=$pos seek=$pos
+  mv /tmp/cbtmpf $1
+}
+
+
+cp /dev/mtd2 $tempfile
+current_value=$(xxd -p -l 1 -s $target_byte $tempfile)
+
+if [ "$1" = "1"  ]; then
+    desired_value=11
+elif [ "$1" = "2"  ]; then
+    desired_value=22
+else
+    exit 1
+fi
+
+if [ $desired_value = $current_value ]; then
+    echo "the desired antenna is already selected."
+    exit 0
+else
+    echo "switching the antenna byte from $current_value to $desired_value"
+fi
+
+change_byte $tempfile $target_byte $desired_value
+insmod mtd-rw i_want_a_brick=1
+mtd -e factory write $tempfile factory
+rmmod mtd-rw
+rm $tempfile
+wifi
