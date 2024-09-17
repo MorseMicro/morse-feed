@@ -1,0 +1,30 @@
+. /lib/functions/uci-defaults.sh
+. /lib/functions/system.sh
+
+board=$(board_name)
+
+board_config_update
+
+. /etc/device_info
+
+mac_label="$(get_mac_label)"
+if [ -z "$mac_label" ]; then
+	mac_label="$(cat /sys/class/net/eth0/address)"
+fi
+
+if [ -n "$mac_label" ]; then
+	suffix="$(echo "$mac_label" | sed 's/.*:\(..\):\(..\)$/\1\2/')"
+else
+	suffix="z$(tr -dc 'a-f0-9' </dev/urandom | head -c 3)"
+fi
+
+prefix="$DEVICE_PRODUCT"
+if [ -z "$prefix" ]; then
+	prefix="morse"
+fi
+
+ucidef_set_hostname "$(echo "$prefix-$suffix" | tr A-Z a-z | tr -d ' ')"
+
+board_config_flush
+
+exit 0
