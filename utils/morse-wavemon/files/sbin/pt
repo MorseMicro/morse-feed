@@ -1,0 +1,83 @@
+#/bin/sh
+min_screen_cols=170
+min_screen_raws=52
+getMorseInterface(){
+    for file in "/sys/class/net/wlan"*;
+    do
+        if [ -d "$file"/device/morse ]
+        then
+            MORSE_IFACE=$(basename $file)
+        fi
+    done
+}
+
+printUsage(){
+    echo "usage: " 
+    echo "" 
+    echo "pt                    :will ping 192.168.1.1"
+    echo "pt number(1~255)      :will ping 192.168.1.number"
+    echo "pt host               :will ping host (an IP or domain)"
+    echo "pt plus host          :will iperf to host (an IP or domain)"
+    echo "" 
+}
+
+checkTerminalSize(){
+    #get screen size to make sure it's large enough.
+    screen_raws=$(stty size | cut -d " " -f 1)
+    screen_cols=$(stty size | cut -d " " -f 2)
+
+    if [[ $screen_cols -lt $min_screen_cols ]] || 
+       [[ $screen_raws -lt $min_screen_raws ]]; then
+        echo "**screen is too small to run pt plus"
+        echo "**it needs at least" $min_screen_cols "columns and at least" $min_screen_raws "lines"
+        exit 0
+    fi
+}
+
+getMorseInterface
+
+if [ -z "$1" ]; then     
+    tmux new-session "wavemon -i $MORSE_IFACE" \; \
+    split-window -v "ping 192.168.1.1" 
+else 
+     
+
+    if [[ "$1" == "--help" ]] || 
+       [[ "$1" == "-h" ]] || 
+       [[ "$1" == "h" ]]; then
+        printUsage
+        exit 0
+    fi 
+ 
+    if [[ "$1" == "plus" ]]; then
+        if [ -z "$2" ]; then
+            echo "** plus mode requires a host IP or domain."
+            echo ""
+            printUsage
+            exit 1
+        fi
+        checkTerminalSize
+        #iptraf-ng needs /var/lib dir to exist. 
+		mkdir /var/lib -p
+
+        tmux new-session "iptraf-ng -d $MORSE_IFACE" \; \
+        split-window -h "sleep 1; wavemon -i $MORSE_IFACE" \; \
+        split-window -v "sleep 1; iperf3 -c $2 -u -b 25M -t 30" \; \
+        split-window -v "ping 8.8.8.8" \; \
+        select-pane -L \; \
+        split-window -v "nload -d $MORSE_IFACE" \; \
+        split-window -v "logread -f" \; \
+        select-pane -R \; \
+        select-pane -U 
+    else
+        #check length and the value of the arg.
+        if [[ $1 -lt 256 ]] &&
+        [[ $1 -gt 0 ]]; then
+            tmux new-session "wavemon -i $MORSE_IFACE" \; \
+            split-window -v "ping 192.168.1.$1"
+        else
+            tmux new-session "wavemon -i $MORSE_IFACE" \; \
+            split-window -v "ping $1"
+        fi        
+    fi
+fi
