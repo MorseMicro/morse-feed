@@ -1,0 +1,53 @@
+#!/bin/sh /etc/rc.common
+
+START=90
+STOP=01
+USE_PROCD=1
+SERVICE=aws_kvs
+
+get_aws_kvs_credentials() {
+	local stream=$1
+	config_get access_key $stream access_key
+	config_get secret_key $stream secret_key
+	config_get region $stream region
+	config_get stream_name $stream stream_name
+	config_get storage_size $stream storage_size
+	config_get location $stream stream_url
+
+	if [ -z "$access_key" ] || [ -z "$secret_key" ] || [ -z "$region" ] || [ -z "$stream_name" ] || [ -z "$storage_size" ]; then
+		logger -t $SERVICE -p daemon.crit "One or more AWS Kinesis Video Streaming credentials are missing. Cannot start the service."
+		return 1
+	fi
+}
+
+create_gst_instance() {
+	local stream=$1
+	config_get enable $stream enable
+	if [ "$enable" == "1" ]; then
+		procd_open_instance $stream
+		get_aws_kvs_credentials $stream
+		procd_set_param env GST_PLUGIN_PATH=/usr/lib/gstreamer-1.0
+		procd_set_param command gst-launch-1.0
+		procd_set_param stdout 1
+		procd_set_param stderr 1
+		procd_append_param command rtspsrc location="$location" short-header=TRUE ! rtph264depay ! h264parse ! kvssink
+		procd_append_param command stream-name="$stream_name"
+		procd_append_param command storage-size=$storage_size
+		procd_append_param command access-key=$access_key
+		procd_append_param command secret-key=$secret_key
+		procd_append_param command aws-region=$region
+		procd_close_instance
+	else
+		logger -t $SERVICE -p daemon.info "Stream $stream is disabled"
+	fi
+}
+start_service() {
+	#For each stream create a gst instance
+	config_load aws_kvs
+	config_foreach create_gst_instance kvs_stream
+}
+
+service_triggers() {
+	procd_add_reload_trigger aws_kvs
+}
+

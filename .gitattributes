@@ -48,3 +48,8 @@
 *.7z binary
 *.ttf binary
 *.pyc binary
+
+# aws-kvs files unfortunately have CRs in them, which means the patch
+# files mix LF and CRLF.
+multimedia/aws-kvs/patches/*.patch -text
+multimedia/aws-kvs/files/*.patch -text

@@ -1,0 +1,23 @@
+#File: 002-libcurl_setopts.patch
+#Description: The provided patch addresses an issue stemming from the default libcurl setting, which attempts to resolve the AWS URL to IPv6. This resolution fails, resulting in a 'could not resolve host' error. The patch adjusts the curl option to IPv4, effectively resolving the host successfully.
+
+--- a/dependency/libkvscproducer/kvscproducer-src/src/source/Common/Curl/CurlCall.c	2023-11-13 13:05:46.950163615 +1100
++++ b/dependency/libkvscproducer/kvscproducer-src/src/source/Common/Curl/CurlCall.c	2023-11-13 13:06:43.684309233 +1100
+@@ -58,6 +58,7 @@
+     curl_easy_setopt(curl, CURLOPT_HTTPHEADER, pHeaderList);
+     curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, errorBuffer);
+     curl_easy_setopt(curl, CURLOPT_URL, pRequestInfo->url);
++    curl_easy_setopt(curl, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
+     curl_easy_setopt(curl, CURLOPT_SSLCERTTYPE, getSslCertNameFromType(pRequestInfo->certType));
+     curl_easy_setopt(curl, CURLOPT_SSLCERT, pRequestInfo->sslCertPath);
+     curl_easy_setopt(curl, CURLOPT_SSLKEY, pRequestInfo->sslPrivateKeyPath);
+--- a/dependency/libkvscproducer/kvscproducer-src/src/source/Response.c	2023-11-14 10:49:38.987263012 +1100
++++ b/dependency/libkvscproducer/kvscproducer-src/src/source/Response.c	2023-11-14 10:49:57.367256068 +1100
+@@ -147,6 +147,7 @@
+     curl_easy_setopt(pCurl, CURLOPT_ERRORBUFFER, pCallInfo->errorBuffer);
+ 
+     curl_easy_setopt(pCurl, CURLOPT_URL, pRequestInfo->url);
++    curl_easy_setopt(pCurl, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
+     curl_easy_setopt(pCurl, CURLOPT_NOSIGNAL, 1);
+ 
+     // Setting up limits for curl timeout
