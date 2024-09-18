@@ -1,0 +1,12 @@
+{
+	"luci-app-camera": {
+		"description": "Grant access to rpcd-mod-onvif proxy",
+		"read": {
+			"ubus": {
+				"onvif": [ "probe", "info", "set_encoder", "set_imaging", "get_stream" ],
+				"mediamtx": [ "set_proxy", "get_ports" ],
+				"luci-rpc": [ "callLuciNetworkDevices" ]
+			}
+		}
+	}
+}
