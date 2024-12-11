@@ -120,7 +120,7 @@ function background_iperf3_server(req) {
 
 function background_iperf3_client(req) {
 	const target = req.args.target;
-	const udp = req.args.udp ? '-u -b 40M' : '';
+	const udp = req.args.udp ? '-u -b 40M/30' : '-Z';
 	const reverse = req.args.reverse ? '-R' : '';
 	const time = req.args.time;
 	if (time <= IPERF_OMIT_TIME || time >= OUTPUT_DIR_TTL) { exit(ubus.STATUS_INVALID_ARGUMENT); } 
