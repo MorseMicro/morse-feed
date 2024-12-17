@@ -132,7 +132,8 @@ return view.extend({
 		wizard.resetUci();
 		wizard.resetUciNetworkTopology();
 
-		// Remove primary channel width override (may have been set by mesh code).
+		// Remove primary channel width override (may have been set by bug work-around from
+		// prior mesh wizard versions).
 		uci.unset('wireless', morseDeviceName, 's1g_prim_chwidth');
 
 		// Make sure Morse device is enabled.
@@ -191,9 +192,6 @@ return view.extend({
 				break;
 			case 'mesh':
 				morseuci.forceBridge('lan', 'br-lan');
-
-				// Avoid SW-12287 (issue with associating to co-located AP)
-				uci.set('wireless', morseDeviceName, 's1g_prim_chwidth', '1');
 
 				uci.set('mesh11sd', 'mesh_params', 'mesh_gate_announcements', '1');
 
