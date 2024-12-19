@@ -665,6 +665,14 @@ var CBISSIDListScan = form.Value.extend({
 		this.scanResults = {};
 	},
 
+	isActive(section_id) {
+		// Rendering a placeholder will cause the super.isActive to consider this field
+		// as active, which will mean the form.parse() logic will expect a non-empty value.
+		// This change forces the isActive to return false if a placeholder has been rendered,
+		// which skips the parse() function's logic.
+		return this.super('isActive', arguments) && !this.shouldRenderAsPlaceholder(section_id);
+	},
+
 	onchange(ev, sectionId, value) {
 		if (!this.onchangeWithEncryption) {
 			return;
@@ -755,7 +763,7 @@ var CBISSIDListScan = form.Value.extend({
 		}
 	},
 
-	isNotRequired(sectionId) {
+	shouldRenderAsPlaceholder(sectionId) {
 		return ['monitor', 'none'].includes(this.section.formvalue(sectionId, 'mode'));
 	},
 
@@ -764,7 +772,7 @@ var CBISSIDListScan = form.Value.extend({
 	},
 
 	renderWidget: function (sectionId, optionIndex, cfgvalue) {
-		if (this.isNotRequired(sectionId)) {
+		if (this.shouldRenderAsPlaceholder(sectionId)) {
 			return E('input', { placeholder: 'Not required', disabled: 'true' });
 		} else if (this.isStaMode(sectionId)) {
 			return this.renderStaWidget(sectionId, optionIndex, cfgvalue);
