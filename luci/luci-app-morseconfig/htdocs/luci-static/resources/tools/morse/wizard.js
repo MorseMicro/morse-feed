@@ -570,7 +570,7 @@ class WizardPage {
 	}
 
 	step(contents) {
-		return this.html(E('div', { class: 'wizard-step' }, E('span', {}, ['· ', contents])));
+		return this.html(E('div', { class: 'wizard-step' }, ['· ', E('span', {}, contents)]));
 	}
 
 	heading(contents) {
