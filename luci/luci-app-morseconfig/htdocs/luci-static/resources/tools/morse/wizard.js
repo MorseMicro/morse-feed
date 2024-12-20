@@ -996,16 +996,15 @@ const AbstractWizardView = view.extend({
 		}
 		this.infoboxEl.innerHTML = this.currentPage.infobox;
 
-		this.updateDiagram(this.currentPage);
+		// Parse any options on the current page. This means that quirky things
+		// that are happening - ok, we do some .loads which don't
+		// properly reflect the underlying UCI for our default wifi SSID/keys
+		// - are immediately pushed into uci when the page renders
+		// so that the diagram will update.
+		this.parseCurrentPage().then(() => this.updateDiagram(this.currentPage));
 	},
 
-	async handleNext() {
-		const pages = this.getActivePages();
-		const i = pages.indexOf(this.currentPage);
-		if (i === -1 || i === pages.length - 1) {
-			return;
-		}
-
+	async parseCurrentPage() {
 		const errs = [];
 		await Promise.allSettled(this.currentPage.options.map(async (option) => {
 			const sectionId = option.section.section;
@@ -1028,7 +1027,17 @@ const AbstractWizardView = view.extend({
 			// after calling .write.
 			option.cfgvalue(sectionId, option.load(sectionId));
 		}));
+		return errs;
+	},
 
+	async handleNext() {
+		const pages = this.getActivePages();
+		const i = pages.indexOf(this.currentPage);
+		if (i === -1 || i === pages.length - 1) {
+			return;
+		}
+
+		const errs = await this.parseCurrentPage();
 		if (errs.length === 0) {
 			this.gotoPage(pages, i + 1);
 		} else {

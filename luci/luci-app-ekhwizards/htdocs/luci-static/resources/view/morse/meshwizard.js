@@ -401,6 +401,7 @@ return wizard.AbstractWizardView.extend({
 			thisWizardView.onchangeOptionUpdateDiagram(this);
 		};
 		option.load = sectionId => uci.get('wireless', sectionId, 'mesh_id') || morseuci.getDefaultSSID();
+		option.forcewrite = true; // Required since our load doesn't reflect uci.
 
 		option = page.option(form.Value, 'key', _('Mesh Passphrase'));
 		option.datatype = 'wpakey';
@@ -409,6 +410,7 @@ return wizard.AbstractWizardView.extend({
 		option.retain = true;
 		option.load = sectionId =>
 			(initialMorseMode === 'mesh' && uci.get('wireless', sectionId, 'key')) || morseuci.getDefaultWifiKey();
+		option.forcewrite = true; // Required since our load doesn't reflect uci.
 
 		option = page.option(widgets.WifiFrequencyValue, '_freq', '<br />' + _('Operating Frequency'));
 		option.ucisection = morseDeviceName;

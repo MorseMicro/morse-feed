@@ -385,6 +385,7 @@ return wizard.AbstractWizardView.extend({
 		option.load = sectionId =>
 			((uci.get('wireless', morseDeviceName, 'mode') || initialMorseMode) === 'ap' && uci.get('wireless', sectionId, 'ssid'))
 			|| morseuci.getDefaultSSID();
+		option.forcewrite = true; // Required since our load doesn't reflect uci.
 
 		option = page.option(form.Value, 'key', _('Passphrase'));
 		option.depends('mode', 'ap');
@@ -396,6 +397,7 @@ return wizard.AbstractWizardView.extend({
 		option.load = sectionId =>
 			((uci.get('wireless', morseDeviceName, 'mode') || initialMorseMode) === 'ap' && uci.get('wireless', sectionId, 'key'))
 			|| morseuci.getDefaultWifiKey();
+		option.forcewrite = true; // Required since our load doesn't reflect uci.
 
 		option = page.option(widgets.WifiFrequencyValue, '_freq', '<br />' + _('Operating Frequency'));
 		option.depends('mode', 'ap');
