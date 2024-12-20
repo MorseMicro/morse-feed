@@ -821,7 +821,7 @@ function createAssoclistCard(wifiNetwork, hostHints, hasQRCode) {
 		table = E('em', _('No active devices'));
 	}
 
-	return new Card(`wifi-${wifiName}`, {
+	return new Card(`wifi-assoclist-${wifiNetwork.getDevice().getName()}`, {
 		heading: WIFI_MODES[mode] + ` (${wifiName})`,
 		link: { href: L.url('admin', 'network', 'wireless'), title: _('Wireless Configuration') },
 		highlights: [wifiNetwork.getDevice(), netIface],
