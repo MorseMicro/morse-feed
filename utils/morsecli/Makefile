@@ -45,6 +45,9 @@ TARGET_CFLAGS += -I$(STAGING_DIR)/usr/include/libnl3
 define Package/morsecli/install
 	$(INSTALL_DIR) $(1)/sbin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/morse_cli $(1)/sbin/
+
+	$(INSTALL_DIR) $(1)/etc/profile.d
+	$(CP) $(CURDIR)/files/morse_cli.sh $(1)/etc/profile.d/
 endef
 
 $(eval $(call BuildPackage,morsecli))
