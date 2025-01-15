@@ -244,7 +244,8 @@ async function runRangetest(cancelPromise, configuration, testProgressBar) {
 	} = configuration;
 	let remoteRangetestDevice = remoteDevice.load(remoteIp, remotePassword);
 
-	let testResults = { ...testResultsTemplate };
+	// This is the Mozilla foundation's recommended method to make JSON deep copies.
+	let testResults = JSON.parse(JSON.stringify(testResultsTemplate));
 	testResults.id = Math.random().toString(16).slice(8);
 	testResults.configuration = configuration;
 	testResults.timestamp = new Date().toISOString();
