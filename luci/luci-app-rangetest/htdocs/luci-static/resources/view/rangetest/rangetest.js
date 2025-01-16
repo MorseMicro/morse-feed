@@ -236,10 +236,10 @@ async function runRangetest(cancelPromise, configuration, testProgressBar) {
 			direction: directions,
 		},
 		basic: {
-			remoteDeviceInfo: {
-				ipv4: [remoteIp],
-			},
 			remoteDevicePassword: remotePassword,
+			remoteDeviceInfo: {
+				ipv4Address: remoteIp,
+			},
 		},
 	} = configuration;
 	let remoteRangetestDevice = remoteDevice.load(remoteIp, remotePassword);
@@ -413,7 +413,7 @@ function parseResultsSummaryRowData(data) {
 	return {
 		id: data.id,
 		timestamp: timestamp,
-		remoteHostname: data.configuration.basic?.remoteDeviceHostname,
+		remoteHost: data.configuration.basic?.remoteHostIdentifier,
 		description: data.configuration.basic?.description,
 		distance: data.configuration.basic?.range,
 		location: locationURL,
@@ -455,8 +455,8 @@ return view.extend({
 	async handleStartTest(ev, cancelPromise) {
 		try {
 			await this.basicTestConfigurationForm.parse();
-			const hostname = this.rangetestConfiguration.basic.remoteDeviceHostname;
-			this.rangetestConfiguration.basic.remoteDeviceInfo = availableRemoteDevices[hostname];
+			const remoteHostId = this.rangetestConfiguration.basic.remoteHostIdentifier;
+			this.rangetestConfiguration.basic.remoteDeviceInfo = availableRemoteDevices[remoteHostId];
 			const testResults = await runRangetest(cancelPromise, this.rangetestConfiguration, this.testProgressBar);
 			this.addResultsSummaryRow(testResults);
 		} catch (error) {
@@ -471,7 +471,7 @@ return view.extend({
 		const s = m.section(form.NamedSection, sectionId);
 		let o;
 
-		const remoteDeviceSelect = s.option(form.ListValue, 'remoteDeviceHostname', _('Remote device'), _('The remote device which this test will be conducted against'));
+		const remoteDeviceSelect = s.option(form.ListValue, 'remoteHostIdentifier', _('Remote device'), _('The remote device which this test will be conducted against'));
 		remoteDeviceSelect.readonly = true;
 
 		const updateRemoteDeviceSelectOptions = async (remoteDeviceSelect, sectionId) => {
@@ -494,11 +494,11 @@ return view.extend({
 			}
 
 			for (const [hostname, deviceInfo] of Object.entries(report)) {
-				const ipv4 = deviceInfo.ipv4;
-				availableRemoteDevices[hostname] = deviceInfo;
-
-				const optionName = `${hostname} (${ipv4})`;
-				remoteDeviceSelect.value(hostname, optionName);
+				for (const ipv4Address of deviceInfo.ipv4) {
+					const remoteHostIdentifier = `${hostname} (${ipv4Address})`;
+					remoteDeviceSelect.value(remoteHostIdentifier, remoteHostIdentifier);
+					availableRemoteDevices[remoteHostIdentifier] = { hostname, ipv4Address, deviceInfo };
+				}
 			}
 			remoteDeviceSelect.readonly = false;
 			remoteDeviceSelect.renderUpdate(sectionId);
@@ -533,7 +533,7 @@ return view.extend({
 
 		let localDeviceCoordinatesInput = s.option(form.Value, 'localDeviceCoordinates', _('Local device coordinates'), _('Optional: Must be provided in Decimal Degrees (DD) format, used by Google Maps'));
 		localDeviceCoordinatesInput.validate = validateDecimalDegrees;
-		localDeviceCoordinatesInput.placeholder = '-33.885553, 151.211138';	// MM Sydney office
+		localDeviceCoordinatesInput.placeholder = '-33.885553, 151.211138'; // MM Sydney office
 		localDeviceCoordinatesInput.optional = true;
 
 		let remoteDeviceCoordinatesInput = s.option(form.Value, 'remoteDeviceCoordinates', _('Remote device coordinates'), _('Optional: Must be provided in Decimal Degrees (DD) format, used by Google Maps'));
@@ -653,7 +653,7 @@ return view.extend({
 		o.datatype = 'string';
 		o.readonly = true;
 
-		o = s.option(form.DummyValue, 'remoteHostname', _('Remote Hostname'));
+		o = s.option(form.DummyValue, 'remoteHost', _('Remote Host'));
 		o.datatype = 'string';
 		o.readonly = true;
 
