@@ -741,7 +741,7 @@ return view.extend({
 		}
 		option.deviceType = deviceType;
 		option.default = 'none';
-		option.onchange = function (ev, sectionId, _value) {
+		option.onchange = function (ev, sectionId, _value, previousValue) {
 			const mode = this.section.formvalue(sectionId, 'mode');
 			let key = this.section.formvalue(sectionId, '_wpa_key');
 
@@ -752,6 +752,24 @@ return view.extend({
 
 			const keyOption = this.map.lookupOption('_wpa_key', sectionId)[0];
 			keyOption.renderUpdate(sectionId, key);
+
+			if (['wpa3', 'wpa3-mixed'].includes(previousValue)) {
+				// If the user has (as suggested on the page) gone to setup wpa3 things like
+				// auth_server in the advanced config, then switches back to something
+				// else (e.g. like ordinary sae), apparently auth_server is still
+				// meaningful, picked up by netifd and passed to wpa_supplicant. To avoid user
+				// confusion since we don't hint at being able to configure the auth_server here,
+				// remove auth_server (this also prevents other related things like
+				// port/secret/macaddr_acl being set).
+				//
+				// We do not remove auth_server as a general thing (i.e. on .write, as would
+				// be a more usual approach), because the user may have configured this intentionally,
+				// and we want to follow our policy of not destroying existing configuration.
+				// It's safe to modify uci directly rather than pushing this through a hidden
+				// form value since this page habitually pushes changes to uci in order
+				// to render the diagram.
+				uci.unset('wireless', sectionId, 'auth_server');
+			}
 		};
 
 		option = section.option(WifiSecurityValue, '_wpa_key', _('Key/Security'));
