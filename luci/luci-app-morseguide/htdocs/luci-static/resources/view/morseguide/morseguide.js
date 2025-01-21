@@ -10,7 +10,7 @@ return view.extend({
 	render: function () {
 		var body = E([]);
 		var ifrm = document.createElement('iframe');
-		ifrm.setAttribute('src', '/UG MM6108 Eval Kit User Guide 2.7 - v20.pdf');
+		ifrm.setAttribute('src', '/UG MM6108 Eval Kit User Guide 2.7 - v21.pdf');
 		ifrm.style.overflow = 'hidden';
 		ifrm.style.margin = '0px';
 		ifrm.style.padding = '0px';
