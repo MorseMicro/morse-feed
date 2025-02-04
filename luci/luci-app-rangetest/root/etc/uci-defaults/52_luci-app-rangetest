@@ -23,7 +23,7 @@ API_VERSION="0.1.0"
 
 # Delete any previous versions in case of upgrade
 config_load uhttpd
-config_list_foreach "main" "mdns_txt" "delete_rangetest_mdns_txt_record"
+config_list_foreach main mdns_txt delete_rangetest_mdns_txt_record
 
 # Specify a key value pair to be displayed in the TXT record
 # of uhttpd's umdns service advertisement. This will
