@@ -52,6 +52,20 @@ resetting the device to Access Point mode (shown by a solid green Status LED):
 </ul>
 `).trim();
 
+// Conversely, if you're in AP mode in the wizard, you might expect to be able to do everything.
+// Let people know that they can switch to Extender mode.
+const AP_MODE_MESSAGE = _(`
+<p>This device is currently setup as an Access Point mode or equivalent (shown by a solid green Status LED).
+If you would like to connect to an existing HaLow network, you should
+reset the device to Extender mode (shown by a solid aqua Status LED):
+<ul>
+	<li>hold the mode button until the Status LED starts <strong>quickly flashing aqua</strong>,
+		then release the button
+	<li>wait until the LED is <strong>solid aqua</strong>
+	<li>a short button press first on the Access Point then on the Extender will initiate pairing; see the user guide for details
+</ul>
+`).trim();
+
 const INVALID_CONFIG_MESSAGE = _(`
 <p>This device is in a state where this wizard cannot work (%s).
 
@@ -399,6 +413,10 @@ return view.extend({
 			E('div', { class: 'cbi-section' }, this.diagram),
 			this.map.render(),
 			this.infobox,
+			E('details', { class: 'cbi-section', style: 'padding: 20px; cursor: pointer;' }, [
+				E('summary', { style: 'font-weight: bold;' }, 'How do I configure this device as a HaLow Client/Station?'),
+				E('div', {}, AP_MODE_MESSAGE),
+			]),
 		]);
 	},
 
