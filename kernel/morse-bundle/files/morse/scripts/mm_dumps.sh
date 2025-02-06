@@ -126,7 +126,7 @@ r() {
     "$@" >> "$output" 2>&1
 }
 
-# Save data from a location (using cp -a). e.g.
+# Save data from a location (using rsync -a). e.g.
 #
 #   s /var/log
 #
@@ -134,13 +134,19 @@ r() {
 # (proxy for a proper data structure), and must be given
 # an absolute path.
 s() {
-    for x in "$@"; do
-        if [ -e "$x" ]; then
-            echo "Saving: $x"
-            mkdir -p "files$(dirname $x)"
-            cp -a "$x" "files$x"
-        fi
+    x="$1"
+
+    shift
+    exs=""
+    for ex in "$@"; do
+        exs="$exs --exclude $ex"
     done
+
+    if [ -e "$x" ]; then
+        echo "Saving: $x with $exs"
+        mkdir -p "files$(dirname $x)"
+        rsync -a "$x" "files$(dirname $x)" $exs
+    fi
 }
 
 echo "Saving info to $OUTPUT_PATH/$DEBUG_DIR"
@@ -178,7 +184,7 @@ s /sys/fs/pstore
 s /root/.ash_history
 
 # Reading one of these parameters errors out.
-s /sys/kernel/debug/ieee80211/$PHY/morse 2> /dev/null
+s /sys/kernel/debug/ieee80211/$PHY/morse twt_sta_agreements twt_wi_tree 2> /dev/null
 
 
 if $TEARDOWN_INTERFACE; then
