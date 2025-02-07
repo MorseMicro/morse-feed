@@ -27,7 +27,6 @@ return wizard.AbstractWizardView.extend({
 	loadWizardOptions() {
 		const {
 			wifiDeviceName,
-			wifiApInterfaceName,
 			wifiStaInterfaceName,
 			morseInterfaceName,
 		} = wizard.readSectionInfo();
@@ -74,13 +73,9 @@ return wizard.AbstractWizardView.extend({
 			}
 		};
 
-		//  Get the current configuration
-		const isWifiApBridgedWithHalow = () => uci.get('wireless', wifiApInterfaceName, 'network') !== 'lan';
-
 		uci.add('network', 'wizard', 'wizard');
 		uci.set('network', 'wizard', 'device_mode_meshagent', getDeviceModeMeshAgent());
 		uci.set('network', 'wizard', 'uplink', getUplink());
-		uci.set('network', 'wizard', 'bridge_with_halow', isWifiApBridgedWithHalow());
 	},
 
 	parseWizardOptions() {
@@ -113,7 +108,7 @@ return wizard.AbstractWizardView.extend({
 				uci.set('prplmesh', 'config', 'wired_backhaul', '0');
 				uci.set('wireless', morseBackhaulStaName, 'disabled', '0');
 			}
-			uci.add('prplmesh', 'wifi-device', morseDeviceName);
+
 			uci.set('prplmesh', morseDeviceName, 'hostap_iface', 'wlan-prpl');
 			uci.set('prplmesh', morseDeviceName, 'sta_iface', 'wlan-prpl-1');
 		};
@@ -144,24 +139,6 @@ return wizard.AbstractWizardView.extend({
 			uci.set('wireless', morseInterfaceName, 'auth_cache', '0');
 		};
 
-		const setWifiApEasyMeshConfig = (addToEasyMesh) => {
-			if (addToEasyMesh) {
-				// Update prplmesh config to add 2.4G radio
-				uci.add('prplmesh', 'wifi-device', wifiDeviceName);
-				uci.set('prplmesh', wifiDeviceName, 'hostap_iface', 'wl0-prpl');
-
-				// update wireless config to add 2.4G radio
-				uci.set('wireless', wifiApInterfaceName, 'ifname', 'wl0-prpl');
-				uci.set('wireless', wifiApInterfaceName, 'encryption', 'sae-mixed');
-				uci.set('wireless', wifiApInterfaceName, 'bss_transition', '1');
-				uci.set('wireless', wifiApInterfaceName, 'multi_ap', '2');
-				uci.set('wireless', wifiApInterfaceName, 'wps_virtual_push_button', '1');
-				uci.set('wireless', wifiApInterfaceName, 'wps_independent', '0');
-				uci.set('wireless', wifiApInterfaceName, 'auth_cache', '0');
-				uci.set('wireless', wifiApInterfaceName, 'network', 'ahwlan');
-			}
-		};
-
 		wizard.setupNetworkIface('lan', { local: true });
 		wizard.setupNetworkIface('ahwlan', { local: true, primaryLocal: true });
 		// Force wan even if not using to make sure that wan firewall rules are retained
@@ -182,7 +159,6 @@ return wizard.AbstractWizardView.extend({
 		const uplink = uci.get('network', 'wizard', 'uplink');
 
 		const isWifiAp = wifiDeviceName && uci.get('wireless', wifiApInterfaceName, 'disabled') !== '1';
-		const isWifiApBridgedWithHalow = (isWifiAp && uci.get('network', 'wizard', 'bridge_with_halow') !== '0');
 
 		if (wifiDeviceName) {
 			// We don't have an explicit option for this, but it's determined by uplink.
@@ -193,6 +169,10 @@ return wizard.AbstractWizardView.extend({
 		const bridgeMode = () => {
 			uci.set('wireless', morseInterfaceName, 'network', 'ahwlan');
 			uci.set('wireless', morseBackhaulStaName, 'network', 'ahwlan');
+
+			if (isWifiAp) {
+				uci.set('wireless', wifiApInterfaceName, 'network', 'ahwlan');
+			}
 
 			morseuci.forceBridge('ahwlan', 'br-prpl', bridgeMAC);
 			morseuci.setNetworkDevices('ahwlan', this.getEthernetPorts().map(p => p.device));
@@ -208,6 +188,10 @@ return wizard.AbstractWizardView.extend({
 			uci.set('wireless', morseInterfaceName, 'network', 'ahwlan');
 			uci.set('wireless', morseBackhaulStaName, 'network', 'ahwlan');
 
+			if (isWifiAp) {
+				uci.set('wireless', wifiApInterfaceName, 'network', 'lan');
+			}
+
 			morseuci.useBridgeIfNeeded('lan');
 			morseuci.forceBridge('ahwlan', 'br-prpl', bridgeMAC);
 
@@ -220,8 +204,6 @@ return wizard.AbstractWizardView.extend({
 		setMultiapWirelessConfig();
 		// Set all WPS related configuration
 		setWpsConfig();
-		// Add Wi-Fi AP to EasyMesh Management if bridged with HaLow
-		setWifiApEasyMeshConfig(isWifiApBridgedWithHalow);
 
 		// Set 'bridge/ip/gateway' etc. via uci,
 		// based on the selected uplink and traffic mode
@@ -237,7 +219,9 @@ return wizard.AbstractWizardView.extend({
 
 				// Devices
 				uci.set('wireless', morseInterfaceName, 'network', 'ahwlan');
-
+				if (isWifiAp) {
+					uci.set('wireless', wifiApInterfaceName, 'network', 'ahwlan');
+				}
 				const [_, port] = uplink.split('-');
 				if (port) {
 					morseuci.setNetworkDevices(upstreamNetwork, [port]);
@@ -490,15 +474,11 @@ return wizard.AbstractWizardView.extend({
 
 		var ethInfoAp = _(`If you use an <b>Ethernet</b> upstream, the HaLow connected devices obtain IP addresses from
 		the DHCP server on this device, and this device uses NAT to forward IP traffic.`);
-		var wifiStaInfo = _(`If you use a <b>Wi-Fi</b> upstream, fill in the Wi-Fi AP credentials.
+		var wifiInfoAp = _(`If you use a <b>Wi-Fi</b> upstream, fill in the Wi-Fi AP credentials.
 			The HaLow connected devices obtain IP addresses from the DHCP server on this device,
 			and this device uses NAT to forward IP traffic.`);
 		var noneInfoAp = _(`In <b>None</b> mode, your device will have a static IP address and run a
 			DHCP server on all interfaces, the HaLow and non-HaLow networks will be isolated from each other.`);
-		var wifiApInfo = _(`This HaLow device is also capable of 2.4 GHz Wi-Fi.
-			If you enable a 2.4 GHz Wi-Fi <b>Access Point</b>, you will be able to
-			connect non-HaLow Wi-Fi clients to this device.`);
-		var easyMeshManagedAP = _(`"<p><b>EasyMesh</b> does not manage the 2.4GHz Wi-Fi access point unless it is bridged with the HaLow network."`);
 
 		page = this.page(networkSection,
 			_('Upstream Network'),
@@ -550,7 +530,7 @@ return wizard.AbstractWizardView.extend({
 			if (value.includes('ethernet')) {
 				this.page.updateInfoText(ethInfoAp, thisWizardView);
 			} else if (value == 'wifi') {
-				this.page.updateInfoText(wifiStaInfo, thisWizardView);
+				this.page.updateInfoText(wifiInfoAp, thisWizardView);
 			} else if (value == 'none') {
 				this.page.updateInfoText(noneInfoAp, thisWizardView);
 			}
@@ -605,7 +585,10 @@ return wizard.AbstractWizardView.extend({
 
 		if (wifiDeviceName) {
 			page = this.page(wifiApInterfaceSection,
-				_('2.4 GHz Wi-Fi Access Point'), wifiApInfo);
+				_('2.4 GHz Wi-Fi Access Point'),
+				_(`This HaLow device is also capable of 2.4 GHz Wi-Fi.
+				If you enable a 2.4 GHz Wi-Fi <b>Access Point</b>, you will be able to
+				connect non-HaLow Wi-Fi clients to this device.`));
 			page.enableDiagram({
 				extras: ['STA_WIFI24_INT_SELECT', 'STA_WIFI24_INT_SELECT_FILL', 'AP_WIFI24_INT_SELECT', 'AP_WIFI24_INT_SELECT_FILL'],
 			});
@@ -615,23 +598,6 @@ return wizard.AbstractWizardView.extend({
 			option.disabled = '1';
 			option.default = '0';
 			option.onchange = function () {
-				thisWizardView.onchangeOptionUpdateDiagram(this);
-			};
-
-			option = page.option(morseui.Slider, 'bridge_with_halow', _('Bridge with HaLow Network'));
-			option.uciconfig = 'network';
-			option.ucisection = 'wizard';
-			option.ucioption = 'bridge_with_halow';
-			option.enabled = '1';
-			option.disabled = '0';
-			option.default = '1';
-			option.depends({ [`wireless.${wifiApInterfaceName}.disabled`]: '0', ['network.wizard.uplink']: 'none' });
-			option.depends({ [`wireless.${wifiApInterfaceName}.disabled`]: '0', ['network.wizard.device_mode_meshagent']: 'none' });
-			option.depends({ [`wireless.${wifiApInterfaceName}.disabled`]: '0', ['network.wizard.device_mode_meshagent']: 'extender' });
-
-			option.onchange = function (ev, sectionId, value) {
-				let fullMessage = `${wifiApInfo} ${easyMeshManagedAP}`;
-				this.page.updateInfoText(value === '0' ? fullMessage : wifiApInfo, thisWizardView);
 				thisWizardView.onchangeOptionUpdateDiagram(this);
 			};
 

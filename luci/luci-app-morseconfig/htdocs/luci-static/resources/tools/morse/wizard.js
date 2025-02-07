@@ -467,32 +467,6 @@ function resetUciNetworkTopology() {
 		uci.unset('network', iface['.name'], 'gateway');
 		uci.unset('network', iface['.name'], 'device');
 	}
-
-	// Removes EasyMesh-specific options from wireless config
-	for (const iface of uci.sections('wireless', 'wifi-iface')) {
-		if (iface['mode'] !== 'ap') {
-			continue;
-		}
-
-		uci.unset('wireless', iface['.name'], 'ifname');
-		uci.unset('wireless', iface['.name'], 'wds');
-		uci.unset('wireless', iface['.name'], 'bss_transition');
-		uci.unset('wireless', iface['.name'], 'multi_ap');
-		uci.unset('wireless', iface['.name'], 'ieee80211k');
-		uci.unset('wireless', iface['.name'], 'ieee80211w');
-		uci.unset('wireless', iface['.name'], 'disabled');
-		uci.unset('wireless', iface['.name'], 'wps_virtual_push_button');
-		uci.unset('wireless', iface['.name'], 'wps_independent');
-		uci.unset('wireless', iface['.name'], 'auth_cache');
-
-		uci.set('wireless', iface['.name'], 'network', 'lan');
-		uci.set('wireless', iface['.name'], 'encryption', 'psk2');
-	}
-
-	// Remove mesh-managed APs from prplmesh config
-	for (const prpl_device of uci.sections('prplmesh', 'wifi-device')) {
-		uci.remove('prplmesh', prpl_device['.name']);
-	}
 }
 
 /**

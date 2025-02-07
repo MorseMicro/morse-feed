@@ -164,9 +164,7 @@ return view.extend({
 			case 'standard':
 				morseuci.forceBridge('lan', 'br-lan');
 				uci.set('system', 'led_halow', 'dev', 'wlan0');
-				uci.set('system', 'led_80211n_ap', 'dev', 'phy0-ap0');
 				uci.set('wireless', morseInterfaceName, 'encryption', 'sae');
-				uci.set('wireless', wifiApInterfaceName, 'encryption', 'psk2');
 				break;
 			case 'prplmesh':
 				morseuci.forceBridge('lan', 'br-prpl', this.bridgeMAC);
@@ -192,21 +190,6 @@ return view.extend({
 				uci.set('wireless', morseInterfaceName, 'wps_virtual_push_button', '1');
 				uci.set('wireless', morseInterfaceName, 'wps_independent', '0');
 				uci.set('wireless', morseInterfaceName, 'auth_cache', '0');
-
-				// Configure the 2.4 GHz radio to be managed by prplMesh
-				if (!uci.get('prplmesh', wifiDeviceName)) {
-					uci.add('prplmesh', 'wifi-device', wifiDeviceName);
-				}
-				uci.set('system', 'led_80211n_ap', 'dev', 'wl0-prpl');
-				uci.set('prplmesh', wifiDeviceName, 'hostap_iface', 'wl0-prpl');
-				uci.set('wireless', wifiApInterfaceName, 'ifname', 'wl0-prpl');
-				uci.set('wireless', wifiApInterfaceName, 'encryption', 'sae-mixed');
-				uci.set('wireless', wifiApInterfaceName, 'bss_transition', '1');
-				uci.set('wireless', wifiApInterfaceName, 'multi_ap', '2');
-				uci.set('wireless', wifiApInterfaceName, 'wps_virtual_push_button', '1');
-				uci.set('wireless', wifiApInterfaceName, 'wps_independent', '0');
-				uci.set('wireless', wifiApInterfaceName, 'auth_cache', '0');
-
 				break;
 			case 'mesh':
 				morseuci.forceBridge('lan', 'br-lan');
@@ -229,9 +212,7 @@ return view.extend({
 				if (!uci.get('wireless', morseMeshInterfaceName, 'key')) {
 					uci.set('wireless', morseMeshInterfaceName, 'key', uci.get('wireless', morseInterfaceName, 'key'));
 				}
-				uci.set('wireless', wifiApInterfaceName, 'encryption', 'psk2');
 				uci.set('system', 'led_halow', 'dev', 'wlan0');
-				uci.set('system', 'led_80211n_ap', 'dev', 'phy0-ap0');
 				break;
 		}
 
@@ -315,35 +296,20 @@ return view.extend({
 	},
 
 	updateInfoBox() {
-		const EASYMESH_INFO = _(`
-			<p>Easy Mesh Controller configuration allows centralized management of WiFi network credentials.
-			The HaLow Gateway's network credentials will be automatically applied to all extenders.
-			<p>Note: The extender's QR code for Wi-Fi connection will no longer be valid.
-		`);
+		// At the moment, this is the only infobox thing we show.
 		const WIFI24_UPLINK_INFO = _(`
 			After saving a 2.4 GHz Wi-Fi uplink configuration, you will need to connect to the correct
-			network on the Home page. Find the Uplink card, click on the "Disconnected" cross, then
+			network on on the Home page. Find the Uplink card, click on the "Disconnected" cross, then
 			set the SSID and password.
 		`);
 
-		const shouldShowWifi24UplinkInfo = (
+		const shouldShowWifi24UplinkInfo = () => (
 			(this.data.wizard.device_mode !== 'prplmesh' && this.data.wizard.network_mode === 'routed_wifi24')
 			|| (this.data.wizard.device_mode === 'prplmesh' && this.data.wizard.network_mode_prplmesh === 'routed_wifi24')
 		);
-		const shouldShowEasyMeshInfo = (this.data.wizard.device_mode === 'prplmesh');
 
-		let message = '';
-		if (shouldShowWifi24UplinkInfo) {
-			message += WIFI24_UPLINK_INFO;
-		}
-		if (shouldShowEasyMeshInfo) {
-			if (message) message += '<br><br>'; // Add spacing between messages
-			message += EASYMESH_INFO;
-		}
-
-		// Update the infobox
-		this.infobox.innerHTML = message;
-		this.infobox.style.display = message ? 'block' : 'none';
+		this.infobox.innerHTML = WIFI24_UPLINK_INFO;
+		this.infobox.style.display = shouldShowWifi24UplinkInfo() ? 'block' : 'none';
 	},
 
 	async load() {

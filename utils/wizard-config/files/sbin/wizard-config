@@ -227,11 +227,6 @@ function find_ifaces(uci, device) {
 		s => w[s][".type"] === "wifi-iface" && w[s]["device"] === device && w[s]["disabled"] !== "1");
 }
 
-function find_wifi_device(uci) {
-	const w = uci.get_all("wireless");
-	return filter(keys(w),
-		s => w[s][".type"] === "wifi-device" && w[s]["type"] === "mac80211" && w[s]["disabled"] !== "1")[0];
-}
 
 /* Interpret the json blob, applying the necessary changes for each mode.
  */
@@ -328,22 +323,6 @@ function apply_config (uci, config) {
 		uci.set("prplmesh", morse_device, "wifi-device");
 		uci.set("prplmesh", morse_device, "hostap_iface", "wlan-prpl");
 		uci.set("prplmesh", morse_device, "sta_iface", "wlan-prpl-1");
-
-		const wifi_device = find_wifi_device(uci);
-		assert(morse_device, "Unable to find mac80211 wifi-device in UCI wireless config.\n");
-
-		const wifi_iface = find_ifaces(uci, wifi_device)[0];
-		assert(wifi_iface, "Unable to find mac80211 wifi-iface in UCI wireless config.\n");
-
-		// Configure the 2.4GHz radio to be managed by prplmesh.
-		// prplmesh handles the synchronisation of network credentials from the Halow Base controller.
-		uci.set("prplmesh", wifi_device, "wifi-device");
-		uci.set('prplmesh', wifi_device, 'hostap_iface', 'wl0-prpl');
-		uci.set('wireless', wifi_iface, 'ifname', 'wl0-prpl');
-		uci.set('system', 'led_80211n_ap', 'dev', 'wl0-prpl');
-		uci.set('wireless', wifi_iface, 'encryption', 'sae-mixed');
-		uci.set('wireless', wifi_iface, 'bss_transition', '1');
-		uci.set('wireless', wifi_iface, 'multi_ap', '2');
 		break;
 	default:
 		die(`Mode not understood: ${config.mode}\n`);
@@ -566,7 +545,7 @@ const COMMANDS = {
 
 	_apply_config: (_ubus, uci, raw_config) => {
 		// Use standard uci delta_dir so user can see changes.
-		uci = cursor();
+		uci = uci.cursor();
 		apply_config(uci, json(raw_config));
 		uci.save();
 		print("Changes are staged. Use uci changes to view.\n");

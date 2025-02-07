@@ -104,7 +104,6 @@ const ENCRYPTION_OPTIONS_FOR_MODE = {
 	mac80211: {
 		default: ['psk2', 'sae-mixed', 'sae', 'owe', 'wpa3', 'none'],
 		mesh: ['sae', 'none'],
-		easymesh: ['psk2', 'sae-mixed', 'sae'],
 		adhoc: ['psk2', 'none'],
 		monitor: ['none'],
 		none: ['none'],
@@ -112,7 +111,6 @@ const ENCRYPTION_OPTIONS_FOR_MODE = {
 	morse: {
 		default: ['sae', 'owe', 'wpa3', 'none'],
 		mesh: ['sae', 'none'],
-		easymesh: ['psk2', 'sae-mixed', 'sae'],
 		adhoc: ['none'],
 		monitor: ['none'],
 		none: ['none'],
@@ -243,9 +241,7 @@ const WifiEncryptionList = form.ListValue.extend({
 	__name__: 'CBI.WifiEncryptionList',
 
 	renderWidget(sectionId, optionIndex, cfgvalue) {
-		const deviceName = uci.get('wireless', sectionId, 'device');
-		const mode = isEasyMeshManagedIface(sectionId, deviceName) ? 'easymesh' : this.section.formvalue(sectionId, 'mode');
-
+		const mode = this.section.formvalue(sectionId, 'mode');
 		const deviceType = Object.keys(ENCRYPTION_OPTIONS_FOR_MODE).includes(this.deviceType) ? this.deviceType : 'default';
 		let encryptionOptions = ENCRYPTION_OPTIONS_FOR_MODE[deviceType][mode];
 		if (!encryptionOptions) {
@@ -322,39 +318,6 @@ function getWifiIfaceModeI18n(wifiIface) {
 
 function modeUsesDefaultWifiKey(mode) {
 	return ['ap', 'ap-wds', 'mesh'].includes(mode);
-}
-
-// Returns true if the wireless interface is easy mesh managed
-function isEasyMeshManagedIface(sectionId, deviceName) {
-	// Return right away if easy mesh disabled
-	if (!isEasyMeshEnabled()) return false;
-
-	const prplMeshAPIface = uci.get('prplmesh', deviceName, 'hostap_iface');
-	const prplMeshStaIface = uci.get('prplmesh', deviceName, 'sta_iface');
-	const wirelessIface = uci.get('wireless', sectionId, 'ifname');
-	const mode = uci.get('wireless', sectionId, 'mode');
-
-	// If the wireless interface is missing, it is not EasyMesh managed
-	if (!wirelessIface) return false;
-
-	// Check if it is an EasyMesh-managed AP
-	if (mode === 'ap') return wirelessIface === prplMeshAPIface;
-
-	// Check if it is an EasyMesh-managed STA
-	if (mode === 'sta') return wirelessIface === prplMeshStaIface;
-
-	return false;
-}
-
-// returns true if easy mesh enabled
-function isEasyMeshEnabled() {
-	return uci.get('prplmesh', 'config', 'enable') === '1';
-}
-
-// Returns true if the device contains easy mesh manged AP/Sta
-function isEasyMeshManagedDevice(deviceName) {
-	const val = uci.get('prplmesh', deviceName);
-	return isEasyMeshEnabled() && val !== null && val !== undefined;
 }
 
 return view.extend({
@@ -498,7 +461,8 @@ return view.extend({
 		networkMap.chain('dhcp');
 		this.renderNetworkInterfaces(networkMap, hasWireless);
 
-		const isPrplMeshAgent = (isEasyMeshEnabled() && (uci.get('prplmesh', 'config', 'management_mode') === 'Multi-AP-Agent'));
+		const easyMesh = uci.get('prplmesh', 'config', 'enable');
+
 		let wirelessMap = null;
 		if (hasWireless) {
 			wirelessMap = new form.Map('wireless', [
@@ -517,50 +481,20 @@ return view.extend({
 				if (device.disabled === '1') {
 					continue;
 				}
+
 				this.renderWifiDevice(wirelessMap, device);
-
-				// Filters the easy mesh managed
-				const filterEasyMeshManagedIface = (sectionId, deviceName) => {
-					return isEasyMeshManagedIface(sectionId, deviceName);
-				};
-
-				// Filters non easy mesh managed AP
-				const filterNonEasyMeshManagedAps = (sectionId, deviceName) => {
-					return !filterEasyMeshManagedIface(sectionId, deviceName);
-				};
-
-				// Alert messages rendering in easy mesh mode
-				const renderEasyMeshAlert = () => {
-					const easyMeshAlertMsg = _(`Some options in the EasyMesh Managed interfaces are read-only to prevent misconfiguration.
-						To make changes, please use the <a target='_blank' href='%s'>wizard</a>.`).format(L.url('admin', 'selectwizard'));
-					const easyMeshAgentAlertMsg = _(`EasyMesh Managed interfaces are read-only in agent mode. To make changes, use the HaLow Gateway GUI.
-						The Extender's QR code for connecting to the Wi-Fi network is no longer valid.`);
-
-					const alertMsgSection = wirelessMap.section(form.TypedSection, 'EasyMesh_Info', _('EasyMesh Alert Message'));
-					alertMsgSection.anonymous = true;
-					alertMsgSection.render = function () {
-						return E('div', { class: 'alert-message warning' }, isPrplMeshAgent ? easyMeshAgentAlertMsg : easyMeshAlertMsg);
+				if (device.type === 'morse' && easyMesh == '1') {
+					const alert_message_section = wirelessMap.section(form.TypedSection, 'EasyMesh_Info', _('EasyMesh Alert Message'));
+					alert_message_section.anonymous = true;
+					alert_message_section.render = function () {
+						return E('div', { class: 'alert-message warning' }, _(`
+							The following section is read-only in EasyMesh mode. Any direct modifications made on this page might disrupt normal functionality. To make changes, please use the <a target="_blank" href="%s">wizard</a>.
+						`).format(L.url('admin', 'selectwizard')));
 					};
-				};
-
-				const isMeshManaged = isEasyMeshManagedDevice(device['.name']);
-				if (isMeshManaged) {
-					const meshManagedTitle = _(`EasyMesh Managed Interfaces`);
-					const ifaceOptions = { addRemove: false };
-					ifaceOptions.readOnlyFields = isPrplMeshAgent ? ['all'] : ['disabled', 'mode', 'network'];
-
-					// Render easy mesh alert
-					renderEasyMeshAlert();
-
-					// Render easy mesh managed interfaces
-					this.renderWifiInterfaces(wirelessMap, device['.name'], filterEasyMeshManagedIface, meshManagedTitle, ifaceOptions);
+					this.renderWifiInterfaces(wirelessMap, device['.name'], { readOnly: true });
+				} else {
+					this.renderWifiInterfaces(wirelessMap, device['.name']);
 				}
-
-				// Display the title only for easy mesh managed device.
-				const nonEasyMeshManagedTitle = isMeshManaged ? _(`Non-EasyMesh Managed Interfaces`) : null;
-
-				// Render non easy mesh managed interfaces. This will also help in creating new non-mesh managed interface
-				this.renderWifiInterfaces(wirelessMap, device['.name'], filterNonEasyMeshManagedAps, nonEasyMeshManagedTitle);
 			}
 		}
 
@@ -600,22 +534,18 @@ return view.extend({
 		option = section.option(widgets.WifiFrequencyValue, '_freq', _('Preferred frequency'));
 	},
 
-	renderWifiInterfaces(map, deviceName, filterIface, title, options = {}) {
+	renderWifiInterfaces(map, deviceName, options = {}) {
 		const deviceType = uci.get('wireless', deviceName, 'type');
 		const isMorse = deviceType === 'morse';
-		const section = map.section(form.TableSection, 'wifi-iface', title);
-		section.filter = sectionId => (deviceName === uci.get('wireless', sectionId, 'device') && filterIface(sectionId, deviceName));
-		section.addremove = options.addRemove ?? true;
+		const section = map.section(form.TableSection, 'wifi-iface');
+		section.filter = sectionId => deviceName === uci.get('wireless', sectionId, 'device');
+		const readOnly = options.readOnly ? options.readOnly : false;
+		if (readOnly) {
+			section.addremove = false;
+		} else {
+			section.addremove = true;
+		}
 		section.anonymous = true;
-		const readOnlyFields = Array.isArray(options.readOnlyFields) ? options.readOnlyFields : [];
-
-		// By default, all fields are read/write.
-		// If 'all' is present in readOnlyFields, all fields are set to read-only.
-		// To make specific fields read-only, add their names to the readOnlyFields array.
-		const getReadOnly = (field) => {
-			if (readOnlyFields.includes('all')) return true;
-			return readOnlyFields.includes(field);
-		};
 
 		// If we don't immediately set the correct device, it won't appear in our table
 		// due to the filter. Also, the normal handleAdd saves the current state of the
@@ -659,7 +589,7 @@ return view.extend({
 		option.enabled = '0';
 		option.disabled = '1';
 		option.default = '0';
-		option.readonly = getReadOnly('disabled');
+		option.readonly = readOnly;
 
 		option = section.option(form.DummyValue, '_device', _('Device'));
 		option.cfgvalue = (sectionId) => {
@@ -672,7 +602,7 @@ return view.extend({
 				option.value(networkIface['.name'], networkIface['.name']);
 			}
 		}
-		option.readonly = getReadOnly('network');
+		option.readonly = readOnly;
 
 		const MODE_TOOLTIP = _(`
 			Change the mode of your Wi-Fi interface. To enable HaLow Wi-Fi extenders, you should select WDS (Wireless Distribution System)
@@ -682,7 +612,7 @@ return view.extend({
 		for (const [k, v] of Object.entries(isMorse ? HALOW_WIFI_MODE_NAMES : WIFI_MODE_NAMES)) {
 			option.value(k, v);
 		}
-		option.readonly = getReadOnly('mode');
+		option.readonly = readOnly;
 		option.onchange = function (ev, sectionId, value, previousValue) {
 			if (previousValue && previousValue.replace('-wds', '') === value.replace('-wds', '')) {
 				// If the only change is WDS, none of the dependent fields are invalidated.
@@ -768,7 +698,7 @@ return view.extend({
 			const DPP_TOOLTIP = _('This enables DPP via QRCode for clients (access points automatically support DPP).');
 			option = section.option(form.Flag, 'dpp', E('span', { 'class': 'show-info', 'data-tooltip': DPP_TOOLTIP }, _('DPP')));
 			option.depends({ '!contains': true, 'mode': 'sta' });
-			option.readonly = getReadOnly('dpp');
+			option.readonly = readOnly;
 		}
 
 		option = section.option(morseui.SSIDListScan, 'ssid', _('SSID/Mesh ID'));
@@ -776,8 +706,8 @@ return view.extend({
 			option.depends('dpp', '0');
 			option.depends({ '!reverse': true, 'mode': 'sta' });
 		}
-		option.readonly = getReadOnly('ssid');
-		if (option.readonly) {
+		option.readonly = readOnly;
+		if (readOnly) {
 			// If we're in readonly mode, we don't want to block people saving seemingly
 			// 'bad' configurations when they can't fix them.
 			// This happens in practice if you have an EasyMesh config before WPS,
@@ -816,7 +746,7 @@ return view.extend({
 		};
 
 		option = section.option(WifiEncryptionList, 'encryption', _('Encryption'));
-		option.readonly = getReadOnly('encryption');
+		option.readonly = readOnly;
 		if (this.hasQRCode && isMorse) {
 			option.depends({ dpp: '0' });
 			option.depends({ '!reverse': true, '!contains': true, 'mode': 'sta' });
@@ -871,8 +801,8 @@ return view.extend({
 		option.datatype = 'wpakey';
 		option.rmempty = true;
 		option.password = true;
-		option.readonly = getReadOnly('_wpa_key');
-		if (option.readonly) {
+		option.readonly = readOnly;
+		if (readOnly) {
 			// If we're in readonly mode, we don't want to block people saving seemingly
 			// 'bad' configurations when they can't fix them.
 			// This happens in practice if you have an EasyMesh config before WPS,
