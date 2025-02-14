@@ -111,4 +111,4 @@ if __name__ == "__main__":
         write_row(header,'B',f)               # Write the header bytes.
         for row in rate_tx_power_adjust_table:
             write_row(row,'b',f)              # Write rate_tx_power_adjust_table row by row.
-        write_row(bw_tx_power_adjust_table,'b') # Write the bw_tx_power_adjust_table bytes.
+        write_row(bw_tx_power_adjust_table,'b',f) # Write the bw_tx_power_adjust_table bytes.
