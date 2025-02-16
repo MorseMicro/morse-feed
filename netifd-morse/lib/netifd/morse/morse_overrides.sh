@@ -820,7 +820,7 @@ morse_override_wpa_supplicant_add_network() {
 	}
 
 	[ "$_w_mode" = "mesh" ] && {
-		json_get_vars mesh_id dtim_period encryption
+		json_get_vars mesh_id encryption
 		[ -n "$mesh_id" ] && ssid="${mesh_id}"
 		[ -n "$mesh_max_peer_links" ] && append mesh_data "max_peer_links=${mesh_max_peer_links}" "$N"
 		[ -n "$mesh_plink_timeout" ] && append mesh_data "mesh_max_inactivity=${mesh_plink_timeout}" "$N"
@@ -832,7 +832,8 @@ morse_override_wpa_supplicant_add_network() {
 		[ -n "$country" ] && append network_data "country=\"$country\"" "$N$T"
 		[ -n "$s1g_prim_chwidth" ] && append network_data "s1g_prim_chwidth=$s1g_prim_chwidth" "$N$T"
 		[ -n "$s1g_prim_1mhz_chan_index" ] && append network_data "s1g_prim_1mhz_chan_index=$s1g_prim_1mhz_chan_index" "$N$T"
-		[ -n "$dtim_period" ] && append network_data "dtim_period=$dtim_period" "$N$T"
+		#SW-13323 - Restrict DTIM period to 1 for mesh
+		append network_data "dtim_period=1" "$N$T"
 
 		[ -n "$mesh_rssi_threshold" ] && append network_data "mesh_rssi_threshold=${mesh_rssi_threshold}" "$N$T"
 		[ -n "$mesh_hwmp_rootmode" ] && append network_data "dot11MeshHWMPRootMode=${mesh_hwmp_rootmode}" "$N$T"
