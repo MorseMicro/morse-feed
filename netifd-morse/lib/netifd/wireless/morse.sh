@@ -19,7 +19,7 @@ MM_MOD_BOOL="enable_mac80211_connection_monitor mcs10_mode enable_rts_8mhz
 			enable_coredump thin_lmac enable_mbssid_ie enable_trav_pilot enable_cts_to_self enable_airtime_fairness
 			enable_twt enable_bcn_change_seq_monitor enable_dhcpc_offload enable_ibss_probe_filtering enable_auto_duty_cycle
 			enable_auto_mpsw enable_mcast_whitelist log_modparams_on_boot enable_fixed_rate spi_use_edge_irq"
-MM_MOD_STRING="bcf serial country test_mode debug_mask macaddr_octet mcs_mask dhcpc_lease_update_script"
+MM_MOD_STRING="serial country test_mode debug_mask macaddr_octet mcs_mask dhcpc_lease_update_script"
 MM_MOD_UNKNOWN=
 MOD_PARAMS=
 
@@ -57,67 +57,27 @@ check_sgi(){
 	fi
 }
 
-get_vfem_4v3_name() {
+# Determines if we should change the specified bcf because
+# of the vfem_4v3 parameters (and reports errors if nonsense).
+get_vfem_4v3_bcf() {
 	local bcf="$1"
-	local vfem_4v3="$2"
 
-	bcf="${bcf/_4v3.bin/.bin}"
+	boost_bcf="${bcf/.bin/_4v3.bin}"
 
-	if [ "$vfem_4v3" = "1" ]; then
-		bcf="${bcf%.bin}_4v3.bin"
-	fi
-	echo "$bcf"
-}
-
-check_and_add_bcf() {
-	local bcf="$1"
-	if [ -n "$bcf" ] && [ -f "/lib/firmware/morse/$bcf" ]; then
-		json_add_string "bcf" "$bcf"
+	if ! gpiofind MM_BOOST > /dev/null; then
+		echo "WARNING: Unable to set 4.3v vfem as no MM_BOOST gpio configured" >&2
+	elif [ -z "$bcf" ]; then
+		echo "WARNING: Unable to set 4.3v vfem if no explicit BCF" >&2
+	elif ! [ -f "/lib/firmware/morse/$boost_bcf" ]; then
+		echo "WARNING: Unable to set 4.3v vfem as $boost_bcf doesn't exist" >&2
 	else
-		echo "Could not find appropriate BCF file $bcf" >&2
-	fi
-}
-
-is_boost_gpio_present() {
-	local gpio="MM_BOOST"
-	boost_gpio=$(gpiofind "$gpio" | head -1)
-	if [ $? -ne 0 ] || [ -z "$boost_gpio" ]; then
-		return 1
-	fi
-	return 0
-}
-
-apply_boost_bcf() {
-	json_get_var vfem_4v3 vfem_4v3
-	json_get_var bcf bcf
-
-	vfem_4v3="${vfem_4v3:-0}"
-
-	# If there is no gpio line for MM_BOOST, abort setting boost bcf
-	if ! is_boost_gpio_present; then
-		return 1
-	fi
-
-	if [ "$vfem_4v3" = "1" ]; then
-		if [ -z "$bcf" ]; then
-			# If there is no BCF configured, currently we don't support 4.3v vfem
-			echo "Currently we don't support to enable 4.3v vfem if BCF is not explicitly configured" >&2
-		else
-			bcf=$(get_vfem_4v3_name "$bcf" "$vfem_4v3")
-			check_and_add_bcf "$bcf"
-		fi
-	else
-		if [ -n "$bcf" ]; then
-			bcf=$(get_vfem_4v3_name "$bcf" "$vfem_4v3")
-			check_and_add_bcf "$bcf"
-		fi
+		echo "$boost_bcf"
+		return 0
 	fi
 }
 
 build_morse_mod_params(){
 	json_select config
-
-	apply_boost_bcf
 
 	for var in $MM_MOD_BOOL $MM_MOD_INT $MM_MOD_STRING; do
 		json_get_var mm_mod_val "$var"
@@ -194,6 +154,7 @@ drv_morse_init_device_config() {
 	config_add_boolean thin_lmac_optimization
 
 	#module parameters
+	config_add_string bcf  # handled separately due to boost bcf
 	config_add_int $MM_MOD_INT
 	config_add_boolean $MM_MOD_BOOL
 	config_add_string $MM_MOD_STRING $MM_MOD_UNKNOWN
@@ -344,7 +305,7 @@ change_module_parameters() {
 	fi
 }
 
-set_boost_gpio(){
+set_vfem_4v3_gpio(){
 	local vfem_4v3=$1
 	gpio="MM_BOOST"
 
@@ -369,21 +330,37 @@ drv_morse_setup() {
 		txpower \
 		frag rts htmode \
 		ampdu \
+		bcf vfem_4v3 \
 		op_class \
-		vfem_4v3 \
 		bss_color forced_listen_interval \
 		thin_lmac_optimization
 	json_get_values basic_rate_list basic_rate
 	json_select ..
 
+	# Remove 4v3 from BCF in case someone's tried to force it
+	# (backwards compat?).
+	bcf="${bcf/_4v3.bin/.bin}"
+	if [ "$vfem_4v3" = 1 ]; then
+		vfem_4v3_bcf=$(get_vfem_4v3_bcf "$bcf")
+		if [ -n "$vfem_4v3_bcf" ]; then
+			bcf="$vfem_4v3_bcf"
+		else
+			vfem_4v3=0
+		fi
+	fi
+
 	MOD_PARAMS=
+	if [ -n "$bcf" ]; then
+		MOD_PARAMS="$MOD_PARAMS bcf=$bcf"
+	fi
+
 	build_morse_mod_params
 
 	local inserted_module=0
 	if [ -n "$country" ]; then
 		if change_module_parameters || ! is_module_loaded; then
 			is_module_loaded && rmmod morse
-			set_boost_gpio $vfem_4v3
+			set_vfem_4v3_gpio "$vfem_4v3"
 			/sbin/kmodloader /etc/modules.d/morse
 			inserted_module=1
 		fi
