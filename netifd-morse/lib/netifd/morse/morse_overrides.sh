@@ -1135,8 +1135,10 @@ morse_override_wpa_supplicant_add_network() {
 		echo "dpp_config_processing=0"  >> "$_config"
 		echo "dpp_key=/etc/dpp_key.pem"  >> "$_config"
 		echo "dpp_chirp_forever=1"  >> "$_config"
+	elif [ -n "$ssid" ]; then
+		# Only append a network block if we have an ssid, as otherwise
+		# wpa_supplicant likes scanning and connecting to anything.
 
-	else
 		# If we're a normal mesh or sta on a bridge, it's useful for the MAC address
 		# presented by wpa_supplicant to be the same as the MAC address of the bridge
 		# so any AP/mesh point can easily figure out who we are (i.e. map the MAC
