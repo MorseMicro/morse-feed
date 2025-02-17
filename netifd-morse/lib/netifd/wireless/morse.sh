@@ -307,17 +307,23 @@ change_module_parameters() {
 
 set_vfem_4v3_gpio(){
 	local vfem_4v3=$1
-	gpio="MM_BOOST"
+	local vfem_4v3_gpio=$(gpiofind MM_BOOST | head -1)
 
-	local boost_gpio=$(gpiofind "$gpio" | head -1)
-	if [ $? -ne 0 ] || [ -z "$boost_gpio" ]; then
+	if [ -z "$vfem_4v3_gpio" ]; then
 		return 1
 	fi
 
+	local cmd="gpioset -b -m signal $vfem_4v3_gpio=1"
+	local gpioset_pid=$(pgrep -fx "$cmd")
+
 	if [ "$vfem_4v3" = "1" ]; then
-		gpioset $boost_gpio=1
+		if [ -z "$gpioset_pid" ]; then
+			$cmd
+		fi
 	else
-		gpioset $boost_gpio=0
+		if [ -n "$gpioset_pid" ]; then
+			kill "$gpioset_pid"
+		fi
 	fi
 }
 
