@@ -889,16 +889,22 @@ get_product_id() {
 	local sys_path=""
 	local id_file=""
 
-	case "$device_path" in
-		*usb*)
-			sys_path="/sys/devices/platform/$device_path"
-			id_file="${sys_path%/*}/idProduct"
-			;;
-		platform*)
-			sys_path="/sys/devices/$device_path"
-			id_file="${sys_path%/*}/device"
-			;;
-	esac
+	# For SPI and SDIO interfaces, the device path is often prefixed with 'platform/'.
+	# To ensure uniformity, if the device path already includes 'platform/', we remove that
+	# and enforce '/sys/devices/platform/' as the base path.
+	if [ "${device_path#platform/}" != "$device_path" ]; then
+		sys_path="/sys/devices/${device_path}"
+	else
+		sys_path="/sys/devices/platform/${device_path}"
+	fi
+
+	# Determine the appropriate ID file based on whether the device is USB or not.
+	if echo "$device_path" | grep -q "usb"; then
+		id_file="${sys_path}/idProduct"
+	else
+		id_file="${sys_path}/device"
+	fi
+
 
 	if [ -f "$id_file" ]; then
 		cat "$id_file"
