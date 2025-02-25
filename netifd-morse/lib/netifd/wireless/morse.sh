@@ -917,9 +917,9 @@ get_product_id() {
 
 	# Determine the appropriate ID file based on whether the device is USB or not.
 	if echo "$device_path" | grep -q "usb"; then
-		id_file="${sys_path}/idProduct"
+		id_file="${sys_path%/*}/idProduct"
 	else
-		id_file="${sys_path}/device"
+		id_file="${sys_path%/*}/device"
 	fi
 
 
