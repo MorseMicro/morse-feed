@@ -843,7 +843,7 @@ function createAssoclistCard(wifiNetwork, hostHints, hasQRCode) {
 				bitrate && E('dd', `${wifiNetwork.getBitRate()} Mbps`),
 			].filter(e => e)),
 			E('div', { class: 'main-counter' }, [
-				E('button', { class: 'big-number click-to-expand' }, wifiNetwork.assoclist.length),
+				E('button', { class: 'big-number click-to-expand' }, associatedDevices.length),
 				E('button', { class: 'big-text click-to-expand' }, _('Connected Devices')),
 			]),
 		],
