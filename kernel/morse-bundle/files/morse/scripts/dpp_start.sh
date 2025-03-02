@@ -12,6 +12,12 @@ has_sta_interface=0
 # This file is removed upon DPP timeout/Success in wpa_s1g_dpp_action.sh script
 dpp_start_time=/tmp/dpp_start_time
 
+error_exit() {
+	echo "$*"
+	logger -t button -p daemon.notice "$*"
+	exit 1
+}
+
 start_wpa_event_listener() {
 	# Start the wpa_event_listener to listen for DPP events. The
 	# wpa_event_listener will write the config on the STA side and control the
@@ -83,10 +89,11 @@ current_uptime=$(awk '{print int($1)}' /proc/uptime)
 if [ -f $dpp_start_time ]; then
 	stored_uptime=$(cat "$dpp_start_time")
 	uptime_diff=$((current_uptime - stored_uptime))
+	# If you change this time, make sure to update luci-mod-home
 	if [ "$uptime_diff" -lt 120 ]; then
-		logger -t button -p daemon.notice "DPP button already pressed. Please wait for 2 minutes after the initial press."
-		return
+		error_exit "DPP button already pressed. Please wait for 2 minutes after the initial press."
 	fi
 fi
 
 maybe_press_dpp_button
+exit 0
