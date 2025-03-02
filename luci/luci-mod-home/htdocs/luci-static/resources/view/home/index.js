@@ -256,6 +256,26 @@ function getBestDevice(netIface) {
 		scoreDevice(current.getWifiNetwork()) > scoreDevice(best.getWifiNetwork()) ? current : best);
 }
 
+async function startDPP() {
+	const result = await fs.exec('/morse/scripts/dpp_start.sh');
+	if (result.code === 0) {
+		// We currently have no good feedback mechanism, so just wait 120 secs
+		// (this is the same as the lockout time in dpp_start.sh).
+		await new Promise(resolveFn => window.setTimeout(resolveFn, 120 * 1000));
+	} else {
+		let output = result.stdout ?? '';
+		if (result.stderr) {
+			output += `\n${result.stderr}`;
+		}
+		ui.showModal(_('Unable to start DPP'), [
+			E('p', {}, [E('em', { style: 'white-space:pre-wrap' }, output || _('Unknown error'))]),
+			E('div', { class: 'right' },
+				E('button', { class: 'cbi-button', click: ui.hideModal }, [_('Dismiss')]),
+			),
+		]);
+	}
+}
+
 function createSystemCard(boardinfo) {
 	// Currently no nice way to get this.
 	const morseVersion = boardinfo.release.description.split(' ').pop().replace('Morse-', '');
@@ -393,9 +413,7 @@ async function renderUplinkWifiConnectMethods(id, hasQRCode, wifiNetwork, isUp) 
 								// TODO hack - sleep so we have time for config to reload before triggering DPP.
 								await new Promise(resolveFn => window.setTimeout(resolveFn, 3 * 1000));
 							}
-							await fs.exec('/morse/scripts/dpp_start.sh');
-							// We currently have no good feedback mechanism, so just wait 100 secs.
-							await new Promise(resolveFn => window.setTimeout(resolveFn, 100 * 1000));
+							await startDPP();
 							await updateUplinkWifiConnectMethods(hasQRCode, element);
 						}),
 					}, _('Start DPP push button')),
@@ -802,11 +820,7 @@ function createAssoclistCard(wifiNetwork, hostHints, hasQRCode) {
 				mode === 'ap' && isHaLow(wifiNetwork) && E('dd', [
 					E('button', {
 						class: 'cbi-button cbi-button-action cbi-button-inline',
-						click: ui.createHandlerFn(this, async () => {
-							await fs.exec('/morse/scripts/dpp_start.sh');
-							// We currently have no good feedback mechanism, so just wait 100 secs.
-							await new Promise(resolveFn => window.setTimeout(resolveFn, 100 * 1000));
-						}),
+						click: ui.createHandlerFn(this, startDPP),
 					}, _('Start DPP push button')),
 					_(' here, and then on the Client.'),
 				]),
