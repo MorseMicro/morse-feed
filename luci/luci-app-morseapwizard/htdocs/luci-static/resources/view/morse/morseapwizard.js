@@ -119,15 +119,16 @@ return view.extend({
 
 		// (2) Take that JSON data and turn it into uci config.
 		const {
+			wifiDevices,
 			morseDeviceName,
-			wifiDeviceName,
 			morseInterfaceName,
-			wifiApInterfaceName,
-			wifiStaInterfaceName,
 			morseMeshInterfaceName,
 		} = wizard.readSectionInfo();
 
-		const wifiApDisabled = uci.get('wireless', wifiApInterfaceName, 'disabled');
+		const wifiApsDisabled = {};
+		for (const wifiDevice of wifiDevices) {
+			wifiApsDisabled[wifiDevice.name] = uci.get('wireless', wifiDevice.apInterfaceName, 'disabled');
+		}
 
 		wizard.resetUci();
 		wizard.resetUciNetworkTopology();
@@ -139,9 +140,11 @@ return view.extend({
 		// Make sure Morse device is enabled.
 		uci.unset('wireless', morseDeviceName, 'disabled');
 
-		// Re-enable 2.4 if our reset disabled.
-		if (uci.get('wireless', wifiApInterfaceName)) {
-			uci.set('wireless', wifiApInterfaceName, 'disabled', wifiApDisabled);
+		// Re-enable any non-HaLow radios if our reset disabled.
+		for (const wifiDevice of wifiDevices) {
+			if (uci.get('wireless', wifiDevice.apInterfaceName)) {
+				uci.set('wireless', wifiDevice.apInterfaceName, 'disabled', wifiApsDisabled[wifiDevice.name]);
+			}
 		}
 
 		// Ensure HaLow AP is enabled/created
@@ -166,7 +169,9 @@ return view.extend({
 				uci.set('system', 'led_halow', 'dev', 'wlan0');
 				uci.set('system', 'led_80211n_ap', 'dev', 'phy0-ap0');
 				uci.set('wireless', morseInterfaceName, 'encryption', 'sae');
-				uci.set('wireless', wifiApInterfaceName, 'encryption', 'psk2');
+				for (const wifiDevice of wifiDevices) {
+					uci.set('wireless', wifiDevice.apInterfaceName, 'encryption', 'psk2');
+				}
 				break;
 			case 'prplmesh':
 				morseuci.forceBridge('lan', 'br-prpl', this.bridgeMAC);
@@ -193,19 +198,21 @@ return view.extend({
 				uci.set('wireless', morseInterfaceName, 'wps_independent', '0');
 				uci.set('wireless', morseInterfaceName, 'auth_cache', '0');
 
-				// Configure the 2.4 GHz radio to be managed by prplMesh
-				if (!uci.get('prplmesh', wifiDeviceName)) {
-					uci.add('prplmesh', 'wifi-device', wifiDeviceName);
-				}
-				uci.set('system', 'led_80211n_ap', 'dev', 'wl0-prpl');
-				uci.set('prplmesh', wifiDeviceName, 'hostap_iface', 'wl0-prpl');
-				uci.set('wireless', wifiApInterfaceName, 'ifname', 'wl0-prpl');
-				uci.set('wireless', wifiApInterfaceName, 'encryption', 'sae-mixed');
-				uci.set('wireless', wifiApInterfaceName, 'bss_transition', '1');
-				uci.set('wireless', wifiApInterfaceName, 'multi_ap', '2');
-				uci.set('wireless', wifiApInterfaceName, 'wps_virtual_push_button', '1');
-				uci.set('wireless', wifiApInterfaceName, 'wps_independent', '0');
-				uci.set('wireless', wifiApInterfaceName, 'auth_cache', '0');
+				// Configure the non-HaLow radios to be managed by prplMesh
+				wifiDevices.forEach((wifiDevice, i) => {
+					if (!uci.get('prplmesh', wifiDevice.name)) {
+						uci.add('prplmesh', 'wifi-device', wifiDevice.name);
+					}
+					uci.set('system', 'led_80211n_ap', 'dev', `wl${i}-prpl`);
+					uci.set('prplmesh', wifiDevice.name, 'hostap_iface', `wl${i}-prpl`);
+					uci.set('wireless', wifiDevice.apInterfaceName, 'ifname', `wl${i}-prpl`);
+					uci.set('wireless', wifiDevice.apInterfaceName, 'encryption', 'sae-mixed');
+					uci.set('wireless', wifiDevice.apInterfaceName, 'bss_transition', '1');
+					uci.set('wireless', wifiDevice.apInterfaceName, 'multi_ap', '2');
+					uci.set('wireless', wifiDevice.apInterfaceName, 'wps_virtual_push_button', '1');
+					uci.set('wireless', wifiDevice.apInterfaceName, 'wps_independent', '0');
+					uci.set('wireless', wifiDevice.apInterfaceName, 'auth_cache', '0');
+				});
 
 				break;
 			case 'mesh':
@@ -229,7 +236,10 @@ return view.extend({
 				if (!uci.get('wireless', morseMeshInterfaceName, 'key')) {
 					uci.set('wireless', morseMeshInterfaceName, 'key', uci.get('wireless', morseInterfaceName, 'key'));
 				}
-				uci.set('wireless', wifiApInterfaceName, 'encryption', 'psk2');
+
+				for (const wifiDevice of wifiDevices) {
+					uci.set('wireless', wifiDevice.apInterfaceName, 'encryption', 'psk2');
+				}
 				uci.set('system', 'led_halow', 'dev', 'wlan0');
 				uci.set('system', 'led_80211n_ap', 'dev', 'phy0-ap0');
 				break;
@@ -291,18 +301,20 @@ return view.extend({
 				}
 
 				// Set WAN devices
-				if (uci.get('wireless', wifiStaInterfaceName)) {
-					uci.unset('wireless', wifiStaInterfaceName, 'disabled');
-				} else {
-					uci.add('wireless', 'wifi-iface', wifiStaInterfaceName);
-				}
-				uci.set('wireless', wifiStaInterfaceName, 'device', wifiDeviceName);
-				uci.set('wireless', wifiStaInterfaceName, 'mode', 'sta');
-				uci.set('wireless', wifiStaInterfaceName, 'network', 'wan');
-				if (!uci.get('wireless', wifiStaInterfaceName, 'ssid')) {
-					// Without setting something here, if no SSID is specified
-					// wpa_supplicant likes to connect to any open network.
-					uci.set('wireless', wifiStaInterfaceName, 'encryption', 'psk2');
+				for (const wifiDevice of wifiDevices) {
+					if (uci.get('wireless', wifiDevice.staInterfaceName)) {
+						uci.unset('wireless', wifiDevice.staInterfaceName, 'disabled');
+					} else {
+						uci.add('wireless', 'wifi-iface', wifiDevice.staInterfaceName);
+					}
+					uci.set('wireless', wifiDevice.staInterfaceName, 'device', wifiDevice.name);
+					uci.set('wireless', wifiDevice.staInterfaceName, 'mode', 'sta');
+					uci.set('wireless', wifiDevice.staInterfaceName, 'network', 'wan');
+					if (!uci.get('wireless', wifiDevice.staInterfaceName, 'ssid')) {
+						// Without setting something here, if no SSID is specified
+						// wpa_supplicant likes to connect to any open network.
+						uci.set('wireless', wifiDevice.staInterfaceName, 'encryption', 'psk2');
+					}
 				}
 				break;
 		}
@@ -359,10 +371,10 @@ return view.extend({
 			this.errorMessage = EXTENDER_MODE_MESSAGE;
 		} else {
 			try {
-				const { wifiDevice } = wizard.readSectionInfo();
+				const { wifiDevices } = wizard.readSectionInfo();
 
-				if (!wifiDevice) {
-					this.errorMessage = INVALID_CONFIG_MESSAGE.format(_('No 2.4 GHz Wi-Fi radio found'));
+				if (wifiDevices.length == 0) {
+					this.errorMessage = INVALID_CONFIG_MESSAGE.format(_('No non-HaLow Wi-Fi radios found'));
 				}
 			} catch (e) {
 				this.errorMessage = INVALID_CONFIG_MESSAGE.format(e.message);
