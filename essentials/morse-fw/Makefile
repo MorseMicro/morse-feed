@@ -66,27 +66,29 @@ define Build/Compile
 
 endef
 
+# Files from the tarball are overriden by a file in this path.
+# This is for local development and used by jenkins.
+define install_file_or_override
+	if [ -e ./files/lib/firmware/morse/$(1) ]; then \
+		$(INSTALL_DATA) ./files/lib/firmware/morse/$(1) $(2)/lib/firmware/morse/; \
+	else \
+		$(INSTALL_DATA) $(PKG_BUILD_DIR)/lib/firmware/morse/$(1) $(2)/lib/firmware/morse/; \
+	fi
+endef
+
 define Package/morse-fw-6108/install
 	$(INSTALL_DIR) $(1)/lib/firmware/morse/.
-	if [ -e ./files/lib/firmware/morse/mm6108.bin ]; then \
-		$(INSTALL_DATA) ./files/lib/firmware/morse/mm6108.bin $(1)/lib/firmware/morse/; \
-	else \
-		$(INSTALL_DATA) $(PKG_BUILD_DIR)/lib/firmware/morse/mm6108.bin $(1)/lib/firmware/morse/; \
-	fi
+	$(call install_file_or_override,mm6108.bin,$(1))
 endef
 
 define Package/morse-fw-6108-tlm/install
 	$(INSTALL_DIR) $(1)/lib/firmware/morse/.
-	if [ -e ./files/lib/firmware/morse/mm6108-tlm.bin ]; then \
-		$(INSTALL_DATA) ./files/lib/firmware/morse/mm6108-tlm.bin $(1)/lib/firmware/morse/; \
-	else \
-		$(INSTALL_DATA) $(PKG_BUILD_DIR)/lib/firmware/morse/mm6108-tlm.bin $(1)/lib/firmware/morse/; \
-	fi
+	$(call install_file_or_override,mm6108-tlm.bin,$(1))
 endef
 
 define Package/morse-fw-8108/install
 	$(INSTALL_DIR) $(1)/lib/firmware/morse/.
-	$(INSTALL_DATA) $(PKG_BUILD_DIR)/lib/firmware/morse/mm8108b2-rl.bin $(1)/lib/firmware/morse/
+	$(call install_file_or_override,mm8108b2-rl.bin,$(1))
 endef
 
 $(eval $(call BuildPackage,morse-fw-6108))
