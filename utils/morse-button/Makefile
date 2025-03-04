@@ -17,7 +17,7 @@ define Package/morse-button
   CATEGORY:=Base system
   TITLE:=Morse Micro Button Functionality
   MAINTAINER:=Morse Micro
-  DEPENDS:=+hostapd_s1g +wpa_supplicant_s1g +wpa_event_listener
+  DEPENDS:=+netifd-morse
 endef
 
 define Package/morse-button/description

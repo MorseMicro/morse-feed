@@ -115,7 +115,8 @@ set_state() {
 		led_blink_slow "$halow"
 		;;
 	dpp_failed)
-		led_off "$halow"
+		led_set_color "$halow" "$dark_purple"
+		led_blink_fast "$halow"
 		;;
 	factory_reset)
 		disable_all_leds

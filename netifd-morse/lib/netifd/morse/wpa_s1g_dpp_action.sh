@@ -15,6 +15,12 @@ case "$1" in
         }"
     ;;
     *)
-        ubus call dpp set_state "{\"state\": \"$1\"}"
+        if [ "$2" -gt 0 ]; then
+            ubus call dpp set_state "{\"state\": \"$1\", \"lockout_secs\": $2}"
+        else
+			# If we have no valid lockout value, it's hard to plug it into JSON,
+			# so just call set_state without the lockout value.
+            ubus call dpp set_state "{\"state\": \"$1\"}"
+        fi
     ;;
 esac

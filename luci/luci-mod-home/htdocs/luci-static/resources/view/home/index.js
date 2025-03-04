@@ -80,6 +80,12 @@ const callDPPPushButton = rpc.declare({
 	expect: { '': {} },
 });
 
+const callDPPGetLockoutSecs = rpc.declare({
+	object: 'dpp',
+	method: 'get_lockout_secs',
+	expect: { lockout_remaining_secs: 0 },
+});
+
 // Sadly, we add our own call to apply, because:
 //  - the ui.changes.apply call (see ui.js) tries to do a bunch of vaguely annoying
 //    things to the user interface
@@ -264,14 +270,10 @@ function getBestDevice(netIface) {
 
 async function startDPP(mode) {
 	const result = await callDPPPushButton(mode);
-	if (result && !result.error_code) {
-		if (result.lockout_remaining_secs) {
-			await new Promise(resolveFn => window.setTimeout(resolveFn, result.lockout_remaining_secs * 1000));
-		}
-	} else {
+	if (!result || (result && result.error_code)) {
 		let errorMessage = _('Unable to start DPP (internal error). Check system logs or reset device.');
 		if (result && result.error_code == 'lockout') {
-			errorMessage = _('DPP button has already been pressed. Wait %d more seconds to attempt again to avoid session overlaps.').format(result.lockout_remaining_secs);
+			errorMessage = _('DPP button has already been pressed. Wait at least %d seconds to avoid session overlaps.').format(result.lockout_remaining_secs);
 		}
 		ui.showModal(_('Unable to start DPP'), [
 			E('p', {}, [E('em', { style: 'white-space:pre-wrap' }, errorMessage)]),
@@ -279,6 +281,13 @@ async function startDPP(mode) {
 				E('button', { class: 'cbi-button', click: ui.hideModal }, [_('Dismiss')]),
 			),
 		]);
+	}
+
+	// Spin until we're not locked out (i.e. GetLockoutSecs returns 0),
+	// even if the call failed (so we catch existing lockouts).
+	// If we succeed, then lockout will finish.
+	while (await callDPPGetLockoutSecs()) {
+		await new Promise(resolveFn => window.setTimeout(resolveFn, 5000));
 	}
 }
 
