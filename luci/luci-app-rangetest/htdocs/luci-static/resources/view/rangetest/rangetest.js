@@ -229,7 +229,7 @@ async function collectStatistics(testResults, remoteRangetestDevice) {
  *
  * This functionality should eventually be transferred to the backend.
  */
-async function runRangetest(cancelPromise, configuration, testProgressBar) {
+async function runRangetest(cancelPromise, configuration, testProgressBar, alertMessageContainer) {
 	const {
 		advanced: {
 			protocol: protocols,
@@ -267,7 +267,7 @@ async function runRangetest(cancelPromise, configuration, testProgressBar) {
 
 			const iperf3RemoteResponse = await remoteRangetestDevice.backgroundIperf3Server();
 			const iperf3LocalResponse = await backgroundIperf3Client(remoteIp, (protocol === 'udp'), (direction === 'receive'), iperf3TestTime);
-			const iperf3LocalResults = await waitForIperf3Results(iperf3LocalResponse.id, iperf3TestTime, iperf3PollInterval, maxSubtestIncrements, percentPerIncrement, testProgressBar, cancelPromise);
+			const iperf3LocalResults = await waitForIperf3Results(iperf3LocalResponse.id, iperf3TestTime, iperf3PollInterval, maxSubtestIncrements, percentPerIncrement, testProgressBar, cancelPromise, alertMessageContainer);
 			const iperf3RemoteResults = await remoteRangetestDevice.getBackground(iperf3RemoteResponse.id);
 
 			testResults['local']['iperf3'][protocol][direction]['end'] = iperf3LocalResults?.end;
@@ -337,16 +337,31 @@ function formatFilenameDatetime(date) {
 		+ `${pad(date.getHours())}-${pad(date.getMinutes())}-${pad(date.getSeconds())}`;
 }
 
-async function waitForIperf3Results(iperf3ClientId, duration, pollInterval, remainingIncrements, percentPerIncrement, testProgressBar, cancelPromise) {
+function displayWarningMessage(alertMessageContainer, testString) {
+	alertMessageContainer.appendChild(E('div', { class: 'alert-message-fade-in warning' }, [
+		E('p', {}, _('The %s test took longer than expected, possibly due to a slow connection. If the test doesn\'t terminate automatically, you may need to abort the test.').format(testString)),
+		E('button', {
+			class: 'cbi-button cbi-button-action',
+			click: function () { this.parentElement.style.display = 'none'; },
+		}, [_('Dismiss')]),
+	]));
+}
+
+async function waitForIperf3Results(iperf3ClientId, duration, pollInterval, remainingIncrements, percentPerIncrement, testProgressBar, cancelPromise, alertMessageContainer) {
 	// 30% margin of safety
 	const timeout = (duration * 1300);
 	const startTime = Date.now();
 	let clientPollResponse, completed = false;
+	let notificationShown = false;
 
 	while (!completed) {
 		if (Date.now() - startTime > timeout) {
-			testProgressBar.reset('Test Failed');
-			throw new Error(`Range test client has timed out`);
+			let testString = testProgressBar.text;
+			testProgressBar.setErrorState(_('%s (Test took too long)').format(testString));
+			if (!notificationShown) {
+				displayWarningMessage(alertMessageContainer, testString);
+				notificationShown = true;
+			}
 		}
 
 		let timeoutPromise = await Promise.race([cancelPromise, new Promise(resolve => setTimeout(resolve, pollInterval * 1000))]);
@@ -457,7 +472,9 @@ return view.extend({
 			await this.basicTestConfigurationForm.parse();
 			const remoteHostId = this.rangetestConfiguration.basic.remoteHostIdentifier;
 			this.rangetestConfiguration.basic.remoteDeviceInfo = availableRemoteDevices[remoteHostId];
-			const testResults = await runRangetest(cancelPromise, this.rangetestConfiguration, this.testProgressBar);
+			// Remove all previous alert messages before starting a new test
+			this.alertMessageContainer.replaceChildren();
+			const testResults = await runRangetest(cancelPromise, this.rangetestConfiguration, this.testProgressBar, this.alertMessageContainer);
 			this.addResultsSummaryRow(testResults);
 		} catch (error) {
 			console.error(error);
@@ -581,6 +598,8 @@ return view.extend({
 
 		this.progressBarContainer = E('div', { class: 'cbi-progressbar', style: 'margin: 0 2em 0 2em; visibility: hidden;' }, this.progressBarElement = E('div', { style: 'width: 0%' }));
 		this.testProgressBar = progressBar.new(this.progressBarContainer, this.progressBarElement);
+
+		this.alertMessageContainer = E('div', { class: 'alert-container' });
 
 		return m;
 	},
@@ -751,6 +770,7 @@ return view.extend({
 				E('button', { class: 'cbi-button cbi-button-action', click: ui.createCancellableHandlerFn(this, this.handleStartTest, _('Stop')) }, [_('Start Test')]),
 				this.progressBarContainer,
 			]),
+			this.alertMessageContainer,
 		]);
 		this.resultsSummarySection = E('section', { class: 'cbi-section' }, [
 			E('h3', {}, _('Results Summary')),
