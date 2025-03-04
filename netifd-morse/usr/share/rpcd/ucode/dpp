@@ -4,6 +4,11 @@
  * wpa_event_listener (sort of...).
  *
  * FUTURE WORK = become a daemon and manage the whole process:
+ *  - don't maintain lockout state here (since hostapd knows...)
+ * 	  - hostap should fail button press if session overlap is likely
+ *      (trickier than it sounds, unless we force configurator to be button pressed first)
+ *    - hostap should tell us in the failure message how long to lockout for
+ *      (at the moment, this is in wpa_event_listener)
  *  - single connection to hostapd/wpa_supplicant to trigger push button and get state info
  *  - hostapd/wpa_supplicant can report appropriate lockout info
  *    (i.e. figure out if we're likely to have a clash issue based on last transmission or last
@@ -64,21 +69,20 @@ function push_button(req) {
 		ap: {
 			control: "/var/run/hostapd_s1g/",
 			cli: "hostapd_cli_s1g",
-			new_lockout_secs: 120,
 		},
 		sta: {
 			control: "/var/run/wpa_supplicant_s1g/",
 			cli: "wpa_cli_s1g",
-			new_lockout_secs: 120,
 		},
 	};
 
 	const proposed_modes = mode ? [mode] : ["ap", "sta"];
 	let mode_info = null;
 
-	for (let mode of proposed_modes) {
+	for (let mode in proposed_modes) {
 		if (access(all_mode_info[mode].control)) {
 			mode_info = all_mode_info[mode];
+			print("got", mode_info.control, "\n");
 			break;
 		}
 	}
@@ -93,14 +97,14 @@ function push_button(req) {
 	const lockout_remaining_secs = get_lockout_secs();
 	if (lockout_remaining_secs) {
 		return {
-			error: "DPP button already pressed. Please wait for 2 minutes after the initial press.",
+			error: `DPP button already pressed recently. Please wait {lockout_remaining_seconds} more seconds to avoid overlap.`,
 			error_code: "lockout",
 			lockout_remaining_secs,
 		}
 	}
 
 	start_listener(mode_info.control);
-	const exit_code = system(["hostapd_cli_s1g", "dpp_push_button"], 1000);
+	const exit_code = system([mode_info.cli, "dpp_push_button"], 1000);
 
 	if (exit_code != 0) {
 		return {
@@ -109,29 +113,41 @@ function push_button(req) {
 		}
 	}
 
-	// hostapd currently has a 100s timeout on the entire interaction.
-	// We add 20s to try to avoid overlaps; realistically, this should be larger. TBD.
-	set_new_lockout_secs(mode_info.new_lockout_secs);
+	// Wait 5 secs for the first 'set_state' to come back from wpa_event_listener.
+	// If this doesn't happen, then something internal has gone wrong, and we shouldn't
+	// lock out.
+	set_new_lockout_secs(5);
 
 	return {
-		lockout_remaining_secs: mode_info.new_lockout_secs,
+		lockout_remaining_secs: 5,
 	}
 }
 
 
 function set_state(req) {
 	const state = req.args.state;
+	const lockout_secs = req.args.lockout_secs;
+	let diag_state = null;
 
-	if (state === "finished") {
-		// A successful completion means we can clear any lockout.
-		unlink(DPP_STATE_INFO);
+	if (lockout_secs) {
+		set_new_lockout_secs(lockout_secs);
 	}
 
-	const diag_state = {
-		started: "dpp_started",
-		failed: "dpp_failed",
-		finished: "done",
-	}[state];
+	switch (state) {
+		case "finished":
+			diag_state = "done";
+			// Finished is either success or after the lockout timeout, so we
+			// can remove the state file.
+			unlink(DPP_STATE_INFO);
+			break;
+		case "failed":
+			diag_state = "dpp_failed";
+			break;
+		case "started":
+			diag_state = "dpp_started";
+			break;
+	}
+
 	if (diag_state) {
 		system(`. /etc/diag.sh && set_state ${diag_state}`)
 	}
@@ -211,11 +227,16 @@ return { dpp: {
 		}
 	},
 
+	get_lockout_secs: {
+		call: () => ({ lockout_remaining_secs: get_lockout_secs() }),
+	},
+
 	// called by wpa_event_listener via wpa_s1g_dpp_action.sh
 	set_state: {
 		call: set_state,
 		args: {
 			state: "",
+			lockout_secs: 0,
 		},
 	},
 
