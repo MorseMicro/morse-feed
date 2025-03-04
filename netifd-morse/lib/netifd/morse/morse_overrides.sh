@@ -96,7 +96,7 @@ morse_override_hostapd_set_bss_options() {
 	set_default wpa_group_rekey 604800
 	set_default beacon_int 100
 
-	/sbin/hostapd_s1g -vfils || fils=0
+	/usr/sbin/hostapd_s1g -vfils || fils=0
 
 	append bss_conf "ctrl_interface=/var/run/hostapd_s1g"
 	if [ "$isolate" -gt 0 ]; then
