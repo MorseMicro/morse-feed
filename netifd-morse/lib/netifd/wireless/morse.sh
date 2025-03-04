@@ -730,7 +730,7 @@ morse_setup_ap() {
 
 	uci -q -P /var/state set wireless._${phy}.aplist="${ifname}"
 
-	/sbin/hostapd_s1g -t -B -s ${hostapd_conf_file}
+	/usr/sbin/hostapd_s1g -t -B -s ${hostapd_conf_file}
 	# prplmesh is looking for /var/morse/hostapd_s1g_multiap.conf as hostapd conf file.
 	# So, we add a symlink from the actual conf file for prplmesh.
 	if [ "$multi_ap" -gt 0 ]; then
@@ -1152,10 +1152,10 @@ morse_wpa_supplicant_add() {
 			mkdir -p $_save_dir
 			cp $_config $_save_file
 		fi
-		/sbin/wpa_supplicant_s1g -t -u -D nl80211 -s -i $_ifname -c $_save_file -B
+		/usr/sbin/wpa_supplicant_s1g -t -u -D nl80211 -s -i $_ifname -c $_save_file -B
 	else
 		#need to handle bridge mode??
-		/sbin/wpa_supplicant_s1g -t -D nl80211 -s -i $_ifname -c $_config -B
+		/usr/sbin/wpa_supplicant_s1g -t -D nl80211 -s -i $_ifname -c $_config -B
 	fi
 
 	#React to DPP events (wpa_s1g_dpp_action will persist creds and restart network)
