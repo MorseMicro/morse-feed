@@ -243,7 +243,7 @@ static void message_process(char *const message) {
                     uloop_timeout_set(&failed_timeout, 1000);
                 }
                 break;
-            case TYPE_DPP_CONF_FAILED:
+            case TYPE_CONF_FAILED:
                 // This can happen if you try to dpp back to the same device.
                 uloop_timeout_set(&failed_timeout, 1000);
                 break;
