@@ -321,14 +321,49 @@ function saveLocalTest(testId, data) {
 	}
 }
 
-function exportTestDataAsJSONFile(data, fileName) {
-	const dataString = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(data, null, 2));
+function exportTestDataAsJSONFile(testData, fileName) {
+	const dataString = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(testData, null, 2));
 	var downloadAnchorNode = document.createElement('a');
 	downloadAnchorNode.setAttribute('href', dataString);
 	downloadAnchorNode.setAttribute('download', `${fileName}.json`);
 	document.body.appendChild(downloadAnchorNode);
 	downloadAnchorNode.click();
 	downloadAnchorNode.remove();
+}
+
+function exportResultsSummaryAsCSVFile(allTestData, fileName) {
+	const headerBlocklist = ['rawData', 'export'];
+	let resultsSummaries = [];
+	allTestData.forEach((testData) => {
+		resultsSummaries.push(parseResultsSummaryRowData(testData));
+	});
+
+	const csvColumnNames = Object.keys(resultsSummaries[0]).filter(columnName => !headerBlocklist.includes(columnName));
+	const csvRows = resultsSummaries.map((summary) => {
+		return csvColumnNames.map((header) => {
+			switch (typeof summary[header]) {
+				case 'string':
+					return `"${summary[header]}"`;
+				case 'number':
+				case 'boolean':
+					return summary[header];
+				case 'undefined':
+					return '';
+				default:
+					throw new Error('Unexpected data type in CSV export.');
+			}
+		});
+	});
+	const csvData = [csvColumnNames.join(','), ...csvRows.map(row => row.join(','))].join('\n');
+
+	const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
+	const url = URL.createObjectURL(blob);
+	const downloadAnchor = document.createElement('a');
+	downloadAnchor.setAttribute('href', url);
+	downloadAnchor.setAttribute('download', fileName);
+	document.body.appendChild(downloadAnchor);
+	downloadAnchor.click();
+	document.body.removeChild(downloadAnchor);
 }
 
 function formatFilenameDatetime(date) {
@@ -409,7 +444,7 @@ function parseResultsSummaryRowData(data) {
 		if (typeof value === 'number' && !isNaN(value)) {
 			return (value / 1e6).toFixed(2);
 		}
-		return '-';
+		return undefined;
 	};
 
 	// Only display the receiving end of the iperf for data.
@@ -419,9 +454,6 @@ function parseResultsSummaryRowData(data) {
 	const udpThroughputReceive = parseThroughputValue(local.iperf3.udp.receive.end?.sum_sent?.bits_per_second);
 	const tcpThroughputSend = parseThroughputValue(remote.iperf3.tcp.send.end?.sum_received?.bits_per_second);
 	const tcpThroughputReceive = parseThroughputValue(local.iperf3.tcp.receive.end?.sum_sent?.bits_per_second);
-
-	const udpThroughput = `${udpThroughputSend} / ${udpThroughputReceive}`;
-	const tcpThroughput = `${tcpThroughputSend} / ${tcpThroughputReceive}`;
 
 	const localSignalStrength = data.local.iwinfoInfo?.signal;
 
@@ -434,8 +466,10 @@ function parseResultsSummaryRowData(data) {
 		location: locationURL,
 		bandwidth: bandwidth,
 		channel: channel,
-		udpThroughput: udpThroughput,
-		tcpThroughput: tcpThroughput,
+		udpThroughputSend: udpThroughputSend,
+		udpThroughputReceive: udpThroughputReceive,
+		tcpThroughputSend: tcpThroughputSend,
+		tcpThroughputReceive: tcpThroughputReceive,
 		signalStrength: localSignalStrength,
 		export: true,
 		rawData: data,
@@ -707,11 +741,19 @@ return view.extend({
 		o.datatype = 'uinteger';
 		o.readonly = true;
 
-		o = s.option(form.DummyValue, 'udpThroughput', _('UDP Throughput (Mbps) (Send/Receive)'));
+		o = s.option(form.DummyValue, 'udpThroughputSend', _('UDP Send Throughput (Mbps)'));
 		o.datatype = 'string';
 		o.readonly = true;
 
-		o = s.option(form.DummyValue, 'tcpThroughput', _('TCP Throughput (Mbps) (Send/Receive)'));
+		o = s.option(form.DummyValue, 'udpThroughputReceive', _('UDP Receive Throughput (Mbps)'));
+		o.datatype = 'string';
+		o.readonly = true;
+
+		o = s.option(form.DummyValue, 'tcpThroughputSend', _('TCP Send Throughput (Mbps)'));
+		o.datatype = 'string';
+		o.readonly = true;
+
+		o = s.option(form.DummyValue, 'tcpThroughputReceive', _('TCP Receive Throughput (Mbps)'));
 		o.datatype = 'string';
 		o.readonly = true;
 
@@ -719,7 +761,7 @@ return view.extend({
 		o.datatype = 'integer';
 		o.readonly = true;
 
-		const downloadButton = s.option(form.DummyValue, 'export', _('Data'));
+		const downloadButton = s.option(form.DummyValue, 'export', _('Data (JSON)'));
 		downloadButton.editable = true;
 		downloadButton.renderWidget = function (sectionId, _optionIndex, _cfgvalue) {
 			return E('div', { style: 'display: flex; align-items: flex-start; gap: 1em;' }, [
@@ -783,8 +825,9 @@ return view.extend({
 						ui.addNotification(null, E('pre', {}, 'No test data available!'));
 						return;
 					}
-					exportTestDataAsJSONFile(allTests, `rangetest_all_data_${filenameDatetimeString}`);
-				}) }, [_('Download All Data')]),
+
+					exportResultsSummaryAsCSVFile(allTests, `rangetest_all_data_${filenameDatetimeString}`);
+				}) }, [_('Download Results Summary (CSV)')]),
 			]),
 		]);
 
