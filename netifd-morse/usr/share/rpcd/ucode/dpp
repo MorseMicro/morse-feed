@@ -1,0 +1,229 @@
+/* Provide some DPP related functionality.
+ *
+ * For the moment, this is the push button initiation, and a callback handler for
+ * wpa_event_listener (sort of...).
+ *
+ * FUTURE WORK = become a daemon and manage the whole process:
+ *  - single connection to hostapd/wpa_supplicant to trigger push button and get state info
+ *  - hostapd/wpa_supplicant can report appropriate lockout info
+ *    (i.e. figure out if we're likely to have a clash issue based on last transmission or last
+ *    receipt)
+ *  - no strange 'jump out to wpa_event_listener to feed back into our states'
+ *  - and eventually, handle all dppd related functionality as well.
+ */
+"use strict";
+
+
+import { connect } from  "ubus";
+import { cursor } from "uci";
+import { access, unlink, readfile, writefile } from "fs";
+
+
+const DPP_ACTION_SCRIPT = "/lib/netifd/morse/wpa_s1g_dpp_action.sh";
+const DPP_STATE_INFO = "/tmp/dpp_state_info.json";
+
+
+function start_listener(path) {
+	system(["killall", "wpa_event_listener"]);
+	system(["wpa_event_listener", "-B", "-p", path, "-a",  DPP_ACTION_SCRIPT]);
+	// Wait a sec for listener to have connected to socket, otherwise we might
+	// miss the start action.
+	sleep(1000);
+}
+
+
+function get_lockout_secs() {
+	const clock_monotonic_secs = clock(true)[0];
+	try {
+		if (access(DPP_STATE_INFO)) {
+			const dpp_state_info = json(readfile(DPP_STATE_INFO));
+			if (dpp_state_info && dpp_state_info.lockout_finish_secs > clock_monotonic_secs) {
+				return dpp_state_info.lockout_finish_secs - clock_monotonic_secs;
+			}
+		}
+	} catch (e) {
+		warn(`Unable to read ${DPP_STATE_INFO}: `, e, "\n");
+	}
+
+	return 0;
+}
+
+
+function set_new_lockout_secs(lockout_secs) {
+	const clock_monotonic_secs = clock(true)[0];
+
+	writefile(DPP_STATE_INFO, {
+		lockout_finish_secs: clock_monotonic_secs + lockout_secs,
+	});
+}
+
+
+function push_button(req) {
+	let mode = req.args.mode;
+	const all_mode_info = {
+		ap: {
+			control: "/var/run/hostapd_s1g/",
+			cli: "hostapd_cli_s1g",
+			new_lockout_secs: 120,
+		},
+		sta: {
+			control: "/var/run/wpa_supplicant_s1g/",
+			cli: "wpa_cli_s1g",
+			new_lockout_secs: 120,
+		},
+	};
+
+	const proposed_modes = mode ? [mode] : ["ap", "sta"];
+	let mode_info = null;
+
+	for (let mode of proposed_modes) {
+		if (access(all_mode_info[mode].control)) {
+			mode_info = all_mode_info[mode];
+			break;
+		}
+	}
+
+	if (!mode_info) {
+		return {
+			"error": "Unable to discover an active morse interface to trigger DPP push button on",
+			"error_code": "no_available_mode"
+		}
+	}
+
+	const lockout_remaining_secs = get_lockout_secs();
+	if (lockout_remaining_secs) {
+		return {
+			error: "DPP button already pressed. Please wait for 2 minutes after the initial press.",
+			error_code: "lockout",
+			lockout_remaining_secs,
+		}
+	}
+
+	start_listener(mode_info.control);
+	const exit_code = system(["hostapd_cli_s1g", "dpp_push_button"], 1000);
+
+	if (exit_code != 0) {
+		return {
+			error: "Failed to start DPP interaction (internal error)",
+			error_code: "internal_error",
+		}
+	}
+
+	// hostapd currently has a 100s timeout on the entire interaction.
+	// We add 20s to try to avoid overlaps; realistically, this should be larger. TBD.
+	set_new_lockout_secs(mode_info.new_lockout_secs);
+
+	return {
+		lockout_remaining_secs: mode_info.new_lockout_secs,
+	}
+}
+
+
+function set_state(req) {
+	const state = req.args.state;
+
+	if (state === "finished") {
+		// A successful completion means we can clear any lockout.
+		unlink(DPP_STATE_INFO);
+	}
+
+	const diag_state = {
+		started: "dpp_started",
+		failed: "dpp_failed",
+		finished: "done",
+	}[state];
+	if (diag_state) {
+		system(`. /etc/diag.sh && set_state ${diag_state}`)
+	}
+
+	return {};
+}
+
+
+/* If uci changes have been made, commit and notify.
+ */
+function commit_config(ubus, uci) {
+	const config_files = keys(uci.changes());
+
+	if (length(keys(config_files)) < 0) {
+		return;
+	}
+
+	assert(uci.commit(), "Failed to commit changed config");
+
+	// Tell procd about the changes, as /bin/reload_config does.
+	for (let cf in config_files) {
+		if (!ubus.call("service", "event", { type: "config.change", data: { package: cf } })) {
+			warn(ubus.error(), "\n");
+		}
+	}
+}
+
+
+function get_uci_wireless_section(ubus, ifname) {
+	const wireless_status = ubus.call("network.wireless", "status");
+	assert(wireless_status, "No current wireless status available via ubus");
+
+	for (let radio in values(wireless_status)) {
+		if (radio["interfaces"]) {
+			for (let iface in radio["interfaces"]) {
+				if (iface["ifname"] === ifname) {
+					return iface["section"];
+				}
+			}
+		}
+	}
+
+	assert(false, `Could not find UCI section with ${ifname} to update`);
+}
+
+
+function apply_config(req) {
+	const uci = cursor();
+	const ubus = connect();
+	const c = req.args.config;
+
+	assert(c, "no config object for apply_config");
+	assert(c.iface_name, "config missing iface_name");
+	assert(c.encryption, "config missing encryption");
+	assert(c.ssid, "config missing ssid");
+	if (!(c.encryption in ["owe", "none"])) {
+		assert(c.key, "config missing key");
+	}
+
+	const section_name = get_uci_wireless_section(ubus, c.iface_name);
+
+	uci.set("wireless", section_name, "encryption", c.encryption);
+	uci.set("wireless", section_name, "ssid", c.ssid);
+	uci.set("wireless", section_name, "key", c.key);
+	// If we've come in because of dpp chirping (i.e. qrcode dpp), it needs to be disabled.
+	uci.delete("wireless", section_name, "dpp");
+	commit_config(ubus, uci);
+	return {};
+}
+
+
+return { dpp: {
+	push_button: {
+		call: push_button,
+		args: {
+			mode: "",
+		}
+	},
+
+	// called by wpa_event_listener via wpa_s1g_dpp_action.sh
+	set_state: {
+		call: set_state,
+		args: {
+			state: "",
+		},
+	},
+
+	// called by wpa_event_listener via wpa_s1g_dpp_action.sh
+	apply_config: {
+		call: apply_config,
+		args: {
+			config: {},
+		},
+	},
+}};

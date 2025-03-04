@@ -26,11 +26,10 @@
 
 'use strict';
 
-/* globals configDiagram dom firewall form fs morseuci morseui network poll prplmeshTopology rpc ui uci view */
+/* globals configDiagram dom firewall form morseuci morseui network poll prplmeshTopology rpc ui uci view */
 'require dom';
 'require firewall';
 'require form';
-'require fs';
 'require network';
 'require rpc';
 'require uci';
@@ -72,6 +71,13 @@ const callSessionAccess = rpc.declare({
 	method: 'access',
 	params: ['scope', 'object', 'function'],
 	expect: { access: false },
+});
+
+const callDPPPushButton = rpc.declare({
+	object: 'dpp',
+	method: 'push_button',
+	params: ['mode'],
+	expect: { '': {} },
 });
 
 // Sadly, we add our own call to apply, because:
@@ -256,19 +262,19 @@ function getBestDevice(netIface) {
 		scoreDevice(current.getWifiNetwork()) > scoreDevice(best.getWifiNetwork()) ? current : best);
 }
 
-async function startDPP() {
-	const result = await fs.exec('/morse/scripts/dpp_start.sh');
-	if (result.code === 0) {
-		// We currently have no good feedback mechanism, so just wait 120 secs
-		// (this is the same as the lockout time in dpp_start.sh).
-		await new Promise(resolveFn => window.setTimeout(resolveFn, 120 * 1000));
+async function startDPP(mode) {
+	const result = await callDPPPushButton(mode);
+	if (result && !result.error_code) {
+		if (result.lockout_remaining_secs) {
+			await new Promise(resolveFn => window.setTimeout(resolveFn, result.lockout_remaining_secs * 1000));
+		}
 	} else {
-		let output = result.stdout ?? '';
-		if (result.stderr) {
-			output += `\n${result.stderr}`;
+		let errorMessage = _('Unable to start DPP (internal error). Check system logs or reset device.');
+		if (result && result.error_code == 'lockout') {
+			errorMessage = _('DPP button has already been pressed. Wait %d more seconds to attempt again to avoid session overlaps.').format(result.lockout_remaining_secs);
 		}
 		ui.showModal(_('Unable to start DPP'), [
-			E('p', {}, [E('em', { style: 'white-space:pre-wrap' }, output || _('Unknown error'))]),
+			E('p', {}, [E('em', { style: 'white-space:pre-wrap' }, errorMessage)]),
 			E('div', { class: 'right' },
 				E('button', { class: 'cbi-button', click: ui.hideModal }, [_('Dismiss')]),
 			),
@@ -413,7 +419,7 @@ async function renderUplinkWifiConnectMethods(id, hasQRCode, wifiNetwork, isUp) 
 								// TODO hack - sleep so we have time for config to reload before triggering DPP.
 								await new Promise(resolveFn => window.setTimeout(resolveFn, 3 * 1000));
 							}
-							await startDPP();
+							await startDPP('sta');
 							await updateUplinkWifiConnectMethods(hasQRCode, element);
 						}),
 					}, _('Start DPP push button')),
@@ -820,7 +826,7 @@ function createAssoclistCard(wifiNetwork, hostHints, hasQRCode) {
 				mode === 'ap' && isHaLow(wifiNetwork) && E('dd', [
 					E('button', {
 						class: 'cbi-button cbi-button-action cbi-button-inline',
-						click: ui.createHandlerFn(this, startDPP),
+						click: ui.createHandlerFn(this, () => startDPP('ap')),
 					}, _('Start DPP push button')),
 					_(' here, and then on the Client.'),
 				]),
