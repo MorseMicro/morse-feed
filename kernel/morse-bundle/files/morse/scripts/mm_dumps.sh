@@ -96,6 +96,18 @@ morse_iface_available()
     test "$hwmode" == "ah"
 }
 
+is_easymesh_controller()
+{
+    prplmesh_enable=$(uci get prplmesh.config.enable 2> /dev/null)
+    master=$(uci get prplmesh.config.master 2> /dev/null)
+    if [ "$prplmesh_enable" == 1 ] && [ "$master" == 1 ]; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+
 PHY=
 find_phy
 
@@ -168,9 +180,10 @@ r running_procs.txt        ps ww
 r cpu_and_mem_usage.txt    top -b -n1
 r disk_usage.txt           df -h
 r syslog.txt               logread
-r prplmesh_data_model.json ubus call Device.WiFi.DataElements _get '{"depth":"10"}'
-r prplmesh_conn_map.txt    /opt/prplmesh/bin/beerocks_cli -c bml_conn_map
-
+if is_easymesh_controller; then
+    r prplmesh_data_model.json ubus call Device.WiFi.DataElements _get '{"depth":"10"}'
+    r prplmesh_conn_map.txt    /opt/prplmesh/bin/beerocks_cli -c bml_conn_map
+fi
 s /var/log
 s /etc/config
 s /var/run
