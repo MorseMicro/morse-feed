@@ -332,7 +332,7 @@ return view.extend({
 			The HaLow Gateway's network credentials will be automatically applied to all extenders.
 			<p>Note: The extender's QR code for Wi-Fi connection will no longer be valid.
 		`);
-		const WIFI24_UPLINK_INFO = _(`
+		const WIFI_UPLINK_INFO = _(`
 			After saving a 2.4 GHz Wi-Fi uplink configuration, you will need to connect to the correct
 			network on the Home page. Find the Uplink card, click on the "Disconnected" cross, then
 			set the SSID and password.
@@ -346,7 +346,7 @@ return view.extend({
 
 		let message = '';
 		if (shouldShowWifi24UplinkInfo) {
-			message += WIFI24_UPLINK_INFO;
+			message += WIFI_UPLINK_INFO;
 		}
 		if (shouldShowEasyMeshInfo) {
 			if (message) message += '<br><br>'; // Add spacing between messages

@@ -377,8 +377,8 @@ return wizard.AbstractWizardView.extend({
 		page.enableDiagram({
 			extras: ['AP_SELECT_FILL', 'STA_SELECT_FILL'],
 			blacklist: ['AP_HALOW_INT',
-				'AP_MGMT_ETH', 'AP_UPLINK', 'AP_UPLINK_ETH', 'AP_UPLINK_WIFI24', 'AP_WIFI24',
-				'STA_HALOW', 'STA_WIFI24', 'STA_MGMT_ETH'],
+				'AP_MGMT_ETH', 'AP_UPLINK', 'AP_UPLINK_ETH', 'AP_UPLINK_WIFI', 'AP_WIFI',
+				'STA_HALOW', 'STA_WIFI', 'STA_MGMT_ETH'],
 		});
 
 		option = page.option(form.ListValue, 'master');
@@ -407,7 +407,7 @@ return wizard.AbstractWizardView.extend({
 
 		page.enableDiagram({
 			extras: ['AP_HALOW_INT_SELECT', 'AP_HALOW_INT_SELECT_FILL'],
-			blacklist: ['AP_MGMT_ETH', 'AP_UPLINK', 'AP_UPLINK_ETH', 'AP_UPLINK_WIFI24', 'AP_WIFI24',
+			blacklist: ['AP_MGMT_ETH', 'AP_UPLINK', 'AP_UPLINK_ETH', 'AP_UPLINK_WIFI', 'AP_WIFI',
 			            'STA_HALOW_INT', 'AP_HALOW_INT:IP', 'AP_HALOW_INT:IPMethod'],
 		});
 
@@ -464,7 +464,7 @@ return wizard.AbstractWizardView.extend({
 				'STA_HALOW_INT_SELECT', 'STA_HALOW_INT_SELECT_FILL',
 				'STA_MGMT_ETH_INT_SELECT', 'STA_MGMT_ETH_INT_SELECT_FILL',
 			],
-			blacklist: ['STA_WIFI24'],
+			blacklist: ['STA_WIFI'],
 		});
 
 		option = page.option(form.ListValue, 'device_mode_meshagent');
@@ -511,10 +511,10 @@ return wizard.AbstractWizardView.extend({
 			extras: [
 				'AP_MGMT_ETH_INT_SELECT', 'AP_MGMT_ETH_INT_SELECT_FILL',
 				'AP_UPLINK_ETH_INT_SELECT', 'AP_UPLINK_ETH_INT_SELECT_FILL',
-				'AP_UPLINK_WIFI24_INT_SELECT', 'AP_UPLINK_WIFI24_INT_SELECT_FILL',
+				'AP_UPLINK_WIFI_INT_SELECT', 'AP_UPLINK_WIFI_INT_SELECT_FILL',
 				'AP_HALOW_INT_SELECT', 'AP_HALOW_INT_SELECT_FILL',
 			],
-			blacklist: ['STA_WIFI24', 'STA_MGMT_ETH', 'AP_WIFI24'],
+			blacklist: ['STA_WIFI', 'STA_MGMT_ETH', 'AP_WIFI'],
 		});
 
 		option = page.option(form.ListValue, 'uplink');
@@ -611,7 +611,7 @@ return wizard.AbstractWizardView.extend({
 				If you enable a ${wifiDevice.getBandName()} Wi-Fi <b>Access Point</b>, you will be able to
 				connect ${wifiDevice.getBandName()} Wi-Fi clients to this device.`);
 			page.enableDiagram({
-				extras: ['STA_WIFI24_INT_SELECT', 'STA_WIFI24_INT_SELECT_FILL', 'AP_WIFI24_INT_SELECT', 'AP_WIFI24_INT_SELECT_FILL'],
+				extras: ['STA_WIFI_INT_SELECT', 'STA_WIFI_INT_SELECT_FILL', 'AP_WIFI_INT_SELECT', 'AP_WIFI_INT_SELECT_FILL'],
 			});
 
 			option = page.option(morseui.Slider, 'disabled', `Enable ${wifiDevice.getBandName()} Access Point`);

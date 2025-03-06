@@ -376,8 +376,8 @@ return wizard.AbstractWizardView.extend({
 		page.enableDiagram({
 			extras: ['GATE_SELECT_FILL', 'POINT_SELECT_FILL'],
 			blacklist: [
-				'GATE_UPLINK', 'GATE_UPLINK_WIFI24', 'GATE_MGMT_ETH', 'GATE_UPLINK_ETH', 'GATE_WIFI24', 'GATE_HALOW_MESH_INT', 'GATE_HALOW_AP',
-				'POINT_HALOW_INT', 'POINT_MGMT_ETH', 'POINT_WIFI24',
+				'GATE_UPLINK', 'GATE_UPLINK_WIFI', 'GATE_MGMT_ETH', 'GATE_UPLINK_ETH', 'GATE_WIFI', 'GATE_HALOW_MESH_INT', 'GATE_HALOW_AP',
+				'POINT_HALOW_INT', 'POINT_MGMT_ETH', 'POINT_WIFI',
 			],
 		});
 
@@ -405,8 +405,8 @@ return wizard.AbstractWizardView.extend({
 		page.enableDiagram({
 			extras: ['POINT_HALOW_INT_SELECT', 'GATE_HALOW_MESH_INT_SELECT', 'POINT_HALOW_INT_SELECT_FILL', 'GATE_HALOW_MESH_INT_SELECT_FILL'],
 			blacklist: [
-				'GATE_UPLINK', 'GATE_UPLINK_WIFI24', 'GATE_MGMT_ETH', 'GATE_UPLINK_ETH', 'GATE_WIFI24', 'GATE_HALOW_AP',
-				'POINT_MGMT_ETH', 'POINT_WIFI24',
+				'GATE_UPLINK', 'GATE_UPLINK_WIFI', 'GATE_MGMT_ETH', 'GATE_UPLINK_ETH', 'GATE_WIFI', 'GATE_HALOW_AP',
+				'POINT_MGMT_ETH', 'POINT_WIFI',
 				'POINT_HALOW_INT:SSID', 'POINT_HALOW_INT:IP', 'POINT_HALOW_INT:IPMethod',
 				'GATE_HALOW_MESH_INT:SSID', 'GATE_HALOW_MESH_INT:IP', 'GATE_HALOW_MESH_INT:IPMethod',
 			],
@@ -464,7 +464,7 @@ return wizard.AbstractWizardView.extend({
 				'POINT_MGMT_ETH_INT_SELECT', 'POINT_MGMT_ETH_INT_SELECT_FILL',
 			],
 			blacklist: [
-				'POINT_WIFI24',
+				'POINT_WIFI',
 			],
 		});
 
@@ -523,8 +523,8 @@ return wizard.AbstractWizardView.extend({
 				'GATE_MGMT_ETH_INT_SELECT', 'GATE_MGMT_ETH_INT_SELECT_FILL',
 				'GATE_UPLINK_ETH_INT_SELECT', 'GATE_UPLINK_ETH_INT_SELECT_FILL',
 				'GATE_HALOW_MESH_INT_SELECT', 'GATE_HALOW_MESH_INT_SELECT_FILL',
-				'GATE_UPLINK_WIFI24_INT_SELECT', 'GATE_UPLINK_WIFI24_INT_SELECT_FILL'],
-			blacklist: ['GATE_WIFI24', 'GATE_HALOW_AP'],
+				'GATE_UPLINK_WIFI_INT_SELECT', 'GATE_UPLINK_WIFI_INT_SELECT_FILL'],
+			blacklist: ['GATE_WIFI', 'GATE_HALOW_AP'],
 		});
 
 		option = page.option(form.ListValue, 'uplink');
@@ -650,7 +650,7 @@ return wizard.AbstractWizardView.extend({
 			This interface will be bridged with the mesh interface.`));
 		page.enableDiagram({
 			extras: ['GATE_HALOW_AP_INT_SELECT', 'GATE_HALOW_AP_INT_SELECT_FILL', 'POINT_HALOW_AP_INT_SELECT', 'POINT_HALOW_AP_INT_SELECT_FILL'],
-			blacklist: ['GATE_WIFI24', 'POINT_WIFI24'],
+			blacklist: ['GATE_WIFI', 'POINT_WIFI'],
 		});
 
 		option = page.option(morseui.Slider, 'disabled', _('Enable HaLow Access Point'));
@@ -687,8 +687,8 @@ return wizard.AbstractWizardView.extend({
 				If you enable a ${wifiDevice.getBandName()} Wi-Fi <b>Access Point</b>, you will be able to
 				connect ${wifiDevice.getBandName()} Wi-Fi clients to this device.`);
 			page.enableDiagram({
-				extras: ['GATE_WIFI24_INT_SELECT', 'GATE_WIFI24_INT_SELECT_FILL',
-				         'POINT_WIFI24_INT_SELECT', 'POINT_WIFI24_INT_SELECT_FILL'],
+				extras: ['GATE_WIFI_INT_SELECT', 'GATE_WIFI_INT_SELECT_FILL',
+				         'POINT_WIFI_INT_SELECT', 'POINT_WIFI_INT_SELECT_FILL'],
 			});
 
 			option = page.option(morseui.Slider, 'disabled', `Enable ${wifiDevice.getBandName()} Access Point`);
