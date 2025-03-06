@@ -90,7 +90,9 @@ define Build/Compile
 	$(if $(REGENERATE),
 		mkdir -p artefacts
 		python3 $(PKG_BUILD_DIR)/regdbconverter.py -v -f csv $(PKG_BUILD_DIR)/regdb_Sub-1_GHz.tsv > artefacts/repo_channels.csv
+		find patch/ -type f -name '*.patch' -print0 | sort -z | xargs -r -t -0 -n 1 patch -p1 -i
 	)
+
 	mkdir -p $(PKG_BUILD_DIR)/artefacts
 	# Mash the 5g shim channels in.
 	python3 add_5g_shim_channels.py < artefacts/repo_channels.csv | $(FILTER) > $(PKG_BUILD_DIR)/artefacts/channels.csv
