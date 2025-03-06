@@ -325,8 +325,12 @@ return view.extend({
 	},
 
 	updateInfoBox() {
-		// At the moment, this is the only infobox thing we show.
-		const WIFI24_UPLINK_INFO = _(`
+		const EASYMESH_INFO = _(`
+			<p>Easy Mesh Controller configuration allows centralized management of WiFi network credentials.
+			The HaLow Gateway's network credentials will be automatically applied to all extenders.
+			<p>Note: The extender's QR code for Wi-Fi connection will no longer be valid.
+		`);
+		const WIFI_UPLINK_INFO = _(`
 			After saving a 2.4 GHz Wi-Fi uplink configuration, you will need to connect to the correct
 			network on on the Home page. Find the Uplink card, click on the "Disconnected" cross, then
 			set the SSID and password.
@@ -336,9 +340,20 @@ return view.extend({
 			(this.data.wizard.device_mode !== 'prplmesh' && this.data.wizard.network_mode === 'routed_wifi24')
 			|| (this.data.wizard.device_mode === 'prplmesh' && this.data.wizard.network_mode_prplmesh === 'routed_wifi24')
 		);
+		const shouldShowEasyMeshInfo = (this.data.wizard.device_mode === 'prplmesh');
 
-		this.infobox.innerHTML = WIFI24_UPLINK_INFO;
-		this.infobox.style.display = shouldShowWifi24UplinkInfo() ? 'block' : 'none';
+		let message = '';
+		if (shouldShowWifi24UplinkInfo) {
+			message += WIFI_UPLINK_INFO;
+		}
+		if (shouldShowEasyMeshInfo) {
+			if (message) message += '<br><br>'; // Add spacing between messages
+			message += EASYMESH_INFO;
+		}
+
+		// Update the infobox
+		this.infobox.innerHTML = message;
+		this.infobox.style.display = message ? 'block' : 'none';
 	},
 
 	async load() {
