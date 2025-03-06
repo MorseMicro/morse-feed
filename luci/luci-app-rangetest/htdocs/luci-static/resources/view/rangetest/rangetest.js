@@ -828,6 +828,36 @@ return view.extend({
 
 					exportResultsSummaryAsCSVFile(allTests, `rangetest_all_data_${filenameDatetimeString}`);
 				}) }, [_('Download Results Summary (CSV)')]),
+				E('button', { class: 'cbi-button cbi-button-negative', click: ui.createHandlerFn(this, async () => {
+					const allTests = await getLocalTests();
+					if (allTests.length === 0) {
+						ui.addNotification(null, E('pre', {}, 'No test data available!'));
+						return;
+					}
+					ui.showModal(_('Confirm Deletion'), [
+						E('p', {}, _('Are you sure?')),
+						E('div', { class: 'right' }, [
+							E('button', {
+								class: 'cbi-button cbi-button-negative',
+								click: ui.createHandlerFn(this, async () => {
+									const allTests = await getLocalTests();
+									for (const test of allTests) {
+										await deleteLocalTest(test.id);
+									}
+									this.resultsSummaryTable.data.data = {};
+									this.resultsSummaryTable.load();
+									this.resultsSummaryTable.save();
+									ui.hideModal();
+								}),
+							}, _('Delete All')),
+							' ',
+							E('button', {
+								class: 'cbi-button',
+								click: ui.hideModal,
+							}, _('Cancel')),
+						]),
+					]);
+				}) }, [_('Delete All')]),
 			]),
 		]);
 
