@@ -167,7 +167,7 @@ r dmesg.txt                dmesg
 r versions.txt             "$MORSE_DIR"morse/scripts/versions.sh
 r morsectrl_stats.json     morse_cli -i "$INTERFACE" stats -j
 r morsectrl_channel.txt    morse_cli -i "$INTERFACE" channel
-r iw_link.txt              iw "$INTERFACE" link > iw_link.txt
+r iw_link.txt              iw "$INTERFACE" link
 r iw_station_dump.txt      iw "$INTERFACE" station dump
 r iwinfo.txt               iwinfo
 r iwinfo_assoclist.txt     iwinfo "$INTERFACE" assoclist
