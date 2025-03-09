@@ -524,6 +524,7 @@ return view.extend({
 
 		const remoteDeviceSelect = s.option(form.ListValue, 'remoteHostIdentifier', _('Remote device'), _('The remote device which this test will be conducted against'));
 		remoteDeviceSelect.readonly = true;
+		remoteDeviceSelect.optional = false;
 
 		const updateRemoteDeviceSelectOptions = async (remoteDeviceSelect, sectionId) => {
 			remoteDeviceSelect.clear();
@@ -556,19 +557,18 @@ return view.extend({
 		};
 
 		// Extend the select element to also render a discover button
-		const originalSelectRenderWidget = remoteDeviceSelect.renderWidget;
 		remoteDeviceSelect.renderWidget = function (sectionId, optionIndex, cfgvalue) {
-			const dropdown = originalSelectRenderWidget.call(this, sectionId, optionIndex, cfgvalue);
-			const button = E('button', {
-				id: 'discover-button',
-				class: 'cbi-button cbi-button-action',
-				click: ui.createHandlerFn(this, async () => {
-					await updateRemoteDeviceSelectOptions(remoteDeviceSelect, sectionId);
-				}),
-			}, [_('Discover')]);
-			return E('div', { style: 'display: flex; align-items: flex-start; gap: 1em;' }, [
-				dropdown,
-				button,
+			return E('div', { class: 'control-group' }, [
+				form.ListValue.prototype.renderWidget.call(this, sectionId, optionIndex, cfgvalue),
+				E('button', {
+					'id': 'discover-button',
+					'class': 'cbi-button cbi-button-action',
+					'title': _('Scan for compatible range test devices'),
+					'aria-label': _('Scan for compatible range test devices'),
+					'click': ui.createHandlerFn(this, async () => {
+						await updateRemoteDeviceSelectOptions(remoteDeviceSelect, sectionId);
+					}),
+				}, '\u{1F50D}'),
 			]);
 		};
 
