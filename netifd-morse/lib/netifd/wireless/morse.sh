@@ -936,25 +936,29 @@ morse_setup_s1g_device_defaults() {
 		fi
 	fi
 
-	set_default s1g_prim_1mhz_chan_index auto
-	#APP-4065: Temporary workaround to force set the primary channel index to 0 for EagleCrest devices.
+	#APP-4065: Temporary workaround to set the primary channel index to 0 as default for all
+	# devices to ensure compatibility and force it to 0 for EagleCrest devices.
+	set_default s1g_prim_1mhz_chan_index 0
 	product_id=$(get_product_id "$path")
+
 	if [[ "$product_id" == "8100" || "$product_id" == "0x0809" ]]; then
 		echo "Device with product id $product_id detected. Forcing s1g_prim_1mhz_chan_index to 0."
 		s1g_prim_1mhz_chan_index=0
-	fi
-	
-	if [ "$s1g_prim_1mhz_chan_index" == "auto" ]; then
-		if [ ! -z $bw ] && [ $bw -eq 8 ]; then
-			s1g_prim_1mhz_chan_index=3
-		elif [ ! -z $bw ] && [ $bw -eq 4 ]; then
-			if [ "$s1g_prim_chwidth" -eq 2 ]; then
-				s1g_prim_1mhz_chan_index=2
-			else
-				s1g_prim_1mhz_chan_index=1
-			fi
-		else
+	else
+		if [ "$s1g_prim_1mhz_chan_index" -eq "auto" ]; then
 			s1g_prim_1mhz_chan_index=0
+		else
+			if [ ! -z $bw ] && [ $bw -eq 8 ]; then
+				s1g_prim_1mhz_chan_index=3
+			elif [ ! -z $bw ] && [ $bw -eq 4 ]; then
+				if [ "$s1g_prim_chwidth" -eq 2 ]; then
+					s1g_prim_1mhz_chan_index=2
+				else
+					s1g_prim_1mhz_chan_index=1
+				fi
+			else
+				s1g_prim_1mhz_chan_index=0
+			fi
 		fi
 	fi
 
