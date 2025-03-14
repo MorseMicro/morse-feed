@@ -127,10 +127,6 @@ ${_('When configured as a DHCP Server, the address is sent to DHCP clients.')}<b
 ${_('If this interface is not the connection to external subnets, you don\'t need to set a gateway. Leave it blank.')}<br>
 `;
 
-const BRIDGED_HALOW_WIFI_STA_ERROR = _('Network "%s" has a Wi-Fi client without WDS bridged with other devices. Either remove the other devices, enable WDS, or remove it from the network.');
-const BRIDGED_WIFI_STA_ERROR = _('Network "%s" has a Wi-Fi client on the same network as other devices. Either remove the other devices or remove it from the network.');
-const BRIDGED_WIFI_ADHOC_ERROR = _('Network "%s" has an Ad-Hoc Wi-Fi interface on the same network as other devices. Either remove the other devices or remove it from the network.');
-
 const NETWORK_WITHOUT_DEVICES_INFO = _('This network interface is unused because it has no Wireless interfaces or Ethernet ports. You can add Ethernet ports using the Ethernet column, or add Wireless interfaces by configuring them in the section below.');
 
 // This is based on widgets.NetworkSelect, but uses the zone style colouring
@@ -412,23 +408,8 @@ return view.extend({
 	preSaveHook() {
 		// Use a bridge if we have more than one device.
 		for (const network of uci.sections('network', 'interface')) {
-			const hasBridge = morseuci.useBridgeIfNeeded(network['.name']);
-
-			if (hasBridge) {
-				for (const wifiIface of morseuci.getNetworkWifiIfaces(network['.name'])) {
-					if (wifiIface.mode === 'adhoc') {
-						throw new TypeError(BRIDGED_WIFI_ADHOC_ERROR.format(network['.name']));
-					}
-
-					if (wifiIface.mode === 'sta' && wifiIface.wds !== '1') {
-						if (this.wifiDevices[wifiIface.device]?.get('type') === 'morse') {
-							throw new TypeError(BRIDGED_HALOW_WIFI_STA_ERROR.format(network['.name']));
-						} else {
-							throw new TypeError(BRIDGED_WIFI_STA_ERROR.format(network['.name']));
-						}
-					}
-				}
-			}
+			morseuci.createOrRemoveBridgeAsNeeded(network['.name']);
+			morseuci.validateBridge(network['.name'], this.wifiDevices);
 		}
 
 		// Make sure we don't have too many ifaces for morse devices.

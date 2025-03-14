@@ -270,7 +270,7 @@ return view.extend({
 						uci.set('wireless', iface['.name'], 'network', 'wlan');
 					}
 				}
-				morseuci.useBridgeIfNeeded('wlan');
+				morseuci.createOrRemoveBridgeAsNeeded('wlan');
 				break;
 			case 'routed_wan': // everything on lan except wan port
 			default:

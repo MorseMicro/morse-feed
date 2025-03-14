@@ -95,7 +95,7 @@ return wizard.AbstractWizardView.extend({
 			morseuci.setNetworkDevices('ahwlan', this.getEthernetPorts().map(p => p.device));
 			uci.set('wireless', morseInterfaceName, 'network', 'ahwlan');
 
-			morseuci.useBridgeIfNeeded('ahwlan');
+			morseuci.createOrRemoveBridgeAsNeeded('ahwlan');
 
 			return 'ahwlan';
 		};
@@ -104,8 +104,8 @@ return wizard.AbstractWizardView.extend({
 			morseuci.setNetworkDevices('lan', this.getEthernetPorts().map(p => p.device));
 			uci.set('wireless', morseInterfaceName, 'network', 'ahwlan');
 
-			morseuci.useBridgeIfNeeded('lan');
-			morseuci.useBridgeIfNeeded('ahwlan');
+			morseuci.createOrRemoveBridgeAsNeeded('lan');
+			morseuci.createOrRemoveBridgeAsNeeded('ahwlan');
 
 			return { ethIface: 'lan', halowIface: 'ahwlan' };
 		};

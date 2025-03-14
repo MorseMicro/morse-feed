@@ -202,7 +202,7 @@ return wizard.AbstractWizardView.extend({
 				}
 			}
 
-			morseuci.useBridgeIfNeeded('lan');
+			morseuci.createOrRemoveBridgeAsNeeded('lan');
 			morseuci.forceBridge('ahwlan', 'br-prpl', bridgeMAC);
 
 			return { ethIface: 'lan', halowIface: 'ahwlan' };
@@ -243,7 +243,7 @@ return wizard.AbstractWizardView.extend({
 				}
 
 				// Bridges
-				morseuci.useBridgeIfNeeded(upstreamNetwork);
+				morseuci.createOrRemoveBridgeAsNeeded(upstreamNetwork);
 				morseuci.forceBridge('ahwlan', 'br-prpl', bridgeMAC);
 
 				uci.set('network', upstreamNetwork, 'proto', 'dhcp');
