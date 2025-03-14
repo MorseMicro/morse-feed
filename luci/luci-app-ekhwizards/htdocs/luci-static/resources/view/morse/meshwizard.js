@@ -169,7 +169,7 @@ return wizard.AbstractWizardView.extend({
 				}
 			}
 
-			morseuci.useBridgeIfNeeded('ahwlan');
+			morseuci.createOrRemoveBridgeAsNeeded('ahwlan');
 
 			return 'ahwlan';
 		};
@@ -192,8 +192,8 @@ return wizard.AbstractWizardView.extend({
 				}
 			}
 
-			morseuci.useBridgeIfNeeded('lan');
-			morseuci.useBridgeIfNeeded('ahwlan');
+			morseuci.createOrRemoveBridgeAsNeeded('lan');
+			morseuci.createOrRemoveBridgeAsNeeded('ahwlan');
 
 			return { ethIface: 'lan', halowIface: 'ahwlan' };
 		};
@@ -230,8 +230,8 @@ return wizard.AbstractWizardView.extend({
 				}
 
 				// Bridges
-				morseuci.useBridgeIfNeeded(upstreamNetwork);
-				morseuci.useBridgeIfNeeded('ahwlan');
+				morseuci.createOrRemoveBridgeAsNeeded(upstreamNetwork);
+				morseuci.createOrRemoveBridgeAsNeeded('ahwlan');
 
 				uci.set('network', upstreamNetwork, 'proto', 'dhcp');
 				morseuci.setupNetworkWithDnsmasq('ahwlan', wlanIp);
