@@ -77,7 +77,38 @@ const iwinfoInfo = rpc.declare({
 	params: ['device'],
 });
 
-let availableRemoteDevices = {};
+let knownRemoteDevices = {};
+
+/**
+ * Update the available remote devices stored in the global variable `knownRemoteDevices`.
+ */
+const updateKnownRemoteDevices = async () => {
+	Object.keys(knownRemoteDevices).forEach(ipv4Address => knownRemoteDevices[ipv4Address]['available'] = false);
+
+	// Fully restarting the service clears the cache of old advertisements. TODO: APP-3717.
+	// Also, if run too early the umdns service is not yet ready.
+	await new Promise(resolveFn => window.setTimeout(resolveFn, 500));
+	fs.exec_direct('/etc/init.d/umdns', ['restart']);
+	await umdnsUpdate();
+	// Similar issue to above, docs indicate we should "wait a couple of seconds"
+	// after running umdns update. umdns update doesn't seem to wait for us,
+	// instead it returns after sending mdns queries, but before receiving the responses.
+	// Similar cache updating issue to above. TODO: APP-3717.
+	await new Promise(resolveFn => window.setTimeout(resolveFn, 1500));
+	let report = await umdnsBrowse(true);
+
+	if (Object.keys(report).length === 0) {
+		ui.addNotification(_('Discovery error'), E('pre', {}, _('No compatible remote devices found!')), 'error');
+		return;
+	}
+
+	for (const [hostname, deviceInfo] of Object.entries(report)) {
+		for (const ipv4Address of deviceInfo.ipv4) {
+			knownRemoteDevices[ipv4Address] = { hostname, ipv4Address, deviceInfo };
+			knownRemoteDevices[ipv4Address]['available'] = true;
+		}
+	}
+};
 
 const iperf3ResultsTemplate = {
 	iperf3: {
@@ -237,9 +268,7 @@ async function runRangetest(cancelPromise, configuration, testProgressBar, alert
 		},
 		basic: {
 			remoteDevicePassword: remotePassword,
-			remoteDeviceInfo: {
-				ipv4Address: remoteIp,
-			},
+			remoteDeviceIpAddress: remoteIp,
 		},
 	} = configuration;
 	let remoteRangetestDevice = remoteDevice.load(remoteIp, remotePassword);
@@ -323,7 +352,7 @@ function saveLocalTest(testId, data) {
 
 function exportTestDataAsJSONFile(testData, fileName) {
 	const dataString = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(testData, null, 2));
-	var downloadAnchorNode = document.createElement('a');
+	let downloadAnchorNode = document.createElement('a');
 	downloadAnchorNode.setAttribute('href', dataString);
 	downloadAnchorNode.setAttribute('download', `${fileName}.json`);
 	document.body.appendChild(downloadAnchorNode);
@@ -456,11 +485,13 @@ function parseResultsSummaryRowData(data) {
 	const tcpThroughputReceive = parseThroughputValue(local.iperf3.tcp.receive.end?.sum_sent?.bits_per_second);
 
 	const localSignalStrength = data.local.iwinfoInfo?.signal;
+	const remoteDeviceIpAddress = data.configuration.basic?.remoteDeviceIpAddress;
+	const remoteDeviceHostname = data.configuration.basic?.remoteDeviceInfo?.hostname;
 
 	return {
 		id: data.id,
 		timestamp: timestamp,
-		remoteHost: data.configuration.basic?.remoteHostIdentifier,
+		remoteHost: `${remoteDeviceIpAddress} ${remoteDeviceHostname ? `(${remoteDeviceHostname})` : ''}`,
 		description: data.configuration.basic?.description,
 		distance: data.configuration.basic?.range,
 		location: locationURL,
@@ -504,8 +535,8 @@ return view.extend({
 	async handleStartTest(ev, cancelPromise) {
 		try {
 			await this.basicTestConfigurationForm.parse();
-			const remoteHostId = this.rangetestConfiguration.basic.remoteHostIdentifier;
-			this.rangetestConfiguration.basic.remoteDeviceInfo = availableRemoteDevices[remoteHostId];
+			const remoteHostIp = this.rangetestConfiguration.basic.remoteDeviceIpAddress;
+			this.rangetestConfiguration.basic.remoteDeviceInfo = knownRemoteDevices[remoteHostIp];
 			// Remove all previous alert messages before starting a new test
 			this.alertMessageContainer.replaceChildren();
 			const testResults = await runRangetest(cancelPromise, this.rangetestConfiguration, this.testProgressBar, this.alertMessageContainer);
@@ -516,61 +547,47 @@ return view.extend({
 		}
 	},
 
+	RemoteDeviceSelect: form.Value.extend({
+		__init__: function () {
+			this.super('__init__', arguments);
+			this.orientation = 'horizontal';
+		},
+
+		renderWidget: function (sectionId, optionIndex, cfgvalue) {
+			this.clear();
+			for (const [ipv4Address, deviceInfo] of Object.entries(knownRemoteDevices)) {
+				if (deviceInfo.available) {
+					this.value(ipv4Address, `${ipv4Address} (${deviceInfo.hostname})`);
+					cfgvalue = cfgvalue || ipv4Address;
+				}
+			}
+
+			return E('div', { class: 'control-group' }, [
+				form.Value.prototype.renderWidget.call(this, sectionId, optionIndex, cfgvalue),
+				E('button', {
+					'id': 'discover-button',
+					'class': 'cbi-button cbi-button-action',
+					'title': _('Scan for wifi networks'),
+					'aria-label': _('Scan for wifi networks'),
+					'click': ui.createHandlerFn(this, async () => {
+						await updateKnownRemoteDevices();
+						this.renderUpdate(sectionId);
+					}),
+				}, '\u{1F50D}'),
+			]);
+		},
+	}),
+
 	basicTestConfigurationForm() {
 		const sectionId = 'basic';
 		const m = new form.JSONMap(this.rangetestConfiguration);
 		const s = m.section(form.NamedSection, sectionId);
 		let o;
 
-		const remoteDeviceSelect = s.option(form.ListValue, 'remoteHostIdentifier', _('Remote device'), _('The remote device which this test will be conducted against'));
-		remoteDeviceSelect.readonly = true;
-		remoteDeviceSelect.optional = false;
-
-		const updateRemoteDeviceSelectOptions = async (remoteDeviceSelect, sectionId) => {
-			remoteDeviceSelect.clear();
-			// Fully restarting the service clears the cache of old advertisements. TODO: APP-3717.
-			fs.exec_direct('/etc/init.d/umdns', ['restart']);
-			await umdnsUpdate();
-			// Similar issue to above, docs indicate we should "wait a couple of seconds"
-			// after running umdns update. umdns update doesn't seem to wait for us,
-			// instead it returns after sending mdns queries, but before receiving the responses.
-			// Similar cache updating issue to above. TODO: APP-3717.
-			await new Promise(resolveFn => window.setTimeout(resolveFn, 2000));
-			let report = await umdnsBrowse(true);
-
-			if (!report || Object.keys(report).length == 0) {
-				remoteDeviceSelect.readonly = true;
-				remoteDeviceSelect.renderUpdate(sectionId);
-				ui.addNotification(_('Discovery error'), E('pre', {}, _('No compatible remote devices found!')), 'error');
-				return;
-			}
-
-			for (const [hostname, deviceInfo] of Object.entries(report)) {
-				for (const ipv4Address of deviceInfo.ipv4) {
-					const remoteHostIdentifier = `${hostname} (${ipv4Address})`;
-					remoteDeviceSelect.value(remoteHostIdentifier, remoteHostIdentifier);
-					availableRemoteDevices[remoteHostIdentifier] = { hostname, ipv4Address, deviceInfo };
-				}
-			}
-			remoteDeviceSelect.readonly = false;
-			remoteDeviceSelect.renderUpdate(sectionId);
-		};
-
-		// Extend the select element to also render a discover button
-		remoteDeviceSelect.renderWidget = function (sectionId, optionIndex, cfgvalue) {
-			return E('div', { class: 'control-group' }, [
-				form.ListValue.prototype.renderWidget.call(this, sectionId, optionIndex, cfgvalue),
-				E('button', {
-					'id': 'discover-button',
-					'class': 'cbi-button cbi-button-action',
-					'title': _('Scan for compatible range test devices'),
-					'aria-label': _('Scan for compatible range test devices'),
-					'click': ui.createHandlerFn(this, async () => {
-						await updateRemoteDeviceSelectOptions(remoteDeviceSelect, sectionId);
-					}),
-				}, '\u{1F50D}'),
-			]);
-		};
+		o = s.option(this.RemoteDeviceSelect, 'remoteDeviceIpAddress', _('Remote Device'), _('Select the remote device to test against'));
+		o.datatype = 'ip4addr';
+		o.rmempty = false;
+		o.optional = false;
 
 		o = s.option(form.Value, 'remoteDevicePassword', _('Password'), _('Remote device password'));
 		o.datatype = 'string';
@@ -679,7 +696,7 @@ return view.extend({
 		let o;
 
 		s.handleRemove = async function (sectionId, _ev) {
-			var configName = this.map.config;
+			let configName = this.map.config;
 			const testId = this.map.data.data[sectionId].id;
 			ui.showModal(_('Confirm Deletion'), [
 				E('p', {}, _('Are you sure?')),
@@ -761,7 +778,7 @@ return view.extend({
 		o.datatype = 'integer';
 		o.readonly = true;
 
-		const downloadButton = s.option(form.DummyValue, 'export', _('Data (JSON)'));
+		const downloadButton = s.option(form.DummyValue, 'export', _('Raw Data (JSON)'));
 		downloadButton.editable = true;
 		downloadButton.renderWidget = function (sectionId, _optionIndex, _cfgvalue) {
 			return E('div', { style: 'display: flex; align-items: flex-start; gap: 1em;' }, [
