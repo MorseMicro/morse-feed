@@ -1663,13 +1663,8 @@ tr > th,
   width: 100%;
   gap: 0;
 
-  select {
-    height: 100%;
-  }
-
-  input,
-  select,
-  div:has(+ button) {
+  div.cbi-dropdown:has(+ button),
+  input:not(.create-item-input) {
     border-bottom-right-radius: 0;
     border-top-right-radius: 0;
     border-right-width: 0;
@@ -1677,7 +1672,6 @@ tr > th,
   }
 
   input + button,
-  select + button,
   div + button {
     border-bottom-left-radius: 0;
     border-top-left-radius: 0;
