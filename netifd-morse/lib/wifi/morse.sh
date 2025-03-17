@@ -131,9 +131,6 @@ EOF
 			morse,artini)
 				bcf=bcf_mm_hl1.bin
 			;;
-			morse,ekh01-mf13455)
-				bcf=bcf_mf13455.bin
-			;;
 			morse,ekh01-mf15457)
 				bcf=bcf_mf15457.bin
 			;;
