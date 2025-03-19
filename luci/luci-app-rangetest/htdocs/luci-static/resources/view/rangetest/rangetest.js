@@ -194,8 +194,8 @@ function validateDecimalDegrees(sectionId, value) {
 	if (coordinates.length !== 2) {
 		return _('Expecting: \'latitude, longitude\' format.');
 	}
-	const latitude = parseFloat(coordinates[0].trim());
-	const longitude = parseFloat(coordinates[1].trim());
+	const latitude = Number(coordinates[0].trim());
+	const longitude = Number(coordinates[1].trim());
 
 	if (isNaN(latitude) || isNaN(longitude)) {
 		return _('Expecting: Coordinates must be numeric values.');
@@ -642,6 +642,77 @@ return view.extend({
 		},
 	}),
 
+	CoordinatesInput: form.Value.extend({
+		renderWidget: function (sectionId, optionIndex, cfgvalue) {
+			this.clear();
+
+			return E('div', { class: 'control-group' }, [
+				form.Value.prototype.renderWidget.call(this, sectionId, optionIndex, cfgvalue),
+				E('button', {
+					'class': 'cbi-button cbi-button-action',
+					'title': _('Retrieve the current location of your phone/laptop via the browser'),
+					'aria-label': _('Retrieve the current location of your phone/laptop via the browser'),
+					'click': ui.createHandlerFn(this, async () => {
+						if (window.location.protocol !== 'https:') {
+							const secureUrl = `https://${window.location.host}${window.location.pathname}`;
+							ui.showModal(_('Secure Connection (HTTPS) Required for Browser Geolocation'), [
+								E('p', {},
+									'<strong>Important:</strong> This feature retrieves the coordinates of the device you are using to access this page '
+									+ '(e.g., your laptop or phone, <strong>not the HaLow device under test</strong>). '
+									+ 'Ensure this device is near your selected HaLow target before collecting its position.',
+								),
+								E('p', {},
+									'<strong>Security Notice:</strong> To enable location access, you must reload this page with HTTPS. '
+									+ `You will be redirected to <a href=${secureUrl} target='_blank'>${secureUrl}</a>. `
+									+ 'On the first reload, your browser may show a security warning due to self-signed SSL certificates. '
+									+ 'This is expected and can be bypassed. You will also need to log in again and grant location access when prompted. '
+									+ 'After these steps, clicking the button will autofill your coordinates.',
+								),
+								E('p', {},
+									'<em>Note:</em> Location accuracy is significantly higher on mobile devices, as they use GPS and Wi-Fi for better positioning.',
+								),
+								E('div', { class: 'right' }, [
+									E('button', {
+										class: 'cbi-button cbi-button-positive',
+										click: () => {
+											window.location.href = window.location.href.replace(/^http:/, 'https:');
+										},
+									}, _('Reload with HTTPS')),
+									' ',
+									E('button', {
+										class: 'cbi-button',
+										click: ui.hideModal,
+									}, _('Cancel')),
+								]),
+							]);
+							return;
+						}
+
+						navigator.geolocation.getCurrentPosition((position) => {
+							// Warn the user if the provided location has low accuracy
+							if (position.coords.accuracy > 5) {
+								ui.addNotification(_('Low Location Accuracy'), E('p', {}, _('The location provided by your browser has low accuracy (> 5m). This may affect the test results.')), 'warning');
+							}
+
+							const latitude = position.coords.latitude;
+							const longitude = position.coords.longitude;
+							const coords = `${latitude}, ${longitude}`;
+							this.getUIElement(sectionId).setValue(coords);
+							this.getUIElement(sectionId).triggerValidation(sectionId);
+							this.onchange();
+						}, (error) => {
+							console.error('Error getting browser coordinates:', error);
+							ui.addNotification(_('Error getting browser coordinates'), E('pre', {}, error.message), 'error');
+						}, {
+							maximumAge: 0,	// Refuse cached locations
+							enableHighAccuracy: true,	// Ask the device for the best possible location
+						});
+					}),
+				}, '\u{1F4CD}'),
+			]);
+		},
+	}),
+
 	basicTestConfigurationForm() {
 		const sectionId = 'basic';
 		const m = new form.JSONMap(this.rangetestConfiguration);
@@ -663,12 +734,12 @@ return view.extend({
 		o.placeholder = _('line of sight, low noise environment...');
 		o.optional = true;
 
-		let localDeviceCoordinatesInput = s.option(form.Value, 'localDeviceCoordinates', _('Local device coordinates'), _('Optional: Must be provided in Decimal Degrees (DD) format, used by Google Maps'));
+		let localDeviceCoordinatesInput = s.option(this.CoordinatesInput, 'localDeviceCoordinates', _('Local device coordinates'), _('Optional: Must be provided in Decimal Degrees (DD) format, used by Google Maps'));
 		localDeviceCoordinatesInput.validate = validateDecimalDegrees;
 		localDeviceCoordinatesInput.placeholder = '-33.885553, 151.211138'; // MM Sydney office
 		localDeviceCoordinatesInput.optional = true;
 
-		let remoteDeviceCoordinatesInput = s.option(form.Value, 'remoteDeviceCoordinates', _('Remote device coordinates'), _('Optional: Must be provided in Decimal Degrees (DD) format, used by Google Maps'));
+		let remoteDeviceCoordinatesInput = s.option(this.CoordinatesInput, 'remoteDeviceCoordinates', _('Remote device coordinates'), _('Optional: Must be provided in Decimal Degrees (DD) format, used by Google Maps'));
 		remoteDeviceCoordinatesInput.validate = validateDecimalDegrees;
 		remoteDeviceCoordinatesInput.placeholder = '-34.168550, 150.611910';	// MM Picton office
 		remoteDeviceCoordinatesInput.optional = true;
