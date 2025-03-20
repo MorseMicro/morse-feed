@@ -2,8 +2,9 @@
 
 get_morse_iface()
 {
-    if [ -d "/sys/class/morse/morse_io/device/net/" ]; then
-        local morse_iface=$(basename "/sys/class/morse/morse_io/device/net/"*)
+    local net_path=$(find /sys/class/morse/morse_io/device/ -name net | head -n 1)
+    if [ -n "$net_path" ]; then
+        local morse_iface=$(basename "$net_path/"*)
         printf $morse_iface
     fi
 }
