@@ -111,22 +111,3 @@ morse_find_ifname()
 		fi
 	done
 }
-
-
-update_dpp_qrcode()
-{
-	local uci_changes_path="$(mktemp -d)"
-	local private_key_path=$1
-	#remove ':' from the macaddress
-	local mac_address=$(echo "$2" | sed -r 's/://g')
-	#generate the public key string from the private key.
-	#unfortunately, there is no way to quiet the 'read EC key' messages without redirecting stderr.
-	local pubkey=$(openssl ec -in $private_key_path -pubout -conv_form compressed -outform DER 2> /dev/null | base64 -w0)
-	#save qrcode string into /www
-	qrencode --inline --8bit --type=SVG --output=/tmp/dpp_qrcode.svg "DPP:V:2;M:$mac_address;K:$pubkey;;"
-	#only write if necessary
-	if ! cmp -s /tmp/dpp_qrcode.svg /www/dpp_qrcode.svg; then
-		cp /tmp/dpp_qrcode.svg /www/dpp_qrcode.svg
-	fi
-	rm /tmp/dpp_qrcode.svg
-}

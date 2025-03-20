@@ -402,12 +402,6 @@ drv_morse_setup() {
 		done
 	fi
 
-	if [ -e /etc/dpp_key.pem ]; then
-		# The private key only exists if you include the dpp-key-recovery
-		# package.
-		update_dpp_qrcode /etc/dpp_key.pem "$(cat "/sys/class/ieee80211/$phy/macaddress")"
-	fi
-
 	json_add_object data
 	json_add_string phy "$phy"
 	json_close_object
@@ -1124,8 +1118,6 @@ morse_wpa_supplicant_add() {
 		/usr/sbin/wpa_supplicant_s1g -t -D nl80211 -s -i $_ifname -c $_config -B
 	fi
 
-	#React to DPP events (wpa_s1g_dpp_action will persist creds and restart network)
-	[ "$dpp" = 1 ] && /usr/sbin/wpa_event_listener -a "/lib/netifd/morse/wpa_s1g_dpp_action.sh" -B
 	return 0
 }
 
