@@ -35,19 +35,6 @@ define Package/morse-board-config
   PROVIDES:=morse-board-config
 endef
 
-define Package/morse-board-config-hotplug-model
-  SECTION:=firmware
-  CATEGORY:=Firmware
-  TITLE:=Hotplug scripts for module type reporting
-  DEPENDS:=+morse-board-config
-endef
-
-define Package/morse-board-config-hotplug-model/description
-  When enabled, a hotplug script will be installed to
-  append a relevant module type suffix based on the value
-  programmed into the Morse chips OTP bits.
-endef
-
 TAR_CMD=$(HOST_TAR) -C $(1) $(TAR_OPTIONS)
 
 define Build/Compile
@@ -82,10 +69,4 @@ define Package/morse-board-config/install
 	$(INSTALL_DATA) ./files/usr/share/morse-bcf/db.txt $(1)/usr/share/morse-bcf/db.txt
 endef
 
-define Package/morse-board-config-hotplug-model/install
-	$(INSTALL_DIR) $(1)/etc/hotplug.d/ieee80211
-	$(INSTALL_DATA) ./files/etc/hotplug.d/ieee80211/20-module-type $(1)/etc/hotplug.d/ieee80211/20-module-type
-endef
-
 $(eval $(call BuildPackage,morse-board-config))
-$(eval $(call BuildPackage,morse-board-config-hotplug-model))
