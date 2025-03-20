@@ -28,7 +28,7 @@ include $(INCLUDE_DIR)/package.mk
 
 define Package/morsecli
   SECTION:=utils
-  CATEGORY:=Network
+  CATEGORY:=Morse
   TITLE:=Morse Micro WIFI HaLow driver command line tool
   DEPENDS:= +kmod-morse +libnl +libusb-1.0
   FILES:=\

@@ -31,7 +31,7 @@ TAR_CMD=$(HOST_TAR) -C $(1) $(TAR_OPTIONS)
 
 define Package/morse-fw
   SECTION:=firmware
-  CATEGORY:=Firmware
+  CATEGORY:=Morse
   URL:=$(PKG_SOURCE_URL)
   TITLE:=Morse Micro WIFI HaLow firmware
   PROVIDES:=morse-fw
@@ -39,7 +39,7 @@ endef
 
 define Package/morse-fw-tlm
   SECTION:=firmware
-  CATEGORY:=Firmware
+  CATEGORY:=Morse
   URL:=$(PKG_SOURCE_URL)
   TITLE:=Morse Micro WIFI HaLow Thin LMAC firmware
   PROVIDES:=morse-fw-tlm

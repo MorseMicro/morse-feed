@@ -102,8 +102,7 @@ endif
 
 define Package/wpa_supplicant_s1g
   SECTION:=net
-  CATEGORY:=Network
-  SUBMENU:=WirelessAPD
+  CATEGORY:=Morse
   TITLE:=Morse Micro HaLow wpa_supplicant
   DEPENDS:= +kmod-morse +libnl +libopenssl +libubus +MORSE_WPA_SUPPLICANT_S1G_DBUS:dbus +MORSE_WPA_SUPPLICANT_S1G_DBUS:libdbus
   USERID:=network=101:network=101
@@ -112,8 +111,7 @@ endef
 
 define Package/libwpa_client_s1g
   SECTION:=net
-  CATEGORY:=Network
-  SUBMENU:=WirelessAPD
+  CATEGORY:=Morse
   TITLE:=libwpa_client_s1g
   DEPENDS:=wpa_supplicant_s1g
 endef

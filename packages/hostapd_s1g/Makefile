@@ -98,8 +98,7 @@ endif
 
 define Package/hostapd_s1g
   SECTION:=net
-  CATEGORY:=Network
-  SUBMENU:=WirelessAPD
+  CATEGORY:=Morse
   TITLE:=Morse Micro HaLow hostapd
   DEPENDS:= +kmod-morse +libnl +libopenssl +libubus
   USERID:=network=101:network=101

@@ -33,7 +33,7 @@ PKG_SKIP_DOWNLOAD=$(USE_SOURCE_DIR)$(USE_GIT_TREE)$(USE_GIT_SRC_CHECKOUT)$(if $(
 
 define Package/morse-regdb
   SECTION:=net
-  CATEGORY:=Network
+  CATEGORY:=Morse
   TITLE:=Regulatory data for 802.11ah
   URL:=https://bitbucket.org/morsemicro/morse_regdb/src/master/
   PKGARCH:=all

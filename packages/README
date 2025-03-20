@@ -1,0 +1,14 @@
+This directory includes OpenWrt packages.
+
+morse_driver - kernel module
+morse-fw - firmware for chips (required for kernel module to load)
+mm-board-config - provides standard BCF files (a BCF/board configuration file for the board/module you're using is required)
+
+morse_cli - lower level interaction with chip; can be shipped on end user devices
+morsectrl - development access to chip (superset of morse_cli)
+
+hostapd_s1g - customised hostapd for s1g support
+wpa_supplicant_s1g - customised wpa_supplicant for s1g support
+
+netifd-morse - plugin for netifd to add support for `type morse` (incl hotplug)
+morse-regdb - CSV of S1G frequencies (used by netifd-morse)

@@ -29,7 +29,7 @@ include $(INCLUDE_DIR)/package.mk
 
 define Package/morse-board-config
   SECTION:=firmware
-  CATEGORY:=Firmware
+  CATEGORY:=Morse
   URL:=$(PKG_SOURCE_URL)
   TITLE:=Morse Micro WIFI HaLow Board Config File
   PROVIDES:=morse-board-config

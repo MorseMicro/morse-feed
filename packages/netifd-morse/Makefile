@@ -19,7 +19,7 @@ include $(INCLUDE_DIR)/package.mk
 
 define Package/netifd-morse
   SECTION:=net
-  CATEGORY:=Network
+  CATEGORY:=Morse
   TITLE:=Morse Micro HaLow support for netifd
   DEPENDS:= netifd \
 	+kmod-morse +kmod-cfg80211 \
