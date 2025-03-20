@@ -25,9 +25,6 @@ PKG_BUILD_PARALLEL:=1
 PKG_CONFIG_DEPENDS:= \
 	CONFIG_PACKAGE_kmod-morse \
 	CONFIG_PACKAGE_kmod-cfg80211 \
-	CONFIG_PACKAGE_hostapd \
-	CONFIG_PACKAGE_hostapd-basic \
-	CONFIG_PACKAGE_hostapd-mini \
 	CONFIG_WPA_RFKILL_SUPPORT \
 	CONFIG_DRIVER_WEXT_SUPPORT \
 	CONFIG_DRIVER_11N_SUPPORT \
@@ -162,9 +159,9 @@ define Build/Compile
 endef
 
 define Package/hostapd_s1g/install
-	$(INSTALL_DIR) $(1)/sbin
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/hostapd/hostapd_s1g $(1)/sbin
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/hostapd/hostapd_cli_s1g $(1)/sbin
+	$(INSTALL_DIR) $(1)/usr/sbin
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/hostapd/hostapd_s1g $(1)/usr/sbin
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/hostapd/hostapd_cli_s1g $(1)/usr/sbin
 endef
 
 $(eval $(call BuildPackage,hostapd_s1g))

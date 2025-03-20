@@ -173,9 +173,9 @@ define Build/Compile
 endef
 
 define Package/wpa_supplicant_s1g/install
-	$(INSTALL_DIR) $(1)/sbin
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/wpa_supplicant/wpa_supplicant_s1g $(1)/sbin/
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/wpa_supplicant/wpa_cli_s1g $(1)/sbin/
+	$(INSTALL_DIR) $(1)/usr/sbin
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/wpa_supplicant/wpa_supplicant_s1g $(1)/usr/sbin/
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/wpa_supplicant/wpa_cli_s1g $(1)/usr/sbin/
 
 ifeq ($(CONFIG_MORSE_WPA_SUPPLICANT_S1G_DBUS),y)
 	$(INSTALL_DIR) $(1)/etc/dbus-1/system.d/
