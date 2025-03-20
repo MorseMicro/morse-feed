@@ -1,0 +1,17 @@
+This directory contains examples of how to add a morse chip
+to a particular device.
+
+You can add them to your OpenWrt tree by doing:
+
+cp -r <examplename>/. <openwrttree>
+
+bcm2711
+=======
+
+Tested on ekh01 kits (which are rpi4 + SDIO HAT). Note that this
+is atypical, because:
+- it uses device tree overlays
+- it also has to modify the RPI config.txt (or rather distroconfig.txt)
+- it does a few other things to make it nicer to use the RPI as
+  a development platform (e.g. enabling a UART for the chip output)
+
