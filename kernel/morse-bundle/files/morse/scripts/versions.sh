@@ -46,13 +46,7 @@ get_d11_ver()
 
 get_mcli_ver()
 {
-    local m_iface=$(get_morse_iface)
-    if [ -z "$m_iface" ];then
-        printf "N/A"
-        return
-    fi
-
-    local output=`morse_cli -i $m_iface version | grep Morse_cli`
+    local output=`morse_cli version | grep Morse_cli`
     if [ "$output" ];then
         printf "$output" | sed 's/.*: //g'
     else
@@ -62,18 +56,12 @@ get_mcli_ver()
 
 get_mctrl_ver()
 {
-    local m_iface=$(get_morse_iface)
-    if [ -z "$m_iface" ];then
-        printf "N/A"
-        return
-    fi
-
     if [ ! -x "/sbin/morsectrl" ]; then
-        printf "N/A"
+        printf "N/A (Not installed)"
         return
     fi
 
-    local output=`morsectrl -i $m_iface version | grep Morsectrl`
+    local output=`morsectrl version | grep Morsectrl`
     if [ "$output" ];then
         printf "$output" | sed 's/.*: //g'
     else
