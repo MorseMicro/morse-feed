@@ -22,7 +22,6 @@ define Package/netifd-morse
   CATEGORY:=Network
   TITLE:=Morse Micro HaLow support for netifd
   DEPENDS:= netifd \
-	+@BUSYBOX_CONFIG_USLEEP \
 	+kmod-morse +kmod-cfg80211 \
 	+morse-regdb +wpa_supplicant_s1g +hostapd_s1g +morsecli
 endef

@@ -380,7 +380,7 @@ drv_morse_setup() {
 
 	local retries=4
 	while ! find_phy; do
-		sleep 0.5
+		sleep 1
 		retries="$((retries - 1))"
 		if [ "$retries" -le 0 ]; then
 			echo "Could not find PHY for device '$1'" >&2
@@ -397,7 +397,7 @@ drv_morse_setup() {
 	if [ "$inserted_module" = 1 ]; then
 		retries=4
 		while [ -d "/sys/class/ieee80211/$phy/device/net" ] && [ "$retries" -gt 0 ]; do
-			sleep 0.5
+			sleep 1
 			retries="$((retries - 1))"
 		done
 	fi
