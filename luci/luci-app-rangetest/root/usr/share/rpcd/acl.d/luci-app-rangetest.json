@@ -22,5 +22,13 @@
 				"iwinfo": [ "info" ]
 			}
 		}
+	},
+	"unauthenticated": {
+		"description": "Allow unauthenticated users to check the status of the range test app",
+		"read": {
+			"ubus": {
+				"rangetest": [ "info" ]
+			}
+		}
 	}
 }
