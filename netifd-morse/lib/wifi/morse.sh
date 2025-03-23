@@ -86,11 +86,18 @@ detect_morse() {
 		config_foreach check_morse_device wifi-device
 		[ "$found" -gt 0 ] && continue
 
-		path="$(iwinfo dot11ah path "$dev")"
+		local path="$(iwinfo dot11ah path "$dev")"
+		local macaddr="$(cat /sys/class/ieee80211/${dev}/macaddress)"
 		if [ -n "$path" ]; then
 			dev_id="set wireless.radio${devidx}.path='$path'"
+		elif [ -n "$macaddr" ]; then
+			dev_id="set wireless.radio${devidx}.macaddr=$macaddr"
 		else
-			dev_id="set wireless.radio${devidx}.macaddr=$(cat /sys/class/ieee80211/${dev}/macaddress)"
+			# If we can't identify the path or macaddr, something has gone
+			# badly wrong. We shouldn't create a wifi-device in any case,
+			# as it won't be a valid entry.
+			logger -p 3 -t wifi-morse "Ignoring $dev as unable to find sysfs path or macaddr"
+			continue
 		fi
 
 		uci -q batch <<-EOF
