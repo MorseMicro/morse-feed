@@ -13,7 +13,6 @@
 		},
 		"read": {
 			"file": {
-				"/etc/init.d/umdns restart" : [ "exec" ],
 				"mkdir -p /tmp/rangetest" : [ "exec" ],
 				"/tmp/rangetest" : [ "list" ],
 				"/tmp/rangetest/*" : [ "read" ]
