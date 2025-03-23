@@ -8,6 +8,7 @@ var remoteRequest = rpc.declare({
 	object: 'rangetest-remote-rpc',
 	method: 'request',
 	params: ['uri', 'body'],
+	nobatch: true, // If one batched request hangs, all others will hang too.
 });
 
 var RemoteRpcClass = rpc.constructor.extend({
@@ -49,12 +50,14 @@ var RemoteRpcClass = rpc.constructor.extend({
 		return Promise.resolve();
 	},
 
-	__call: async function (method, params) {
+	__call: async function (method, params, requiresLogin = true) {
 		if (this.remoteRpcBaseUrl === undefined) {
 			throw new Error('No URL set for remote RPC call!');
 		}
 
-		await this.__checkLogin();
+		if (requiresLogin) {
+			await this.__checkLogin();
+		}
 
 		const req = {
 			jsonrpc: '2.0',
@@ -124,6 +127,10 @@ var RemoteRpcClass = rpc.constructor.extend({
 
 	ipLink: async function () {
 		return this.__call('ip_link', {});
+	},
+
+	info: async function () {
+		return this.__call('info', {}, false);
 	},
 
 	/**

@@ -20,12 +20,19 @@
  *  - morse_cli_stats() => json_blob
  *  - morse_cli_channel() => json_blob
  *  - ip_link() => { interface_1: {...}, interface_2: {...} }
+ *  - info() => { rangetest_api_version: "..." }
  */
 
 import * as ubus from 'ubus';
 const fs = require('fs');
 const uloop = require('uloop');
 const math = require('math');
+
+/**
+ * Temporarily defined here and in the uci-defaults script.
+ * See the comment in the uci-defaults script for more information.
+ */
+const API_VERSION="0.1.0";
 
 /* This is weird because running the iperf3 server
  * with -s -1 --json will not produce any output
@@ -262,6 +269,15 @@ function ip_link(req) {
 	return output;
 }
 
+/**
+ * Just the API version for now, but could easily be extended
+ * to include information about whether there is an existing
+ * rangetest in progress by checking the output directories.
+ */
+function info(req) {
+	return { rangetest_api_version: API_VERSION };
+}
+
 return {
 	rangetest: {
 		background_iperf3_server: {
@@ -296,6 +312,9 @@ return {
 		},
 		ip_link: {
 			call: ip_link,
+		},
+		info: {
+			call: info,
 		},
 	},
 };
