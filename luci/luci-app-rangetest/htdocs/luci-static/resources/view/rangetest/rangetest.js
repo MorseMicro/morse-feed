@@ -77,36 +77,79 @@ const iwinfoInfo = rpc.declare({
 	params: ['device'],
 });
 
+let lastUmdnsUpdateTime = null;
 let knownRemoteDevices = {};
 
 /**
- * Update the available remote devices stored in the global variable `knownRemoteDevices`.
+ * Updates the global `knownRemoteDevices` object with the latest information
+ * about remote devices discovered on the network.
+ *
+ * - Cached devices: Devices previously discovered by umdns are marked as `cached: false`
+ *   and `online: false` initially. Their status is updated (`cached: true`) if they appear
+ * 	 in the latest umdns browse results.
+ * - Online devices: Remote devices which respond to rangetest info requests are marked
+ *   as `online: true`.
+ *
+ * If no devices are discovered or no devices are online, appropriate error messages
+ * are displayed to the user.
+ *
+ * @returns {Promise<void>} Resolves when the update process is complete.
  */
 const updateKnownRemoteDevices = async () => {
-	Object.keys(knownRemoteDevices).forEach(ipv4Address => knownRemoteDevices[ipv4Address]['available'] = false);
+	Object.keys(knownRemoteDevices).forEach((ipv4Address) => {
+		knownRemoteDevices[ipv4Address]['cached'] = false;
+		knownRemoteDevices[ipv4Address]['online'] = false;
+	});
 
-	// Fully restarting the service clears the cache of old advertisements. TODO: APP-3717.
-	// Also, if run too early the umdns service is not yet ready.
-	await new Promise(resolveFn => window.setTimeout(resolveFn, 500));
-	fs.exec_direct('/etc/init.d/umdns', ['restart']);
-	await umdnsUpdate();
-	// Similar issue to above, docs indicate we should "wait a couple of seconds"
-	// after running umdns update. umdns update doesn't seem to wait for us,
-	// instead it returns after sending mdns queries, but before receiving the responses.
-	// Similar cache updating issue to above. TODO: APP-3717.
-	await new Promise(resolveFn => window.setTimeout(resolveFn, 1500));
+	// Ensure that umdnsUpdate is not called on the first run
+	// to avoid overload in larger networks (If it behaved correctly
+	// it would have been updated by itself as it or other remote
+	// devices came online).
+	if (lastUmdnsUpdateTime !== null) {
+		await umdnsUpdate();
+
+		// Documentation says to 'wait a second or two' before browsing.
+		await new Promise(resolve => setTimeout(resolve, 1500));
+	}
+	lastUmdnsUpdateTime = Date.now();
+
 	let report = await umdnsBrowse(true);
 
+	// If no devices are cached at all, display an error message
 	if (Object.keys(report).length === 0) {
 		ui.addNotification(_('Discovery error'), E('pre', {}, _('No compatible remote devices found!')), 'error');
 		return;
 	}
 
+	let deviceInfoRequests = [];
 	for (const [hostname, deviceInfo] of Object.entries(report)) {
 		for (const ipv4Address of deviceInfo.ipv4) {
 			knownRemoteDevices[ipv4Address] = { hostname, ipv4Address, deviceInfo };
-			knownRemoteDevices[ipv4Address]['available'] = true;
+			knownRemoteDevices[ipv4Address]['cached'] = true;
+
+			// Make calls to the remote device to check if it is 'online',
+			// and verify that the cache is up-to-date.
+			const deviceInfoRequest = (async () => {
+				try {
+					const remoteRangetestDevice = remoteDevice.load(ipv4Address, null);
+					const timeout = new Promise((_, reject) =>
+						setTimeout(() => reject(new Error('Request timed out')), 5000),
+					);
+					await Promise.race([remoteRangetestDevice.info(), timeout]);
+					knownRemoteDevices[ipv4Address].online = true;
+				} catch (error) {
+					console.warn(`Error fetching device info from ${ipv4Address}`, error);
+					knownRemoteDevices[ipv4Address].online = false;
+				}
+			})();
+			deviceInfoRequests.push(deviceInfoRequest);
 		}
+	}
+	await Promise.allSettled(deviceInfoRequests);
+
+	// If no devices are online, display an error message
+	if (Object.values(knownRemoteDevices).every(deviceInfo => !deviceInfo.online)) {
+		ui.addNotification(_('Discovery error'), E('pre', {}, _('No compatible remote devices found!')), 'error');
 	}
 };
 
@@ -553,14 +596,35 @@ return view.extend({
 			this.orientation = 'horizontal';
 		},
 
+		renderRemoteDevice: function (ipv4Address, deviceInfo) {
+			return E('div', {
+				style: 'display: flex; align-items: center; justify-content: space-between; width: 100%;',
+				title: !deviceInfo.online ? _('This device is offline') : '',
+			}, [
+				E('span', {}, `${ipv4Address} (${deviceInfo.hostname})`),
+				E('span', { style: 'flex-grow: 1;' }, ''),
+				!deviceInfo.online ? E('span', { style: 'color: darkgrey' }, _('offline')) : '',
+			]);
+		},
+
 		renderWidget: function (sectionId, optionIndex, cfgvalue) {
 			this.clear();
-			for (const [ipv4Address, deviceInfo] of Object.entries(knownRemoteDevices)) {
-				if (deviceInfo.available) {
-					this.value(ipv4Address, `${ipv4Address} (${deviceInfo.hostname})`);
-					cfgvalue = cfgvalue || ipv4Address;
-				}
+
+			// If the pre-selected device is not online, clear the selection
+			if (cfgvalue && !knownRemoteDevices[cfgvalue]?.online) {
+				cfgvalue = null;
 			}
+
+			// Only render devices which appeared in the most recent umdns browse,
+			// showing the online devices first.
+			Object.entries(knownRemoteDevices)
+				.filter(([, deviceInfo]) => deviceInfo.cached)
+				.sort(([, a], [, b]) => b.online - a.online)
+				.forEach(([ipv4Address, deviceInfo]) => {
+					this.value(ipv4Address, this.renderRemoteDevice(ipv4Address, deviceInfo));
+					// Select the first online device if no options are pre-selected
+					cfgvalue = (cfgvalue == null && deviceInfo.online) ? ipv4Address : cfgvalue;
+				});
 
 			return E('div', { class: 'control-group' }, [
 				form.Value.prototype.renderWidget.call(this, sectionId, optionIndex, cfgvalue),
