@@ -194,7 +194,7 @@ function fetch_config_once(url) {
 	try {
 		return json(raw_config);
 	} catch (e) {
-		return `Configurator gave invalid JSON (${url}): ${raw_config}"`;
+		return `Configurator gave invalid JSON (${url}[:100]): ${[substr(raw_config, 0, 100)]}"`;
 	}
 }
 
@@ -391,7 +391,7 @@ function fetch_config(urls) {
 		}
 	}
 
-	warn(`ERROR: Unable to load ${SERVICE} url ${url}; last error: ${result}\n`);
+	warn(`ERROR: Unable to load ${SERVICE} from any of ${urls}\n`);
 	exit(1);
 };
 
