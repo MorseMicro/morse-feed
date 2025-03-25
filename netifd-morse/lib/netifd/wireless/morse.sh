@@ -143,8 +143,10 @@ build_morse_mod_params(){
 	MOD_PARAMS="$MOD_PARAMS macaddr_suffix=$ETH0_MAC_SUFFIX"
 
 	#APP-4066: Completely disable powersave for EC USB mode until the driver issue is fixed
+	#APP-4384: Disable USB coredump support to prevent potential host system stalls.
 	if [[ $path  = *usb* ]]; then
 		MOD_PARAMS="$MOD_PARAMS enable_ps=0"
+		MOD_PARAMS="$MOD_PARAMS enable_coredump=N"
 	fi
 
 	MOD_PARAMS=`echo $MOD_PARAMS | xargs`
