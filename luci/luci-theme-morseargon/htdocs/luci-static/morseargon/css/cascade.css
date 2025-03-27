@@ -4023,7 +4023,7 @@ pre.command-output {
   .cbi-value-field .cbi-input-select,
   .cbi-value input[type="text"],
   .cbi-value input[type="password"] {
-    min-width: 16rem;
+    min-width: 15.5rem;
   }
 
   #cbi-firewall-zone .cbi-input-select {
@@ -4107,8 +4107,8 @@ pre.command-output {
   .cbi-value-field .cbi-dropdown,
   .cbi-value-field .cbi-input-select,
   .cbi-value input[type="text"] {
-    width: 16rem;
-    min-width: 16rem;
+    width: 15rem;
+    min-width: 15rem;
   }
 
   /* .cbi-value input[type="password"], */
