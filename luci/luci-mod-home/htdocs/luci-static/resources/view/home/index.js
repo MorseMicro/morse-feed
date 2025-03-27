@@ -762,7 +762,7 @@ function createLocalNetworksCard(networks, dhcpLeases, hostHints) {
 /* Card which focuses on connected devices if it's possible there is more
  * than one (e.g. ap/mesh/adhoc).
  */
-function createAssoclistCard(wifiNetwork, hostHints, hasQRCode) {
+function createAssoclistCard(wifiNetwork, hostHints) {
 	const mode = wifiNetwork.getMode();
 	const netIface = wifiNetwork.getNetwork();
 	const bitrate = wifiNetwork.getBitRate();
@@ -788,6 +788,7 @@ function createAssoclistCard(wifiNetwork, hostHints, hasQRCode) {
 	const hasIp6 = associatedDevices.some(d => d.ip6);
 	const authentication = wifiNetwork.ubus('net', 'iwinfo', 'encryption')?.authentication || [];
 	const wifiPassword = (authentication.includes('sae') || authentication.includes('psk')) && wifiNetwork.get('key');
+	const hasDppd = L.hasSystemFeature('morsedppd');
 
 	let connectMethods;
 	if (wifiPassword) {
@@ -829,8 +830,8 @@ function createAssoclistCard(wifiNetwork, hostHints, hasQRCode) {
 				// Currently, we only support DPP on HaLow.
 				// We disable this if there is no QRCode on this device, as if this is not
 				// there we likely aren't running dppd (currently true on HaLowLink 1).
-				mode === 'ap' && hasQRCode && isHaLow(wifiNetwork) && E('dt', _('DPP QR Code')),
-				mode === 'ap' && hasQRCode && isHaLow(wifiNetwork) && E('dd', _('Scan the Client QR Code in the app.')),
+				mode === 'ap' && hasDppd && isHaLow(wifiNetwork) && E('dt', _('DPP QR Code')),
+				mode === 'ap' && hasDppd && isHaLow(wifiNetwork) && E('dd', _('Scan the Client QR Code in the app.')),
 				mode === 'ap' && isHaLow(wifiNetwork) && E('dt', _('DPP Push button')),
 				mode === 'ap' && isHaLow(wifiNetwork) && E('dd', [
 					E('button', {
@@ -1251,7 +1252,7 @@ return view.extend({
 			if (!wifiNetwork.isDisabled() && wifiNetwork.isUp() && wifiNetwork.getNetwork()) {
 				const mode = wifiNetwork.getMode();
 				if (['ap', 'mesh', 'adhoc'].includes(mode)) {
-					const card = createAssoclistCard(wifiNetwork, hostHints, hasQRCode);
+					const card = createAssoclistCard(wifiNetwork, hostHints);
 					if (isHaLow(wifiNetwork)) {
 						cards.push(card);
 					} else {
