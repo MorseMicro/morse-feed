@@ -404,12 +404,6 @@ drv_morse_setup() {
 		done
 	fi
 
-	if [ -e /etc/dpp_key.pem ]; then
-		# The private key only exists if you include the dpp-key-recovery
-		# package.
-		update_dpp_qrcode /etc/dpp_key.pem "$(cat "/sys/class/ieee80211/$phy/macaddress")"
-	fi
-
 	json_add_object data
 	json_add_string phy "$phy"
 	json_close_object
