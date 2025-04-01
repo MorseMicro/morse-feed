@@ -77,8 +77,85 @@ const iwinfoInfo = rpc.declare({
 	params: ['device'],
 });
 
+const info = rpc.declare({
+	object: 'rangetest',
+	method: 'info',
+});
+
+let localRangetestVersion = null;
 let lastUmdnsUpdateTime = null;
 let knownRemoteDevices = {};
+
+function resetKnownRemoteDevices() {
+	Object.keys(knownRemoteDevices).forEach((ipv4Address) => {
+		knownRemoteDevices[ipv4Address].cached = false;
+		knownRemoteDevices[ipv4Address].online = false;
+		knownRemoteDevices[ipv4Address].rangetest_api_version = null;
+		knownRemoteDevices[ipv4Address].compatible = false;
+	});
+}
+
+function checkVersionCompatibility(localRangetestVersion, remoteRangetestVersion) {
+	if (!localRangetestVersion || !remoteRangetestVersion) return false;
+
+	const [major, _minor, _patch] = localRangetestVersion.split('.').map(Number);
+	const [remoteMajor, _remoteMinor, _remotePatch] = remoteRangetestVersion.split('.').map(Number);
+	return (major === remoteMajor);
+}
+
+async function updateUmdnsCache() {
+	// Do not update cache initially to avoid overload.
+	if (lastUmdnsUpdateTime !== null) {
+		await umdnsUpdate();
+
+		// Documentation says to 'wait a second or two' before browsing.
+		await new Promise(resolve => setTimeout(resolve, 1500));
+	}
+	lastUmdnsUpdateTime = Date.now();
+}
+
+function parseTxtRecord(deviceInfo) {
+	if (!deviceInfo?.txt) return null;
+
+	const txtRecord = { rangetest_api_version: null };
+	deviceInfo.txt.forEach((record) => {
+		const [key, value] = record.split('=');
+
+		if (key === 'rangetest_api_version') {
+			if ((/^\d+\.\d+\.\d+$/g).test(value)) {
+				txtRecord.rangetest_api_version = value;
+			} else {
+				console.warn(`Invalid rangetest version found in TXT record: ${deviceInfo.txt}`);
+			}
+		}
+	});
+
+	return txtRecord;
+}
+
+async function fetchRemoteDeviceInfo(ipv4Address) {
+	const deviceInfoRequest = (async () => {
+		try {
+			const unauthenticatedRemoteDeviceSession = remoteDevice.load(ipv4Address, null);
+			const timeout = new Promise((_, reject) =>
+				setTimeout(() => reject(new Error('Request timed out')), 5000),
+			);
+			const remoteRangetestInfo = await Promise.race([unauthenticatedRemoteDeviceSession.info(), timeout]);
+
+			// The remote device has responded with a version, treat it as authoritative.
+			knownRemoteDevices[ipv4Address].online = true;
+			if (remoteRangetestInfo.rangetest_api_version) {
+				knownRemoteDevices[ipv4Address].rangetest_api_version = remoteRangetestInfo.rangetest_api_version;
+				knownRemoteDevices[ipv4Address].compatible = checkVersionCompatibility(localRangetestVersion, remoteRangetestInfo.rangetest_api_version);
+			}
+		} catch (error) {
+			knownRemoteDevices[ipv4Address].online = false;
+			console.warn(`Error fetching device info from ${ipv4Address}`, error);
+		}
+	})();
+
+	return deviceInfoRequest;
+}
 
 /**
  * Updates the global `knownRemoteDevices` object with the latest information
@@ -89,69 +166,46 @@ let knownRemoteDevices = {};
  * 	 in the latest umdns browse results.
  * - Online devices: Remote devices which respond to rangetest info requests are marked
  *   as `online: true`.
- *
- * If no devices are discovered or no devices are online, appropriate error messages
- * are displayed to the user.
- *
- * @returns {Promise<void>} Resolves when the update process is complete.
  */
-const updateKnownRemoteDevices = async () => {
-	Object.keys(knownRemoteDevices).forEach((ipv4Address) => {
-		knownRemoteDevices[ipv4Address]['cached'] = false;
-		knownRemoteDevices[ipv4Address]['online'] = false;
-	});
+async function updateKnownRemoteDevices() {
+	resetKnownRemoteDevices();
+	await updateUmdnsCache();
 
-	// Ensure that umdnsUpdate is not called on the first run
-	// to avoid overload in larger networks (If it behaved correctly
-	// it would have been updated by itself as it or other remote
-	// devices came online).
-	if (lastUmdnsUpdateTime !== null) {
-		await umdnsUpdate();
-
-		// Documentation says to 'wait a second or two' before browsing.
-		await new Promise(resolve => setTimeout(resolve, 1500));
-	}
-	lastUmdnsUpdateTime = Date.now();
-
-	let report = await umdnsBrowse(true);
-
-	// If no devices are cached at all, display an error message
-	if (Object.keys(report).length === 0) {
-		ui.addNotification(_('Discovery error'), E('pre', {}, _('No compatible remote devices found!')), 'error');
+	const browseResults = await umdnsBrowse(true);
+	if (Object.keys(browseResults).length === 0) {
+		ui.addNotification(_('Discovery error'), E('pre', {}, _('No remote devices found!')), 'error');
 		return;
 	}
 
 	let deviceInfoRequests = [];
-	for (const [hostname, deviceInfo] of Object.entries(report)) {
+	for (const [hostname, deviceInfo] of Object.entries(browseResults)) {
+		const txtRecord = parseTxtRecord(deviceInfo);
+
 		for (const ipv4Address of deviceInfo.ipv4) {
 			knownRemoteDevices[ipv4Address] = { hostname, ipv4Address, deviceInfo };
-			knownRemoteDevices[ipv4Address]['cached'] = true;
+			knownRemoteDevices[ipv4Address].cached = true;
 
-			// Make calls to the remote device to check if it is 'online',
-			// and verify that the cache is up-to-date.
-			const deviceInfoRequest = (async () => {
-				try {
-					const remoteRangetestDevice = remoteDevice.load(ipv4Address, null);
-					const timeout = new Promise((_, reject) =>
-						setTimeout(() => reject(new Error('Request timed out')), 5000),
-					);
-					await Promise.race([remoteRangetestDevice.info(), timeout]);
-					knownRemoteDevices[ipv4Address].online = true;
-				} catch (error) {
-					console.warn(`Error fetching device info from ${ipv4Address}`, error);
-					knownRemoteDevices[ipv4Address].online = false;
-				}
-			})();
+			// Set the rangetest version from the TXT record if available,
+			// which should be overwritten by the remote info() call if possible.
+			knownRemoteDevices[ipv4Address].rangetest_api_version = txtRecord?.rangetest_api_version;
+			knownRemoteDevices[ipv4Address].compatible = checkVersionCompatibility(localRangetestVersion, txtRecord?.rangetest_api_version);
+
+			// Make an actual request to each device to verify it is online
+			// and to get the actual rangetest version where possible (may be outdated).
+			const deviceInfoRequest = fetchRemoteDeviceInfo(ipv4Address);
 			deviceInfoRequests.push(deviceInfoRequest);
 		}
 	}
 	await Promise.allSettled(deviceInfoRequests);
 
-	// If no devices are online, display an error message
-	if (Object.values(knownRemoteDevices).every(deviceInfo => !deviceInfo.online)) {
-		ui.addNotification(_('Discovery error'), E('pre', {}, _('No compatible remote devices found!')), 'error');
+	if (!Object.values(knownRemoteDevices).some(device => device.compatible)) {
+		ui.addNotification(
+			_('Discovery error'),
+			E('pre', {}, _('No compatible remote devices found! Please upgrade any devices as necessary to use this tool.')),
+			'error',
+		);
 	}
-};
+}
 
 const iperf3ResultsTemplate = {
 	iperf3: {
@@ -563,7 +617,7 @@ return view.extend({
 				direction: ['send', 'receive'],
 			},
 		};
-		return Promise.all([getLocalTests()]);
+		return Promise.all([getLocalTests(), info()]);
 	},
 
 	addResultsSummaryRow(data) {
@@ -596,34 +650,65 @@ return view.extend({
 			this.orientation = 'horizontal';
 		},
 
-		renderRemoteDevice: function (ipv4Address, deviceInfo) {
-			return E('div', {
-				style: 'display: flex; align-items: center; justify-content: space-between; width: 100%;',
-				title: !deviceInfo.online ? _('This device is offline') : '',
+		/**
+		 * Define how labels will be rendered in the dropdown list.
+		 *
+		 * Basic form: <ipv4Address> (<hostname>)   <info>
+		 * - If using an incompatible version, show '(incompatible) v<version>' for <info>, and make it unselectable.
+		 * - If the device is offline, show '(offline) v<version>' for <info>.
+		 * - If the device is online, show 'v<version>' for <info>.
+		 */
+		renderRemoteDevice: function (sectionId, ipv4Address, deviceInfo) {
+			const hostStr = `${ipv4Address} (${deviceInfo.hostname})`;
+			const deviceCompatibleStr = deviceInfo.compatible ? '' : _('(🚫 incompatible)');
+			const deviceOnlineStr = deviceInfo.online ? '' : _('(⚠️ offline) ');
+			const deviceVersionStr = deviceInfo.rangetest_api_version ? `v${deviceInfo.rangetest_api_version}` : 'version unknown';
+			const infoStr = [deviceCompatibleStr, deviceOnlineStr, deviceVersionStr].join(' ').trim();
+
+			const remoteDeviceElem = E('span', {
+				style: 'display: flex; align-items: center; width: 100%;',
+				title: deviceInfo.compatible ? `${hostStr} ${infoStr}` : _('Incompatible rangetest version. Please upgrade.'),
 			}, [
-				E('span', {}, `${ipv4Address} (${deviceInfo.hostname})`),
-				E('span', { style: 'flex-grow: 1;' }, ''),
-				!deviceInfo.online ? E('span', { style: 'color: darkgrey' }, _('offline')) : '',
+				E('span', { style: 'max-width: 65%; overflow: hidden; text-overflow: ellipsis;' }, hostStr),
+				E('span', { style: 'flex-grow: 1; min-width: 0.5rem;' }, ''),
+				E('span', { style: 'color: darkgrey' }, infoStr),
 			]);
+			this.value(ipv4Address, remoteDeviceElem);
+
+			// A workaround to wait for the element to be rendered before applying styles
+			// so that the incompatible devices are unselectable.
+			if (!deviceInfo.compatible) {
+				setTimeout(() => {
+					const uiElem = this.getUIElement(sectionId);
+					if (!uiElem) return;
+					const li = uiElem.node.querySelector(`li[data-value="${ipv4Address}"]`);
+					if (li) {
+						li.setAttribute('unselectable', '');
+						li.style.opacity = 0.5;
+						li.style.pointerEvents = 'none';
+						li.style.cursor = 'default';
+					}
+				}, 0);
+			}
 		},
 
 		renderWidget: function (sectionId, optionIndex, cfgvalue) {
 			this.clear();
 
 			// If the pre-selected device is not online, clear the selection
-			if (cfgvalue && !knownRemoteDevices[cfgvalue]?.online) {
+			if (cfgvalue && (!knownRemoteDevices[cfgvalue]?.online || !knownRemoteDevices[cfgvalue]?.compatible)) {
 				cfgvalue = null;
 			}
 
-			// Only render devices which appeared in the most recent umdns browse,
-			// showing the online devices first.
+			// Only render devices which appeared in the most recent umdns
+			// browse (`cached: true`), showing the online devices first.
 			Object.entries(knownRemoteDevices)
 				.filter(([, deviceInfo]) => deviceInfo.cached)
 				.sort(([, a], [, b]) => b.online - a.online)
 				.forEach(([ipv4Address, deviceInfo]) => {
-					this.value(ipv4Address, this.renderRemoteDevice(ipv4Address, deviceInfo));
-					// Select the first online device if no options are pre-selected
-					cfgvalue = (cfgvalue == null && deviceInfo.online) ? ipv4Address : cfgvalue;
+					this.renderRemoteDevice(sectionId, ipv4Address, deviceInfo);
+					// Select the first online and compatible device if no options are pre-selected
+					cfgvalue = (!cfgvalue && deviceInfo.online && deviceInfo.compatible) ? ipv4Address : cfgvalue;
 				});
 
 			return E('div', { class: 'control-group' }, [
@@ -631,8 +716,8 @@ return view.extend({
 				E('button', {
 					'id': 'discover-button',
 					'class': 'cbi-button cbi-button-action',
-					'title': _('Scan for wifi networks'),
-					'aria-label': _('Scan for wifi networks'),
+					'title': _('Scan for remote devices'),
+					'aria-label': _('Scan for remote devices'),
 					'click': ui.createHandlerFn(this, async () => {
 						await updateKnownRemoteDevices();
 						this.renderUpdate(sectionId);
@@ -932,12 +1017,18 @@ return view.extend({
 		return m;
 	},
 
-	async render([localTests]) {
+	async render([localTests, localRangetestInfo]) {
+		localRangetestVersion = localRangetestInfo?.rangetest_api_version;
+
 		this.basicTestConfigurationForm = this.basicTestConfigurationForm();
 		this.resultsSummaryTable = this.resultsSummaryTable();
 
 		this.titleSection = E('section', { class: 'cbi-section' }, [
-			E('h2', {}, _('Range Test')),
+			E('h2', { style: 'display: flex; align-items: center; justify-content: space-between; width: 100%;' }, [
+				E('span', {}, _('Range Test')),
+				E('span', { style: 'flex-grow: 1;' }, ''),
+				localRangetestVersion ? E('span', { style: 'font-weight: normal; font-size: 1rem;' }, `v${localRangetestVersion}`) : '',
+			]),
 			E('div', { class: 'cbi-map-descr' }, _('This is a network utility to perform static range tests.')),
 			E('div', { class: 'cbi-map-descr' }, [
 				E('span', {}, _('How to use:')),
@@ -950,7 +1041,7 @@ return view.extend({
 				]),
 			]),
 		]);
-		this.configurationSection = E('section', { class: 'cbi-section' }, [
+		this.configurationSection = E('section', { class: 'cbi-section', style: 'overflow: visible;' }, [
 			E('h3', {}, [
 				_('Test Configuration'),
 				E('button', {
