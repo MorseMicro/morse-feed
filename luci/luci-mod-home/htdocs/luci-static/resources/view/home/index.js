@@ -1069,7 +1069,7 @@ return view.extend({
 
 	async onceLoad() {
 		const [hasQRCode, ..._] = await Promise.all([
-			fetch(DPP_QRCODE_PATH, { method: 'HEAD' }).then(r => r.ok),
+			fetch(DPP_QRCODE_PATH, { method: 'HEAD' }).then(r => r.ok).catch(_e => false),
 			configDiagram.loadTemplate(),
 		]);
 

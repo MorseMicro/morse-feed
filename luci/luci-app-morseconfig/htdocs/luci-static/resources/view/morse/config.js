@@ -413,7 +413,7 @@ return view.extend({
 
 	load() {
 		return Promise.all([
-			fetch(DPP_QRCODE_PATH, { method: 'HEAD' }).then(r => r.ok),
+			fetch(DPP_QRCODE_PATH, { method: 'HEAD' }).then(r => r.ok).catch(_e => false),
 			callGetBuiltinEthernetPorts(),
 			configDiagram.loadTemplate(),
 			uci.load(['network', 'firewall', 'dhcp', 'system']),

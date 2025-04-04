@@ -256,12 +256,15 @@ return wizard.AbstractWizardView.extend({
 	},
 
 	async loadPages() {
-		const response = await fetch(DPP_QRCODE_PATH, { method: 'HEAD' });
+		let hasQRCode = false;
+		try {
+			hasQRCode = (await fetch(DPP_QRCODE_PATH, { method: 'HEAD' })).ok;
+		} catch (e) { false; }
 		// resetUci disables all wifi-ifaces, but we want to remember the state of this one.
 		const {
 			wifiApInterfaceName,
 		} = wizard.readSectionInfo();
-		return [response.ok, uci.get('wireless', wifiApInterfaceName, 'disabled') === '1'];
+		return [hasQRCode, uci.get('wireless', wifiApInterfaceName, 'disabled') === '1'];
 	},
 
 	renderPages([hasQRCode, wifiApDisabled]) {
