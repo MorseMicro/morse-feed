@@ -10,7 +10,7 @@ return view.extend({
 	render: function () {
 		var body = E([]);
 		var ifrm = document.createElement('iframe');
-		ifrm.setAttribute('src', '/halowlink1-userguide-2.6.12.pdf');
+		ifrm.setAttribute('src', '/halowlink1-userguide-2.7.4.pdf');
 		ifrm.style.overflow = 'hidden';
 		ifrm.style.margin = '0px';
 		ifrm.style.padding = '0px';
