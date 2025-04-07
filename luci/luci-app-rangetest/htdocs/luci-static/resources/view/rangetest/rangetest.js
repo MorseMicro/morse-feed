@@ -4,6 +4,8 @@
 
 'use strict';
 
+/* global Leaflet */
+
 /* globals view ui form rpc fs remoteDevice progressBar */
 'require view';
 'require ui';
@@ -19,6 +21,25 @@ document.querySelector('head').appendChild(E('link', {
 	rel: 'stylesheet',
 	type: 'text/css',
 	href: L.resourceCacheBusted('view/rangetest/css/rangetest.css'),
+}));
+
+document.querySelector('head').appendChild(E('link', {
+	rel: 'stylesheet',
+	type: 'text/css',
+	href: 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
+	integrity: 'sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=',
+	crossorigin: '',
+}));
+
+window.Leaflet = null;
+document.querySelector('head').appendChild(E('script', {
+	load: () => {
+		window.Leaflet = window.L.noConflict();
+		document.dispatchEvent(new Event('leafletLoaded'));
+	},
+	src: 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',
+	integrity: 'sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=',
+	crossorigin: '',
 }));
 
 const umdnsUpdate = rpc.declare({
@@ -206,6 +227,17 @@ async function updateKnownRemoteDevices() {
 		);
 	}
 }
+
+const deviceLocationGeoJsonTemplate = {
+	type: 'Feature',
+	properties: {
+		name: '',
+	},
+	geometry: {
+		coordinates: [0, 0],
+		type: 'Point',
+	},
+};
 
 const iperf3ResultsTemplate = {
 	iperf3: {
@@ -469,7 +501,7 @@ function exportResultsSummaryAsCSVFile(allTestData, fileName) {
 		return csvColumnNames.map((header) => {
 			switch (typeof summary[header]) {
 				case 'string':
-					return `"${summary[header]}"`;
+					return `"${summary[header].replace(/"/g, '""')}"`;
 				case 'number':
 				case 'boolean':
 					return summary[header];
@@ -547,19 +579,27 @@ async function waitForIperf3Results(iperf3ClientId, duration, pollInterval, rema
 	return clientPollResponse;
 }
 
+function getTestLocationGeoJson(data) {
+	const localCoordinates = data.configuration.basic?.localDeviceCoordinates;
+	const remoteCoordinates = data.configuration.basic?.remoteDeviceCoordinates;
+
+	if (!localCoordinates || !remoteCoordinates) return undefined;
+
+	const [latitude, longitude] = localCoordinates.split(',').map(Number);
+	let localDeviceGeoJson = JSON.parse(JSON.stringify(deviceLocationGeoJsonTemplate));
+	localDeviceGeoJson.geometry.coordinates = [longitude, latitude];
+	localDeviceGeoJson.properties.name = 'Local Device';
+
+	const [remoteLatitude, remoteLongitude] = remoteCoordinates.split(',').map(Number);
+	let remoteDeviceGeoJson = JSON.parse(JSON.stringify(deviceLocationGeoJsonTemplate));
+	remoteDeviceGeoJson.geometry.coordinates = [remoteLongitude, remoteLatitude];
+	remoteDeviceGeoJson.properties.name = 'Remote Device';
+
+	return JSON.stringify([localDeviceGeoJson, remoteDeviceGeoJson]);
+}
+
 function parseResultsSummaryRowData(data) {
 	const { local, remote } = data;
-
-	const timestamp = new Date(data.timestamp).toLocaleString('en-US');
-
-	let localCoords = data.configuration.basic?.localDeviceCoordinates;
-	let remoteCoords = data.configuration.basic?.remoteDeviceCoordinates;
-	let locationURL;
-	if (localCoords && remoteCoords) {
-		localCoords = localCoords.replace(/\s+/g, '');
-		remoteCoords = remoteCoords.replace(/\s+/g, '');
-		locationURL = `https://www.google.com/maps/dir/?api=1&origin=${localCoords}&destination=${remoteCoords}&travelmode=walking`;
-	}
 
 	const bandwidth = data.local.morseCliChannel?.channel_op_bw;
 	const channel = data.local.iwinfoInfo?.channel
@@ -587,11 +627,13 @@ function parseResultsSummaryRowData(data) {
 
 	return {
 		id: data.id,
-		timestamp: timestamp,
+		timestamp: new Date(data.timestamp).toLocaleString('en-US'),
 		remoteHost: `${remoteDeviceIpAddress} ${remoteDeviceHostname ? `(${remoteDeviceHostname})` : ''}`,
 		description: data.configuration.basic?.description,
 		distance: data.configuration.basic?.range,
-		location: locationURL,
+		localDeviceCoordinates: data.configuration.basic?.localDeviceCoordinates,
+		remoteDeviceCoordinates: data.configuration.basic?.remoteDeviceCoordinates,
+		locationGeoJson: getTestLocationGeoJson(data),
 		bandwidth: bandwidth,
 		channel: channel,
 		udpThroughputSend: udpThroughputSend,
@@ -875,6 +917,77 @@ return view.extend({
 		return m;
 	},
 
+	MapViewButton: form.DummyValue.extend({
+		renderMapViewModal: function (cfgvalue) {
+			ui.showModal(_('Map View'), [
+				E('div', { id: 'map', style: 'height: 400px; width: 100%; margin: 1rem;' }),
+				E('div', { class: 'right' }, [
+					E('button', {
+						class: 'cbi-button',
+						click: ui.hideModal,
+					}, _('Dismiss')),
+				]),
+			]);
+
+			const dutIcon = Leaflet.icon({
+				iconUrl: L.resource('custom-elements/halowlink1.svg'),
+				iconSize: [66, 66],
+				iconAnchor: [33, 64],
+				tooltipAnchor: [0, -20],
+				popupAnchor: [0, -66],
+			});
+
+			// Initialize the map after the modal is rendered
+			setTimeout(() => {
+				const map = Leaflet.map('map');
+				const geoJsonData = JSON.parse(cfgvalue);
+
+				Leaflet.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+					attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+				}).addTo(map);
+
+				let remoteDeviceFeatureLayer;
+				Leaflet.geoJSON(geoJsonData, {
+					onEachFeature: (feature, layer) => {
+						layer.bindPopup(feature.properties.name);
+						layer.setIcon(dutIcon);
+
+						if (feature.properties.name === 'Remote Device') {
+							remoteDeviceFeatureLayer = layer;
+						}
+					},
+				}).addTo(map);
+
+				if (remoteDeviceFeatureLayer) {
+					remoteDeviceFeatureLayer.openPopup();
+				}
+
+				// Set the map view to fit the bounds of the geoJSON data
+				const bounds = Leaflet.geoJSON(geoJsonData).getBounds();
+				map.fitBounds(bounds, { padding: [20, 20] });
+
+				const coordinates = geoJsonData.map(feature => feature.geometry.coordinates.reverse());
+				Leaflet.polyline(coordinates, { color: '#571c76' }).addTo(map);
+			}, 0);
+		},
+
+		renderWidget: function (sectionId, optionIndex, cfgvalue) {
+			if (!cfgvalue) return E('em', {}, _('unknown'));
+
+			let mapViewButton = E('button', {
+				class: 'cbi-button cbi-button-action',
+				click: Leaflet ? ui.createHandlerFn(this, this.renderMapViewModal, cfgvalue) : null,
+			}, `Map View${Leaflet ? '' : _(' (offline)')}`);
+			mapViewButton.disabled = !Leaflet;
+			return E(
+				'div',
+				{
+					'style': 'display: flex; align-items: center; gap: 1em;',
+					'data-tooltip': Leaflet ? null : _('The map feature is currently unavailable. This may be due to a lack of internet connectivity or the required resources not being loaded. Please check your connection and try again.'),
+				}, mapViewButton);
+		},
+	}),
+
 	async renderAdvancedTestConfigurationForm() {
 		const m = new form.JSONMap(this.rangetestConfiguration);
 		const s = m.section(form.NamedSection, 'advanced');
@@ -954,21 +1067,8 @@ return view.extend({
 		o.datatype = 'uinteger';
 		o.readonly = true;
 
-		const locationLink = s.option(form.DummyValue, 'location', _('Location'));
-		locationLink.editable = true;
-		locationLink.renderWidget = function (sectionId, optionIndex, cfgvalue) {
-			if (!cfgvalue) {
-				return E('em', {}, 'unknown');
-			}
-
-			return E('div', { style: 'display: flex; align-items: flex-start; gap: 1em;' }, [
-				E('a', {
-					href: cfgvalue,
-					target: '_blank',
-					rel: 'noopener noreferrer',
-				}, [_('map view')]),
-			]);
-		};
+		o = s.option(this.MapViewButton, 'locationGeoJson', _('Location'));
+		o.editable = true;
 
 		o = s.option(form.DummyValue, 'bandwidth', _('Bandwidth (MHz)'));
 		o.datatype = 'uinteger';
@@ -1022,6 +1122,9 @@ return view.extend({
 
 		this.basicTestConfigurationForm = this.basicTestConfigurationForm();
 		this.resultsSummaryTable = this.resultsSummaryTable();
+
+		// If the Leaflet library loads late, update the map view buttons
+		document.addEventListener('leafletLoaded', () => this.resultsSummaryTable.render(), { once: true });
 
 		this.titleSection = E('section', { class: 'cbi-section' }, [
 			E('h2', { style: 'display: flex; align-items: center; justify-content: space-between; width: 100%;' }, [
