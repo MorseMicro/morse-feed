@@ -21,11 +21,19 @@
 
 import { connect } from  "ubus";
 import { cursor } from "uci";
-import { access, unlink, readfile, writefile } from "fs";
+import { access, lsdir, unlink, readfile, writefile } from "fs";
 
 
 const DPP_ACTION_SCRIPT = "/lib/netifd/morse/wpa_s1g_dpp_action.sh";
 const DPP_STATE_INFO = "/tmp/dpp_state_info.json";
+
+// Note that this is an 'assoc LED' because that's what morse_led0 defaults to
+// in the driver at the moment. We rely entirely on this path and don't inspect
+// the trigger, because there appears to be no way of determining the _default_
+// trigger, so we'd need a separate boot time mechanism to save this information.
+const MORSE_ASSOC_LED = "/sys/class/leds/morse_led0";
+const DPP_STARTED_LED_INTERVAL = 1000;
+const DPP_FAILED_LED_INTERVAL = 100;
 
 
 function start_listener(path) {
@@ -82,7 +90,6 @@ function push_button(req) {
 	for (let mode in proposed_modes) {
 		if (access(all_mode_info[mode].control)) {
 			mode_info = all_mode_info[mode];
-			print("got", mode_info.control, "\n");
 			break;
 		}
 	}
@@ -124,6 +131,32 @@ function push_button(req) {
 }
 
 
+function morse_led_handler(diag_state) {
+	function write_led(led, key, val) {
+		writefile(`${led}/${key}`, val);
+	}
+
+	switch (diag_state) {
+		case "dpp_started":
+			write_led(MORSE_ASSOC_LED, "trigger", "timer");
+			write_led(MORSE_ASSOC_LED, "delay_off", DPP_STARTED_LED_INTERVAL);
+			write_led(MORSE_ASSOC_LED, "delay_on", DPP_STARTED_LED_INTERVAL);
+			break;
+		case "dpp_failed":
+			write_led(MORSE_ASSOC_LED, "trigger", "timer");
+			write_led(MORSE_ASSOC_LED, "delay_off", DPP_FAILED_LED_INTERVAL);
+			write_led(MORSE_ASSOC_LED, "delay_on", DPP_FAILED_LED_INTERVAL);
+			break;
+		case "done":
+			const phy = lsdir(`${MORSE_ASSOC_LED}/device/ieee80211`)[0];
+			if (phy) {
+				write_led(MORSE_ASSOC_LED, "trigger", `${phy}assoc`);
+			}
+			break;
+	}
+}
+
+
 function set_state(req) {
 	const state = req.args.state;
 	const lockout_secs = req.args.lockout_secs;
@@ -149,7 +182,13 @@ function set_state(req) {
 	}
 
 	if (diag_state) {
-		system(`. /etc/diag.sh && set_state ${diag_state}`)
+		if (access(MORSE_ASSOC_LED)) {
+			// If there is a morse LED (prob from the driver), use this.
+			morse_led_handler(diag_state);
+		} else {
+			// Use existing system LED handler to show DPP interaction.
+			system(`. /etc/diag.sh && set_state ${diag_state}`)
+		}
 	}
 
 	return {};
