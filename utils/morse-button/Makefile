@@ -30,7 +30,7 @@ endef
 
 define Package/morse-button/install
 	$(INSTALL_DIR) $(1)/etc/rc.button
-	$(INSTALL_BIN) ./files/etc/rc.button/BTN_0 $(1)/etc/rc.button/BTN_0
+	$(INSTALL_BIN) ./files/etc/rc.button/reset_override $(1)/etc/rc.button/reset_override
 endef
 
 $(eval $(call BuildPackage,morse-button))
