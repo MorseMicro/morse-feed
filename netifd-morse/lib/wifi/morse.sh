@@ -133,7 +133,7 @@ EOF
 				bcf=bcf_mf08251.bin
 			;;
 			morse,ekh04v6)
-				bcf=bcf_ekh04_v4.bin
+				bcf=bcf_ekh04_v6.bin
 			;;
 			morse,artini)
 				bcf=bcf_mm_hl1.bin
