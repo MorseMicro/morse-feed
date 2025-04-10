@@ -46,6 +46,7 @@ const umdnsUpdate = rpc.declare({
 	object: 'umdns',
 	method: 'update',
 	params: [],
+	nobatch: true,
 });
 
 const umdnsBrowse = rpc.declare({
@@ -53,54 +54,64 @@ const umdnsBrowse = rpc.declare({
 	method: 'browse',
 	params: ['array'],
 	expect: { '_http._tcp': {} },
+	nobatch: true,
 });
 
 const backgroundIperf3Client = rpc.declare({
 	object: 'rangetest',
 	method: 'background_iperf3_client',
 	params: ['target', 'udp', 'reverse', 'time'],
+	nobatch: true,
 });
 
 const getBackground = rpc.declare({
 	object: 'rangetest',
 	method: 'get_background',
 	params: ['id'],
+	nobatch: true,
 });
 
 const iwStationDump = rpc.declare({
 	object: 'rangetest',
 	method: 'iw_station_dump',
+	nobatch: true,
 });
 
 const morseCliStatsReset = rpc.declare({
 	object: 'rangetest',
 	method: 'morse_cli_stats_reset',
+	nobatch: true,
 });
 
 const morseCliStats = rpc.declare({
 	object: 'rangetest',
 	method: 'morse_cli_stats',
+	nobatch: true,
 });
 
 const morseCliChannel = rpc.declare({
 	object: 'rangetest',
 	method: 'morse_cli_channel',
+	nobatch: true,
 });
 
 const ipLink = rpc.declare({
 	object: 'rangetest',
 	method: 'ip_link',
+	nobatch: true,
 });
 
 const iwinfoInfo = rpc.declare({
 	object: 'iwinfo',
 	method: 'info',
 	params: ['device'],
+	nobatch: true,
 });
 
 const info = rpc.declare({
 	object: 'rangetest',
 	method: 'info',
+	nobatch: true,
 });
 
 let localRangetestVersion = null;
