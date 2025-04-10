@@ -104,6 +104,11 @@ const updateKnownRemoteDevices = async () => {
 
 	for (const [hostname, deviceInfo] of Object.entries(report)) {
 		for (const ipv4Address of deviceInfo.ipv4) {
+			// Ignore the HaLowLink 1 management address as it always fails.
+			if (ipv4Address === '10.22.121.111') {
+				continue;
+			}
+
 			knownRemoteDevices[ipv4Address] = { hostname, ipv4Address, deviceInfo };
 			knownRemoteDevices[ipv4Address]['available'] = true;
 		}
