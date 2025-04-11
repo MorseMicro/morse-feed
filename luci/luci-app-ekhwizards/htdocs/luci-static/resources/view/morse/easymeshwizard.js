@@ -156,6 +156,8 @@ return wizard.AbstractWizardView.extend({
 		// random MAC suffix with the Morse OUI.
 		let bridgeMAC = morseuci.getFakeMorseMAC(this.netDevices) ?? morseuci.getRandomMAC();
 
+		morseuci.forceBridge('ahwlan', 'br-prpl', bridgeMAC);
+
 		let isController = uci.get('prplmesh', 'config', 'master') === '1';
 
 		// Extract values then remove from dummy uci section.
@@ -182,7 +184,6 @@ return wizard.AbstractWizardView.extend({
 				}
 			}
 
-			morseuci.forceBridge('ahwlan', 'br-prpl', bridgeMAC);
 			morseuci.setNetworkDevices('ahwlan', this.getEthernetPorts().map(p => p.device));
 
 			return 'ahwlan';
@@ -203,7 +204,6 @@ return wizard.AbstractWizardView.extend({
 			}
 
 			morseuci.createOrRemoveBridgeAsNeeded('lan');
-			morseuci.forceBridge('ahwlan', 'br-prpl', bridgeMAC);
 
 			return { ethIface: 'lan', halowIface: 'ahwlan' };
 		};
@@ -220,7 +220,6 @@ return wizard.AbstractWizardView.extend({
 		if (isController) {
 			if (uplink?.match(/ethernet/)) {
 				const upstreamNetwork = this.getEthernetPorts().length > 1 ? 'wan' : 'lan';
-
 				if (upstreamNetwork === 'wan') {
 					morseuci.getOrCreateForwarding('ahwlan', 'wan');
 				} else {
@@ -244,7 +243,6 @@ return wizard.AbstractWizardView.extend({
 
 				// Bridges
 				morseuci.createOrRemoveBridgeAsNeeded(upstreamNetwork);
-				morseuci.forceBridge('ahwlan', 'br-prpl', bridgeMAC);
 
 				uci.set('network', upstreamNetwork, 'proto', 'dhcp');
 				morseuci.setupNetworkWithDnsmasq('ahwlan', wlanIp);
