@@ -161,6 +161,49 @@ s() {
     fi
 }
 
+# Sanitise a keyword from a file
+#
+#   c files/etc/config/wireless "option key" "option password"
+#
+# This function will sanitise the lines with specified keywords in them.
+#
+c() {
+    file="$1"
+
+    shift
+
+    echo "Filtering:" "$@" " From $file"
+    if [ -f "$file" ]; then
+set -x
+        for keyword in "$@"; do
+            sed -i "s/option[[:space:]]\+$keyword[[:space:]].*/option $keyword 'SANITISED'/" "$file"
+        done
+set +x
+    fi
+
+}
+
+# Copy and Sanitise config files.
+#
+#   f /etc/config "option key" "option password"
+#
+# This is pretty much the same as s function above, but it will
+# sanitise the options that shouldn't be in the snapshot.
+#
+f() {
+    x="$1"
+    shift
+
+    if [ -e "$x" ]; then
+        echo "Saving: $x and filtering out " "$@"
+        mkdir -p "files$(dirname $x)"
+        rsync -a "$x" "files$(dirname $x)"
+        for file in "files/$x"/*; do
+            c "$file" "$@"
+        done
+    fi
+}
+
 echo "Saving info to $OUTPUT_PATH/$DEBUG_DIR"
 
 r dmesg.txt                dmesg
@@ -185,7 +228,9 @@ if is_easymesh_controller; then
     r prplmesh_conn_map.txt    /opt/prplmesh/bin/beerocks_cli -c bml_conn_map
 fi
 s /var/log
-s /etc/config
+f /etc/config "password"
+# remove option key from /etc/config/wireless
+c files/etc/config/wireless "key"
 s /var/run
 s /lib/firmware/morse
 s /proc/interrupts
@@ -198,6 +243,7 @@ s /root/.ash_history
 
 # Reading one of these parameters errors out.
 s /sys/kernel/debug/ieee80211/$PHY/morse twt_sta_agreements twt_wi_tree 2> /dev/null
+
 
 
 if $TEARDOWN_INTERFACE; then
