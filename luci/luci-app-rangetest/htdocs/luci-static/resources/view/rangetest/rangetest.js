@@ -17,6 +17,12 @@
 
 const TEST_RESULT_DIRECTORY = '/tmp/rangetest';
 
+const MESSAGE_TYPES = {
+	ERROR: 'error',
+	WARNING: 'warning',
+	INFO: 'info',
+};
+
 document.querySelector('head').appendChild(E('link', {
 	rel: 'stylesheet',
 	type: 'text/css',
@@ -115,6 +121,7 @@ const info = rpc.declare({
 });
 
 let localRangetestVersion = null;
+let inProgressTestId = null;
 let lastUmdnsUpdateTime = null;
 let knownRemoteDevices = {};
 
@@ -203,9 +210,23 @@ async function updateKnownRemoteDevices() {
 	resetKnownRemoteDevices();
 	await updateUmdnsCache();
 
-	const browseResults = await umdnsBrowse(true);
+	// Ensure that umdnsUpdate is not called on the first run
+	// to avoid overload in larger networks (If it behaved correctly
+	// it would have been updated by itself as it or other remote
+	// devices came online).
+	if (lastUmdnsUpdateTime !== null) {
+		await umdnsUpdate();
+
+		// Documentation says to 'wait a second or two' before browsing.
+		await new Promise(resolve => setTimeout(resolve, 1500));
+	}
+	lastUmdnsUpdateTime = Date.now();
+
+	let browseResults = await umdnsBrowse(true);
+
+	// If no devices are cached at all, display an error message
 	if (Object.keys(browseResults).length === 0) {
-		ui.addNotification(_('Discovery error'), E('pre', {}, _('No remote devices found!')), 'error');
+		displayMessageToUser(MESSAGE_TYPES.WARNING, _('Remote Device Discovery'), _('No remote devices found!'));
 		return;
 	}
 
@@ -235,12 +256,8 @@ async function updateKnownRemoteDevices() {
 	}
 	await Promise.allSettled(deviceInfoRequests);
 
-	if (!Object.values(knownRemoteDevices).some(device => device.compatible)) {
-		ui.addNotification(
-			_('Discovery error'),
-			E('pre', {}, _('No compatible remote devices found! Please upgrade any devices as necessary to use this tool.')),
-			'error',
-		);
+	if (Object.values(knownRemoteDevices).every(device => !device.compatible)) {
+		displayMessageToUser(MESSAGE_TYPES.WARNING, _('Remote Device Discovery'), _('No compatible remote devices found! Please upgrade any devices as necessary to use this tool.'));
 	}
 }
 
@@ -263,6 +280,7 @@ const iperf3ResultsTemplate = {
 };
 
 const testResultsTemplate = {
+	status: '',
 	id: 0,
 	timestamp: '',
 	local: {
@@ -405,7 +423,7 @@ async function collectStatistics(testResults, remoteRangetestDevice) {
  *
  * This functionality should eventually be transferred to the backend.
  */
-async function runRangetest(cancelPromise, configuration, testProgressBar, alertMessageContainer) {
+async function runRangetest(cancelPromise, configuration, testProgressBar, updateResultsSummaryRow) {
 	const {
 		advanced: {
 			protocol: protocols,
@@ -421,6 +439,7 @@ async function runRangetest(cancelPromise, configuration, testProgressBar, alert
 	// This is the Mozilla foundation's recommended method to make JSON deep copies.
 	let testResults = JSON.parse(JSON.stringify(testResultsTemplate));
 	testResults.id = Math.random().toString(16).slice(8);
+	inProgressTestId = testResults.id;
 	testResults.configuration = configuration;
 	testResults.timestamp = new Date().toISOString();
 
@@ -432,28 +451,56 @@ async function runRangetest(cancelPromise, configuration, testProgressBar, alert
 	const percentPerIncrement = 100 / (maxSubtestIncrements * nSubtests);
 	testProgressBar.show();
 	testProgressBar.reset('Beginning...');
+	testResults.status = 'Beginning...';
+	updateResultsSummaryRow(testResults);
 
-	await setupStatistics(testResults, remoteRangetestDevice);
+	try {
+		await setupStatistics(testResults, remoteRangetestDevice);
 
-	for (const protocol of protocols) {
-		for (const direction of directions) {
-			testProgressBar.text = `${protocol.toUpperCase()} ${direction}`;
+		for (const protocol of protocols) {
+			for (const direction of directions) {
+				testProgressBar.text = `${protocol.toUpperCase()} ${direction}`;
+				testResults.status = `In Progress (${protocol.toUpperCase()} ${direction})`;
+				updateResultsSummaryRow(testResults);
 
-			const iperf3RemoteResponse = await remoteRangetestDevice.backgroundIperf3Server();
-			const iperf3LocalResponse = await backgroundIperf3Client(remoteIp, (protocol === 'udp'), (direction === 'receive'), iperf3TestTime);
-			const iperf3LocalResults = await waitForIperf3Results(iperf3LocalResponse.id, iperf3TestTime, iperf3PollInterval, maxSubtestIncrements, percentPerIncrement, testProgressBar, cancelPromise, alertMessageContainer);
-			const iperf3RemoteResults = await remoteRangetestDevice.getBackground(iperf3RemoteResponse.id);
+				const iperf3RemoteResponse = await remoteRangetestDevice.backgroundIperf3Server();
+				const iperf3LocalResponse = await backgroundIperf3Client(remoteIp, (protocol === 'udp'), (direction === 'receive'), iperf3TestTime);
+				const iperf3LocalResults = await waitForIperf3Results(iperf3LocalResponse.id, iperf3TestTime, iperf3PollInterval, maxSubtestIncrements, percentPerIncrement, testProgressBar, cancelPromise);
+				const iperf3RemoteResults = await remoteRangetestDevice.getBackground(iperf3RemoteResponse.id);
 
-			testResults['local']['iperf3'][protocol][direction]['end'] = iperf3LocalResults?.end;
-			testResults['remote']['iperf3'][protocol][direction]['end'] = iperf3RemoteResults?.end;
+				testResults['local']['iperf3'][protocol][direction]['end'] = iperf3LocalResults?.end;
+				testResults['remote']['iperf3'][protocol][direction]['end'] = iperf3RemoteResults?.end;
+			}
 		}
+
+		await collectStatistics(testResults, remoteRangetestDevice);
+
+		testProgressBar.complete('Test Complete');
+		testResults.status = 'Completed';
+	} catch (error) {
+		console.error(error);
+		if (error.cause === 'cancellation') {
+			displayMessageToUser(MESSAGE_TYPES.INFO, _('User Action'), error.message, { timeout: 10000 });
+			testProgressBar.reset('Cancelled');
+			testResults.status = 'Cancelled';
+		} else if (error.cause === 'auth') {
+			displayMessageToUser(MESSAGE_TYPES.ERROR, _('Authentication Failure'), error.message, { modal: true });
+			testProgressBar.reset('Authentication Failure');
+			testResults.status = 'Failed (Authentication)';
+		} else if (error.cause === 'offline') {
+			displayMessageToUser(MESSAGE_TYPES.ERROR, _('Remote Device Unreachable'), error.message, { modal: true });
+			testProgressBar.reset('Remote Device Unreachable');
+			testResults.status = 'Failed (Remote Device Unreachable)';
+		} else {
+			displayMessageToUser(MESSAGE_TYPES.ERROR, _('Rangetest Error'), error.message);
+			testProgressBar.reset('Rangetest Error');
+			testResults.status = 'Failed';
+		}
+	} finally {
+		inProgressTestId = null;
+		updateResultsSummaryRow(testResults);
+		saveLocalTest(testResults.id, testResults);
 	}
-
-	await collectStatistics(testResults, remoteRangetestDevice);
-
-	testProgressBar.complete('Test Complete');
-	saveLocalTest(testResults.id, testResults);
-	return testResults;
 }
 
 async function getLocalTests() {
@@ -524,7 +571,7 @@ function exportResultsSummaryAsCSVFile(allTestData, fileName) {
 				case 'undefined':
 					return '';
 				default:
-					throw new Error('Unexpected data type in CSV export.');
+					displayMessageToUser(MESSAGE_TYPES.ERROR, _('CSV Export Error'), _('Unexpected data type in CSV export.'));
 			}
 		});
 	});
@@ -546,37 +593,97 @@ function formatFilenameDatetime(date) {
 		+ `${pad(date.getHours())}-${pad(date.getMinutes())}-${pad(date.getSeconds())}`;
 }
 
-function displayWarningMessage(alertMessageContainer, testString) {
-	alertMessageContainer.appendChild(E('div', { class: 'alert-message-fade-in warning' }, [
-		E('p', {}, _('The %s test took longer than expected, possibly due to a slow connection. If the test doesn\'t terminate automatically, you may need to abort the test.').format(testString)),
+/**
+ * Displays a message to the user, either as a modal or a non-modal message.
+ *
+ * @param {string} type - The type of message ('error', 'warning', 'info').
+ * @param {string} title - The message title.
+ * @param {string} message - The message content.
+ * @param {Object} options - Additional options.
+ * @param {boolean} [options.modal=false] - Whether to display the message as a modal.
+ * @param {number} [options.timeout=null] - Timeout in milliseconds to auto-hide the message.
+ * @param {boolean} [options.scrollToVisible=true] - Whether to scroll to make the message visible.
+ */
+function displayMessageToUser(type, title, message, options = {}) {
+	const { modal = false, timeout = null, scrollToVisible = true } = options;
+
+	if (modal) {
+		ui.showModal(title, [
+			E('p', {}, [E('em', { style: 'white-space:pre-wrap' }, [message])]),
+			E('div', { class: 'right' }, [
+				E('button', { class: 'cbi-button', click: ui.hideModal }, _('Dismiss')),
+			]),
+		]);
+		return;
+	}
+
+	const userMessageContainer = document.querySelector('#user-message-container');
+	const messageElement = E('div', { class: `alert-message alert-message-fade-in ${type} user-message` }, [
+		E('p', {}, [
+			E('strong', {}, `${title}: `),
+			E('span', { style: 'white-space: pre-wrap; font-weight: normal;' }, message),
+		]),
 		E('button', {
 			class: 'cbi-button cbi-button-action',
-			click: function () { this.parentElement.style.display = 'none'; },
+			click: function () {
+				removeUserMessage(messageElement);
+			},
 		}, [_('Dismiss')]),
-	]));
+	]);
+	userMessageContainer.appendChild(messageElement);
+	setTimeout(() => {
+		if (scrollToVisible) {
+			messageElement.scrollIntoView({ behavior: 'smooth' });
+		}
+	}, 10);
+
+	// If the message has a timeout, remove it after the timeout.
+	if (timeout) {
+		setTimeout(() => {
+			removeUserMessage(messageElement);
+		}, timeout);
+	}
+
+	return messageElement;
 }
 
-async function waitForIperf3Results(iperf3ClientId, duration, pollInterval, remainingIncrements, percentPerIncrement, testProgressBar, cancelPromise, alertMessageContainer) {
+function removeUserMessage(messageElement) {
+	messageElement.remove();
+}
+
+function clearUserMessages() {
+	const userMessageContainer = document.querySelector('#user-message-container');
+	const userMessages = userMessageContainer.querySelectorAll('.user-message');
+	userMessages.forEach(messageElement => removeUserMessage(messageElement));
+}
+
+async function waitForIperf3Results(iperf3ClientId, duration, pollInterval, remainingIncrements, percentPerIncrement, testProgressBar, cancelPromise) {
 	// 30% margin of safety
 	const timeout = (duration * 1300);
 	const startTime = Date.now();
 	let clientPollResponse, completed = false;
-	let notificationShown = false;
+	let testDelayWarningShown = false;
+	let testDelayWarningElement;
 
 	while (!completed) {
 		if (Date.now() - startTime > timeout) {
 			let testString = testProgressBar.text;
-			testProgressBar.setErrorState(_('%s (Test took too long)').format(testString));
-			if (!notificationShown) {
-				displayWarningMessage(alertMessageContainer, testString);
-				notificationShown = true;
+			testProgressBar.setErrorState(`${testString} (Test taking longer than expected)`);
+			if (!testDelayWarningShown) {
+				testDelayWarningElement = displayMessageToUser(
+					MESSAGE_TYPES.WARNING,
+					`${testString} Test Delay`,
+					`The ${testString} test is taking slightly longer than expected.`
+					+ ` This behaviour is normal when network conditions are constrained.`
+					+ ` If the test appears completely unresponsive, you can manually cancel it.`,
+				);
+				testDelayWarningShown = true;
 			}
 		}
 
 		let timeoutPromise = await Promise.race([cancelPromise, new Promise(resolve => setTimeout(resolve, pollInterval * 1000))]);
 		if (timeoutPromise === ui.CANCEL) {
-			testProgressBar.reset('Test Cancelled');
-			throw new Error('Test Cancelled');
+			throw new Error('Test cancelled by user.', { cause: 'cancellation' });
 		}
 
 		clientPollResponse = await getBackground(iperf3ClientId);
@@ -590,6 +697,12 @@ async function waitForIperf3Results(iperf3ClientId, duration, pollInterval, rema
 			remainingIncrements--;
 			testProgressBar.increment(percentPerIncrement);
 		}
+	}
+
+	// If the test was delayed, remove the warning message.
+	// Ensure it shows for at least 2 seconds.
+	if (testDelayWarningShown) {
+		setTimeout(removeUserMessage(testDelayWarningElement), 2000);
 	}
 
 	return clientPollResponse;
@@ -642,6 +755,7 @@ function parseResultsSummaryRowData(data) {
 	const remoteDeviceHostname = data.configuration.basic?.remoteDeviceInfo?.hostname;
 
 	return {
+		status: data.status,
 		id: data.id,
 		timestamp: new Date(data.timestamp).toLocaleString('en-US'),
 		remoteHost: `${remoteDeviceIpAddress} ${remoteDeviceHostname ? `(${remoteDeviceHostname})` : ''}`,
@@ -678,28 +792,36 @@ return view.extend({
 		return Promise.all([getLocalTests(), info()]);
 	},
 
-	addResultsSummaryRow(data) {
+	updateResultsSummaryRow(data) {
+		// If the test result is not already in the table, add it.
+		if (!this.resultsSummaryTable.data.data[data.id]) {
+			this.resultsSummaryTable.data.add(null, null, data.id);
+		}
+
 		const parsedRowData = parseResultsSummaryRowData(data);
-		const rowIndex = Object.keys(this.resultsSummaryTable.data.data).length;
-		this.resultsSummaryTable.data.add(null, String(rowIndex), String(rowIndex));
-		Object.assign(this.resultsSummaryTable.data.data[rowIndex], parsedRowData);
+		Object.assign(this.resultsSummaryTable.data.data[data.id], parsedRowData);
+
 		this.resultsSummaryTable.load();
 		this.resultsSummaryTable.save();
 	},
 
 	async handleStartTest(ev, cancelPromise) {
+		// Remove all user messages before starting the test.
+		clearUserMessages();
+		// This is where most info, warnings, errors will be caught and displayed to the user.
 		try {
 			await this.basicTestConfigurationForm.parse();
-			const remoteHostIp = this.rangetestConfiguration.basic.remoteDeviceIpAddress;
-			this.rangetestConfiguration.basic.remoteDeviceInfo = knownRemoteDevices[remoteHostIp];
-			// Remove all previous alert messages before starting a new test
-			this.alertMessageContainer.replaceChildren();
-			const testResults = await runRangetest(cancelPromise, this.rangetestConfiguration, this.testProgressBar, this.alertMessageContainer);
-			this.addResultsSummaryRow(testResults);
 		} catch (error) {
+			// Should be a TypeError
 			console.error(error);
-			ui.addNotification(_('Rangetest error'), E('pre', {}, error.message), 'error');
+			displayMessageToUser(MESSAGE_TYPES.ERROR, _('Invalid Test Configuration'), error.message, { modal: true });
+			this.testProgressBar.reset('');
+			return;
 		}
+
+		const remoteHostIp = this.rangetestConfiguration.basic.remoteDeviceIpAddress;
+		this.rangetestConfiguration.basic.remoteDeviceInfo = knownRemoteDevices[remoteHostIp];
+		await runRangetest(cancelPromise, this.rangetestConfiguration, this.testProgressBar, this.updateResultsSummaryRow.bind(this));
 	},
 
 	RemoteDeviceSelect: form.Value.extend({
@@ -834,7 +956,12 @@ return view.extend({
 						navigator.geolocation.getCurrentPosition((position) => {
 							// Warn the user if the provided location has low accuracy
 							if (position.coords.accuracy > 5) {
-								ui.addNotification(_('Low Location Accuracy'), E('p', {}, _('The location provided by your browser has low accuracy (> 5m). This may affect the test results.')), 'warning');
+								displayMessageToUser(
+									MESSAGE_TYPES.WARNING,
+									_('Low Location Accuracy'),
+									_('The location provided by your browser has low accuracy (> 5m). This may affect the test results.'),
+									{ timeout: 10000 },
+								);
 							}
 
 							const latitude = position.coords.latitude;
@@ -845,7 +972,7 @@ return view.extend({
 							this.onchange();
 						}, (error) => {
 							console.error('Error getting browser coordinates:', error);
-							ui.addNotification(_('Error getting browser coordinates'), E('pre', {}, error.message), 'error');
+							displayMessageToUser(MESSAGE_TYPES.ERROR, _('Location Retrieval Error'), error.message);
 						}, {
 							maximumAge: 0,	// Refuse cached locations
 							enableHighAccuracy: true,	// Ask the device for the best possible location
@@ -927,8 +1054,6 @@ return view.extend({
 
 		this.progressBarContainer = E('div', { class: 'cbi-progressbar', style: 'margin: 0 2em 0 2em; visibility: hidden;' }, this.progressBarElement = E('div', { style: 'width: 0%' }));
 		this.testProgressBar = progressBar.new(this.progressBarContainer, this.progressBarElement);
-
-		this.alertMessageContainer = E('div', { class: 'alert-container' });
 
 		return m;
 	},
@@ -1068,6 +1193,10 @@ return view.extend({
 			]);
 		};
 
+		o = s.option(form.DummyValue, 'status', _('Status'));
+		o.datatype = 'string';
+		o.readonly = true;
+
 		o = s.option(form.DummyValue, 'timestamp', _('Time'));
 		o.datatype = 'string';
 		o.readonly = true;
@@ -1086,14 +1215,6 @@ return view.extend({
 		o = s.option(this.MapViewButton, 'locationGeoJson', _('Location'));
 		o.editable = true;
 
-		o = s.option(form.DummyValue, 'bandwidth', _('Bandwidth (MHz)'));
-		o.datatype = 'uinteger';
-		o.readonly = true;
-
-		o = s.option(form.DummyValue, 'channel', _('Channel'));
-		o.datatype = 'uinteger';
-		o.readonly = true;
-
 		o = s.option(form.DummyValue, 'udpThroughputSend', _('UDP Send Throughput (Mbps)'));
 		o.datatype = 'string';
 		o.readonly = true;
@@ -1110,6 +1231,14 @@ return view.extend({
 		o.datatype = 'string';
 		o.readonly = true;
 
+		o = s.option(form.DummyValue, 'bandwidth', _('Bandwidth (MHz)'));
+		o.datatype = 'uinteger';
+		o.readonly = true;
+
+		o = s.option(form.DummyValue, 'channel', _('Channel'));
+		o.datatype = 'uinteger';
+		o.readonly = true;
+
 		o = s.option(form.DummyValue, 'signalStrength', _('Signal Strength (dBm)'));
 		o.datatype = 'integer';
 		o.readonly = true;
@@ -1117,17 +1246,21 @@ return view.extend({
 		const downloadButton = s.option(form.DummyValue, 'export', _('Raw Data (JSON)'));
 		downloadButton.editable = true;
 		downloadButton.renderWidget = function (sectionId, _optionIndex, _cfgvalue) {
-			return E('div', { style: 'display: flex; align-items: flex-start; gap: 1em;' }, [
-				E('button', {
-					class: 'cbi-button cbi-button-action',
-					click: ui.createHandlerFn(this, () => {
-						const rawData = this.map.data.data[sectionId].rawData;
-						const ISOdatetimeString = this.map.data.data[sectionId].timestamp;
-						const filenameDatetimeString = formatFilenameDatetime(new Date(ISOdatetimeString));
-						exportTestDataAsJSONFile(rawData, `rangetest_data_${filenameDatetimeString}`);
-					}),
-				}, [_('Download')]),
-			]);
+			if (this.map.data.data[sectionId].id === inProgressTestId) {
+				return E('em', { class: 'spinning' });
+			} else {
+				return E('div', { style: 'display: flex; align-items: flex-start; gap: 1em;' }, [
+					E('button', {
+						class: 'cbi-button cbi-button-action',
+						click: ui.createHandlerFn(this, () => {
+							const rawData = this.map.data.data[sectionId].rawData;
+							const ISOdatetimeString = this.map.data.data[sectionId].timestamp;
+							const filenameDatetimeString = formatFilenameDatetime(new Date(ISOdatetimeString));
+							exportTestDataAsJSONFile(rawData, `rangetest_data_${filenameDatetimeString}`);
+						}),
+					}, [_('Download')]),
+				]);
+			}
 		};
 
 		return m;
@@ -1174,8 +1307,8 @@ return view.extend({
 				E('button', { class: 'cbi-button cbi-button-action', click: ui.createCancellableHandlerFn(this, this.handleStartTest, _('Stop')) }, [_('Start Test')]),
 				this.progressBarContainer,
 			]),
-			this.alertMessageContainer,
 		]);
+		this.userMessageContainer = E('div', { id: 'user-message-container' });
 		this.resultsSummarySection = E('section', { class: 'cbi-section' }, [
 			E('h3', {}, _('Results Summary')),
 			await this.resultsSummaryTable.render(),
@@ -1184,7 +1317,7 @@ return view.extend({
 					const filenameDatetimeString = formatFilenameDatetime(new Date());
 					const allTests = await getLocalTests();
 					if (allTests.length === 0) {
-						ui.addNotification(null, E('pre', {}, 'No test data available!'));
+						displayMessageToUser(MESSAGE_TYPES.INFO, _('No Test Data Available'), 'No test data available to export.', { modal: true });
 						return;
 					}
 
@@ -1193,7 +1326,7 @@ return view.extend({
 				E('button', { class: 'cbi-button cbi-button-negative', click: ui.createHandlerFn(this, async () => {
 					const allTests = await getLocalTests();
 					if (allTests.length === 0) {
-						ui.addNotification(null, E('pre', {}, 'No test data available!'));
+						displayMessageToUser(MESSAGE_TYPES.INFO, _('No Test Data Available'), 'No test data available to delete.', { modal: true });
 						return;
 					}
 					ui.showModal(_('Confirm Deletion'), [
@@ -1226,10 +1359,11 @@ return view.extend({
 		const res = [
 			this.titleSection,
 			this.configurationSection,
+			this.userMessageContainer,
 			this.resultsSummarySection,
 		];
 
-		localTests.forEach(test => this.addResultsSummaryRow(test));
+		localTests.forEach(test => this.updateResultsSummaryRow(test));
 		this.configurationSection.querySelector('#discover-button').click();
 		return res;
 	},

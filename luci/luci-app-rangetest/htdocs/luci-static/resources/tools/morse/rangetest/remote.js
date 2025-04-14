@@ -76,10 +76,12 @@ var RemoteRpcClass = rpc.constructor.extend({
 		// Fails on bad URLs, bad endpoints
 		if (Number.isInteger(response)) {
 			const message = rpc.getStatusText(response) || 'Unknown';
-			const errorMessage = isAuthCheck
-				? `Login to ${this.remoteRpcBaseUrl} failed! Check the remote device is online.`
-				: `Request to ${this.remoteRpcBaseUrl} failed with: ${message} (${response})`;
-			throw new Error(errorMessage);
+
+			if (isAuthCheck) {
+				throw new Error(`Unable to reach ${this.remoteRpcBaseUrl}, please ensure the device is reachable on the network.`, { cause: 'offline' });
+			} else {
+				throw new Error(`Request to ${this.remoteRpcBaseUrl} failed with: ${message} (${response})`);
+			}
 		}
 
 		// RPC error
@@ -95,11 +97,11 @@ var RemoteRpcClass = rpc.constructor.extend({
 			// Certain commands use the 'Command OK' (0) status code
 			if (returnCode === 0) {
 				return response.result[0];
+			} else if (isAuthCheck && returnCode === 6) {
+				throw new Error(`Login attempt to ${this.remoteRpcBaseUrl} failed, please try again with a different password.`, { cause: 'auth' });
+			} else {
+				throw new Error(`Request to ${this.remoteRpcBaseUrl} failed with UBUS code: ${returnCode}`);
 			}
-			if (isAuthCheck && returnCode === 6) {
-				throw new Error(`Login attempt to ${this.remoteRpcBaseUrl} failed, please try a different password`);
-			}
-			throw new Error(`Request to ${this.remoteRpcBaseUrl} failed with UBUS code: ${returnCode}`);
 		}
 
 		return response.result[1];
