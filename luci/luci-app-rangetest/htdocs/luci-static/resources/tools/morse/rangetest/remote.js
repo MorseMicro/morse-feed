@@ -1,8 +1,9 @@
 'use strict';
 
-/* globals baseclass rpc */
+/* globals baseclass rpc errorUtils */
 'require baseclass';
 'require rpc';
+'require tools.morse.rangetest.errorutils as errorUtils';
 
 var remoteRequest = rpc.declare({
 	object: 'rangetest-remote-rpc',
@@ -104,7 +105,7 @@ var RemoteRpcClass = rpc.constructor.extend({
 			}
 		}
 
-		return response.result[1];
+		return errorUtils.catchRangetestErrors(response.result[1]);
 	},
 
 	backgroundIperf3Server: async function () {

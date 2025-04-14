@@ -6,7 +6,7 @@
 
 /* global Leaflet */
 
-/* globals view ui form rpc fs remoteDevice progressBar */
+/* globals view ui form rpc fs remoteDevice progressBar errorUtils */
 'require view';
 'require ui';
 'require form';
@@ -14,6 +14,7 @@
 'require fs';
 'require tools.morse.rangetest.remote as remoteDevice';
 'require tools.morse.rangetest.progressbar as progressBar';
+'require tools.morse.rangetest.errorutils as errorUtils';
 
 const TEST_RESULT_DIRECTORY = '/tmp/rangetest';
 
@@ -52,6 +53,7 @@ const umdnsUpdate = rpc.declare({
 	object: 'umdns',
 	method: 'update',
 	params: [],
+	filter: errorUtils.catchRangetestErrors,
 	nobatch: true,
 });
 
@@ -60,6 +62,7 @@ const umdnsBrowse = rpc.declare({
 	method: 'browse',
 	params: ['array'],
 	expect: { '_http._tcp': {} },
+	filter: errorUtils.catchRangetestErrors,
 	nobatch: true,
 });
 
@@ -67,6 +70,7 @@ const backgroundIperf3Client = rpc.declare({
 	object: 'rangetest',
 	method: 'background_iperf3_client',
 	params: ['target', 'udp', 'reverse', 'time'],
+	filter: errorUtils.catchRangetestErrors,
 	nobatch: true,
 });
 
@@ -74,18 +78,21 @@ const getBackground = rpc.declare({
 	object: 'rangetest',
 	method: 'get_background',
 	params: ['id'],
+	filter: errorUtils.catchRangetestErrors,
 	nobatch: true,
 });
 
 const iwStationDump = rpc.declare({
 	object: 'rangetest',
 	method: 'iw_station_dump',
+	filter: errorUtils.catchRangetestErrors,
 	nobatch: true,
 });
 
 const morseCliStatsReset = rpc.declare({
 	object: 'rangetest',
 	method: 'morse_cli_stats_reset',
+	filter: errorUtils.catchRangetestErrors,
 	nobatch: true,
 });
 
@@ -98,12 +105,14 @@ const morseCliStats = rpc.declare({
 const morseCliChannel = rpc.declare({
 	object: 'rangetest',
 	method: 'morse_cli_channel',
+	filter: errorUtils.catchRangetestErrors,
 	nobatch: true,
 });
 
 const ipLink = rpc.declare({
 	object: 'rangetest',
 	method: 'ip_link',
+	filter: errorUtils.catchRangetestErrors,
 	nobatch: true,
 });
 
@@ -111,12 +120,14 @@ const iwinfoInfo = rpc.declare({
 	object: 'iwinfo',
 	method: 'info',
 	params: ['device'],
+	filter: errorUtils.catchRangetestErrors,
 	nobatch: true,
 });
 
 const info = rpc.declare({
 	object: 'rangetest',
 	method: 'info',
+	filter: errorUtils.catchRangetestErrors,
 	nobatch: true,
 });
 
