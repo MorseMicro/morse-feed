@@ -208,7 +208,7 @@ set_single_rgbled_state() {
 set_state() {
 	if [ -n "$halow" -a -n "$wifi" -a -n "$status" ]; then
 		set_three_pwmled_state "$1"
-	elif [ -n "$red" -a -n "$green" -a -n "$blue" ]; then
+	elif [ -n "$status_red" -a -n "$status_green" -a -n "$status_blue" ]; then
 		set_single_rgbled_state "$1"
 	elif [ -n "$boot" -o -n "$failsafe" -o -n "$running" -o -n "$upgrade" ]; then
 		# This is the normal action, but with our additional button generated states added
