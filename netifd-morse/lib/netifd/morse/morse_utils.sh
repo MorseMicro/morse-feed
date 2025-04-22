@@ -1,7 +1,7 @@
 kill_wait()
 {
 	local names=$*
-	local count=30
+	local count=3
 
 	for pid in $(pidof $names)
 	do
@@ -10,7 +10,7 @@ kill_wait()
 
 	while pidof $names &> /dev/null;
 	do
-		usleep 100000
+		sleep 1
 		let "count--"
 		if [ $count -eq 0 ]
 		then

@@ -380,9 +380,9 @@ drv_morse_setup() {
 		# don't do iw reg set as in mac80211
 	fi
 
-	local retries=4
+	local retries=3
 	while ! find_phy; do
-		sleep 0.5
+		sleep 1
 		retries="$((retries - 1))"
 		if [ "$retries" -le 0 ]; then
 			echo "Could not find PHY for device '$1'" >&2
@@ -397,9 +397,9 @@ drv_morse_setup() {
 	# so we (a) can claim wlan? and (b) don't have our interfaces
 	# deleted by the hotplug (unlikely, but theoretically possible).
 	if [ "$inserted_module" = 1 ]; then
-		retries=4
+		retries=3
 		while [ -d "/sys/class/ieee80211/$phy/device/net" ] && [ "$retries" -gt 0 ]; do
-			sleep 0.5
+			sleep 1
 			retries="$((retries - 1))"
 		done
 	fi

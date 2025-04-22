@@ -16,7 +16,7 @@ reset_chip() {
     gpioset -m time -u 50000 $1=0
     # Force pin back to in.
     gpioget $1 > /dev/null
-    sleep 0.05
+    ucode -e 'sleep(50)'
 }
 
 # Find first MM_RESET pin
