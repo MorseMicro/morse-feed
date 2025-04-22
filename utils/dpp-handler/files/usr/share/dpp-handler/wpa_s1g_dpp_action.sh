@@ -8,7 +8,7 @@ case "$1" in
         ubus call dpp apply_config "{
             \"config\": {
                 \"iface_name\": \"$iface_name\",
-                \"key\": \"$(echo "$psk" | xxd -r -p)\",
+                \"psk\": \"$psk\",
                 \"encryption\": \"$encryption\",
                 \"ssid\": \"$ssid\"
             }

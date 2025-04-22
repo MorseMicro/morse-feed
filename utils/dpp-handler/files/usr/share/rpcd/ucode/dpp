@@ -24,7 +24,7 @@ import { cursor } from "uci";
 import { access, lsdir, unlink, readfile, writefile } from "fs";
 
 
-const DPP_ACTION_SCRIPT = "/lib/netifd/morse/wpa_s1g_dpp_action.sh";
+const DPP_ACTION_SCRIPT = "/usr/share/dpp-handler/wpa_s1g_dpp_action.sh";
 const DPP_STATE_INFO = "/tmp/dpp_state_info.json";
 
 // Note that this is an 'assoc LED' because that's what morse_led0 defaults to
@@ -35,13 +35,33 @@ const MORSE_ASSOC_LED = "/sys/class/leds/morse_led0";
 const DPP_STARTED_LED_INTERVAL = 1000;
 const DPP_FAILED_LED_INTERVAL = 100;
 
+const ALL_MODE_INFO = {
+	ap: {
+		control: "/var/run/hostapd_s1g/",
+		cli: "hostapd_cli_s1g",
+	},
+	sta: {
+		control: "/var/run/wpa_supplicant_s1g/",
+		cli: "wpa_cli_s1g",
+	},
+};
+
 
 function start_listener(path) {
 	system(["killall", "wpa_event_listener"]);
-	system(["wpa_event_listener", "-B", "-p", path, "-a",  DPP_ACTION_SCRIPT]);
-	// Wait a sec for listener to have connected to socket, otherwise we might
-	// miss the start action.
-	sleep(1000);
+	return system(["wpa_event_listener", "-B", "-p", path, "-a",  DPP_ACTION_SCRIPT]);
+}
+
+
+function start_qrcode_listener() {
+	if (0 === start_listener(ALL_MODE_INFO['sta'].control)) {
+		return {};
+	} else {
+		return {
+			"error": "Failed to start listener",
+			"error_code": "listener_failed"
+		}
+	}
 }
 
 
@@ -73,23 +93,13 @@ function set_new_lockout_secs(lockout_secs) {
 
 function push_button(req) {
 	let mode = req.args.mode;
-	const all_mode_info = {
-		ap: {
-			control: "/var/run/hostapd_s1g/",
-			cli: "hostapd_cli_s1g",
-		},
-		sta: {
-			control: "/var/run/wpa_supplicant_s1g/",
-			cli: "wpa_cli_s1g",
-		},
-	};
 
 	const proposed_modes = mode ? [mode] : ["ap", "sta"];
 	let mode_info = null;
 
 	for (let mode in proposed_modes) {
-		if (access(all_mode_info[mode].control)) {
-			mode_info = all_mode_info[mode];
+		if (access(ALL_MODE_INFO[mode].control)) {
+			mode_info = ALL_MODE_INFO[mode];
 			break;
 		}
 	}
@@ -111,6 +121,9 @@ function push_button(req) {
 	}
 
 	start_listener(mode_info.control);
+	// Wait a sec for listener to have connected to socket, otherwise we might
+	// miss the start action.
+	sleep(1000);
 	const exit_code = system([mode_info.cli, "dpp_push_button"], 1000);
 
 	if (exit_code != 0) {
@@ -243,14 +256,14 @@ function apply_config(req) {
 	assert(c.encryption, "config missing encryption");
 	assert(c.ssid, "config missing ssid");
 	if (!(c.encryption in ["owe", "none"])) {
-		assert(c.key, "config missing key");
+		assert(c.psk, "config missing key");
 	}
 
 	const section_name = get_uci_wireless_section(ubus, c.iface_name);
 
 	uci.set("wireless", section_name, "encryption", c.encryption);
 	uci.set("wireless", section_name, "ssid", c.ssid);
-	uci.set("wireless", section_name, "key", c.key);
+	uci.set("wireless", section_name, "key", hexdec(c.psk));
 	// If we've come in because of dpp chirping (i.e. qrcode dpp), it needs to be disabled.
 	uci.delete("wireless", section_name, "dpp");
 	commit_config(ubus, uci);
@@ -261,6 +274,13 @@ function apply_config(req) {
 return { dpp: {
 	push_button: {
 		call: push_button,
+		args: {
+			mode: "",
+		}
+	},
+
+	start_qrcode_listener: {
+		call: start_qrcode_listener,
 		args: {
 			mode: "",
 		}
