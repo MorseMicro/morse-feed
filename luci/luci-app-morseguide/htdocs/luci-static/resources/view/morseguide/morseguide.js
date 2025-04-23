@@ -1,6 +1,7 @@
 'use strict';
-/* globals view */
+/* globals view ui */
 'require view';
+'require ui';
 
 return view.extend({
 	handleSaveApply: null,
@@ -9,6 +10,14 @@ return view.extend({
 
 	render: function () {
 		var body = E([]);
+
+		var offlineBanner = ui.addNotification(null, [
+			'You are viewing a compressed offline version of this document and some images may appear blurry. The original PDF can be found ',
+			E('a', { href: 'https://www.morsemicro.com/downloads-dashboard/', target: '_blank' }, ' here'),
+			'.',
+		], 'warning');
+		offlineBanner.style.zIndex = 100;
+
 		var ifrm = document.createElement('iframe');
 		ifrm.setAttribute('src', '/UG MM6108 Eval Kit User Guide 2.7 - v21.pdf');
 		ifrm.style.overflow = 'hidden';
