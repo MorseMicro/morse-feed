@@ -9,6 +9,7 @@
 	[ "$board_type" = "0000" ] && return;
 
 	module_id=$(awk -F, '$1==b{print toupper($2)}' b="$board_type" /usr/share/morse-bcf/db.txt)
+	[ -z "$module_id" ] && return
 
 	model=$(cat /tmp/sysinfo/model)
 
