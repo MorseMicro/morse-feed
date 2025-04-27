@@ -370,6 +370,13 @@ return wizard.AbstractWizardView.extend({
 		option.value('sta', _('Client'));
 		option.rmempty = false;
 		option.onchange = function (ev, sectionId, value) {
+			// To avoid the wrong SSID appearing in the diagram
+			// on subsequent pages, interactions on this page wipe it from
+			// uci. Happily, this doesn't affect the form elements as they
+			// will have loaded an appropriate old ssid (i.e. ssid/sta_ssid),
+			// so when they get evaluated this ssid will get set again.
+			uci.unset('wireless', sectionId, 'ssid');
+
 			if (value == 'ap') {
 				this.page.updateInfoText(apModeText, thisWizardView);
 			} else if (value == 'sta') {
