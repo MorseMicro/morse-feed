@@ -67,7 +67,9 @@ function slotDataToHtml(slotData) {
 // (so we can have all the slot data in a tooltip).
 function slotDataToText(slotData) {
 	if (typeof slotData === 'string') {
-		return slotData;
+		const temp = document.createElement('div');
+		temp.innerHTML = slotData;
+		return temp.innerText;
 	}
 
 	// If it's not a string, it's some kind of weird multi-line interface config obj.
@@ -488,10 +490,10 @@ class MorseConfigDiagram extends HTMLElement {
 		if (!morseInfo.wifi) {
 			slots['AP_DESC'] = _('Device');
 		} else if (morseInfo.wifi.disabled === '1') {
-			slots['AP_DESC'] = _('HaLow<br>Device');
+			slots['AP_DESC'] = _('HaLow <br>Device');
 		} else if (config.get('prplmesh', 'config', 'enable') === '1') { // Handle all prplmesh cases here
 			groups.add('MESH_HALOW');
-			slots['AP_DESC'] = _('HaLow<br>Mesh<br>Controller');
+			slots['AP_DESC'] = _('HaLow <br>Mesh <br>Controller');
 			slots['STA_DESC'] = _('HaLow Mesh Agent');
 
 			// If we're not a controller-agent, we should appear on the station
@@ -521,19 +523,19 @@ class MorseConfigDiagram extends HTMLElement {
 				slots['MESH_HALOW_CL2'] = _('HaLow Client');
 			}
 		} else if (morseInfo.wifi.mode === 'ap') {
-			slots['AP_DESC'] = _('HaLow<br>Access<br>Point');
+			slots['AP_DESC'] = _('HaLow <br>Access <br>Point');
 			slots['STA_DESC'] = _('HaLow Client');
 		} else if (morseInfo.wifi.mode === 'adhoc') {
-			slots['AP_DESC'] = _('Ad-Hoc<br>HaLow<br>Device');
+			slots['AP_DESC'] = _('Ad-Hoc <br>HaLow <br>Device');
 			slots['STA_DESC'] = _('Ad-Hoc HaLow Device');
 			slots['AP_HALOW_CL1'] = _('Ad-Hoc Device');
 			slots['AP_HALOW_CL2'] = _('Ad-Hoc Device');
 		} else if (morseInfo.wifi.mode === 'sta') {
-			slots['AP_DESC'] = _('HaLow<br>Access<br>Point');
+			slots['AP_DESC'] = _('HaLow <br>Access <br>Point');
 			slots['STA_DESC'] = _('HaLow Client');
 			selectedDevice = DEVICE.STA;
 		} else {
-			slots['AP_DESC'] = _('HaLow<br>Device');
+			slots['AP_DESC'] = _('HaLow <br>Device');
 			slots['STA_DESC'] = _('HaLow Device');
 		}
 
