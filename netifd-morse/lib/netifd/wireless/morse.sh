@@ -711,6 +711,7 @@ _find_free_ifname()
 morse_service_stop() {
 	# squash "not found" messages when services are not installed
 	service smart_manager stop &> /dev/null
+	service dppd stop &> /dev/null
 }
 
 morse_service_restart() {
@@ -725,6 +726,7 @@ morse_service_restart() {
 
 	# squash "not found" messages when services are not installed.
 	service smart_manager restart &> /dev/null
+	service dppd restart &> /dev/null
 }
 
 morse_setup_ap() {
