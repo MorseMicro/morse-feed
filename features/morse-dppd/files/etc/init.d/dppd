@@ -1,7 +1,6 @@
 #!/bin/sh /etc/rc.common
 
-START=90
-STOP=01
+STOP=10
 USE_PROCD=1
 SERVICE=dppd
 
@@ -43,14 +42,8 @@ get_encryption_key() {
         config_foreach find_iface_ap_key wifi-iface $morse_radio
 }
 
-start_service() {
-        get_encryption_key
-        if [ -z "$key" ]; then
-                logger -t $SERVICE -p daemon.crit "No AP on morse device with encryption as SAE"
-                return 1
-        fi
-
-        local ctrl_if_path=''
+get_ctrl_if_path() {
+        ctrl_if_path=''
         for cpath in /var/run/hostapd_s1g/*; do
                 if [ -S "$cpath" ]; then
                         if [ -z "$ctrl_if_path" ]; then
@@ -61,6 +54,23 @@ start_service() {
                         fi
                 fi
         done
+}
+
+start_service() {
+        get_encryption_key
+        if [ -z "$key" ]; then
+                logger -t $SERVICE -p daemon.crit "No AP on morse device with encryption as SAE"
+                return 1
+        fi
+
+        get_ctrl_if_path
+
+        if [ -z "$ctrl_if_path" ]; then
+                logger -t $SERVICE -p daemon.warn "Unable to find hostapd control interface in /var/run/hostapd_s1g; retrying after 1 sec..."
+                sleep 1
+                get_ctrl_if_path
+        fi
+
         if [ -z "$ctrl_if_path" ]; then
                 logger -t $SERVICE -p daemon.crit "Unable to find hostapd control interface in /var/run/hostapd_s1g"
                 return 1
@@ -77,14 +87,6 @@ start_service() {
         procd_set_param limits as="15000000 15000000"
         procd_set_param respawn 3600 5 50
         procd_close_instance
-}
-
-
-reload_service() {
-        stop
-        # Wait until hostapd stops (otherwise we reconnect to old hostapd with the wrong info,
-        # then lose the connection, then segfault when we find the new hostapd).
-        ( sleep 5; start ) &
 }
 
 service_triggers() {
