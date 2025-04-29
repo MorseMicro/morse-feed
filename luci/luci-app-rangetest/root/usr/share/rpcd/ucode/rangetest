@@ -15,12 +15,14 @@
  *  - background_iperf3_server() => { id }
  *  - background_iperf3_client() => { id, udp, reverse }
  *  - background_iperf3_result( id ) => json_blob
- *  - iw_station_dump() => { interface_1: "...", interface_2: "..." }
+ *  - iw_station_dump() => { interface_1: '...', interface_2: '...' }
  *  - morse_cli_stats_reset() => nothing
  *  - morse_cli_stats() => json_blob
  *  - morse_cli_channel() => json_blob
  *  - ip_link() => { interface_1: {...}, interface_2: {...} }
- *  - info() => { rangetest_api_version: "..." }
+ *  - info() => { rangetest_api_version: '...' }
+ *  - remote_device_login( target, password ) => standard ubus response
+ *  - remote_device_call( target, rpc_id, session_id, method, args ) => standard ubus response
  */
 
 import * as ubus from 'ubus';
@@ -32,7 +34,7 @@ const math = require('math');
  * Temporarily defined here and in the uci-defaults script.
  * See the comment in the uci-defaults script for more information.
  */
-const API_VERSION="1.0.0";
+const API_VERSION='1.0.1';
 
 /* This is weird because running the iperf3 server
  * with -s -1 --json will not produce any output
@@ -44,8 +46,7 @@ const BG_OUTPUT_DIR = '/var/run/rangetest';
 
 function _get_output_file_paths(id) {
 	return {
-		stdout: `${BG_OUTPUT_DIR}/${id}/stdout`,
-		stderr: `${BG_OUTPUT_DIR}/${id}/stderr`,
+		output: `${BG_OUTPUT_DIR}/${id}/output`,
 		exit_code: `${BG_OUTPUT_DIR}/${id}/exit_code`,
 	};
 }
@@ -89,10 +90,12 @@ function _delete_output_directory(id) {
 		die(`Unable to access ${dir} (${fs.error()}).`); 
 	}
 	
-	const output_file_paths = _get_output_file_paths(id);
-	for (file in output_file_paths) {
-		if (fs.unlink(output_file_paths[file]) === null) {
-			die(`Unable to delete ${output_file_paths[file]}. (${fs.error()}).`);
+	let output_file_path;
+	const output_file_paths = fs.lsdir(dir);
+	for (output_file in output_file_paths) {
+		output_file_path = `${dir}/${output_file}`;
+		if (fs.unlink(output_file_path) === null) {
+			die(`Unable to delete ${output_file_path}. (${fs.error()}).`);
 		}
 	}
 
@@ -120,14 +123,22 @@ function _clean_output_directories() {
 	for (dir in output_directories) { _delete_output_directory(dir); }
 }
 
-function _execute_background_command(command) {
-	const id = math.rand();
-
-	if (!fs.access(BG_OUTPUT_DIR, 'f')) {
-		/* Create the range test output directory if it doesn't exist. */
-		if (fs.mkdir(BG_OUTPUT_DIR) === null) {
-			die(`Unable to create directory ${BG_OUTPUT_DIR} (${fs.error()}).`);
-		}
+/** 
+ * Initiate a background command and return a custom ID so it can be queried.
+ * 
+ * All output should be redirected to /var/run/rangetest/<id>/output using 
+ * the available utilities of the command being called i.e. iperf3 has a
+ * --logfile option. This is because the system command is run with an array
+ * of arguments instead of a shell command in a string. This runs the binary
+ * directly using execv() instead of using a shell and prevents shell injection.
+ * 
+ * @param command an array of strings to be passed safely to the system command
+ * @param id a custom ID to be used for the background command
+ */
+function _execute_background_command(command, id) {
+	/* Create the range test output directory if it doesn't exist. */
+	if (!fs.access(BG_OUTPUT_DIR, 'f') && fs.mkdir(BG_OUTPUT_DIR) === null) {
+		die(`Unable to create directory ${BG_OUTPUT_DIR} (${fs.error()}).`);
 	}
 
 	/* Create the process output directory. */
@@ -145,9 +156,6 @@ function _execute_background_command(command) {
 		}
 	}
 
-	const stdout_redirect_param = ` 1>${output_file_paths.stdout}`;
-	const stderr_redirect_param = ` 2>${output_file_paths.stderr}`;
-	command += `${stdout_redirect_param} ${stderr_redirect_param}`;
 	const proc = uloop.task((pipe) => {
 		/* Has cover-all 10 minute timeout for hanging
 		 * iperf3 servers. Since the frontend knows the expected 
@@ -161,12 +169,10 @@ function _execute_background_command(command) {
 	if (!proc) {
 		die(`Unable to execute command ${command} (${uloop.error()}).`); 
 	}
-
-	return { id: id };
 }
 
 function _killall_iperf3() {
-	const exit_code = system('killall -q iperf3', 1000);
+	const exit_code = system(['killall', '-q', 'iperf3'], 1000);
 
 	/* Returns 1 when there were no processes to kill */ 
 	if (exit_code != 0 && exit_code != 1) {
@@ -189,8 +195,14 @@ function background_iperf3_server(req) {
 		_clean_output_directories();
 	} catch (error) {}
 
+	const command = ['iperf3', '-s', '-1', '--json'];
+	const id = math.rand();
+	const output_file_paths = _get_output_file_paths(id);
+	push(command, '--logfile', output_file_paths.output);
+
 	try {
-		return _execute_background_command('iperf3 -s -1 --json');
+		_execute_background_command(command, id);
+		return { id: id };
 	} catch (error) {
 		return _error_response(ubus.STATUS_SYSTEM_ERROR, 'Unable to start iPerf3 server. Please try again.', error);
 	}
@@ -198,8 +210,6 @@ function background_iperf3_server(req) {
 
 function background_iperf3_client(req) {
 	const target = req.args.target;
-	const udp = req.args.udp ? '-u -b 40M/30' : '-Z';
-	const reverse = req.args.reverse ? '-R' : '';
 	const time = req.args.time;
 
 	if (time <= IPERF_OMIT_TIME || time >= OUTPUT_DIR_TTL) {
@@ -224,9 +234,24 @@ function background_iperf3_client(req) {
 		_clean_output_directories();
 	} catch (error) {}
 	
-	const command = `iperf3 -c ${target} ${udp} ${reverse} -t ${time} -O ${IPERF_OMIT_TIME} --json`;
+	const command = ['iperf3', '-c', target, '-t', time, '-O', IPERF_OMIT_TIME, '--json'];
+	if (req.args.udp) {
+		push(command, '-u', '-b', '40M/30');
+	} else {
+		push(command, '-Z');
+	}
+
+	if (req.args.reverse) {
+		push(command, '-R');
+	}
+
+	const id = math.rand();
+	const output_file_paths = _get_output_file_paths(id);
+	push(command, '--logfile', output_file_paths.output);
+
 	try {
-		return _execute_background_command(command);
+		_execute_background_command(command, id);
+		return { id: id };
 	} catch (error) {
 		return _error_response(
 			ubus.STATUS_SYSTEM_ERROR,
@@ -274,23 +299,31 @@ function get_background(req) {
 
 	if (output_data.exit_code == '0') {
 		try {
-			return json(output_data.stdout);
+			return json(output_data.output);
 		} catch (error) {
 			return _error_response(
 				ubus.STATUS_SYSTEM_ERROR,
 				'Unable to read iPerf3 test output. Please try again. If the problem persists, consider rebooting the device.',
-				`Received invalid JSON (${output_data.stdout}[:100]): ${[substr(output_data.stdout, 0, 100)]}`
+				`Received invalid JSON (${output_data.output}[:100]): ${[substr(output_data.output, 0, 100)]}`
 			);
 		}
 	} else {
 		return _error_response(
 			ubus.STATUS_UNKNOWN_ERROR,
 			'Unable to read iPerf3 test output. Please try again. If the problem persists, consider rebooting the device.',
-			output_data.stderr
+			output_data.output
 		);
 	}
 }
 
+/**
+ * Run a command and return the output.
+ * 
+ * This is for useful for statistics commands which will
+ * complete immediately within the lifetime of the RPCD request.
+ * The passed command should not contain any user input as it will
+ * allow for arbitrary code execution.
+ */
 function _execute_command(command) {
 	let proc = fs.popen(command);
 	if (!proc) { die(`Unable to execute the command ${command} (${fs.error()}).`); }
@@ -311,7 +344,7 @@ function _execute_command(command) {
  * 
  * Loop through each interface in /sys/class/net/
  * and check that the driver of the linked PHY device 
- * has a name beginning with "morse". Based on 
+ * has a name beginning with 'morse'. Based on 
  * morse.sh in netifd-morse.
  */
 function _get_morse_devices() {
@@ -542,6 +575,118 @@ function info(req) {
 	return { rangetest_api_version: API_VERSION };
 }
 
+/**
+ * Use uclient-fetch to make a POST request to a remote device.
+ * 
+ * This writes to a temporary file and then immediately reads out of
+ * it due to the nature of execv with system calls. 
+ */
+function _uclient_fetch(url, post_data) {
+	const command = ['uclient-fetch', '-q', '-T', '10', '--post-data', post_data, url];
+
+	/* Create the range test output directory if it doesn't exist. */
+	if (!fs.access(BG_OUTPUT_DIR, 'f') && fs.mkdir(BG_OUTPUT_DIR) === null) {
+		die(`Unable to create directory ${BG_OUTPUT_DIR} (${fs.error()}).`);
+	}
+
+	/* Create the temporary file to capture request returns. */
+	const temp_file_path = `${BG_OUTPUT_DIR}/uclient-fetch-${math.rand()}`;
+	if (fs.writefile(temp_file_path, "") === null) {
+		die(`Unable to create temporary file (${fs.error()}).`);
+	}
+
+	try {
+		/* Redirect the output of uclient-fetch to the temporary file. */
+		push(command, '-O', temp_file_path);
+		
+		const exit_code = system(command, 13000);
+		if (exit_code != 0) {
+			die(`uclient-fetch returned a non-zero exit code (${exit_code}).`);
+		}
+		
+		const output_data = fs.readfile(temp_file_path);
+		if (output_data === null) {
+			die(`Unable to read from temporary file (${fs.error()}).`);
+		}
+
+		try {
+			fs.unlink(temp_file_path);
+            return json(output_data);
+        } catch (error) {
+            die(`Received invalid JSON (${output_data}[:100]): ${[substr(output_data, 0, 100)]}`);
+        }
+	} catch (error) {
+		fs.unlink(temp_file_path);
+		die(`${error}`);
+	}
+}
+
+function remote_device_login(req) {
+	if (iptoarr(req.args.target) === null) {
+		return _error_response(ubus.STATUS_INVALID_ARGUMENT, 'Invalid target IP address.');
+	}
+
+	if (req.args.password === null) {
+		req.args.password = '';
+	}
+
+	const url = `http://${req.args.target}/ubus/`;
+	const post_data = {
+		id: 0,
+		method: 'call',
+		jsonrpc: '2.0',
+		params: [
+			'00000000000000000000000000000000',
+			'session',
+			'login',
+			{
+				username: 'root',
+				password: req.args.password,
+			}
+		]
+	};
+
+	return _uclient_fetch(url, post_data);
+}
+
+function remote_device_call(req) {
+	
+	if (iptoarr(req.args.target) === null) {
+		return _error_response(ubus.STATUS_INVALID_ARGUMENT, 'Invalid target IP address.');
+	}
+	
+	if (req.args.rpc_id === null) {
+		return _error_response(ubus.STATUS_INVALID_ARGUMENT, 'Invalid RPC ID.');
+	}
+
+	if (req.args.session_id === null) {
+		return _error_response(ubus.STATUS_INVALID_ARGUMENT, 'Invalid session ID.');
+	}
+	
+	if (req.args.method === null || req.args.method === 'remote_device_call') {
+		return _error_response(ubus.STATUS_INVALID_ARGUMENT, 'Invalid method.');
+	}
+	
+	if (req.args.args === null) {
+		args = {};
+	}
+	
+	const url = `http://${req.args.target}/ubus/`;
+	const post_data = {
+		id: req.args.rpc_id,
+		method: 'call',
+		jsonrpc: '2.0',
+		params: [
+			req.args.session_id,
+			'rangetest',
+			req.args.method,
+			req.args.args
+		]
+	};
+
+	return _uclient_fetch(url, post_data);
+}
+
 return {
 	rangetest: {
 		background_iperf3_server: {
@@ -580,5 +725,22 @@ return {
 		info: {
 			call: info,
 		},
-	},
+		remote_device_login: {
+			call: remote_device_login,
+			args: {
+				target: '192.168.1.1',
+				password: 'password',
+			},
+		},
+		remote_device_call: {
+			call: remote_device_call,
+			args: {
+				target: '192.168.1.1',
+				rpc_id: 123,
+				session_id: 'abc123',
+				method: 'morse_cli_stats',
+				args: {},
+			},
+		}
+	}
 };

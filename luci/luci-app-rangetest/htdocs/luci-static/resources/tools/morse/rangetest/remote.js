@@ -6,10 +6,17 @@
 'require tools.morse.rangetest.errorutils as errorUtils';
 
 var remoteRequest = rpc.declare({
-	object: 'rangetest-remote-rpc',
-	method: 'request',
-	params: ['uri', 'body'],
-	nobatch: true, // If one batched request hangs, all others will hang too.
+	object: 'rangetest',
+	method: 'remote_device_call',
+	params: ['target', 'rpc_id', 'session_id', 'method', 'args'],
+	nobatch: true,
+});
+
+var remoteLogin = rpc.declare({
+	object: 'rangetest',
+	method: 'remote_device_login',
+	params: ['target', 'password'],
+	nobatch: true,
 });
 
 var RemoteRpcClass = rpc.constructor.extend({
@@ -36,7 +43,7 @@ var RemoteRpcClass = rpc.constructor.extend({
 	__currentTime: () => Math.floor(Date.now() / 1000),
 
 	__login: function () {
-		return remoteRequest(this.remoteRpcBaseUrl, this.message);
+		return remoteLogin(this.remoteRpcIpAddress, this.message.params[3].password);
 	},
 
 	__checkLogin: function () {
@@ -52,22 +59,11 @@ var RemoteRpcClass = rpc.constructor.extend({
 	},
 
 	__call: async function (method, params, requiresLogin = true) {
-		if (this.remoteRpcBaseUrl === undefined) {
-			throw new Error('No URL set for remote RPC call!');
-		}
-
 		if (requiresLogin) {
 			await this.__checkLogin();
 		}
 
-		const req = {
-			jsonrpc: '2.0',
-			id: 0,
-			method: 'call',
-			params: [this.remoteRpcSessionId, 'rangetest', method, params],
-		};
-
-		const rpcResponse = await remoteRequest(this.remoteRpcBaseUrl, req);
+		const rpcResponse = await remoteRequest(this.remoteRpcIpAddress, 0, this.remoteRpcSessionId, method, params);
 		return this.__parseCallReply(rpcResponse);
 	},
 
@@ -159,6 +155,26 @@ var RemoteRpcClass = rpc.constructor.extend({
 	},
 
 	/**
+	 * Returns the current IP address.
+	 *
+	 * @returns {string}
+	 * Returns the IP address of the remote device.
+	 */
+	getIpAddress: function () {
+		return this.remoteRpcIpAddress;
+	},
+
+	/**
+	 * Set the IP address to use.
+	 *
+	 * @param {string} ipAddress
+	 * Sets the IP address of the remote device.
+	 */
+	setIpAddress: function (ipAddress) {
+		this.remoteRpcIpAddress = ipAddress;
+	},
+
+	/**
 	 * Returns the current RPC base URL.
 	 *
 	 * @returns {string}
@@ -195,6 +211,7 @@ var RemoteRpcClass = rpc.constructor.extend({
 var RemoteDeviceFactory = baseclass.extend({
 	load: (url, password) => {
 		var remoteRpc = new RemoteRpcClass();
+		remoteRpc.setIpAddress(url);
 		remoteRpc.setBaseURL('http://' + url + '/ubus/');
 		remoteRpc.setPassword(password);
 		return remoteRpc;
