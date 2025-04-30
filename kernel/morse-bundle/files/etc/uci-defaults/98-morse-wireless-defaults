@@ -51,12 +51,14 @@ _change_device_defaults() {
 				# It's only safe to enable a morse device if we know what region it should be.
 				# If we do, set up the country and channel, otherwise leave it disable.
 				if [ -n "$mm_region" ]; then
-					# Start on the highest bandwidth channel for the country code. netifd
-					# does fill a channel automatically, but it may be for the wrong region.
+					# Start on the middle channel of the max bandwidth for the country code.
 					# Channels can be queried from iwinfo or the driver, but not if the
 					# device is down, and the device is not up until we have a valid channel.
-					local channel="$(awk < /usr/share/morse-regdb/channels.csv -F, '$1 == "'"$mm_region"'" {print $2, $3}' \
-						| sort -n | awk 'END {print $2}')"
+					local bandwidth="$(awk -F, '$1==region && $2 > max {max=$2} END {print max}' \
+						region="$mm_region" /usr/share/morse-regdb/channels.csv)"
+					local channel="$(awk -F, '$1==region && $2==bw {print $3}' \
+						region="$mm_region" bw="$bandwidth" /usr/share/morse-regdb/channels.csv \
+						| sort -n | awk '{a[NR]=$1} END {print a[int((NR+1)/2)]}')"
 
 					echo "uci-default-morse-wireless: setting $config to $mm_region on $channel" > /dev/kmsg
 					uci batch <<- END
