@@ -364,11 +364,7 @@ morse_override_hostapd_set_bss_options() {
 	}
 
 	append bss_conf "ssid=$ssid" "$N"
-	# AJ 26/05/2023: I've commented out the bridge= setting as it is causing our standard 
-	# bridged interface configuration to not function correctly. Further investigation will be required here
-	# as this setting is not any different to what the system does anyway if it's not set, and the documentation
-	# indicates it is optional...
-	#[ -n "$network_bridge" ] && append bss_conf "bridge=$network_bridge${N}wds_bridge=" "$N"
+	[ -n "$network_bridge" ] && append bss_conf "bridge=$network_bridge${N}wds_bridge=" "$N"
 	[ -n "$iapp_interface" ] && {
 		local ifname
 		network_get_device ifname "$iapp_interface" || ifname="$iapp_interface"

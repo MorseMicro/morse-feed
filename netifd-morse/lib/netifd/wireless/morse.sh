@@ -172,6 +172,7 @@ drv_morse_init_iface_config() {
 	hostapd_common_add_bss_config
 	config_add_string 'macaddr:macaddr' ifname
 	config_add_boolean wds powersave enable
+	config_add_string wds_bridge
 	config_add_boolean wps_virtual_push_button
 	config_add_boolean dpp_configurator_connectivity
 	config_add_array sae_group
