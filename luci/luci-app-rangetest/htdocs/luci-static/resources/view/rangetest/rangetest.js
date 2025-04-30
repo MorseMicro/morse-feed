@@ -33,8 +33,7 @@ document.querySelector('head').appendChild(E('link', {
 document.querySelector('head').appendChild(E('link', {
 	rel: 'stylesheet',
 	type: 'text/css',
-	href: 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
-	integrity: 'sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=',
+	href: 'https://repo.apps.morsemicro.com/leaflet@1.9.4/dist/leaflet.css',
 	crossorigin: '',
 }));
 
@@ -44,8 +43,7 @@ document.querySelector('head').appendChild(E('script', {
 		window.Leaflet = window.L.noConflict();
 		document.dispatchEvent(new Event('leafletLoaded'));
 	},
-	src: 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',
-	integrity: 'sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=',
+	src: 'https://repo.apps.morsemicro.com/leaflet@1.9.4/dist/leaflet.js',
 	crossorigin: '',
 }));
 
