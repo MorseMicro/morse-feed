@@ -76,15 +76,15 @@ maybe_press_dpp_button() {
 }
 
 # Create a DPP timestamp file with the current uptime after the initial button press.
-# For subsequent button presses, check the timestamp to ensure at least 120 seconds have passed,
+# For subsequent button presses, check the timestamp to ensure at least 220 seconds have passed,
 # preventing rapid consecutive DPP events.
 current_uptime=$(awk '{print int($1)}' /proc/uptime)
 
 if [ -f $dpp_start_time ]; then
 	stored_uptime=$(cat "$dpp_start_time")
 	uptime_diff=$((current_uptime - stored_uptime))
-	if [ "$uptime_diff" -lt 120 ]; then
-		logger -t button -p daemon.notice "DPP button already pressed. Please wait for 2 minutes after the initial press."
+	if [ "$uptime_diff" -lt 220 ]; then
+		logger -t button -p daemon.notice "DPP button already pressed. Please wait for 220 seconds after the initial press."
 		return
 	fi
 fi

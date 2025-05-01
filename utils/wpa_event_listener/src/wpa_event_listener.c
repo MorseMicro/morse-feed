@@ -187,7 +187,7 @@ static void led_started() {
     // Start the blink. Set a long timeout for the blink in case we don't see hostapd PB_RESULT event.
     printf("Starting led blink\n");
     uloop_timeout_cancel(&failed_timeout);
-    uloop_timeout_set(&led_timeout, 120000);
+    uloop_timeout_set(&led_timeout, 220000);
     call_action_script("started");
 }
 
@@ -220,9 +220,9 @@ static void message_process(char *const message) {
                     clear_cached_confs();
                 } else {
                     // We don't want to indicate DPP failure scenarios and instead should allow DPP
-                    // to timeout (after 120 secs).
+                    // to timeout (after 220 secs).
                     // This is because:
-                    //  - DPP has a 110 secs timeout on an enrollee hash overlap, so
+                    //  - hostapd's DPP has a 120 secs timeout on an enrollee hash overlap, so
                     //    failing fast just lets the user initiate a DPP that will probably fail
                     //  - There are other statuses that can cause a failure other than
                     //    TYPE_PB_RESULT=failed. e.g. DPP-AUTH-INIT-FAILED,
