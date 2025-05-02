@@ -1,0 +1,94 @@
+From f0ce233888ca3c4cdafa6007dd42cf6a00d2a879 Mon Sep 17 00:00:00 2001
+From: Joshua Wilkinson <joshua.wilkinson@morsemicro.com>
+Date: Wed, 30 Apr 2025 22:57:32 +0000
+Subject: [PATCH 7/7] Merged in SW-14454-fix-auth-req-timeout (pull request
+ #287)
+
+SW-14454 Fix DPP-PB Authentication Request timeout
+
+When the responder ACKs the Authentication Request message, it will try
+to send (and resend) the Authentication Response message up to 5 times,
+with (by default) 1000ms between attempts. The initiator will only wait
+for 2s to hear the Response before tearing down the dpp_auth attempt,
+meaning that even if a later retry succeeds, it will ignore it, since
+that auth attempt no longer exists.
+
+Increase this timeout to allow all retries to occur before discarding
+the auth attempt.
+
+Approved-by: Andrew Pope
+Approved-by: Nev Young
+Approved-by: James Haggerty
+---
+ src/ap/dpp_hostapd.c | 18 ++++++++++--------
+ 1 file changed, 10 insertions(+), 8 deletions(-)
+
+diff --git a/src/ap/dpp_hostapd.c b/src/ap/dpp_hostapd.c
+index 1ccff4e37..c7689208f 100644
+--- a/src/ap/dpp_hostapd.c
++++ b/src/ap/dpp_hostapd.c
+@@ -679,7 +679,7 @@ static void hostapd_dpp_reply_wait_timeout(void *eloop_ctx, void *timeout_ctx)
+ 		return;
+ 
+ 	wait_time = hapd->dpp_resp_wait_time ?
+-		hapd->dpp_resp_wait_time : 2000;
++		hapd->dpp_resp_wait_time : 5000;
+ 	os_get_reltime(&now);
+ 	os_reltime_sub(&now, &hapd->dpp_last_init, &diff);
+ 	diff_ms = diff.sec * 1000 + diff.usec / 1000;
+@@ -689,7 +689,8 @@ static void hostapd_dpp_reply_wait_timeout(void *eloop_ctx, void *timeout_ctx)
+ 
+ 	if (auth->auth_req_ack && diff_ms >= wait_time) {
+ 		/* Peer ACK'ed Authentication Request frame, but did not reply
+-		 * with Authentication Response frame within two seconds. */
++		 * with Authentication Response frame within five seconds.
++		 */
+ 		wpa_printf(MSG_INFO,
+ 			   "DPP: No response received from responder - stopping initiation attempt");
+ 		wpa_msg(hapd->msg_ctx, MSG_INFO, DPP_EVENT_AUTH_INIT_FAILED);
+@@ -702,7 +703,8 @@ static void hostapd_dpp_reply_wait_timeout(void *eloop_ctx, void *timeout_ctx)
+ 
+ 	if (diff_ms >= wait_time) {
+ 		/* Authentication Request frame was not ACK'ed and no reply
+-		 * was receiving within two seconds. */
++		 * was receiving within five seconds.
++		 */
+ 		wpa_printf(MSG_DEBUG,
+ 			   "DPP: Continue Initiator channel iteration");
+ 		hostapd_drv_send_action_cancel_wait(hapd);
+@@ -711,7 +713,7 @@ static void hostapd_dpp_reply_wait_timeout(void *eloop_ctx, void *timeout_ctx)
+ 		return;
+ 	}
+ 
+-	/* Driver did not support 2000 ms long wait_time with TX command, so
++	/* Driver did not support 5000 ms long wait_time with TX command, so
+ 	 * schedule listen operation to continue waiting for the response.
+ 	 *
+ 	 * DPP listen operations continue until stopped, so simply schedule a
+@@ -850,9 +852,9 @@ static int hostapd_dpp_auth_init_next(struct hostapd_data *hapd)
+ 		dst = auth->peer_bi->mac_addr;
+ 	hapd->dpp_auth_ok_on_ack = 0;
+ 	eloop_cancel_timeout(hostapd_dpp_reply_wait_timeout, hapd, NULL);
+-	wait_time = 2000; /* TODO: hapd->max_remain_on_chan; */
++	wait_time = 5000; /* TODO: hapd->max_remain_on_chan; */
+ 	max_wait_time = hapd->dpp_resp_wait_time ?
+-		hapd->dpp_resp_wait_time : 2000;
++		hapd->dpp_resp_wait_time : 5000;
+ 	if (wait_time > max_wait_time)
+ 		wait_time = max_wait_time;
+ 	wait_time += 10; /* give the driver some extra time to complete */
+@@ -1893,9 +1895,9 @@ hostapd_dpp_rx_reconfig_announcement(struct hostapd_data *hapd, const u8 *src,
+ 
+ 	hapd->dpp_in_response_listen = 0;
+ 	hapd->dpp_auth_ok_on_ack = 0;
+-	wait_time = 2000; /* TODO: hapd->max_remain_on_chan; */
++	wait_time = 5000; /* TODO: hapd->max_remain_on_chan; */
+ 	max_wait_time = hapd->dpp_resp_wait_time ?
+-		hapd->dpp_resp_wait_time : 2000;
++		hapd->dpp_resp_wait_time : 5000;
+ 	if (wait_time > max_wait_time)
+ 		wait_time = max_wait_time;
+ 	wait_time += 10; /* give the driver some extra time to complete */
+-- 
+2.34.1
+
