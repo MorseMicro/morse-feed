@@ -3,6 +3,9 @@
 'require view';
 'require ui';
 
+// WARNING: Every time the offline user guide is updated, this link must be updated as well.
+const S3_BUCKET_USER_GUIDE_URL = 'https://repo.apps.morsemicro.com/openwrt/resources/HaLowLink-1-User-Guide-2.7.5.pdf';
+
 return view.extend({
 	handleSaveApply: null,
 	handleSave: null,
@@ -13,7 +16,7 @@ return view.extend({
 
 		var offlineBanner = ui.addNotification(null, [
 			'You are viewing a compressed offline version of this document and some images may appear blurry. The original PDF can be found ',
-			E('a', { href: 'https://www.morsemicro.com/downloads-dashboard/', target: '_blank' }, ' here'),
+			E('a', { href: S3_BUCKET_USER_GUIDE_URL, target: '_blank' }, ' here'),
 			'.',
 		], 'warning');
 		offlineBanner.style.zIndex = 100;
