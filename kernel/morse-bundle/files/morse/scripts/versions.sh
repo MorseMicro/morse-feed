@@ -2,9 +2,9 @@
 
 get_morse_iface()
 {
-    local net_path=$(find /sys/class/morse/morse_io/device/ -name net | head -n 1)
+    local net_path=$(find /sys/class/morse/morse_io/device/ -regex '.*net/[^/]*' 2>/dev/null | head -n 1)
     if [ -n "$net_path" ]; then
-        local morse_iface=$(basename "$net_path/"*)
+        local morse_iface=$(basename "$net_path")
         printf $morse_iface
     fi
 }
@@ -17,9 +17,25 @@ get_fw_ver()
         return
     fi
 
-    local output=`morse_cli -i $m_iface version | grep FW`
+    local output=`morse_cli -i $m_iface version 2>/dev/null | grep FW`
     if [ "$output" ];then
         printf "$output" | sed 's/.*: //g'
+    else
+        printf "N/A"
+    fi
+}
+
+get_hw_ver()
+{
+    local m_iface=$(get_morse_iface)
+    if [ -z "$m_iface" ];then
+        printf "N/A"
+        return
+    fi
+
+    local hw_version=`morse_cli -i $m_iface hw_version 2>/dev/null | grep HW`
+    if [ "$hw_version" ];then
+        printf "$hw_version" | sed 's/.*: //g'
     else
         printf "N/A"
     fi
@@ -47,7 +63,7 @@ get_d11_ver()
 
 get_mcli_ver()
 {
-    local output=`morse_cli version | grep Morse_cli`
+    local output=`morse_cli version 2>/dev/null | grep Morse_cli`
     if [ "$output" ];then
         printf "$output" | sed 's/.*: //g'
     else
@@ -62,7 +78,7 @@ get_mctrl_ver()
         return
     fi
 
-    local output=`morsectrl version | grep Morsectrl`
+    local output=`morsectrl version 2>/dev/null | grep Morsectrl`
     if [ "$output" ];then
         printf "$output" | sed 's/.*: //g'
     else
@@ -155,4 +171,5 @@ echo -ne "Morse Versions:
 - IW             = `get_iw_ver`
 - Snapshot       = `get_snp_ver`
 - OpenWRT        = `get_owrt_ver`
+- Chip           = `get_hw_ver`
 "
