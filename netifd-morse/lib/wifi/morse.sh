@@ -88,6 +88,7 @@ detect_morse() {
 
 		local path="$(iwinfo dot11ah path "$dev")"
 		local macaddr="$(cat /sys/class/ieee80211/${dev}/macaddress)"
+		local board_type="$(cat /sys/class/ieee80211/${dev}/device/board_type)"
 		if [ -n "$path" ]; then
 			dev_id="set wireless.radio${devidx}.path='$path'"
 		elif [ -n "$macaddr" ]; then
@@ -121,34 +122,42 @@ EOF
 
 		board=$(board_name)
 
-		case "$board" in
-			morse,ekh01-03 |\
-			morse,ekh03v3)
-				bcf=bcf_mf08551.bin
-			;;
-			morse,ekh01v1)
-				bcf=bcf_mf03120.bin
-			;;
-			morse,ekh01v2)
-				bcf=bcf_mf08251.bin
-			;;
-			morse,ekh04v6)
-				bcf=bcf_ekh04_v6.bin
-			;;
-			morse,artini)
-				bcf=bcf_mm_hl1.bin
-			;;
-			morse,ekh01-01)
-				bcf=bcf_mf15457.bin
-			;;
-			*)
-				if [[ $path  = *usb* ]]; then
+		# board_type is 'we have OTP bits set', in which case it should
+		# automatically load the correct file (bcf_boardtype...) and
+		# we don't need to override.
+		# We force Artini since 4v3 support currently requires 
+		# an explicit BCF file, though currently the AZW modules
+		# do not have OTP bits burnt.
+		if [ "$board_type" -eq 0 ] || [ "$board" = morse,artini ]; then
+			case "$board" in
+				morse,ekh01-03 |\
+				morse,ekh03v3)
+					bcf=bcf_mf08551.bin
+				;;
+				morse,ekh01v1)
+					bcf=bcf_mf03120.bin
+				;;
+				morse,ekh01v2)
+					bcf=bcf_mf08251.bin
+				;;
+				morse,ekh04v6)
+					bcf=bcf_ekh04_v6.bin
+				;;
+				morse,artini)
+					bcf=bcf_mm_hl1.bin
+				;;
+				morse,ekh01-01)
 					bcf=bcf_mf15457.bin
-				fi
-			;;
-		esac
+				;;
+				*)
+					if [[ $path  = *usb* ]]; then
+						bcf=bcf_mf15457.bin
+					fi
+				;;
+			esac
 
-		[ -n "${bcf}" ] && uci -q set wireless.radio${devidx}.bcf="${bcf}"
+			[ -n "${bcf}" ] && uci -q set wireless.radio${devidx}.bcf="${bcf}"
+		fi
 
 		uci -q commit wireless
 
