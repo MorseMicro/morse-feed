@@ -1,13 +1,11 @@
 #!/bin/sh
 
-echo "Adding device handler type: morse"
-
 . /lib/netifd/netifd-wireless.sh
 . /lib/netifd/hostapd.sh
 . /lib/netifd/morse/morse_overrides.sh
 . /lib/netifd/morse/morse_utils.sh
 
-echo "Configuring $3"
+echo "Configuring morse device"
 init_wireless_driver "$@"
 
 MM_MOD_INT="watchdog_interval_secs max_rates max_rate_tries spi_clock_speed max_txq_len virtual_sta_max max_aggregation_count
@@ -278,7 +276,7 @@ get_matter_config() {
 	config_get var config ble_proto
 	json_add_string ble_proto "$var"
 
-	config_get vat config ble_uart_port
+	config_get var config ble_uart_port
 	json_add_string ble_uart_port "$var"
 
 	json_select ..
@@ -409,8 +407,7 @@ drv_morse_setup() {
 	json_add_string phy "$phy"
 	json_close_object
 
-	local hostapd_conf_file="/var/run/hostapd-$phy.conf"
-	rm -f "$hostapd_conf_file"
+	rm -f /var/run/hostapd-$phy*.conf
 
 	wireless_set_data phy="$phy"
 
@@ -418,63 +415,88 @@ drv_morse_setup() {
 
 	morse_interface_cleanup ${phy}
 
+	uci -q -P /var/state set wireless._${phy}.umlist=""
+	uci -q -P /var/state set wireless._${phy}.aplist=""
+	uci -q -P /var/state set wireless._${phy}.splist=""
+
 	set_default rts 1000
 	iw phy "$phy" set rts "${rts%%.*}"
 
 	[ -n "$frag" ] && iw phy "$phy" set frag "${frag%%.*}"
 
+	# Figure out chan info (e.g. freq/bandwidth) from regulatory info,
+	# and determine appropriate primary channel index/width if not set.
+	morse_set_chan_info
 
-	already_have_wpa_supplicant_running=
-	already_have_hostapd_running=
-	has_ap=
-	has_sta=
-	has_mesh=
-	has_adhoc=
-	has_monitor=
-
-	#bring the interfaces up
+	interface_count=0
+	interface_first=
+	# This also creates ifnames_$mode for all mentioned modes
+	# (space separated 'list' of interface names).
 	for_each_interface "ap sta adhoc mesh none monitor" morse_iface_bringup
 
-	# setup the 11ah specific regulatory translation
-	# and setup the general s1g device defaults as common configs for all interfaces
-	morse_set_ap_regulatory
-	morse_setup_s1g_device_defaults
+	# These vars are used to track the interfaces we've brought up.
+	# Even though we haven't yet started a service, we set them here
+	# in case our script breaks (this means we'll have some chance
+	# of correctly cleaning them up).
+	uci -q -P /var/state set wireless._${phy}.aplist="${ifnames_ap}"
+	uci -q -P /var/state set wireless._${phy}.splist="${ifnames_sta} ${ifnames_mesh} ${ifnames_adhoc}"
+	uci -q -P /var/state set wireless._${phy}.umlist="${ifnames_none} ${ifname_monitor}"
 
-	[ -n "$has_ap" ] && {
-		morse_hostapd_conf_setup "$phy"
+	[ -n "$ifnames_ap" ] && {
+		local hostapd_conf_file="/var/run/hostapd-$phy.conf"
+		morse_hostapd_conf_setup "$phy" "$hostapd_conf_file"
+
+		# Because MBSSID IEs are not supported, we provide hostapd
+		# with multiple config files so it brings up entirely separate
+		# APs (with separate beacons). However, each config file has the
+		# "same" set of basic info (see morse_hostapd_conf_setup) to avoid
+		# confusion.
+		hostapd_conf_files=
+		for_each_interface "ap" morse_setup_ap "$hostapd_conf_file"
+		# We use "$hostapd_conf_files"; this is just the common info that
+		# we can now remove.
+		rm "$hostapd_conf_file"
+		morse_run_hostapd
 	}
-	for_each_interface "ap" morse_setup_ap
 
-	[ -n "$has_sta" ] && {
+	[ -n "$ifnames_sta" ] && {
 		get_matter_config
 		json_select config
 		json_get_vars vendor_keep_alive_offload matter_enable
 		json_select ..
-	}
-	for_each_interface "sta" morse_setup_sta
 
-	[ -n "$has_mesh" ] && {
+		for_each_interface "sta" morse_setup_sta
+	}
+
+	[ -n "$ifnames_mesh" ] && {
 		get_mesh11sd_config
 		json_select config
+		json_get_vars op_class channel country s1g_prim_chwidth s1g_prim_1mhz_chan_index
 		json_get_vars mesh_max_peer_links mesh_plink_timeout mesh_hwmp_rootmode mesh_gate_announcements mesh_fwding mesh_rssi_threshold mbca_config mbca_min_beacon_gap_ms mbca_tbtt_adj_interval_sec mesh_beacon_timing_report_int mbss_start_scan_duration_ms mesh_beacon_less_mode mesh_dynamic_peering mesh_rssi_margin mesh_blacklist_timeout
 		json_select ..
-	}
-	for_each_interface "mesh" morse_setup_mesh
 
-	[ -n "$has_adhoc" ] && {
+		for_each_interface "mesh" morse_setup_mesh
+	}
+
+	[ -n "$ifnames_adhoc" ] && {
 		json_select config
 		json_get_vars op_class channel country s1g_prim_chwidth s1g_prim_1mhz_chan_index
 		json_select ..
 
+		for_each_interface "adhoc" morse_setup_adhoc
 	}
-	for_each_interface "adhoc" morse_setup_adhoc
 
-	[ -n "$has_monitor" ] && {
+	[ -n "$ifnames_monitor" ] && {
 		json_select config
 		json_get_vars op_class channel country s1g_prim_chwidth s1g_prim_1mhz_chan_index
 		json_select ..
+
+		for_each_interface "monitor" morse_setup_monitor
 	}
-	for_each_interface "monitor" morse_setup_monitor
+
+	[ -n "$ifnames_none" ] && {
+		for_each_interface "none" morse_setup_none
+	}
 
 	# Ideally, this would also be in the hostapd/wpa_supplicant config,
 	# but for now they don't have support so we use morse_cli.
@@ -517,7 +539,7 @@ drv_morse_setup() {
 		morse_cli -i $ifname li $unscaled_interval $scale_factor
 	fi
 
-	if [ "$thin_lmac_optimization" -eq "1" ]; then
+	if [ "$thin_lmac_optimization" = "1" ]; then
 		apply_thin_lmac_optimization
 	fi
 
@@ -548,9 +570,7 @@ drv_morse_teardown() {
 		fi
 	fi
 
-	#remove hostapd conffile before tearing down.
-	local hostapd_conf_file="/var/run/hostapd-$phy.conf"
-	rm "$hostapd_conf_file" -f
+	rm -f /var/run/hostapd-$phy*.conf
 
 	morse_interface_cleanup "$phy"
 	uci -q -P /var/state revert wireless._${phy}
@@ -560,68 +580,50 @@ drv_morse_teardown() {
 	uci commit mesh11sd
 }
 
-morse_iface_bringup() {
-	json_select config
-	json_get_vars ifname mode ssid wds powersave macaddr enable wpa_psk_file vlan_file
-
-	# guard against more than one AP interface
-	if [ -n "$has_ap" -a "$mode" = "ap" ]; then
-		echo "Can't have more than one AP interface."
-		json_select ..
-		return
-	fi
-	# guard against more than one STA interface
-	if [ -n "$has_sta" -a "$mode" = "sta" ]; then
-		echo "Can't have more than one STA interface."
-		json_select ..
-		return
+morse_iface_create() {
+	if [ "$interface_count" -gt 2 ]; then
+		return 2
 	fi
 
-	# guard against more than one mesh interface
-	if [ -n "$has_mesh" -a "$mode" = "mesh" ]; then
-		echo "Can't have more than one MESH interface."
-		json_select ..
-		return
+	if [ -z "$interface_first" ]; then
+		interface_first="$mode"
+	else
+		case "$mode" in
+			sta)
+				if [ "$interface_first" != "ap" ]; then
+					return 3
+				fi
+				;;
+			ap)
+				case "$interface_first" in
+					ap|mesh|sta)
+						;;
+					*)
+						return 3
+						;;
+				esac
+				;;
+			mesh)
+				if [ "$interface_first" != "ap" ]; then
+					return 3
+				fi
+				;;
+			*)
+				return 3
+				;;
+		esac
 	fi
 
-	# guard against more than one monitor interface
-	if [ -n "$has_monitor" ] && [ "$mode" = "monitor" ]; then
-		echo "Can't have more than one monitor interface."
-		json_select ..
-		return
-	fi
-
-	set_default wds 0
-
-	[ -z "$ifname" ] && ifname="$(_find_free_ifname wlan)"
-
-	json_add_string ifname "$ifname"
-	json_add_string phy "$phy"
-
-
-	[ -n "$macaddr" ] || {
-		macaddr="$(morse_generate_mac $phy)"
-		macidx="$(($macidx + 1))"
-	}
-
-	json_add_string macaddr "$macaddr"
-	json_select ..
 	case "$mode" in
 		ap)
-			has_ap=1
-			morse_iw_interface_add "$phy" "$ifname" __ap
-			if [ $? -ne 0 ]; then
-				echo "morse_iface_bringup: error adding interface $ifname to $phy" >&2
-				exit 1
-			fi
+			morse_iw_interface_add "$phy" "$ifname" __ap || return 1
 			ifconfig "$ifname" hw ether $macaddr
 			ip link set $ifname up
 		;;
 
 		sta)
-			has_sta=1
 			[ "$wds" -gt 0 ] && wdsflag="4addr on"
-			morse_iw_interface_add "$phy" "$ifname" managed "$wdsflag" || return
+			morse_iw_interface_add "$phy" "$ifname" managed "$wdsflag" return 1
 			if [ "$wds" -gt 0 ]; then
 				iw dev "$ifname" set 4addr on
 			else
@@ -642,30 +644,70 @@ morse_iface_bringup() {
 		;;
 
 		mesh)
-			has_mesh=1
-			morse_iw_interface_add "$phy" "$ifname" mp
+			morse_iw_interface_add "$phy" "$ifname" mp || return 1
 			ifconfig "$ifname" hw ether $macaddr
 			ip link set $ifname up
 		;;
 
 		adhoc)
-			has_adhoc=1
-			morse_iw_interface_add "$phy" "$ifname" adhoc
+			morse_iw_interface_add "$phy" "$ifname" adhoc || return 1
 		;;
 
 		monitor)
-			morse_iw_interface_add "$phy" "$ifname" monitor
+			morse_iw_interface_add "$phy" "$ifname" monitor || return 1
 			ip link set "$ifname" up
 			#we need morse0 to dump the packets from.
 			ip link set morse0 up
-			has_monitor=1
 		;;
 
 		*)
-			morse_iw_interface_add "$phy" "$ifname" managed || return
+			morse_iw_interface_add "$phy" "$ifname" managed || return 1
 			ip link set $ifname up
 		;;
 	esac
+
+	interface_count=$((interface_count + 1))
+}
+
+morse_iface_bringup() {
+	local iface_index=$1
+	json_select config
+	json_get_vars ifname mode ssid wds powersave macaddr enable wpa_psk_file vlan_file
+	set_default wds 0
+
+	[ -z "$ifname" ] && ifname="$(_find_free_ifname wlan)"
+
+	json_add_string ifname "$ifname"
+	json_add_string phy "$phy"
+
+	[ -n "$macaddr" ] || {
+		macaddr="$(morse_generate_mac $phy)"
+		macidx="$(($macidx + 1))"
+	}
+
+	json_add_string macaddr "$macaddr"
+
+	morse_iface_create
+	case "$?" in
+		2)
+			echo "wifi-iface $iface_index mode=$mode ignored; at most two interfaces are supported"
+			;;
+		3)
+			echo "wifi-iface $iface_index mode=$mode ignored; can't coexist interface with mode=$interface_first"
+			;;
+		0)
+			# This helps us track if we've managed to successfully create
+			# the interface. This means subsequent steps will ignore this interface
+			# if _created is not set.
+			json_add_string _created 1
+			append ifnames_$mode "$ifname"
+			;;
+		*)
+			echo "wifi-iface $iface_index mode=$mode could not be created"
+			;;
+	esac
+
+	json_select ..
 
 }
 
@@ -708,105 +750,72 @@ morse_service_restart() {
 }
 
 morse_setup_ap() {
-	local iface_index=$1
+	local hostapd_conf_file=$1
+	local iface_index=$2
 	json_select config
-	json_get_vars ifname phy mode ssid wds powersave macaddr enable wpa_psk_file vlan_file multi_ap key encryption
+	json_get_vars _created ifname phy macaddr vif_txpower
 	json_select ..
 
-	# guard against more than one hostapd_s1g instance
-	if [ -n "$already_have_hostapd_running" ]; then
-		echo "Can't have more than one hostapd_s1g running."
+	if [ "$_created" != 1 ]; then
+		# This wifi-iface failed earlier in morse_iface_bringup.
 		return
 	fi
 
-	local hostapd_ctrl="${hostapd_ctrl:-/var/run/hostapd/$ifname}"
-	local type=interface
+	[ -n "$vif_txpower" ] && iw dev "$ifname" set txpower fixed "${vif_txpower%%.*}00"
 
-	morse_hostapd_add_bss "$phy" "$ifname" "$macaddr" "$type"
-
-	json_get_vars mode
-	json_get_var vif_txpower
-
-	uci -q -P /var/state set wireless._${phy}.aplist="${ifname}"
-
-	/usr/sbin/hostapd_s1g -t -B -s ${hostapd_conf_file}
-	# prplmesh is looking for /var/morse/hostapd_s1g_multiap.conf as hostapd conf file.
-	# So, we add a symlink from the actual conf file for prplmesh.
-	if [ "$multi_ap" -gt 0 ]; then
-		mkdir -p /var/morse
-		rm /var/morse/hostapd_s1g_multiap.conf
-		ln -s ${hostapd_conf_file} /var/morse/hostapd_s1g_multiap.conf
+	if [ "$iface_index" != 0 ] && [ "$interface_first" = ap ]; then
+		morse_hostapd_add_bss "$hostapd_conf_file" "$phy" "$ifname" "$macaddr" secondary
+	else
+		morse_hostapd_add_bss "$hostapd_conf_file" "$phy" "$ifname" "$macaddr" primary
 	fi
-
-	#mark that we have already started the hostapd_s1g
-	already_have_hostapd_running=1
-
-	[ -z "$vif_txpower" ] || iw dev "$ifname" set txpower fixed "${vif_txpower%%.*}00"
 
 	wireless_add_vif "$iface_index" "$ifname"
 }
 
-morse_set_ap_regulatory() {
-	halow_bw=
-	center_freq=
-	if [ -n "$has_ap" ] ||  [ -n "$has_mesh" ] || [ -n "$has_adhoc" ]; then
-		_get_regulatory "$mode" "$country" "$channel" "$op_class"
-		if [ $? -ne 0 ]; then
-			echo "Couldn't find reg for $mode in $country with ch=$channel op=$op_class" >&2
-			return
-		fi
+morse_run_hostapd() {
+	/usr/sbin/hostapd_s1g -t -B -s ${hostapd_conf_files}
 
-		#add ap radio settings to the ap interface configs to be used when bringing hostapd_s1g up.
-		json_select config
-		json_add_int bw "$halow_bw"
-		json_add_string freq "$center_freq"
-		json_add_string op_class "$op_class"
-		json_select ..
+	# prplmesh is looking for /var/morse/hostapd_s1g_multiap.conf as hostapd conf file.
+	# So, we add a symlink from the actual conf file for prplmesh.
+	if [ "$multi_ap" -gt 0 ]; then
+		mkdir -p /var/morse
+		ln -sf "${hostapd_conf_files%% *}" /var/morse/hostapd_s1g_multiap.conf
 	fi
 }
 
 morse_setup_sta() {
 	local iface_index=$1
 
-	# guard against more than one wpa_supplicant_s1g instance
-	if [ -n "$already_have_wpa_supplicant_running" ]; then
-		echo "Can't have more than one wpa_supplicant_s1g running."
+	json_select config
+	json_get_vars _created ifname
+
+	if [ "$_created" != 1 ]; then
+		# This wifi-iface failed earlier in morse_iface_bringup.
 		return
 	fi
 
-	json_select config
-	json_get_vars ifname
-
-	morse_wpa_supplicant_add $ifname 1 $matter_enable|| failed=1
-	#mark that we have already started the wpa_supp_s1g
-	already_have_wpa_supplicant_running=1
+	morse_wpa_supplicant_add $ifname 1 $matter_enable || failed=1
 	json_select ..
 
 	[ -n "$failed" ] || wireless_add_vif "$iface_index" "$ifname"
-	uci -q -P /var/state set wireless._${phy}.splist="${ifname}"
-	uci -q -P /var/state set wireless._${phy}.umlist="${ifname}"
 }
 
 morse_setup_mesh() {
 	local iface_index=$1
 
-	# guard against more than one wpa_supplicant_s1g instance
-	if [ -n "$already_have_wpa_supplicant_running" ]; then
-		echo "Can't have more than one wpa_supplicant_s1g running."
+	json_select config
+	json_get_vars _created ifname
+
+	if [ "$_created" != 1 ]; then
+		# This wifi-iface failed earlier in morse_iface_bringup.
+		json_select ..
 		return
 	fi
 
-	json_select config
-	json_get_vars ifname
-
 	morse_wpa_supplicant_add $ifname 1 0 || failed=1
-	#mark that we have already started the wpa_supp_s1g
-	already_have_wpa_supplicant_running=1
 	json_select ..
 
 	[ -n "$failed" ] || wireless_add_vif "$iface_index" "$ifname"
-	uci -q -P /var/state set wireless._${phy}.splist="${ifname}"
-	uci -q -P /var/state set wireless._${phy}.umlist="${ifname}"
 
 	#Set mesh11sd to enabled
 	uci set mesh11sd.setup.enabled='1'
@@ -818,27 +827,35 @@ morse_setup_adhoc() {
 	local iface_index=$1
 
 	wireless_vif_parse_encryption
-	# guard against more than one wpa_supplicant_s1g instance
-	if [ -n "$already_have_wpa_supplicant_running" ]; then
-		echo "Can't have more than one wpa_supplicant_s1g running."
+
+	json_select config
+	json_get_vars _created ifname
+
+	if [ "$_created" != 1 ]; then
+		# This wifi-iface failed earlier in morse_iface_bringup.
+		json_select ..
 		return
 	fi
 
-	json_select config
-	json_get_vars ifname
-
 	morse_wpa_supplicant_add $ifname 1 0 || failed=1
-	#mark that we have already started the wpa_supp_s1g
-	already_have_wpa_supplicant_running=1
+
 	json_select ..
 
 	[ -n "$failed" ] || wireless_add_vif "$iface_index" "$ifname"
-	uci -q -P /var/state set wireless._${phy}.splist="${ifname}"
-	uci -q -P /var/state set wireless._${phy}.umlist="${ifname}"
 }
 
 morse_setup_monitor() {
 	local iface_index=$1
+
+	json_select config
+	json_get_vars _created ifname
+	json_select ..
+
+	if [ "$_created" != 1 ]; then
+		# This wifi-iface failed earlier in morse_iface_bringup.
+		return
+	fi
+
 	halow_bw=
 	center_freq=
 	_get_regulatory NA "$country" "$channel" "$op_class"
@@ -850,8 +867,23 @@ morse_setup_monitor() {
 	center_freq=$(echo "$center_freq * 1000" | bc | awk '{printf "%g\n", $0}')
 	morse_cli -i $ifname channel -c $center_freq ${halow_bw:+-o $halow_bw} ${s1g_prim_chwidth:+-p $(( s1g_prim_chwidth + 1 ))} ${s1g_prim_1mhz_chan_index:+-n $s1g_prim_1mhz_chan_index}
 
-	[ -n "$failed" ] || wireless_add_vif "$iface_index" "$ifname"
-	uci -q -P /var/state set wireless._${phy}.umlist="${ifname}"
+	wireless_add_vif "$iface_index" "$ifname"
+}
+
+morse_setup_none() {
+	local iface_index=$1
+
+	json_select config
+	json_get_vars _created ifname
+	json_select ..
+
+	if [ "$_created" != 1 ]; then
+		# This wifi-iface failed earlier in morse_iface_bringup.
+		return
+	fi
+
+	wireless_add_vif "$iface_index" "$ifname"
+
 }
 
 morse_vap_cleanup() {
@@ -883,25 +915,33 @@ morse_interface_cleanup() {
 #
 #################################################
 
-morse_setup_s1g_device_defaults() {
-	json_select config
-	json_get_vars s1g_prim_1mhz_chan_index s1g_prim_chwidth bw
-
-	if [ -n "$bw" ] && [ -n "$s1g_prim_chwidth" ] && [ "$s1g_prim_chwidth" -gt "$bw" ]; then
-		s1g_prim_chwidth=
-		echo "s1g_prim_chwidth incorrectly set for bw=$bw, using default"
+morse_set_chan_info() {
+	halow_bw=
+	center_freq=
+	_get_regulatory "$mode" "$country" "$channel" "$op_class"
+	if [ $? -ne 0 ]; then
+		echo "Couldn't find reg for $mode in $country with ch=$channel op=$op_class" >&2
+		return
 	fi
 
-	if [ -n "$bw" ] && [ -n "$s1g_prim_1mhz_chan_index" ] && [ "$s1g_prim_1mhz_chan_index" -ge "$bw" ]; then
+	json_select config
+	json_get_vars s1g_prim_1mhz_chan_index s1g_prim_chwidth
+
+	if [ -n "$halow_bw" ] && [ -n "$s1g_prim_chwidth" ] && [ "$s1g_prim_chwidth" -gt "$halow_bw" ]; then
+		s1g_prim_chwidth=
+		echo "s1g_prim_chwidth incorrectly set for bw=$halow_bw, using default"
+	fi
+
+	if [ -n "$halow_bw" ] && [ -n "$s1g_prim_1mhz_chan_index" ] && [ "$s1g_prim_1mhz_chan_index" -ge "$halow_bw" ]; then
 		s1g_prim_1mhz_chan_index=
-		echo "s1g_prim_1mhz_chan_index incorrectly set for bw=$bw, using default"
+		echo "s1g_prim_1mhz_chan_index incorrectly set for bw=$halow_bw, using default"
 	fi
 
 	#If bw config is empty the chwidth and chanindex are set to defaults.
 	#In case of STA, where bw config is empty these configs are omitted and not configured to wpa_supplicant
 
 	if [ -z "$s1g_prim_chwidth" ]; then
-		if [ ! -z $bw ] && ([ $bw -eq 4 ] || [ $bw -eq 8 ]); then
+		if [ ! -z $halow_bw ] && ([ $halow_bw -eq 4 ] || [ $halow_bw -eq 8 ]); then
 			s1g_prim_chwidth=2
 		else
 			s1g_prim_chwidth=1
@@ -910,9 +950,9 @@ morse_setup_s1g_device_defaults() {
 
 	set_default s1g_prim_1mhz_chan_index auto
 	if [ "$s1g_prim_1mhz_chan_index" = "auto" ]; then
-		if [ ! -z $bw ] && [ $bw -eq 8 ]; then
+		if [ ! -z $halow_bw ] && [ $halow_bw -eq 8 ]; then
 			s1g_prim_1mhz_chan_index=3
-		elif [ ! -z $bw ] && [ $bw -eq 4 ]; then
+		elif [ ! -z $halow_bw ] && [ $halow_bw -eq 4 ]; then
 			if [ "$s1g_prim_chwidth" -eq 2 ]; then
 				s1g_prim_1mhz_chan_index=2
 			else
@@ -925,6 +965,8 @@ morse_setup_s1g_device_defaults() {
 
 	s1g_prim_chwidth=$(( $s1g_prim_chwidth - 1 ))
 
+	json_add_string freq "$center_freq"
+	json_add_string op_class "$op_class"
 	json_add_string s1g_prim_1mhz_chan_index "$s1g_prim_1mhz_chan_index"
 	json_add_int s1g_prim_chwidth "$s1g_prim_chwidth"
 
@@ -941,10 +983,11 @@ morse_setup_s1g_device_defaults() {
 
 morse_hostapd_conf_setup() {
 	local phy=$1
+	local hostapd_conf_file=$2
 	json_select config
 	json_get_vars noscan
 	json_get_vars s1g_prim_chwidth s1g_prim_1mhz_chan_index op_class dtim_period
-	json_get_vars bw freq
+	json_get_vars freq
 	json_get_values channel_list channels tx_burst
 
 	if json_is_a s1g_capab array
@@ -1001,23 +1044,30 @@ EOF
 }
 
 
-morse_hostapd_add_bss(){
-	local _phy="$1"
-	local _ifname="$2"
-	local _macaddr="$3"
-	local _type="$4"
+morse_hostapd_add_bss() {
+	local _hostapd_conf_file="$1"
+	local _phy="$2"
+	local _ifname="$3"
+	local _macaddr="$4"
+	local _role="$5"
 
 	hostapd_cfg=
-	append hostapd_cfg "# Interface $_ifname "
-	append hostapd_cfg "$_type=$_ifname" "$N"
+	append hostapd_cfg "interface=$_ifname" "$N"
 
 	json_select config
-	morse_override_hostapd_set_bss_options hostapd_cfg "$_phy" "$vif" || return 1
+
+	morse_override_hostapd_set_bss_options hostapd_cfg "$_phy" "$vif" || {
+		json_select ..
+		return 1
+	}
 	json_get_vars wds wds_bridge sae_pwe dtim_period max_listen_int start_disabled dpp_configurator_connectivity
 
-
 	raw_block=
-	json_for_each_item morse_hostapd_add_raw raws
+	if [ "$role" = primary ]; then
+		# RAWs are not supported for non-primary APs.
+		json_for_each_item morse_hostapd_add_raw raws
+	fi
+
 	json_select ..
 
 	set_default wds 0
@@ -1035,7 +1085,8 @@ morse_hostapd_add_bss(){
 
 	[ "$start_disabled" -eq 1 ] && append hostapd_cfg "start_disabled=1" "$N"
 
-		cat >> /var/run/hostapd-$_phy.conf <<EOF
+	local hostapd_ifname_conf_file=/var/run/hostapd-$_phy-$_ifname.conf
+	cat "$hostapd_conf_file" - > "$hostapd_ifname_conf_file" <<EOF
 $hostapd_cfg
 bssid=$_macaddr
 ${dtim_period:+dtim_period=$dtim_period}
@@ -1044,6 +1095,8 @@ ${sae_pwe:+sae_pwe=$sae_pwe}
 ${dpp_configurator_connectivity:+dpp_configurator_connectivity=$dpp_configurator_connectivity}
 $raw_block
 EOF
+
+	append hostapd_conf_files "$hostapd_ifname_conf_file"
 }
 
 morse_hostapd_add_raw(){

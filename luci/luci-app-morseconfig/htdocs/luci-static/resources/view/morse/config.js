@@ -433,8 +433,8 @@ return view.extend({
 				throw new TypeError(_('Morse devices can currently have at most two enabled interfaces.'));
 			} else if (modes.length === 2) {
 				modes.sort();
-				if (!(modes[0] === 'ap' && ['mesh', 'sta'].includes(modes[1]))) {
-					throw new TypeError(_('Morse devices with multiple interfaces can only support AP+Mesh or AP+Client.'));
+				if (!(modes[0] === 'ap' && ['mesh', 'sta', 'ap'].includes(modes[1]))) {
+					throw new TypeError(_('Morse devices with multiple interfaces can only support AP+AP, AP+Mesh or AP+Client.'));
 				}
 			}
 		}

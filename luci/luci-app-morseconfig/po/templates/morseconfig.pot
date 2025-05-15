@@ -466,7 +466,8 @@ msgstr ""
 
 #: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:437
 msgid ""
-"Morse devices with multiple interfaces can only support AP+Mesh or AP+Client."
+"Morse devices with multiple interfaces can only support AP+AP, AP+Mesh or "
+"AP+Client."
 msgstr ""
 
 #: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:894
