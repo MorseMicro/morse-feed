@@ -232,14 +232,12 @@ function hasMultipleDevices(networkSectionId) {
 
 function forceBridge(networkSectionId, bridgeName, bridgeMAC = null) {
 	const currentDevice = uci.get('network', networkSectionId, 'device');
-	let bridge = uci.sections('network', 'device').find(s => s.type == 'bridge' && s.name == bridgeName);
+	let bridge = uci.sections('network', 'device').find(s => s.type == 'bridge' && s.name == bridgeName)?.name;
 	// Create a bridge device with the bridgeName if it doesn't exist
 	if (!bridge) {
 		bridge = uci.add('network', 'device');
 		uci.set('network', bridge, 'name', bridgeName);
 		uci.set('network', bridge, 'type', 'bridge');
-		if (bridgeMAC)
-			uci.set('network', bridge, 'macaddr', bridgeMAC);
 	} else {
 		// If bridge is mapped to any other network unset it
 		for (const network of uci.sections('network', 'interface')) {
@@ -247,20 +245,26 @@ function forceBridge(networkSectionId, bridgeName, bridgeMAC = null) {
 				uci.unset('network', network['.name'], 'device');
 			}
 		}
-		if (bridgeMAC) {
-			uci.set('network', bridge['.name'], 'macaddr', bridgeMAC);
-		}
 	}
-	// Do nothing if the network is already on the expected bridge
+
+	if (bridgeMAC) {
+		uci.set('network', bridge, 'macaddr', bridgeMAC);
+	}
+
+	// If our bridge has changed, move any existing ports/devices
+	// (and remove them from an existing bridge).
 	if (currentDevice != bridgeName) {
-		// Remove any bridge attached to the network
 		const existingBridge = uci.sections('network', 'device').find(s => s.type == 'bridge' && s.name == currentDevice);
+		const ports = [];
 		if (existingBridge) {
-			uci.unset('network', networkSectionId, 'device');
-			if (existingBridge.ports && existingBridge.ports.length > 0) {
-				uci.set('network', bridge, 'ports', existingBridge.ports);
-			}
+			ports.push(...L.toArray(existingBridge.ports));
 			uci.unset('network', existingBridge, 'ports');
+		} else if (currentDevice) {
+			ports.push(currentDevice);
+		}
+
+		if (ports.length > 0) {
+			uci.set('network', bridge, 'ports', ports);
 		}
 
 		uci.set('network', networkSectionId, 'device', bridgeName);
