@@ -333,7 +333,7 @@ function validateBridge(networkSectionId, wifiDevices) {
 		const formatWifiDeviceSummary = wifiIface => BRIDGED_WIFI_SUMMARY_TEMPLATE.format(wifiDevices[wifiIface.device]?.get('type') ?? 'unknown', wifiIface.mode, wifiIface.ssid);
 
 		const otherBridgedDevices = [
-			...bridge.ports.map(port => BRIDGED_PORT_SUMMARY_TEMPLATE.format(port)),
+			...L.toArray(bridge.ports).map(port => BRIDGED_PORT_SUMMARY_TEMPLATE.format(port)),
 			...wifiIfaces.filter(wifiIface => !isNonWDSClient(wifiIface)).map(formatWifiDeviceSummary),
 		];
 		throw new TypeError(BRIDGED_NON_WDS_CLIENT_ERROR_TEMPLATE.format(
