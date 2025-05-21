@@ -4,7 +4,7 @@
 'require ui';
 
 // WARNING: Every time the offline user guide is updated, this link must be updated as well.
-const S3_BUCKET_USER_GUIDE_URL = 'https://repo.apps.morsemicro.com/openwrt/resources/UG+MM6108_MM8108+Eval+Kit+User+Guide+2.8+-+v22.pdf';
+const S3_BUCKET_USER_GUIDE_URL = 'https://repo.apps.morsemicro.com/openwrt/resources/UG+MM6108_MM8108+Eval+Kit+User+Guide+2.8+-+v23.pdf';
 
 return view.extend({
 	handleSaveApply: null,
@@ -22,7 +22,7 @@ return view.extend({
 		offlineBanner.style.zIndex = 100;
 
 		var ifrm = document.createElement('iframe');
-		ifrm.setAttribute('src', '/UG MM6108 Eval Kit User Guide 2.7 - v21.pdf');
+		ifrm.setAttribute('src', '/UG MM6108_MM8108 Eval Kit User Guide 2.8 - v23.pdf');
 		ifrm.style.overflow = 'hidden';
 		ifrm.style.margin = '0px';
 		ifrm.style.padding = '0px';
