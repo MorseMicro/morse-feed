@@ -127,7 +127,7 @@ return view.extend({
 
 		const wifiApsDisabled = {};
 		for (const wifiDevice of wifiDevices) {
-			wifiApsDisabled[wifiDevice.name] = uci.get('wireless', wifiDevice.apInterfaceName, 'disabled');
+			wifiApsDisabled[wifiDevice.name] = uci.get('wireless', wifiDevice.apSectionName, 'disabled');
 		}
 
 		wizard.resetUci();
@@ -142,8 +142,8 @@ return view.extend({
 
 		// Re-enable any non-HaLow radios if our reset disabled.
 		for (const wifiDevice of wifiDevices) {
-			if (uci.get('wireless', wifiDevice.apInterfaceName)) {
-				uci.set('wireless', wifiDevice.apInterfaceName, 'disabled', wifiApsDisabled[wifiDevice.name]);
+			if (uci.get('wireless', wifiDevice.apSectionName)) {
+				uci.set('wireless', wifiDevice.apSectionName, 'disabled', wifiApsDisabled[wifiDevice.name]);
 			}
 		}
 
@@ -170,7 +170,7 @@ return view.extend({
 				uci.set('system', 'led_80211n_ap', 'dev', 'phy0-ap0');
 				uci.set('wireless', morseInterfaceName, 'encryption', 'sae');
 				for (const wifiDevice of wifiDevices) {
-					uci.set('wireless', wifiDevice.apInterfaceName, 'encryption', 'psk2');
+					uci.set('wireless', wifiDevice.apSectionName, 'encryption', 'psk2');
 				}
 				break;
 			case 'prplmesh':
@@ -205,13 +205,13 @@ return view.extend({
 					}
 					uci.set('system', 'led_80211n_ap', 'dev', `wl${i}-prpl`);
 					uci.set('prplmesh', wifiDevice.name, 'hostap_iface', `wl${i}-prpl`);
-					uci.set('wireless', wifiDevice.apInterfaceName, 'ifname', `wl${i}-prpl`);
-					uci.set('wireless', wifiDevice.apInterfaceName, 'encryption', 'sae-mixed');
-					uci.set('wireless', wifiDevice.apInterfaceName, 'bss_transition', '1');
-					uci.set('wireless', wifiDevice.apInterfaceName, 'multi_ap', '2');
-					uci.set('wireless', wifiDevice.apInterfaceName, 'wps_virtual_push_button', '1');
-					uci.set('wireless', wifiDevice.apInterfaceName, 'wps_independent', '0');
-					uci.set('wireless', wifiDevice.apInterfaceName, 'auth_cache', '0');
+					uci.set('wireless', wifiDevice.apSectionName, 'ifname', `wl${i}-prpl`);
+					uci.set('wireless', wifiDevice.apSectionName, 'encryption', 'sae-mixed');
+					uci.set('wireless', wifiDevice.apSectionName, 'bss_transition', '1');
+					uci.set('wireless', wifiDevice.apSectionName, 'multi_ap', '2');
+					uci.set('wireless', wifiDevice.apSectionName, 'wps_virtual_push_button', '1');
+					uci.set('wireless', wifiDevice.apSectionName, 'wps_independent', '0');
+					uci.set('wireless', wifiDevice.apSectionName, 'auth_cache', '0');
 				});
 
 				break;
@@ -238,7 +238,7 @@ return view.extend({
 				}
 
 				for (const wifiDevice of wifiDevices) {
-					uci.set('wireless', wifiDevice.apInterfaceName, 'encryption', 'psk2');
+					uci.set('wireless', wifiDevice.apSectionName, 'encryption', 'psk2');
 				}
 				uci.set('system', 'led_halow', 'dev', 'wlan0');
 				uci.set('system', 'led_80211n_ap', 'dev', 'phy0-ap0');
@@ -302,18 +302,18 @@ return view.extend({
 
 				// Set WAN devices
 				for (const wifiDevice of wifiDevices) {
-					if (uci.get('wireless', wifiDevice.staInterfaceName)) {
-						uci.unset('wireless', wifiDevice.staInterfaceName, 'disabled');
+					if (uci.get('wireless', wifiDevice.staSectionName)) {
+						uci.unset('wireless', wifiDevice.staSectionName, 'disabled');
 					} else {
-						uci.add('wireless', 'wifi-iface', wifiDevice.staInterfaceName);
+						uci.add('wireless', 'wifi-iface', wifiDevice.staSectionName);
 					}
-					uci.set('wireless', wifiDevice.staInterfaceName, 'device', wifiDevice.name);
-					uci.set('wireless', wifiDevice.staInterfaceName, 'mode', 'sta');
-					uci.set('wireless', wifiDevice.staInterfaceName, 'network', 'wan');
-					if (!uci.get('wireless', wifiDevice.staInterfaceName, 'ssid')) {
+					uci.set('wireless', wifiDevice.staSectionName, 'device', wifiDevice.name);
+					uci.set('wireless', wifiDevice.staSectionName, 'mode', 'sta');
+					uci.set('wireless', wifiDevice.staSectionName, 'network', 'wan');
+					if (!uci.get('wireless', wifiDevice.staSectionName, 'ssid')) {
 						// Without setting something here, if no SSID is specified
 						// wpa_supplicant likes to connect to any open network.
-						uci.set('wireless', wifiDevice.staInterfaceName, 'encryption', 'psk2');
+						uci.set('wireless', wifiDevice.staSectionName, 'encryption', 'psk2');
 					}
 				}
 				break;

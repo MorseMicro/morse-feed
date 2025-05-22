@@ -66,12 +66,20 @@ class WizardWifiDevice {
 		return this['.name'];
 	}
 
-	get apInterfaceName() {
+	get apSectionName() {
 		return `default_${this.name}`;
 	}
 
-	get staInterfaceName() {
+	get staSectionName() {
 		return `sta_${this.name}`;
+	}
+
+	get apInterfaceName() {
+		return `wl${this.name.match(/\d+/)?.[0] || this.name.slice(-3)}-ap`;
+	}
+
+	get staInterfaceName() {
+		return `wl${this.name.match(/\d+/)?.[0] || this.name.slice(-3)}-sta`;
 	}
 
 	getBandName() {
@@ -135,15 +143,15 @@ function readSectionInfo() {
 	}
 
 	for (const wifiDevice of wifiDevices) {
-		if (!uci.get('wireless', wifiDevice.apInterfaceName)) {
-			uci.add('wireless', 'wifi-iface', wifiDevice.apInterfaceName);
-			uci.set('wireless', wifiDevice.apInterfaceName, 'device', wifiDevice.name);
-			uci.set('wireless', wifiDevice.apInterfaceName, 'mode', 'ap');
-			uci.set('wireless', wifiDevice.apInterfaceName, 'encryption', 'psk2');
-			uci.set('wireless', wifiDevice.apInterfaceName, 'ssid', morseuci.getDefaultSSID());
-			uci.set('wireless', wifiDevice.apInterfaceName, 'mesh_id', morseuci.getDefaultSSID());
-			uci.set('wireless', wifiDevice.apInterfaceName, 'key', morseuci.getDefaultWifiKey());
-			uci.set('wireless', wifiDevice.apInterfaceName, 'disabled', '1');
+		if (!uci.get('wireless', wifiDevice.apSectionName)) {
+			uci.add('wireless', 'wifi-iface', wifiDevice.apSectionName);
+			uci.set('wireless', wifiDevice.apSectionName, 'device', wifiDevice.name);
+			uci.set('wireless', wifiDevice.apSectionName, 'mode', 'ap');
+			uci.set('wireless', wifiDevice.apSectionName, 'encryption', 'psk2');
+			uci.set('wireless', wifiDevice.apSectionName, 'ssid', morseuci.getDefaultSSID());
+			uci.set('wireless', wifiDevice.apSectionName, 'mesh_id', morseuci.getDefaultSSID());
+			uci.set('wireless', wifiDevice.apSectionName, 'key', morseuci.getDefaultWifiKey());
+			uci.set('wireless', wifiDevice.apSectionName, 'disabled', '1');
 		}
 	}
 
@@ -151,7 +159,7 @@ function readSectionInfo() {
 		[morseDeviceName]: [morseInterfaceName, morseBackhaulStaName, morseMeshApInterfaceName, morseMeshInterfaceName],
 		...wifiDevices.reduce((acc, wifiDevice) => ({
 			...acc,
-			[wifiDevice.name]: [wifiDevice.apInterfaceName, wifiDevice.staInterfaceName],
+			[wifiDevice.name]: [wifiDevice.apSectionName, wifiDevice.staSectionName],
 		}), {}),
 	};
 
@@ -418,7 +426,7 @@ function resetUci() {
 	// could interfere. We can leave the other interfaces alone after disabling them
 	// (which will allow people to keep non-wizard interfaces around safely).
 	const { morseMeshApInterfaceName, morseInterfaceName, wifiDevices } = readSectionInfo();
-	const knownInterfaces = new Set([morseMeshApInterfaceName, morseInterfaceName, ...wifiDevices.map(s => s.apInterfaceName), ...wifiDevices.map(s => s.staInterfaceName)]);
+	const knownInterfaces = new Set([morseMeshApInterfaceName, morseInterfaceName, ...wifiDevices.map(s => s.apSectionName), ...wifiDevices.map(s => s.staSectionName)]);
 
 	for (const iface of uci.sections('wireless', 'wifi-iface')) {
 		if (knownInterfaces.has(iface['.name'])) {
