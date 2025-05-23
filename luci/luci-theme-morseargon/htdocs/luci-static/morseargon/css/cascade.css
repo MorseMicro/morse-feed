@@ -1587,7 +1587,7 @@ tr > th,
   padding: 1.1em 1.25rem;
 }
 
-[data-page="admin-network-wireless"] .td,
+[data-page="admin-network-wireless"] .cbi-section-table .td,
 .table[width="100%"] > .tr:first-child > .td,
 [data-page="admin-network-diagnostics"] .tr > .td,
 .tr.table-titles > .th,
