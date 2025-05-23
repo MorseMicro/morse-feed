@@ -4428,6 +4428,11 @@ pre.command-output {
   .login-page .login-container footer {
     display: none;
   }
+
+  .hide-sm,
+  .hide-xs {
+    display: none !important;
+  }
 }
 
 @media screen and (width >= 600px) {
