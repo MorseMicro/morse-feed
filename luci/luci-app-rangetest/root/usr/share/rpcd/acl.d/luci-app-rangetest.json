@@ -8,6 +8,7 @@
 					"background_iperf3_server",
 					"background_iperf3_client",
 					"get_background",
+					"terminate_background",
 					"iw_station_dump",
 					"morse_cli_stats_reset",
 					"morse_cli_stats",

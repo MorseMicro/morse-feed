@@ -12,17 +12,18 @@
  * Background commands create process output files in /var/run/rangetest/<id>.
  * 
  * API Schema:
- *  - background_iperf3_server() => { id }
- *  - background_iperf3_client() => { id, udp, reverse }
- *  - background_iperf3_result( id ) => json_blob
- *  - iw_station_dump() => { interface_1: '...', interface_2: '...' }
- *  - morse_cli_stats_reset() => nothing
- *  - morse_cli_stats() => json_blob
- *  - morse_cli_channel() => json_blob
- *  - ip_link() => { interface_1: {...}, interface_2: {...} }
- *  - info() => { rangetest_api_version: '...' }
- *  - remote_device_login( target, password ) => standard ubus response
- *  - remote_device_call( target, rpc_id, session_id, method, args ) => standard ubus response
+ *  - background_iperf3_server() => { id: number }
+ *  - background_iperf3_client() => { id: number, udp: boolean, reverse: boolean }
+ *  - terminate_background(id: number) => null
+ *  - get_background(id: number) => { json_blob: object }
+ *  - iw_station_dump() => { [interface: string]: string }
+ *  - morse_cli_stats_reset() => null
+ *  - morse_cli_stats() => { json_blob: object }
+ *  - morse_cli_channel() => { json_blob: object }
+ *  - ip_link() => { [interface: string]: object }
+ *  - info() => { rangetest_api_version: string }
+ *  - remote_device_login(target: string, password: string) => { ubus_response: object }
+ *  - remote_device_call(target: string, rpc_id: number, session_id: string, method: string, args: object) => { ubus_response: object }
  */
 
 import * as ubus from 'ubus';
@@ -37,7 +38,7 @@ const math = require('math');
 const API_VERSION='1.0.1';
 
 /* This is weird because running the iperf3 server
- * with -s -1 --json will not produce any output
+ * with -s --json will not produce any output
  * until the end, so assume that no iperf test runs > 5 minutes.
  */
 const OUTPUT_DIR_TTL = 300;
@@ -48,6 +49,7 @@ function _get_output_file_paths(id) {
 	return {
 		output: `${BG_OUTPUT_DIR}/${id}/output`,
 		exit_code: `${BG_OUTPUT_DIR}/${id}/exit_code`,
+		pid: `${BG_OUTPUT_DIR}/${id}/pid`,
 	};
 }
 
@@ -128,14 +130,13 @@ function _clean_output_directories() {
  * 
  * All output should be redirected to /var/run/rangetest/<id>/output using 
  * the available utilities of the command being called i.e. iperf3 has a
- * --logfile option. This is because the system command is run with an array
- * of arguments instead of a shell command in a string. This runs the binary
- * directly using execv() instead of using a shell and prevents shell injection.
+ * --logfile option.
  * 
- * @param command an array of strings to be passed safely to the system command
+ * @param executable the executable to be run
+ * @param args an array of strings to be passed safely to the executable
  * @param id a custom ID to be used for the background command
  */
-function _execute_background_command(command, id) {
+function _execute_background_command(executable, args, id) {
 	/* Create the range test output directory if it doesn't exist. */
 	if (!fs.access(BG_OUTPUT_DIR, 'f') && fs.mkdir(BG_OUTPUT_DIR) === null) {
 		die(`Unable to create directory ${BG_OUTPUT_DIR} (${fs.error()}).`);
@@ -156,18 +157,24 @@ function _execute_background_command(command, id) {
 		}
 	}
 
-	const proc = uloop.task((pipe) => {
-		/* Has cover-all 10 minute timeout for hanging
-		 * iperf3 servers. Since the frontend knows the expected 
-		 * time each iperf test will take this timeout could be adjusted
-		 * to a more appropriate per-test value in future.
-		 */
-		const exit_code = system(command, 6000000);
+	const proc = uloop.process(executable, args, null, (exit_code) => {
 		fs.writefile(output_file_paths.exit_code, exit_code);
 	});
 
+
 	if (!proc) {
-		die(`Unable to execute command ${command} (${uloop.error()}).`); 
+		die(`Unable to run ${executable} ${args} (${uloop.error()}).`); 
+	}
+
+	/* Write the PID of the process to the output file */
+	const pid = proc.pid();
+
+	if (pid === null) {
+		die(`Unable to get PID of process ${executable} ${args} (${uloop.error()}).`);
+	}
+
+	if (fs.writefile(output_file_paths.pid, pid) === null) {
+		die(`Unable to write PID to file ${output_file_paths.pid} (${fs.error()}).`);
 	}
 }
 
@@ -195,13 +202,15 @@ function background_iperf3_server(req) {
 		_clean_output_directories();
 	} catch (error) {}
 
-	const command = ['iperf3', '-s', '-1', '--json'];
+	const executable = 'iperf3';
+	const args = ['-s', '--json'];
+
 	const id = math.rand();
 	const output_file_paths = _get_output_file_paths(id);
-	push(command, '--logfile', output_file_paths.output);
+	push(args, '--logfile', output_file_paths.output);
 
 	try {
-		_execute_background_command(command, id);
+		_execute_background_command(executable, args, id);
 		return { id: id };
 	} catch (error) {
 		return _error_response(ubus.STATUS_SYSTEM_ERROR, 'Unable to start iPerf3 server. Please try again.', error);
@@ -234,23 +243,24 @@ function background_iperf3_client(req) {
 		_clean_output_directories();
 	} catch (error) {}
 	
-	const command = ['iperf3', '-c', target, '-t', time, '-O', IPERF_OMIT_TIME, '--json'];
+	const executable = 'iperf3';
+	const args = ['-c', target, '-t', time, '-O', IPERF_OMIT_TIME, '--json'];
 	if (req.args.udp) {
-		push(command, '-u', '-b', '40M/30');
+		push(args, '-u', '-b', '40M/30');
 	} else {
-		push(command, '-Z');
+		push(args, '-Z');
 	}
 
 	if (req.args.reverse) {
-		push(command, '-R');
+		push(args, '-R');
 	}
 
 	const id = math.rand();
 	const output_file_paths = _get_output_file_paths(id);
-	push(command, '--logfile', output_file_paths.output);
+	push(args, '--logfile', output_file_paths.output);
 
 	try {
-		_execute_background_command(command, id);
+		_execute_background_command(executable, args, id);
 		return { id: id };
 	} catch (error) {
 		return _error_response(
@@ -276,6 +286,11 @@ function get_background(req) {
 	const output_data = {};
 
 	for (file in output_file_paths) {
+		/* Obscure the PID */
+		if (match(file, /\/pid/)) {
+			continue;
+		}
+
 		if (fs.access(output_file_paths[file], 'f') === null) {
 			return _error_response(
 				ubus.STATUS_NOT_FOUND, 
@@ -315,6 +330,62 @@ function get_background(req) {
 		);
 	}
 }
+
+/**
+ * Terminate a background command based on the ID.
+ * 
+ * This is mainly used to kill the iPerf3 server at the end of a test.
+ */
+function terminate_background(req) {
+	const id = req.args.id;
+	
+	/* Check that the output directory exists */
+	if (fs.access(`${BG_OUTPUT_DIR}/${id}`, 'f') === null) {
+		return _error_response(
+			ubus.STATUS_NOT_FOUND,
+			'Unable to find test output. Please try again. If the problem persists, consider rebooting the device.',
+			`Unable to access ${BG_OUTPUT_DIR}/${id} (${fs.error()})`
+		);
+	}
+
+	/* Check that the PID file exists */
+	const output_file_paths = _get_output_file_paths(id);
+	if (fs.access(output_file_paths.pid, 'f') === null) {
+		return _error_response(
+			ubus.STATUS_NOT_FOUND,
+			'Unable to find test output. Please try again. If the problem persists, consider rebooting the device.',
+			`Unable to access ${output_file_paths.pid} (${fs.error()})`
+		);
+	}
+
+	/* Check that the PID file contains a PID */
+	const pid = fs.readfile(output_file_paths.pid);
+	if (pid === null) {
+		return _error_response(
+			ubus.STATUS_NOT_FOUND,
+			'Unable to find test process. Please try again. If the problem persists, consider rebooting the device.',
+			`Unable to read ${output_file_paths.pid} (${fs.error()})`
+		);
+	}
+
+	/* Kill the process */
+	const exit_code = system(['kill', '-15', pid], 1000);
+	if (exit_code != 0 && exit_code != 1) {
+		return _error_response(
+			ubus.STATUS_SYSTEM_ERROR,
+			'Unable to terminate test process. Please try again. If the problem persists, consider rebooting the device.',
+			`Unable to kill ${pid} (${exit_code})`
+		);
+	}
+
+	/* Delete the output directory */
+	try {
+		_delete_output_directory(id);
+	} catch (error) {}
+
+	return {};
+}
+	
 
 /**
  * Run a command and return the output.
@@ -469,7 +540,6 @@ function morse_cli_stats(req) {
 			}
 		}
 	}
-
 
 	return _error_response(ubus.STATUS_NO_DATA, 'No valid statistics found.');
 }
@@ -703,6 +773,12 @@ return {
 		},
 		get_background: {
 			call: get_background,
+			args: {
+				id: 123,
+			},
+		},
+		terminate_background: {
+			call: terminate_background,
 			args: {
 				id: 123,
 			},

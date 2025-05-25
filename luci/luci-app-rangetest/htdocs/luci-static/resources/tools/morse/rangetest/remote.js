@@ -112,6 +112,10 @@ var RemoteRpcClass = rpc.constructor.extend({
 		return this.__call('get_background', { id: id });
 	},
 
+	terminateBackground: async function (id) {
+		return this.__call('terminate_background', { id: id });
+	},
+
 	iwStationDump: async function () {
 		return this.__call('iw_station_dump', {});
 	},

@@ -281,17 +281,14 @@ const deviceLocationGeoJsonTemplate = {
 	},
 };
 
-const iperf3ResultsTemplate = {
-	iperf3: {
-		udp: { receive: {}, send: {} },
-		tcp: { receive: {}, send: {} },
-	},
-};
-
 const testResultsTemplate = {
 	status: '',
 	id: 0,
 	timestamp: '',
+	iperf3: {
+		udp: { receive: {}, send: {} },
+		tcp: { receive: {}, send: {} },
+	},
 	local: {
 		morseCliChannel: {},
 		morseCliStats: {},
@@ -299,14 +296,12 @@ const testResultsTemplate = {
 		ipLink: {},
 		iwinfoInfo: {},
 		connectedInterface: '',
-		...iperf3ResultsTemplate,
 	},
 	remote: {
 		morseCliStats: {},
 		iwStationDump: {},
 		ipLink: {},
 		connectedInterface: '',
-		...iperf3ResultsTemplate,
 	},
 };
 
@@ -466,21 +461,20 @@ async function runRangetest(cancelPromise, configuration, testProgressBar, updat
 	try {
 		await setupStatistics(testResults, remoteRangetestDevice);
 
+		const iperf3RemoteServerResponse = await remoteRangetestDevice.backgroundIperf3Server();
 		for (const protocol of protocols) {
 			for (const direction of directions) {
 				testProgressBar.text = `${protocol.toUpperCase()} ${direction}`;
 				testResults.status = `In Progress (${protocol.toUpperCase()} ${direction})`;
 				updateResultsSummaryRow(testResults);
 
-				const iperf3RemoteResponse = await remoteRangetestDevice.backgroundIperf3Server();
 				const iperf3LocalResponse = await backgroundIperf3Client(remoteIp, (protocol === 'udp'), (direction === 'receive'), iperf3TestTime);
 				const iperf3LocalResults = await waitForIperf3Results(iperf3LocalResponse.id, iperf3TestTime, iperf3PollInterval, maxSubtestIncrements, percentPerIncrement, testProgressBar, cancelPromise);
-				const iperf3RemoteResults = await remoteRangetestDevice.getBackground(iperf3RemoteResponse.id);
 
-				testResults['local']['iperf3'][protocol][direction]['end'] = iperf3LocalResults?.end;
-				testResults['remote']['iperf3'][protocol][direction]['end'] = iperf3RemoteResults?.end;
+				testResults['iperf3'][protocol][direction]['end'] = iperf3LocalResults?.end;
 			}
 		}
+		await remoteRangetestDevice.terminateBackground(iperf3RemoteServerResponse.id);
 
 		await collectStatistics(testResults, remoteRangetestDevice);
 
@@ -737,8 +731,6 @@ function getTestLocationGeoJson(data) {
 }
 
 function parseResultsSummaryRowData(data) {
-	const { local, remote } = data;
-
 	const bandwidth = data.local.morseCliChannel?.channel_op_bw;
 	const channel = data.local.iwinfoInfo?.channel
 		? `${data.local.iwinfoInfo.channel} (${data.local.iwinfoInfo.frequency / 1e3} MHz)`
@@ -751,13 +743,12 @@ function parseResultsSummaryRowData(data) {
 		return undefined;
 	};
 
-	// Only display the receiving end of the iperf for data.
-	// Recall that in 'receive' mode, iperf runs with the reverse
-	// flag (-R) where the client (the local device) receives traffic.
-	const udpThroughputSend = parseThroughputValue(remote.iperf3.udp.send.end?.sum_received?.bits_per_second);
-	const udpThroughputReceive = parseThroughputValue(local.iperf3.udp.receive.end?.sum_sent?.bits_per_second);
-	const tcpThroughputSend = parseThroughputValue(remote.iperf3.tcp.send.end?.sum_received?.bits_per_second);
-	const tcpThroughputReceive = parseThroughputValue(local.iperf3.tcp.receive.end?.sum_sent?.bits_per_second);
+	// When using -R, the client's --json output will still contain the server's
+	// sum_received value, so no need to retrieve the server's iPerf3 --json output.
+	const udpThroughputSend = parseThroughputValue(data.iperf3.udp.send.end?.sum_received?.bits_per_second);
+	const udpThroughputReceive = parseThroughputValue(data.iperf3.udp.receive.end?.sum_received?.bits_per_second);
+	const tcpThroughputSend = parseThroughputValue(data.iperf3.tcp.send.end?.sum_received?.bits_per_second);
+	const tcpThroughputReceive = parseThroughputValue(data.iperf3.tcp.receive.end?.sum_received?.bits_per_second);
 
 	const localSignalStrength = data.local.iwinfoInfo?.signal;
 	const remoteDeviceIpAddress = data.configuration.basic?.remoteDeviceIpAddress;
