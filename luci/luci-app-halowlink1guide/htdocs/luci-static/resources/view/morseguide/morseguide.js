@@ -4,7 +4,7 @@
 'require ui';
 
 // WARNING: Every time the offline user guide is updated, this link must be updated as well.
-const S3_BUCKET_USER_GUIDE_URL = 'https://repo.apps.morsemicro.com/openwrt/resources/HaLowLink-1-User-Guide-2.7.5.pdf';
+const S3_BUCKET_USER_GUIDE_URL = 'https://repo.apps.morsemicro.com/openwrt/resources/HaLowLink+1+-+User+Guide+-+2.7.6.pdf';
 
 return view.extend({
 	handleSaveApply: null,
@@ -22,7 +22,7 @@ return view.extend({
 		offlineBanner.style.zIndex = 100;
 
 		var ifrm = document.createElement('iframe');
-		ifrm.setAttribute('src', '/halowlink1-userguide-2.7.5.pdf');
+		ifrm.setAttribute('src', '/halowlink1-userguide-2.7.6.pdf');
 		ifrm.style.overflow = 'hidden';
 		ifrm.style.margin = '0px';
 		ifrm.style.padding = '0px';
