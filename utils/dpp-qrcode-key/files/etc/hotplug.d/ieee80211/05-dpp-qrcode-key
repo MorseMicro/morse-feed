@@ -1,4 +1,4 @@
-#!/bin/sh /etc/rc.common
+#!/bin/sh
 #
 # Copyright (C) 2021-2023 Morse Micro Pty Ltd. All rights reserved.
 #

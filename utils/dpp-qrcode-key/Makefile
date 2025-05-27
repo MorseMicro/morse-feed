@@ -23,7 +23,7 @@ endef
 
 define Package/dpp-qrcode-key/install
 	$(INSTALL_DIR) $(1)/etc/hotplug.d/ieee80211
-	$(CP) ./files/etc/hotplug.d/ieee80211/* $(1)/etc/hotplug.d/ieee80211/
+	$(INSTALL_BIN) ./files/etc/hotplug.d/ieee80211/* $(1)/etc/hotplug.d/ieee80211/
 endef
 
 $(eval $(call BuildPackage,dpp-qrcode-key))
