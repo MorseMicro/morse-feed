@@ -254,6 +254,7 @@ function apply_config (uci, config) {
 		// power is not a concern (powersave causes higher latency).
 		uci.set("wireless", morse_iface, "powersave", "0");
 		uci.set("wireless", morse_iface, "ssid", config.ssid);
+		uci.unset("wireless", morse_iface, "mesh_id");
 		uci.set("wireless", morse_iface, "key", config.key);
 		uci.set("wireless", morse_iface, "encryption", config.encryption);
 		break;
@@ -263,6 +264,7 @@ function apply_config (uci, config) {
 		uci.set("wireless", morse_device, "channel", config.channel);
 		uci.set("wireless", morse_iface, "mode", "mesh");
 		uci.set("wireless", morse_iface, "mesh_id", config.mesh_id);
+		uci.unset("wireless", morse_iface, "ssid");
 		uci.set("wireless", morse_iface, "key", config.key);
 		uci.set("wireless", morse_iface, "encryption", config.encryption);
 		break;
@@ -278,6 +280,7 @@ function apply_config (uci, config) {
 
 		uci.set("wireless", morse_iface, "mode", "ap");
 		uci.set("wireless", morse_iface, "ssid", config.ssid);
+		uci.unset("wireless", morse_iface, "mesh_id");
 		uci.set("wireless", morse_iface, "key", config.key);
 		uci.set("wireless", morse_iface, "encryption", config.encryption);
 		uci.set("wireless", morse_iface, "bss_transition", "1");

@@ -420,6 +420,11 @@ return wizard.AbstractWizardView.extend({
 			thisWizardView.onchangeOptionUpdateDiagram(this);
 		};
 		option.load = sectionId => uci.get('wireless', sectionId, 'mesh_id') || morseuci.getDefaultSSID();
+		option.write = function (sectionId, _value) {
+			this.super('write', arguments);
+			// Clearing out the ssid avoids confusion.
+			uci.unset('wireless', sectionId, 'ssid');
+		};
 		option.forcewrite = true; // Required since our load doesn't reflect uci.
 
 		option = page.option(form.Value, 'key', _('Mesh Passphrase'));

@@ -154,6 +154,15 @@ return view.extend({
 		}
 		uci.set('wireless', morseInterfaceName, 'mode', 'ap');
 		uci.set('wireless', morseInterfaceName, 'wds', '1');
+		if (!uci.get('wireless', morseInterfaceName, 'ssid')) {
+			uci.set('wireless', morseInterfaceName, 'ssid', morseuci.getDefaultSSID());
+		}
+		// Clear mesh_id to avoid confusion.
+		uci.unset('wireless', morseInterfaceName, 'mesh_id');
+
+		if (!uci.get('wireless', morseInterfaceName, 'key')) {
+			uci.set('wireless', morseInterfaceName, 'key', morseuci.getDefaultWifiKey());
+		}
 
 		// lan is the primary local interface unless overridden
 		// by wlan below if the network mode is set to bridged.
@@ -233,6 +242,8 @@ return view.extend({
 				if (!uci.get('wireless', morseMeshInterfaceName, 'mesh_id')) {
 					uci.set('wireless', morseMeshInterfaceName, 'mesh_id', uci.get('wireless', morseInterfaceName, 'ssid'));
 				}
+				// Clear ssid to avoid confusion.
+				uci.unset('wireless', morseMeshInterfaceName, 'ssid');
 				if (!uci.get('wireless', morseMeshInterfaceName, 'key')) {
 					uci.set('wireless', morseMeshInterfaceName, 'key', uci.get('wireless', morseInterfaceName, 'key'));
 				}

@@ -411,6 +411,11 @@ return wizard.AbstractWizardView.extend({
 		option.load = sectionId =>
 			((uci.get('wireless', morseDeviceName, 'mode') || initialMorseMode) === 'ap' && uci.get('wireless', sectionId, 'ssid'))
 			|| morseuci.getDefaultSSID();
+		option.write = function (sectionId, _value) {
+			this.super('write', arguments);
+			// Clearing out the mesh_id avoids confusion.
+			uci.unset('wireless', sectionId, 'mesh_id');
+		};
 		option.forcewrite = true; // Required since our load doesn't reflect uci.
 
 		option = page.option(form.Value, 'key', _('Passphrase'));
@@ -488,6 +493,11 @@ return wizard.AbstractWizardView.extend({
 		};
 		// Only load SSID if STA mode.
 		option.load = sectionId => (uci.get('wireless', morseDeviceName, 'mode') || initialMorseMode) === 'sta' ? uci.get('wireless', sectionId, 'ssid') : '';
+		option.write = function (sectionId, _value) {
+			this.super('write', arguments);
+			// Clearing out the mesh_id avoids confusion.
+			uci.unset('wireless', sectionId, 'mesh_id');
+		};
 
 		option = page.option(form.Value, 'sta_key', _('Passphrase'));
 		option.depends({ mode: 'sta', dpp: '0' });

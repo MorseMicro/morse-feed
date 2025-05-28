@@ -135,6 +135,9 @@ return wizard.AbstractWizardView.extend({
 			uci.set('wireless', morseBackhaulStaName, 'multi_ap', '1');
 			uci.set('wireless', morseBackhaulStaName, 'wds', '1');
 			uci.set('wireless', morseBackhaulStaName, 'ifname', 'wlan-prpl-1');
+
+			// Remove mesh_id from default interface to avoid confusion.
+			uci.unset('wireless', morseInterfaceName, 'mesh_id');
 		};
 
 		const setWpsConfig = () => {

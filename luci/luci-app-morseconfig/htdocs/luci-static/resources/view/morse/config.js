@@ -772,9 +772,11 @@ return view.extend({
 			switch (mode) {
 				case 'mesh':
 					uci.set('wireless', sectionId, 'mesh_id', value);
+					uci.unset('wireless', sectionId, 'ssid');
 					break;
 				default:
 					uci.set('wireless', sectionId, 'ssid', value);
+					uci.unset('wireless', sectionId, 'mesh_id');
 					break;
 			}
 		};
