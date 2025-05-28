@@ -6,12 +6,13 @@
 
 /* global Leaflet */
 
-/* globals view ui form rpc fs remoteDevice progressBar errorUtils */
+/* globals view ui form rpc fs network remoteDevice progressBar errorUtils */
 'require view';
 'require ui';
 'require form';
 'require rpc';
 'require fs';
+'require network';
 'require tools.morse.rangetest.remote as remoteDevice';
 'require tools.morse.rangetest.progressbar as progressBar';
 'require tools.morse.rangetest.errorutils as errorUtils';
@@ -181,6 +182,21 @@ function parseTxtRecord(deviceInfo) {
 	return txtRecord;
 }
 
+/**
+ * Retrieve all the local device's unique IP addresses.
+ */
+async function getLocalDeviceIpAddrs() {
+	const localDeviceIpAddrs = new Set();
+	const networks = await network.getNetworks();
+
+	for (const network of networks) {
+		const ipAddrs = network.getIPAddrs().map(ipAddr => ipAddr.split('/')[0]);
+		ipAddrs.forEach(ipAddr => localDeviceIpAddrs.add(ipAddr));
+	}
+
+	return localDeviceIpAddrs;
+}
+
 async function fetchRemoteDeviceInfo(ipv4Address) {
 	const deviceInfoRequest = (async () => {
 		try {
@@ -239,13 +255,14 @@ async function updateKnownRemoteDevices() {
 		return;
 	}
 
+	const localDeviceIpAddrs = await getLocalDeviceIpAddrs();
 	let deviceInfoRequests = [];
 	for (const [hostname, deviceInfo] of Object.entries(browseResults)) {
 		const txtRecord = parseTxtRecord(deviceInfo);
 
 		for (const ipv4Address of deviceInfo.ipv4) {
-			// Ignore the HaLowLink 1 management address as it always fails.
-			if (ipv4Address === '10.22.121.111') {
+			// Filter all IP addresses which could refer to the local device.
+			if (ipv4Address === '10.22.121.111' || localDeviceIpAddrs.has(ipv4Address)) {
 				continue;
 			}
 
