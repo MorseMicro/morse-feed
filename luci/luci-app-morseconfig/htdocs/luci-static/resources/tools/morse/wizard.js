@@ -74,11 +74,11 @@ class WizardWifiDevice {
 		return `sta_${this.name}`;
 	}
 
-	get apInterfaceName() {
+	get apIfName() {
 		return `wl${this.name.match(/\d+/)?.[0] || this.name.slice(-3)}-ap`;
 	}
 
-	get staInterfaceName() {
+	get staIfName() {
 		return `wl${this.name.match(/\d+/)?.[0] || this.name.slice(-3)}-sta`;
 	}
 
@@ -535,6 +535,7 @@ class WizardPage {
 		this.section = section;
 		this.wpId = ++wpId;
 		this.diagramArgs = null;
+		this.onload = null;
 	}
 
 	enableDiagram(args = {}) {
@@ -548,6 +549,11 @@ class WizardPage {
 	}
 
 	setNavActive(active) {
+		// call onload cb when the page is "active"
+		if (active == true && typeof this.onload === 'function') {
+			this.onload.call(this, this, this.section.section);
+		}
+
 		for (const option of this.options) {
 			const el = document.getElementById(option.cbid(option.section.section));
 			if (el) {
