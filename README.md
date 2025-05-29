@@ -19,6 +19,21 @@ This feed is enabled by default. To install all its package definitions, run:
 ./scripts/feeds install -a -p morse
 ```
 
+## Package/Directory structure
+
+Most of the Morse packages will appear in the main 'Morse' category
+in menuconfig for easy identification. Sub-categories then correspond to:
+
+- *essentials* - packages you almost certainly want to bring up a morse chip (e.g. driver/firmware)
+- *features* - optional feature related packages (e.g. Mesh, DPP, ...)
+- *hardware* - packages intended for particular hardware/products/eval kits
+- *luci* - any LuCI pages/themes; these are targeted at Morse produced products, and are not
+  required for correct operation. If you're using LuCI, minor changes to correctly display
+  HaLow radio information are in the Morse fork of the luci repository.
+
+The other directories here (e.g. multimedia/net/utils) are packages which
+are not Morse specific and go in their normal OpenWrt categories.
+
 # License
 
 This repository and its contents, including all package recipes and metadata, are licensed under the GNU General Public License v2, unless otherwise stated in individual files.
