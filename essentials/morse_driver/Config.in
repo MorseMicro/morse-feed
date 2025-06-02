@@ -15,7 +15,6 @@ config MORSE_SPI
 
 config MORSE_USB
 	depends on USB_SUPPORT
-	depends on PACKAGE_kmod-morse
 	bool "USB support "
 	default y
 
