@@ -125,10 +125,10 @@ EOF
 		# board_type is 'we have OTP bits set', in which case it should
 		# automatically load the correct file (bcf_boardtype...) and
 		# we don't need to override.
-		# We force Artini since 4v3 support currently requires 
+		# We force HaLowLink 1 since 4v3 support currently requires
 		# an explicit BCF file, though currently the AZW modules
 		# do not have OTP bits burnt.
-		if [ "$board_type" -eq 0 ] || [ "$board" = morse,artini ]; then
+		if [ "$board_type" -eq 0 ] || [ "$board" = morse,halowlink1 ]; then
 			case "$board" in
 				morse,ekh01-03 |\
 				morse,ekh03v3)
@@ -143,7 +143,7 @@ EOF
 				morse,ekh04v6)
 					bcf=bcf_ekh04_v6.bin
 				;;
-				morse,artini)
+				morse,halowlink1)
 					bcf=bcf_mm_hl1.bin
 				;;
 				morse,ekh01-01)

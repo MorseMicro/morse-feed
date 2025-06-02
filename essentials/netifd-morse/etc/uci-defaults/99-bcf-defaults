@@ -15,7 +15,7 @@ fix_bcf_default() {
 	[ "morse" = "$type" ] || return 1
 
 	board=$(board_name)
-	if [ "$board" = "morse,artini" ]; then
+	if [ "$board" = "morse,halowlink1" ]; then
 		current_bcf=$(uci -q get wireless."${config}".bcf)
 		if [ "$current_bcf" != "bcf_aw-hm593.bin" ]; then
 			return 0
@@ -38,7 +38,7 @@ fix_bcf_default() {
 		morse,ekh04v6)
 			bcf=bcf_ekh04_v6.bin
 		;;
-		morse,artini)
+		morse,halowlink1)
 			bcf=bcf_mm_hl1.bin
 		;;
 		morse,ekh01-01)

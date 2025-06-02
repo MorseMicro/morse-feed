@@ -71,7 +71,7 @@ uci set "wireless.default_$_morse_device_name.mode=$mode"
 if [ "$mode" = "sta" ]; then
 	# Switch to dhcp client and turn off server.
 	# Disable powersave since this is currently only used for
-	# Artini Extenders (i.e. where power is not a concern).
+	# HaLowLink 1 Extenders (i.e. where power is not a concern).
 	uci batch <<- END
 		set wireless.default_$_morse_device_name.powersave=0
 		delete wireless.default_$_morse_device_name.ssid

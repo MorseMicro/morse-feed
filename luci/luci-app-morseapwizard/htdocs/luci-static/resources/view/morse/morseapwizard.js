@@ -30,7 +30,7 @@ document.querySelector('head').appendChild(E('link', {
 	href: L.resourceCacheBusted('view/morse/css/morseapwizard.css'),
 }));
 
-// This wizard is only designed for Artini's AP mode. If we detect an Extender mode
+// This wizard is only designed for HaLowLink 1's AP mode. If we detect an Extender mode
 // situation, give the user some hints.
 const EXTENDER_MODE_MESSAGE = _(`
 <p>This device is currently setup as an Extender (shown by a solid aqua Status LED),

@@ -74,7 +74,7 @@ creating a new TXT record entry if we want to achieve this (i.e.
 path_v2).
 
 Currently, this code is somewhat tied to working only for the default
-Extender configuration for Artini, and as such is essentially limited
+Extender configuration for HaLowLink 1, and as such is essentially limited
 to mutating the expected starting config in this mode.
 
 So it\'s easier to test individual parts of the system, it also supports

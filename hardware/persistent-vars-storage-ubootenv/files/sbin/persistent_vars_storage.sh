@@ -44,7 +44,7 @@ show_factory_data()
 	local mm_region
 
 	case "$(cat /tmp/sysinfo/board_name)" in
-		morse,artini)
+		morse,halowlink1)
 			case "$1" in
 				device_password)
 					show_raw_partition_data factory 0x40a0 32
@@ -54,7 +54,7 @@ show_factory_data()
 				;;
 				mm_region)
 					mm_region="$(show_raw_partition_data factory 0x40c0 2)"
-					# APP-2988 - for Artini, use AU region as default so EVT devices come up
+					# APP-2988 - for HaLowLink 1, use AU region as default so EVT devices come up
 					# on first boot (no factory partition is written).
 					if [ -n "$mm_region" ]; then
 						echo "$mm_region"

@@ -23,7 +23,7 @@ if [ -z "$_mm_mode" ]; then
 	# early in the boot process we don't have it. But we really want to
 	# show the mode colour early in the boot process to avoid confusion.
 	case "$board_name" in
-	morse,artini)
+	morse,halowlink1)
 		echo '/dev/mtd1 0x0 0x8000 0x1000' > /tmp/artini_preinit_fw_sys.config
 		_mm_mode="$(fw_printenv -n -c /tmp/artini_preinit_fw_sys.config mm_mode 2> /dev/null)"
 		rm /tmp/artini_preinit_fw_sys.config
