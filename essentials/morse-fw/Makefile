@@ -33,7 +33,7 @@ define Package/morse-fw-6108
   CATEGORY:=Morse Micro
   SUBMENU:=Essentials
   URL:=$(PKG_SOURCE_URL)
-  TITLE:=Morse Micro WIFI HaLow firmware for 6108
+  TITLE:=Morse Micro WIFI HaLow standard firmware for 6108
   PROVIDES:=morse-fw
 endef
 
@@ -49,8 +49,8 @@ define Package/morse-fw-6108-tlm
   PROVIDES:=morse-fw
 endef
 
-define Package/morse-fw-tlm/description
-  This Firmware reduces the per-station table size in the chip to
+define Package/morse-fw-6108-tlm/description
+  This firmware reduces the per-station table size in the chip to
   allow a large number of associations in AP mode.
 endef
 
@@ -58,8 +58,40 @@ define Package/morse-fw-8108
   CATEGORY:=Morse Micro
   SUBMENU:=Essentials
   URL:=$(PKG_SOURCE_URL)
-  TITLE:=Morse Micro WIFI HaLow firmware for 8108
+  TITLE:=Morse Micro WIFI HaLow standard firmware for 8108
   PROVIDES:=morse-fw
+endef
+
+define Package/morse-fw-8108-tlm
+  SECTION:=firmware
+  CATEGORY:=Morse Micro
+  SUBMENU:=Essentials
+  URL:=$(PKG_SOURCE_URL)
+  TITLE:=Morse Micro WIFI HaLow Thin LMAC firmware for 8108
+  PROVIDES:=morse-fw
+endef
+
+define Package/morse-fw-8108-tlm/description
+  This firmware reduces the per-station table size in the chip to
+  allow a large number of associations in AP mode.
+endef
+
+define Package/morse-fw-8108-flm
+  SECTION:=firmware
+  CATEGORY:=Morse Micro
+  SUBMENU:=Essentials
+  URL:=$(PKG_SOURCE_URL)
+  TITLE:=Morse Micro WIFI HaLow FullMAC firmware for 8108
+  PROVIDES:=morse-fw
+endef
+
+define Package/morse-fw-8108-flm/description
+  This firmware implements the functionality of the mac80211
+  module (and some wpa_supplicant functionality) on the 8108.
+  This will allow you to reduce host processor CPU usage
+  and maintain association if the host processor is turned off.
+  However, it currently only supports station/client mode
+  (i.e. not AP/mesh/adhoc).
 endef
 
 define Build/Compile
@@ -91,6 +123,18 @@ define Package/morse-fw-8108/install
 	$(call install_file_or_override,mm8108b2-rl.bin,$(1))
 endef
 
+define Package/morse-fw-8108-tlm/install
+	$(INSTALL_DIR) $(1)/lib/firmware/morse/.
+	$(call install_file_or_override,mm8108b2-tlm-rl.bin,$(1))
+endef
+
+define Package/morse-fw-8108-flm/install
+	$(INSTALL_DIR) $(1)/lib/firmware/morse/.
+	$(call install_file_or_override,mm8108b2-flm-rl.bin,$(1))
+endef
+
 $(eval $(call BuildPackage,morse-fw-6108))
 $(eval $(call BuildPackage,morse-fw-6108-tlm))
 $(eval $(call BuildPackage,morse-fw-8108))
+$(eval $(call BuildPackage,morse-fw-8108-tlm))
+$(eval $(call BuildPackage,morse-fw-8108-flm))
