@@ -10,14 +10,20 @@ init_wireless_driver "$@"
 
 MM_MOD_INT="watchdog_interval_secs max_rates max_rate_tries spi_clock_speed max_txq_len virtual_sta_max max_aggregation_count
 			default_cmd_timeout_ms sdio_reset_time tx_max_power_mbm max_mc_frames duty_cycle_mode ocs_type fixed_mcs fixed_bw
-			fixed_ss fixed_guard tx_status_lifetime_ms max_total_vendor_ie_bytes"
+			fixed_ss fixed_guard tx_status_lifetime_ms max_total_vendor_ie_bytes
+			hw_reload_after_stop slow_clock_mode"
 MM_MOD_BOOL="enable_mac80211_connection_monitor mcs10_mode enable_rts_8mhz
 			enable_otp_check enable_survey enable_subbands enable_ps enable_trav_pilot enable_watchdog_reset
 			enable_watchdog no_hwcrypt enable_raw enable_arp_offload enable_dynamic_ps_offload
 			enable_coredump thin_lmac enable_mbssid_ie enable_trav_pilot enable_cts_to_self enable_airtime_fairness
 			enable_twt enable_bcn_change_seq_monitor enable_dhcpc_offload enable_ibss_probe_filtering enable_auto_duty_cycle
-			enable_auto_mpsw enable_mcast_whitelist log_modparams_on_boot enable_fixed_rate spi_use_edge_irq"
-MM_MOD_STRING="serial country test_mode debug_mask macaddr_octet mcs_mask dhcpc_lease_update_script"
+			enable_auto_mpsw enable_mcast_whitelist log_modparams_on_boot enable_fixed_rate spi_use_edge_irq
+			enable_sched_scan enable_1mhz_probes enable_ext_xtal_init
+			enable_hw_scan enable_mcast_rate_control enable_mm_vendor_ie
+			enable_page_slicing enable_pv1 enable_sched_scan enable_secureboot
+			enable_short_bcn_as_dtim_override enable_wiphy reattach_hw"
+MM_MOD_STRING="serial country test_mode debug_mask macaddr_octet mcs_mask dhcpc_lease_update_script
+			fw_bin_file sdio_clk_debugfs"
 MM_MOD_UNKNOWN=
 MOD_PARAMS=
 
