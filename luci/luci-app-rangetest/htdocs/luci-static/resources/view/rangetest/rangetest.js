@@ -68,7 +68,7 @@ const umdnsBrowse = rpc.declare({
 const backgroundIperf3Client = rpc.declare({
 	object: 'rangetest',
 	method: 'background_iperf3_client',
-	params: ['target', 'udp', 'reverse', 'time'],
+	params: ['target', 'udp', 'reverse', 'time', 'omit'],
 	filter: errorUtils.catchRangetestErrors,
 	nobatch: true,
 });
@@ -449,6 +449,8 @@ async function runRangetest(cancelPromise, configuration, testProgressBar, updat
 		advanced: {
 			protocol: protocols,
 			direction: directions,
+			length: iperf3TestTime,
+			omit: iperf3OmitTime,
 		},
 		basic: {
 			remoteDevicePassword: remotePassword,
@@ -464,9 +466,7 @@ async function runRangetest(cancelPromise, configuration, testProgressBar, updat
 	testResults.configuration = configuration;
 	testResults.timestamp = new Date().toISOString();
 
-	const iperf3TestTime = 10;
 	const iperf3PollInterval = 2;
-
 	const nSubtests = protocols.length * directions.length;
 	const maxSubtestIncrements = iperf3TestTime / iperf3PollInterval;
 	const percentPerIncrement = 100 / (maxSubtestIncrements * nSubtests);
@@ -485,7 +485,7 @@ async function runRangetest(cancelPromise, configuration, testProgressBar, updat
 				testResults.status = `In Progress (${protocol.toUpperCase()} ${direction})`;
 				updateResultsSummaryRow(testResults);
 
-				const iperf3LocalResponse = await backgroundIperf3Client(remoteIp, (protocol === 'udp'), (direction === 'receive'), iperf3TestTime);
+				const iperf3LocalResponse = await backgroundIperf3Client(remoteIp, (protocol === 'udp'), (direction === 'receive'), iperf3TestTime, iperf3OmitTime);
 				const iperf3LocalResults = await waitForIperf3Results(iperf3LocalResponse.id, iperf3TestTime, iperf3PollInterval, maxSubtestIncrements, percentPerIncrement, testProgressBar, cancelPromise);
 
 				testResults['iperf3'][protocol][direction]['end'] = iperf3LocalResults?.end;
@@ -804,6 +804,8 @@ return view.extend({
 			advanced: {
 				protocol: ['udp', 'tcp'],
 				direction: ['send', 'receive'],
+				length: 20,
+				omit: 5,
 			},
 		};
 		return Promise.all([getLocalTests(), info()]);
@@ -1163,8 +1165,31 @@ return view.extend({
 		o.rmempty = false;
 		o.optional = false;
 
+		o = s.option(form.ListValue, 'length', _('Test Length'), _('Longer tests may yield more accurate results'));
+		o.value(10, _('Short (10 seconds per subtest)'));
+		o.value(20, _('Medium (20 seconds per subtest)'));
+		o.value(30, _('Long (30 seconds per subtest)'));
+		o.rmempty = false;
+		o.optional = false;
+
+		const updateOmitTime = () => {
+			// ListValue option values get automatically converted to strings, convert them back.
+			this.rangetestConfiguration.advanced.length = parseInt(this.rangetestConfiguration.advanced.length);
+			switch (this.rangetestConfiguration.advanced.length) {
+				case 10:
+					this.rangetestConfiguration.advanced.omit = 2;
+					break;
+				case 20:
+					this.rangetestConfiguration.advanced.omit = 5;
+					break;
+				case 30:
+					this.rangetestConfiguration.advanced.omit = 10;
+					break;
+			}
+		};
+
 		const save = async () => {
-			await m.save();
+			await m.save(updateOmitTime);
 			ui.hideModal();
 		};
 

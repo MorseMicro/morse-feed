@@ -13,7 +13,7 @@
  * 
  * API Schema:
  *  - background_iperf3_server() => { id: number }
- *  - background_iperf3_client() => { id: number, udp: boolean, reverse: boolean }
+ *  - background_iperf3_client(target: string, udp: boolean, reverse: boolean, time: integer, omit: integer) => { id: number, udp: boolean, reverse: boolean }
  *  - terminate_background(id: number) => null
  *  - get_background(id: number) => { json_blob: object }
  *  - iw_station_dump() => { [interface: string]: string }
@@ -42,7 +42,6 @@ const API_VERSION='1.0.1';
  * until the end, so assume that no iperf test runs > 5 minutes.
  */
 const OUTPUT_DIR_TTL = 300;
-const IPERF_OMIT_TIME = 2;
 const BG_OUTPUT_DIR = '/var/run/rangetest';
 
 function _get_output_file_paths(id) {
@@ -220,9 +219,10 @@ function background_iperf3_server(req) {
 function background_iperf3_client(req) {
 	const target = req.args.target;
 	const time = req.args.time;
+	const omit = req.args.omit;
 
-	if (time <= IPERF_OMIT_TIME || time >= OUTPUT_DIR_TTL) {
-		return _error_response(ubus.STATUS_INVALID_ARGUMENT, `Invalid time value. Must be between ${IPERF_OMIT_TIME} and ${OUTPUT_DIR_TTL} seconds.`);
+	if (time <= omit || time >= OUTPUT_DIR_TTL) {
+		return _error_response(ubus.STATUS_INVALID_ARGUMENT, `Invalid time value. Must be between ${omit} and ${OUTPUT_DIR_TTL} seconds.`);
 	}
 
 	if (iptoarr(target) === null) {
@@ -244,7 +244,7 @@ function background_iperf3_client(req) {
 	} catch (error) {}
 	
 	const executable = 'iperf3';
-	const args = ['-c', target, '-t', time, '-O', IPERF_OMIT_TIME, '--json'];
+	const args = ['-c', target, '-t', time, '-O', omit, '--json'];
 	if (req.args.udp) {
 		push(args, '-u', '-b', '40M/30');
 	} else {
@@ -769,6 +769,7 @@ return {
 				udp: true,
 				reverse: false,
 				time: 10,
+				omit: 2,
 			},
 		},
 		get_background: {
