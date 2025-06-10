@@ -4,17 +4,16 @@
  * Gives the user the option to configure the HaLow country, hostname, and password.
  * Automatically configure the TZ and time based on the browser.
  */
-/* globals dom form halow rpc uci ui view wizard */
+/* globals dom form halow rpc uci ui view widgets wizard */
 'require view';
 'require form';
 'require dom';
 'require halow';
 'require tools.morse.wizard as wizard';
+'require tools.widgets as widgets';
 'require uci';
 'require rpc';
 'require ui';
-
-const DEFAULT_COUNTRY = 'US';
 
 var callSetPassword = rpc.declare({
 	object: 'luci',
@@ -160,17 +159,13 @@ return view.extend({
 			_('HaLow Configuration'),
 		);
 
-		let option = section.option(form.ListValue, 'country', _('Country'),
+		let option = section.option(widgets.WifiCountryValue, 'country', _('Country'),
 			_(`The country determines the capabilities of your HaLow network.
 				<strong>Warning:</strong> If you are currently using HaLow, modifying this value
 				may cause you to lose access to this device.
 				For details, see the <a href="%s" target="_blank">regulatory data table</a>.`).format(L.url('admin', 'help', 'regulatoryinfo')),
 		);
-		option.default = DEFAULT_COUNTRY;
 		option.rmempty = false;
-		for (const countryCode of Object.keys(channelMap)) {
-			option.value(countryCode, countryCode);
-		}
 		option.write = function (sectionId, value) {
 			this.super('write', [sectionId, value]);
 
