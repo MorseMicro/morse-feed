@@ -219,15 +219,15 @@ function getOrCreateDnsmasq(networkSectionId) {
  * wifi-ifaces that will generate multiple devices - e.g. WDS APs).
  */
 function hasMultipleDevices(networkSectionId) {
-	let count = getNetworkDevices(networkSectionId).length;
+	const wifiIfaces = getNetworkWifiIfaces(networkSectionId);
 
-	for (const wifiIface of getNetworkWifiIfaces(networkSectionId)) {
-		// TODO (APP-2823) I don't think wifiIface.mode 'mesh' is an appropriate trigger for this
-		// (some confusion with prplmesh or +AP?), but for consistency with the old behaviour...
-		count += (wifiIface.mode === 'ap' && wifiIface.wds === '1') || wifiIface.mode === 'mesh' ? 2 : 1;
+	for (const wifiIface of wifiIfaces) {
+		if (wifiIface.mode === 'ap' && wifiIface.wds === '1') {
+			return true;
+		}
 	}
 
-	return count > 1;
+	return wifiIfaces.length + getNetworkDevices(networkSectionId).length > 1;
 }
 
 function forceBridge(networkSectionId, bridgeName, bridgeMAC = null) {
