@@ -1127,7 +1127,7 @@ morse_override_wpa_supplicant_add_network() {
 		else
 			wpa_add_network_block "multiap_bh" "$_config"
 		fi
-	elif [ "$matter_enable" -eq 1 ]; then
+	elif [ "$matter_enable" = 1 ]; then
 		echo "update_config=1"  >> "$_config"
 		echo "pmf=2"  >> "$_config"
 	elif [ "$dpp" = 1 ]; then
