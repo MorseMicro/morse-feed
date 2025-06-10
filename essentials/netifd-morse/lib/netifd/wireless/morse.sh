@@ -15,13 +15,13 @@ MM_MOD_INT="watchdog_interval_secs max_rates max_rate_tries spi_clock_speed max_
 MM_MOD_BOOL="enable_mac80211_connection_monitor mcs10_mode enable_rts_8mhz
 			enable_otp_check enable_survey enable_subbands enable_ps enable_trav_pilot enable_watchdog_reset
 			enable_watchdog no_hwcrypt enable_raw enable_arp_offload enable_dynamic_ps_offload
-			enable_coredump thin_lmac enable_mbssid_ie enable_trav_pilot enable_cts_to_self enable_airtime_fairness
+			enable_coredump enable_mbssid_ie enable_trav_pilot enable_cts_to_self enable_airtime_fairness
 			enable_twt enable_bcn_change_seq_monitor enable_dhcpc_offload enable_ibss_probe_filtering enable_auto_duty_cycle
 			enable_auto_mpsw enable_mcast_whitelist log_modparams_on_boot enable_fixed_rate spi_use_edge_irq
 			enable_sched_scan enable_1mhz_probes enable_ext_xtal_init
 			enable_hw_scan enable_mcast_rate_control enable_mm_vendor_ie
 			enable_page_slicing enable_pv1 enable_sched_scan enable_secureboot
-			enable_short_bcn_as_dtim_override enable_wiphy"
+			enable_short_bcn_as_dtim_override"
 MM_MOD_STRING="serial country test_mode debug_mask macaddr_octet mcs_mask dhcpc_lease_update_script
 			fw_bin_file sdio_clk_debugfs"
 MM_MOD_UNKNOWN=
@@ -83,15 +83,30 @@ get_vfem_4v3_bcf() {
 build_morse_mod_params(){
 	json_select config
 
+	json_get_vars firmware_type
+
 	for var in $MM_MOD_BOOL $MM_MOD_INT $MM_MOD_STRING; do
 		json_get_var mm_mod_val "$var"
 		[ -n "$mm_mod_val" ] && MOD_PARAMS="$MOD_PARAMS $var=$mm_mod_val"
 	done
 
+	case "$firmware_type" in
+		''|softmac)
+			;;
+		fullmac)
+			MOD_PARAMS="$MOD_PARAMS enable_wiphy=1"
+			;;
+		thin_lmac)
+			MOD_PARAMS="$MOD_PARAMS thin_lmac=1"
+			;;
+		*)
+			echo "WARNING: ignoring unknown firmware_type '$firmware_type'"
+			;;
+	esac
+
 	check_sgi
 	if [ $enable_sgi -ne 1 ]; then
 		MOD_PARAMS="$MOD_PARAMS enable_sgi_rc=0"
-
 	else
 		MOD_PARAMS="$MOD_PARAMS enable_sgi_rc=1"
 	fi
@@ -163,6 +178,7 @@ drv_morse_init_device_config() {
 	config_add_boolean vendor_keep_alive_offload
 	config_add_boolean vfem_4v3
 	config_add_boolean thin_lmac_optimization
+	config_add_string firmware_type
 
 	#module parameters
 	config_add_string bcf  # handled separately due to boost bcf
