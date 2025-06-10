@@ -377,15 +377,13 @@ drv_morse_setup() {
 	build_morse_mod_params
 
 	local inserted_module=0
-	if [ -n "$country" ]; then
-		if change_module_parameters || ! is_module_loaded; then
-			is_module_loaded && rmmod morse
-			set_vfem_4v3_gpio "$vfem_4v3"
-			/sbin/kmodloader /etc/modules.d/morse
-			inserted_module=1
-		fi
-		# don't do iw reg set as in mac80211
+	if change_module_parameters || ! is_module_loaded; then
+		is_module_loaded && rmmod morse
+		set_vfem_4v3_gpio "$vfem_4v3"
+		/sbin/kmodloader /etc/modules.d/morse
+		inserted_module=1
 	fi
+	# don't do iw reg set as in mac80211; set via modparam
 
 	local retries=3
 	while ! find_phy; do
@@ -434,7 +432,10 @@ drv_morse_setup() {
 
 	# Figure out chan info (e.g. freq/bandwidth) from regulatory info,
 	# and determine appropriate primary channel index/width if not set.
-	morse_set_chan_info
+	has_chan_info=0
+	if morse_set_chan_info; then
+		has_chan_info=1
+	fi
 
 	interface_count=0
 	interface_first=
@@ -450,7 +451,7 @@ drv_morse_setup() {
 	uci -q -P /var/state set wireless._${phy}.splist="${ifnames_sta} ${ifnames_mesh} ${ifnames_adhoc}"
 	uci -q -P /var/state set wireless._${phy}.umlist="${ifnames_none} ${ifname_monitor}"
 
-	[ -n "$ifnames_ap" ] && {
+	if [ -n "$ifnames_ap" ]; then
 		local hostapd_conf_file="/var/run/hostapd-$phy.conf"
 		morse_hostapd_conf_setup "$phy" "$hostapd_conf_file"
 
@@ -465,18 +466,18 @@ drv_morse_setup() {
 		# we can now remove.
 		rm "$hostapd_conf_file"
 		morse_run_hostapd
-	}
+	fi
 
-	[ -n "$ifnames_sta" ] && {
+	if [ -n "$ifnames_sta" ]; then
 		get_matter_config
 		json_select config
 		json_get_vars vendor_keep_alive_offload matter_enable
 		json_select ..
 
 		for_each_interface "sta" morse_setup_sta
-	}
+	fi
 
-	[ -n "$ifnames_mesh" ] && {
+	if [ -n "$ifnames_mesh" ]; then
 		get_mesh11sd_config
 		json_select config
 		json_get_vars op_class channel country s1g_prim_chwidth s1g_prim_1mhz_chan_index
@@ -484,27 +485,27 @@ drv_morse_setup() {
 		json_select ..
 
 		for_each_interface "mesh" morse_setup_mesh
-	}
+	fi
 
-	[ -n "$ifnames_adhoc" ] && {
+	if [ -n "$ifnames_adhoc" ]; then
 		json_select config
 		json_get_vars op_class channel country s1g_prim_chwidth s1g_prim_1mhz_chan_index
 		json_select ..
 
 		for_each_interface "adhoc" morse_setup_adhoc
-	}
+	fi
 
-	[ -n "$ifnames_monitor" ] && {
+	if [ -n "$ifnames_monitor" ]; then
 		json_select config
 		json_get_vars op_class channel country s1g_prim_chwidth s1g_prim_1mhz_chan_index
 		json_select ..
 
 		for_each_interface "monitor" morse_setup_monitor
-	}
+	fi
 
-	[ -n "$ifnames_none" ] && {
+	if [ -n "$ifnames_none" ]; then
 		for_each_interface "none" morse_setup_none
-	}
+	fi
 
 	# Ideally, this would also be in the hostapd/wpa_supplicant config,
 	# but for now they don't have support so we use morse_cli.
@@ -513,38 +514,41 @@ drv_morse_setup() {
 	# There will only be an ifname if at least one interface is brought up.
 	# If no interfaces, it doesn't matter if we don't set these
 	# (since they won't be used).
-	if [ -n "$ifname" ]; then
+	if [ -n "$ifnames" ]; then
+		ifname="${ifnames%% *}"
+
 		if [ "$ampdu" = 1 ]; then
 			morse_cli -i $ifname ampdu enable
 		else
 			morse_cli -i $ifname ampdu disable
 		fi
+
 		[ -n "$bss_color" ] && morse_cli -i $ifname bsscolor $bss_color
-	fi
 
-	if [ -n "$forced_listen_interval" ]
-	then
-		# 802.11ah supports listen intervals beyond 65535 by
-		# using the first two bits as a scale factor.
-		# We calculate this transformation here to keep the UI/config simple.
-		local max_val=16383
-		local scale_factor
-		local unscaled_interval
-		if [ "$forced_listen_interval" -gt $((1000 * $max_val)) ]; then
-			scale_factor=3
-			unscaled_interval=$(("$forced_listen_interval" / 10000))
-		elif [ "$forced_listen_interval" -gt $((10 * $max_val)) ]; then
-			scale_factor=2
-			unscaled_interval=$(("$forced_listen_interval" / 1000))
-		elif [ "$forced_listen_interval" -gt $max_val ]; then
-			scale_factor=1
-			unscaled_interval=$(("$forced_listen_interval" / 1000))
-		else
-			scale_factor=0
-			unscaled_interval="$forced_listen_interval"
+		if [ -n "$forced_listen_interval" ]
+		then
+			# 802.11ah supports listen intervals beyond 65535 by
+			# using the first two bits as a scale factor.
+			# We calculate this transformation here to keep the UI/config simple.
+			local max_val=16383
+			local scale_factor
+			local unscaled_interval
+			if [ "$forced_listen_interval" -gt $((1000 * $max_val)) ]; then
+				scale_factor=3
+				unscaled_interval=$(("$forced_listen_interval" / 10000))
+			elif [ "$forced_listen_interval" -gt $((10 * $max_val)) ]; then
+				scale_factor=2
+				unscaled_interval=$(("$forced_listen_interval" / 1000))
+			elif [ "$forced_listen_interval" -gt $max_val ]; then
+				scale_factor=1
+				unscaled_interval=$(("$forced_listen_interval" / 1000))
+			else
+				scale_factor=0
+				unscaled_interval="$forced_listen_interval"
+			fi
+
+			morse_cli -i $ifname li $unscaled_interval $scale_factor
 		fi
-
-		morse_cli -i $ifname li $unscaled_interval $scale_factor
 	fi
 
 	if [ "$thin_lmac_optimization" = "1" ]; then
@@ -624,12 +628,14 @@ morse_iface_create() {
 
 	case "$mode" in
 		ap)
+			[ "$has_chan_info" != 1 ] && return 4
 			morse_iw_interface_add "$phy" "$ifname" __ap || return 1
 			ifconfig "$ifname" hw ether $macaddr
 			ip link set $ifname up
 		;;
 
 		sta)
+			[ -z "$country" ] && return 5
 			[ "$wds" -gt 0 ] && wdsflag="4addr on"
 			morse_iw_interface_add "$phy" "$ifname" managed "$wdsflag" return 1
 			if [ "$wds" -gt 0 ]; then
@@ -652,16 +658,19 @@ morse_iface_create() {
 		;;
 
 		mesh)
+			[ "$has_chan_info" != 1 ] && return 4
 			morse_iw_interface_add "$phy" "$ifname" mp || return 1
 			ifconfig "$ifname" hw ether $macaddr
 			ip link set $ifname up
 		;;
 
 		adhoc)
+			[ "$has_chan_info" != 1 ] && return 4
 			morse_iw_interface_add "$phy" "$ifname" adhoc || return 1
 		;;
 
 		monitor)
+			[ "$has_chan_info" != 1 ] && return 4
 			morse_iw_interface_add "$phy" "$ifname" monitor || return 1
 			ip link set "$ifname" up
 			#we need morse0 to dump the packets from.
@@ -703,12 +712,19 @@ morse_iface_bringup() {
 		3)
 			echo "wifi-iface $iface_index mode=$mode ignored; can't coexist interface with mode=$interface_first"
 			;;
+		4)
+			echo "wifi-iface $iface_index mode=$mode ignored; requires country and channel to be set on wifi-device"
+			;;
+		5)
+			echo "wifi-iface $iface_index mode=$mode ignored; requires country to be set on wifi-device"
+			;;
 		0)
 			# This helps us track if we've managed to successfully create
 			# the interface. This means subsequent steps will ignore this interface
 			# if _created is not set.
 			json_add_string _created 1
 			append ifnames_$mode "$ifname"
+			append ifnames "$ifname"
 			;;
 		*)
 			echo "wifi-iface $iface_index mode=$mode could not be created"
@@ -924,12 +940,16 @@ morse_interface_cleanup() {
 #################################################
 
 morse_set_chan_info() {
+	if [ -z "$country" -o -z "$channel" -o "$channel" = 0 ]; then
+		return 1
+	fi
+
 	halow_bw=
 	center_freq=
 	_get_regulatory "$mode" "$country" "$channel" "$op_class"
 	if [ $? -ne 0 ]; then
 		echo "Couldn't find reg for $mode in $country with ch=$channel op=$op_class" >&2
-		return
+		return 1
 	fi
 
 	json_select config
@@ -979,6 +999,8 @@ morse_set_chan_info() {
 	json_add_int s1g_prim_chwidth "$s1g_prim_chwidth"
 
 	json_select ..
+
+	return 0
 }
 
 

@@ -1,8 +1,11 @@
 #!/bin/sh
 
-# This file applies the 'default' wifi setup for Morse devices, ideally based on information
-# from persistent-vars-storage.sh. If persistent-vars-storage.sh is not present, it will
-# fall back to randomisation (and for country, nothing, to avoid breaking any regulations).
+# This file applies the 'default' wifi setup for Morse devices. Compared to the default
+# UCI wifi setup (constructed by the hotplug), this _enables_ the wifi-device by default,
+# which leads to default Access Points on the lan.
+# Also, if we have information (i.e. region/wifi key) from persistent-vars-storage.sh, this
+# is used, otherwise we fall back to randomisation for the wifi key (and no country,
+# which means the default AP will _not_ be active for HaLow).
 # Since it should only be run after hotplug, and it's designed for Morse products, we keep
 # it out of board.d.
 
@@ -40,57 +43,52 @@ _change_device_defaults() {
 	fi
 	eval "device_band_$device_band=1"
 
-	if [ "$device_band" = "s1g" ]; then
+	config_get type "$config" type
+
+	# Only change if it's in the default state
+	# (otherwise we're probably running on a sysupgrade).
+	local default_encryption
+	if [ "$type" = morse ] &&
+		[ "$(_get_iface "$config" ssid)" = MorseMicro ] &&
+		[ "$(_get_iface "$config" mode)" = ap ] &&
+		[ "$(_get_iface "$config" encryption)" = sae ] &&
+		[ "$(_get_iface "$config" key)" = 12345678 ]; then
 		# It's probably been setup by our HaLow hotplug.
-		# Only change if it's in the default state
-		# (otherwise we're probably running on a sysupgrade).
-		if [ "$(_get_iface "$config" ssid)" = MorseMicro ] &&
-			[ "$(_get_iface "$config" mode)" = ap ] &&
-			[ "$(_get_iface "$config" encryption)" = sae ] &&
-			[ "$(_get_iface "$config" key)" = 12345678 ]; then
-				# It's only safe to enable a morse device if we know what region it should be.
-				# If we do, set up the country and channel, otherwise leave it disable.
-				if [ -n "$mm_region" ]; then
-					# Start on the middle channel of the max bandwidth for the country code.
-					# Channels can be queried from iwinfo or the driver, but not if the
-					# device is down, and the device is not up until we have a valid channel.
-					local bandwidth="$(awk -F, '$1==region && $2 > max {max=$2} END {print max}' \
-						region="$mm_region" /usr/share/morse-regdb/channels.csv)"
-					local channel="$(awk -F, '$1==region && $2==bw {print $3}' \
-						region="$mm_region" bw="$bandwidth" /usr/share/morse-regdb/channels.csv \
-						| sort -n | awk '{a[NR]=$1} END {print a[int((NR+1)/2)]}')"
 
-					echo "uci-default-morse-wireless: setting $config to $mm_region on $channel" > /dev/kmsg
-					uci batch <<- END
-						delete wireless.$config.disabled
-						set wireless.$config.country='$mm_region' 
-						set wireless.$config.channel='$channel' 
-					END
-				fi
+		# Select an appropriate channel if we have a region.
+		# Probably this should be pushed down into netifd-morse.
+		if [ -n "$mm_region" ]; then
+			# Start on the middle channel of the max bandwidth for the country code.
+			# Channels can be queried from iwinfo or the driver, but not if the
+			# device is down, and the device is not up until we have a valid channel.
+			local bandwidth="$(awk -F, '$1==region && $2 > max {max=$2} END {print max}' \
+				region="$mm_region" /usr/share/morse-regdb/channels.csv)"
+			local channel="$(awk -F, '$1==region && $2==bw {print $3}' \
+				region="$mm_region" bw="$bandwidth" /usr/share/morse-regdb/channels.csv \
+				| sort -n | awk '{a[NR]=$1} END {print a[int((NR+1)/2)]}')"
 
-				uci batch <<- END
-					set wireless.default_$config.ssid='$default_ssid'
-					set wireless.default_$config.key='$default_wifi_key'
-					set wireless.default_$config.encryption='sae'
-				END
+			uci set "wireless.$config.channel=$channel"
+			echo "uci-default-morse-wireless: setting $config to $mm_region on $channel" > /dev/kmsg
 		fi
+	elif [ "$type" = mac80211 ] &&
+		[ "$(_get_iface "$config" ssid)" = OpenWrt ] &&
+		[ "$(_get_iface "$config" mode)" = ap ] &&
+		[ "$(_get_iface "$config" encryption)" = none ]; then
+		# It's probably been setup by the mac80211 hotplug
+		uci set "wireless.default_$config.encryption=psk2"
 	else
-		# It's probably a 'normal' wifi-device.
-		# Only change if it's in the default state
-		# (otherwise we're probably running on a sysupgrade).
-		if [ "$(_get_iface "$config" ssid)" = OpenWrt ] &&
-			[ "$(_get_iface "$config" mode)" = ap ] &&
-			[ "$(_get_iface "$config" encryption)" = none ]; then
-
-				uci batch <<- END
-					delete wireless.$config.disabled
-					set wireless.$config.country='$mm_region'
-					set wireless.default_$config.ssid='$default_ssid'
-					set wireless.default_$config.key='$default_wifi_key'
-					set wireless.default_$config.encryption='psk2'
-				END
-		fi
+		return
 	fi
+
+	if [ -n "$mm_region" ]; then
+		uci set "wireless.$config.country=$mm_region"
+	fi
+
+	uci batch <<- END
+		delete wireless.$config.disabled
+		set wireless.default_$config.ssid='$default_ssid'
+		set wireless.default_$config.key='$default_wifi_key'
+	END
 }
 
 # Wait if we need to for the morse hotplug to finish, since we can
