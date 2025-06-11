@@ -18,12 +18,12 @@ PKG_NAME:=morse-regdb
 PKG_RELEASE:=1
 PKG_BUILD_DEPENDS:=python3/host
 
-PKG_SOURCE_VERSION:=v2.2.1
+PKG_SOURCE_VERSION:=v2.4.1
 # This points to an internal repo, but the repo is not used unless REGENERATE is set
 # (see initial comment).
 PKG_SOURCE_URL:=ssh://git@bitbucket.org/morsemicro/morse_regdb.git
 PKG_SOURCE_PROTO:=git
-PKG_MIRROR_HASH:=39f04ac799341e7a07d256c89ad8d30e22848f28af211a2a313bf9a16e5a6311
+PKG_MIRROR_HASH:=5609713ce587ba189baa5b6e3a99fddc5a36c7f0f77a1c2e5d7d45647d023114
 
 PKG_VERSION:=$(PKG_SOURCE_VERSION)
 
