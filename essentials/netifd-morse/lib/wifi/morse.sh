@@ -146,7 +146,8 @@ EOF
 				morse,halowlink1)
 					bcf=bcf_mm_hl1.bin
 				;;
-				morse,ekh01-01)
+				morse,ekh01-01 |\
+				morse,halowlink2)
 					bcf=bcf_mf15457.bin
 				;;
 				*)

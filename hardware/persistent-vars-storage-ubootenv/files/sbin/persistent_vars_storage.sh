@@ -44,7 +44,8 @@ show_factory_data()
 	local mm_region
 
 	case "$(cat /tmp/sysinfo/board_name)" in
-		morse,halowlink1)
+		morse,halowlink1 |\
+		morse,halowlink2)
 			case "$1" in
 				device_password)
 					show_raw_partition_data factory 0x40a0 32
