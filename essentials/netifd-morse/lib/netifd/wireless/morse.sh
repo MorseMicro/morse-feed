@@ -61,6 +61,28 @@ check_sgi(){
 	fi
 }
 
+check_usb_powersave(){
+	powersave_val=0
+	json_select interfaces
+	json_get_keys interface_ids
+
+	for id in $interface_ids; do
+		json_select "$id"
+		if json_is_a config object;then
+			json_select config
+			json_get_var powersave powersave
+			if [ -n "$powersave" ] && [ "$powersave" = "1" ]; then
+				powersave_val=1
+				json_select ..; json_select ..
+				break
+			fi
+			json_select ..
+		fi
+		json_select ..
+	done
+	json_select ..
+}
+
 # Determines if we should change the specified bcf because
 # of the vfem_4v3 parameters (and reports errors if nonsense).
 get_vfem_4v3_bcf() {
@@ -121,11 +143,15 @@ build_morse_mod_params(){
 
 	MOD_PARAMS="$MOD_PARAMS macaddr_suffix=$ETH0_MAC_SUFFIX"
 
-	#APP-4066: Completely disable powersave for EC USB mode until the driver issue is fixed
 	#APP-4384: Disable USB coredump support to prevent potential host system stalls.
+	#APP-4887: Keep powersave disabled by default on USB-based Morse devices to ensure the LED remains functional.
 	if [[ $path  = *usb* ]]; then
-		MOD_PARAMS="$MOD_PARAMS enable_ps=0"
 		MOD_PARAMS="$MOD_PARAMS enable_coredump=N"
+
+		check_usb_powersave
+		if [ "$powersave_val" -eq 0 ]; then
+			MOD_PARAMS="$MOD_PARAMS enable_ps=0"
+		fi
 	fi
 
 	MOD_PARAMS=`echo $MOD_PARAMS | xargs`
@@ -660,9 +686,8 @@ morse_iface_create() {
 				iw dev "$ifname" set 4addr off
 			fi
 
-			# Disable powersave for Morse USB mode as a workaround for APP-3745,
-			# 325b is the Vendor ID for Morse USB MM8108
-			if grep -i '325b' /sys/kernel/debug/usb/devices ; then
+			# Disable powersave for Morse USB mode as a workaround for APP-3745
+			if iwinfo dot11ah path "$phy" | grep -q "usb"; then
 				set_default powersave 0
 			else
 				set_default powersave 1
