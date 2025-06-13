@@ -1145,6 +1145,9 @@ morse_override_wpa_supplicant_add_network() {
 		# so any AP/mesh point can easily figure out who we are (i.e. map the MAC
 		# address back to an IP). Note that if network_ifname exists, this implies it's
 		# a bridge (this actually comes from bridge-ifname in what netifd provides).
+		# However, if the bridge MAC does not have a set MAC address, we should not
+		# use it, as it may change later. netifd will prefer this interface's
+		# MAC address for the bridge when it comes up.
 		#
 		# Exceptions (why this is in an else):
 		# - I don't know what matter does.
@@ -1155,7 +1158,7 @@ morse_override_wpa_supplicant_add_network() {
 		#   only work with a particular hardware MAC address). Note that currently
 		#   once DPP is done we switch to a 'normal' configuration, so this won't
 		#   cause any issues.
-		if [ -n "$network_ifname" ]; then
+		if [ -n "$network_ifname" ] && [ "$(cat /sys/class/net/$network_ifname/addr_assign_type)" = 3 ]; then
 			# 3 means 'use specified mac_value' (cf 0 is normal, and 1/2 are randomisation strategies)
 			append network_data "mac_addr=3" "$N$T"
 			append network_data "mac_value=$(cat "/sys/class/net/$network_ifname/address")" "$N$T"
