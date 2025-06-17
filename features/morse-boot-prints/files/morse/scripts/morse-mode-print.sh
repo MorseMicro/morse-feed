@@ -10,7 +10,7 @@ print_halow_info()
 	json_get_vars morse_mode
 
 	if ! json_is_a device object || ! json_is_a iface object; then
-        echo -e "\nHaLow not configured.\n"
+		echo -e "\nHaLow not configured.\n"
 		return
 	fi
 
@@ -19,7 +19,7 @@ print_halow_info()
 	json_select ..
 
 	json_select device
-	json_get_vars country channel
+	json_get_vars country channel s1g_chanbw op_class
 	json_select ..
 
 	if json_is_a prplmesh_config object; then
@@ -34,11 +34,11 @@ print_halow_info()
 
 	# To find out the channel/BW for a STA, we'd need to find out the ifname _and_
 	# then call iwinfo. Not worth it for now.
-    if [ "$mode" != "sta" ]; then
-        _get_regulatory "$mode" "$country" "$channel" ""
-        if [ $? -ne 0 ]; then
-            echo "Couldn't find reg for $morse_interface_mode in $country with ch=$channel op=$op_class" >&2
-        fi
+	if [ "$mode" != "sta" ]; then
+		_get_regulatory "$country" "$channel" "$s1g_chanbw" "$op_class"
+		if [ $? -ne 0 ]; then
+			echo "Couldn't find reg for $morse_interface_mode in $country with ch=$channel op=$op_class" >&2
+		fi
 	fi
 
 	# And finally we have enough info to do the print.
@@ -60,12 +60,12 @@ print_halow_info()
 	fi
 
 	echo "Country: $country"
-    if [ "$mode" != "sta" ]; then
-        echo "Channel: $channel"
-        echo "Bandwidth: $halow_bw"
-    fi
+	if [ "$mode" != "sta" ]; then
+		echo "Channel: $channel"
+		echo "Bandwidth: $s1g_chanbw"
+	fi
 
-    echo
+	echo
 }
 
 print_halow_info

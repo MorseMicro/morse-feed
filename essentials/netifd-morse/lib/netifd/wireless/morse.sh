@@ -190,6 +190,7 @@ drv_morse_init_device_config() {
 	config_add_int frag rts
 	config_add_int op_class
 	config_add_int txpower
+	config_add_int s1g_chanbw
 	config_add_int s1g_prim_chwidth
 	config_add_string s1g_prim_1mhz_chan_index
 	config_add_int bss_color
@@ -384,6 +385,7 @@ drv_morse_setup() {
 	json_get_vars \
 		phy macaddr path \
 		country \
+		s1g_chanbw \
 		txpower \
 		frag rts htmode \
 		ampdu \
@@ -536,7 +538,7 @@ drv_morse_setup() {
 
 	if [ -n "$ifnames_monitor" ]; then
 		json_select config
-		json_get_vars op_class channel country s1g_prim_chwidth s1g_prim_1mhz_chan_index
+		json_get_vars op_class channel country s1g_chanbw s1g_prim_chwidth s1g_prim_1mhz_chan_index
 		json_select ..
 
 		for_each_interface "monitor" morse_setup_monitor
@@ -632,8 +634,12 @@ drv_morse_teardown() {
 }
 
 morse_iface_create() {
-	if [ "$interface_count" -gt 2 ]; then
+	if [ "$interface_count" -ge 2 ]; then
 		return 2
+	fi
+
+	if [ "$auto_channel" -gt 0 -a "$interface_count" -ge 1 ]; then
+		return 7
 	fi
 
 	if [ -z "$interface_first" ]; then
@@ -667,7 +673,8 @@ morse_iface_create() {
 
 	case "$mode" in
 		ap)
-			[ "$has_chan_info" != 1 ] && return 4
+			[ "$country" = EU -o "$country" = GB ] && [ "$auto_channel" = 0 ] && return 8
+			[ "$has_chan_info" != 1 ] && return 6
 			morse_iw_interface_add "$phy" "$ifname" __ap || return 1
 			ifconfig "$ifname" hw ether $macaddr
 			ip link set $ifname up
@@ -696,19 +703,23 @@ morse_iface_create() {
 		;;
 
 		mesh)
-			[ "$has_chan_info" != 1 ] && return 4
+			[ "$has_chan_info" != 1 ] && return 6
+			[ "$country" = EU -o "$country" = GB ] && return 9
+			[ "$auto_channel" -gt 0 ] && return 4
 			morse_iw_interface_add "$phy" "$ifname" mp || return 1
 			ifconfig "$ifname" hw ether $macaddr
 			ip link set $ifname up
 		;;
 
 		adhoc)
-			[ "$has_chan_info" != 1 ] && return 4
+			[ "$has_chan_info" != 1 ] && return 6
+			[ "$country" = EU -o "$country" = GB ] && return 9
+			[ "$auto_channel" -gt 0 ] && return 4
 			morse_iw_interface_add "$phy" "$ifname" adhoc || return 1
 		;;
 
 		monitor)
-			[ "$has_chan_info" != 1 ] && return 4
+			[ "$has_chan_info" != 1 ] && return 6
 			morse_iw_interface_add "$phy" "$ifname" monitor || return 1
 			ip link set "$ifname" up
 			#we need morse0 to dump the packets from.
@@ -751,10 +762,22 @@ morse_iface_bringup() {
 			echo "wifi-iface $iface_index mode=$mode ignored; can't coexist interface with mode=$interface_first"
 			;;
 		4)
-			echo "wifi-iface $iface_index mode=$mode ignored; requires country and channel to be set on wifi-device"
+			echo "wifi-iface $iface_index mode=$mode ignored; cannot have channel=auto in this mode on wifi-device"
 			;;
 		5)
 			echo "wifi-iface $iface_index mode=$mode ignored; requires country to be set on wifi-device"
+			;;
+		6)
+			echo "wifi-iface $iface_index mode=$mode ignored; requires valid country/channel setup on wifi-device"
+			;;
+		7)
+			echo "wifi-iface $iface_index mode=$mode ignored; if using channel=auto, only a single interface is supported"
+			;;
+		8)
+			echo "wifi-iface $iface_index mode=$mode ignored; EU/GB must have channel set to auto due to regulatory restrictions"
+			;;
+		9)
+			echo "wifi-iface $iface_index mode=$mode ignored; EU/GB cannot use mesh/adhoc interfaces due to regulatory restrictions"
 			;;
 		0)
 			# This helps us track if we've managed to successfully create
@@ -918,16 +941,15 @@ morse_setup_monitor() {
 		return
 	fi
 
-	halow_bw=
 	center_freq=
-	_get_regulatory NA "$country" "$channel" "$op_class"
+	_get_regulatory "$country" "$channel" "$s1g_chanbw" "$op_class"
 	if [ $? -ne 0 ]; then
-		echo "Couldn't find reg for NA in $country with ch=$channel op=$op_class" >&2
+		echo "Couldn't find reg for monitor in $country with ch=$channel op=$op_class" >&2
 		return
 	fi
 	#multiply the center_freq by 1000 and remove the decimal part
 	center_freq=$(echo "$center_freq * 1000" | bc | awk '{printf "%g\n", $0}')
-	morse_cli -i $ifname channel -c $center_freq ${halow_bw:+-o $halow_bw} ${s1g_prim_chwidth:+-p $(( s1g_prim_chwidth + 1 ))} ${s1g_prim_1mhz_chan_index:+-n $s1g_prim_1mhz_chan_index}
+	morse_cli -i $ifname channel -c $center_freq ${s1g_chanbw:+-o $s1g_chanbw} ${s1g_prim_chwidth:+-p $(( s1g_prim_chwidth + 1 ))} ${s1g_prim_1mhz_chan_index:+-n $s1g_prim_1mhz_chan_index}
 
 	wireless_add_vif "$iface_index" "$ifname"
 }
@@ -978,36 +1000,31 @@ morse_interface_cleanup() {
 #################################################
 
 morse_set_chan_info() {
-	if [ -z "$country" -o -z "$channel" -o "$channel" = 0 ]; then
-		return 1
-	fi
-
-	halow_bw=
 	center_freq=
-	_get_regulatory "$mode" "$country" "$channel" "$op_class"
+	_get_regulatory "$country" "$channel" "$s1g_chanbw" "$op_class"
 	if [ $? -ne 0 ]; then
-		echo "Couldn't find reg for $mode in $country with ch=$channel op=$op_class" >&2
+		echo "Couldn't find regulatory data for $country with ch=$channel bw=$s1g_chanbw op=$op_class" >&2
 		return 1
 	fi
 
 	json_select config
 	json_get_vars s1g_prim_1mhz_chan_index s1g_prim_chwidth
 
-	if [ -n "$halow_bw" ] && [ -n "$s1g_prim_chwidth" ] && [ "$s1g_prim_chwidth" -gt "$halow_bw" ]; then
+	if [ -n "$s1g_chanbw" ] && [ -n "$s1g_prim_chwidth" ] && [ "$s1g_prim_chwidth" -gt "$s1g_chanbw" ]; then
 		s1g_prim_chwidth=
-		echo "s1g_prim_chwidth incorrectly set for bw=$halow_bw, using default"
+		echo "s1g_prim_chwidth incorrectly set for bw=$s1g_chanbw, using default"
 	fi
 
-	if [ -n "$halow_bw" ] && [ -n "$s1g_prim_1mhz_chan_index" ] && [ "$s1g_prim_1mhz_chan_index" -ge "$halow_bw" ]; then
+	if [ -n "$s1g_chanbw" ] && [ -n "$s1g_prim_1mhz_chan_index" ] && [ "$s1g_prim_1mhz_chan_index" -ge "$s1g_chanbw" ]; then
 		s1g_prim_1mhz_chan_index=
-		echo "s1g_prim_1mhz_chan_index incorrectly set for bw=$halow_bw, using default"
+		echo "s1g_prim_1mhz_chan_index incorrectly set for bw=$s1g_chanbw, using default"
 	fi
 
 	#If bw config is empty the chwidth and chanindex are set to defaults.
 	#In case of STA, where bw config is empty these configs are omitted and not configured to wpa_supplicant
 
 	if [ -z "$s1g_prim_chwidth" ]; then
-		if [ ! -z $halow_bw ] && ([ $halow_bw -eq 4 ] || [ $halow_bw -eq 8 ]); then
+		if [ "$s1g_chanbw" = 4 -o "$s1g_chanbw" = 8 ]; then
 			s1g_prim_chwidth=2
 		else
 			s1g_prim_chwidth=1
@@ -1016,10 +1033,10 @@ morse_set_chan_info() {
 
 	set_default s1g_prim_1mhz_chan_index auto
 	if [ "$s1g_prim_1mhz_chan_index" = "auto" ]; then
-		if [ ! -z $halow_bw ] && [ $halow_bw -eq 8 ]; then
+		if [ "$s1g_chanbw" = 8 ]; then
 			s1g_prim_1mhz_chan_index=3
-		elif [ ! -z $halow_bw ] && [ $halow_bw -eq 4 ]; then
-			if [ "$s1g_prim_chwidth" -eq 2 ]; then
+		elif [ "$s1g_chanbw" = 4 ]; then
+			if [ "$s1g_prim_chwidth" = 2 ]; then
 				s1g_prim_1mhz_chan_index=2
 			else
 				s1g_prim_1mhz_chan_index=1
@@ -1031,6 +1048,7 @@ morse_set_chan_info() {
 
 	s1g_prim_chwidth=$(( $s1g_prim_chwidth - 1 ))
 
+	json_add_string channel "$channel"
 	json_add_string freq "$center_freq"
 	json_add_string op_class "$op_class"
 	json_add_string s1g_prim_1mhz_chan_index "$s1g_prim_1mhz_chan_index"

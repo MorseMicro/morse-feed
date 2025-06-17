@@ -39,64 +39,71 @@ list_phy_interfaces() {
 	done
 }
 
-num_test()
-{
-	case $1 in
-		''|*[!0-9]*)
-			return 1
-			;;
-		*)
-			;;
-	esac
-	return 0
-}
-
+# Get regulatory info.
+# Country is required, remaining args are optional.
+# If channel is unset, it will choose a high bandwidth channel.
+# If channel is auto, it will choose the maximum available bandwidth if bandwidth
+# is not provided.
+# Sets "$country", "$channel", "$s1g_chanbw", and "$op_class".
+# "$center_freq" is also set if channel is not auto.
 _get_regulatory() {
-	local _mode=$1
-	local _country=$2
-	local _channel=$3
-	local _op_class=$4
+	country=$1
+	channel=$2
+	s1g_chanbw=$3
+	op_class=$4
 
-	local dc_min="0.01"
-	local dc_max="100.00"
-	local cc; local bw; local l_op; local g_op;
-	local freq; local dc_ap; local dc_sta;
+	local cc; local bw; local l_op; local g_op; local freq
+	local remainder
+
+	if [ -z "$country" ]; then
+		return 2
+	fi
+
+	# Choose the maximum possible bandwidth if no bw set and auto
+	# (NB if no channel is set, auto_channel is 1).
+	if [ "$auto_channel" -gt 0 -a -z "$s1g_chanbw" ]; then
+		s1g_chanbw="$(awk -F, '$1==country && $2 > max {max=$2} END {print max}' \
+			country="$country" /usr/share/morse-regdb/channels.csv)"
+	fi
 
 	oIFS=$IFS
 	HEADER=1
 	while IFS=, read -r cc bw ch l_op g_op freq remainder; do
-		if [ $HEADER = 1 ]; then
+		if [ "$HEADER" = 1 ]; then
 			HEADER=0
 			continue
 		fi
-		num_test $bw
-		[ $? -eq 1 ] 		&& continue
-		num_test $ch
-		[ $? -eq 1 ] 		&& continue
-		num_test $l_op
-		[ $? -eq 1 ] 		&& continue
-		num_test $g_op
-		[ $? -eq 1 ] 		&& continue
 
-		if [ "$cc" == "$_country" ] && [ "$ch" -eq "$_channel" ]; then
-			if [ -z "$_op_class" ]; then
-				halow_bw=$bw
-				center_freq=$freq
-				# If you didn't pass op_class, set it from this data.
+		if [ "$cc" != "$country" ]; then
+			continue
+		fi
+
+		if [ -n "$s1g_chanbw" -a "$bw" != "$s1g_chanbw" ]; then
+			continue
+		fi
+
+		if [ -n "$op_class" ] && ! [ "$l_op" = "$op_class" -o "$g_op" = "$op_class" ]; then
+			continue
+		fi
+
+		if [ "$auto_channel" -gt 0 -o "$channel" = "$ch" ]; then
+			if [ -z "$op_class" ]; then
 				op_class="$g_op"
-				IFS=$oIFS
-				return 0;
-			elif [ "$l_op" -eq "$_op_class" ] || [ "$g_op" -eq "$_op_class" ]; then
-				halow_bw=$bw
-				center_freq=$freq
-				IFS=$oIFS
-				return 0;
 			fi
+
+			if [ "$auto_channel" -eq 0 ]; then
+				channel=$ch
+				s1g_chanbw=$bw
+				center_freq=$freq
+			fi
+
+			IFS=$oIFS
+			return 0
 		fi
 	done < /usr/share/morse-regdb/channels.csv
 
 	IFS=$oIFS
-	return 1;
+	return 1
 }
 
 
