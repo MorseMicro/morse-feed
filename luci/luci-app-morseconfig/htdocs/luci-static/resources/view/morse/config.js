@@ -428,6 +428,14 @@ return view.extend({
 				}
 			}
 
+			if (wd.channel === 'auto') {
+				if (modes.length > 1) {
+					throw new TypeError(_('Automatic channel selection (ACS) can only be used with a single interface with a Morse device.'));
+				} else if (['mesh', 'adhoc'].includes(modes[0])) {
+					throw new TypeError(_('Automatic channel selection (ACS) does not support Mesh Point or Ad-Hoc interfaces.'));
+				}
+			}
+
 			if (modes.length > 2) {
 				// This is consistent with what iw phy reports as a device capability.
 				throw new TypeError(_('Morse devices can currently have at most two enabled interfaces.'));
