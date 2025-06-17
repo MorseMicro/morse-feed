@@ -439,6 +439,7 @@ return wizard.AbstractWizardView.extend({
 		option.ucisection = morseDeviceName;
 		option.rmempty = false;
 		option.retain = true;
+		option.disableACS = true;
 
 		/*****************************************************************************/
 
