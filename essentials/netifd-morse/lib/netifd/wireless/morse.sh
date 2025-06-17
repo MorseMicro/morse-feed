@@ -6,6 +6,7 @@
 . /lib/netifd/morse/morse_utils.sh
 
 echo "Configuring morse device"
+device_section="$3"
 init_wireless_driver "$@"
 
 MM_MOD_INT="watchdog_interval_secs max_rates max_rate_tries spi_clock_speed max_txq_len virtual_sta_max max_aggregation_count
@@ -634,6 +635,11 @@ drv_morse_teardown() {
 }
 
 morse_iface_create() {
+	local auto_channel_only=0
+	if [ "$country" = EU -o "$country" = GB ]; then
+		auto_channel_only=1
+	fi
+
 	if [ "$interface_count" -ge 2 ]; then
 		return 2
 	fi
@@ -673,7 +679,22 @@ morse_iface_create() {
 
 	case "$mode" in
 		ap)
-			[ "$country" = EU -o "$country" = GB ] && [ "$auto_channel" = 0 ] && return 8
+			if [ "$auto_channel_only" = 1 ]; then
+				[ "$auto_channel" = 0 ] && return 8
+
+				if ! service smart_manager info > /dev/null; then
+					return 10
+				fi
+
+				# If we don't have a DCS config section, it will default to enabled if channel=auto.
+				# However, if it is there, is must be enabled.
+				if uci get "smart_manager.${device_section}_dcs" > /dev/null 2>&1; then
+					if [ "$(uci get smart_manager.${device_section}_dcs.enabled 2> /dev/null)" != 1 ]; then
+						return 10
+					fi
+				fi
+			fi
+
 			[ "$has_chan_info" != 1 ] && return 6
 			morse_iw_interface_add "$phy" "$ifname" __ap || return 1
 			ifconfig "$ifname" hw ether $macaddr
@@ -704,7 +725,7 @@ morse_iface_create() {
 
 		mesh)
 			[ "$has_chan_info" != 1 ] && return 6
-			[ "$country" = EU -o "$country" = GB ] && return 9
+			[ "$auto_channel_only" = 1 ] && return 9
 			[ "$auto_channel" -gt 0 ] && return 4
 			morse_iw_interface_add "$phy" "$ifname" mp || return 1
 			ifconfig "$ifname" hw ether $macaddr
@@ -714,6 +735,7 @@ morse_iface_create() {
 		adhoc)
 			[ "$has_chan_info" != 1 ] && return 6
 			[ "$country" = EU -o "$country" = GB ] && return 9
+			[ "$auto_channel_only" = 1 ] && return 9
 			[ "$auto_channel" -gt 0 ] && return 4
 			morse_iw_interface_add "$phy" "$ifname" adhoc || return 1
 		;;
@@ -778,6 +800,9 @@ morse_iface_bringup() {
 			;;
 		9)
 			echo "wifi-iface $iface_index mode=$mode ignored; EU/GB cannot use mesh/adhoc interfaces due to regulatory restrictions"
+			;;
+		10)
+			echo "wifi-iface $iface_index mode=$mode ignored; EU/GB must have smart_manager installed and active for dynamic channel selection (DCS)"
 			;;
 		0)
 			# This helps us track if we've managed to successfully create
