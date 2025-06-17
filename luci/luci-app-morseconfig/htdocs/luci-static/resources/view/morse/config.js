@@ -681,11 +681,12 @@ return view.extend({
 			// Fundamental mode change; existing ssid/encryption/key are not relevant.
 
 			const ssidOption = this.map.lookupOption('ssid', sectionId)[0];
-			if (['sta', 'sta-wds'].includes(value)) {
-				ssidOption.renderUpdate(sectionId, '');
-			} else {
-				ssidOption.renderUpdate(sectionId, morseuci.getDefaultSSID());
-			}
+			const newSSID = ['sta', 'sta-wds'].includes(value) ? '' : morseuci.getDefaultSSID();
+			// We force the write here because the onchange callback may not be triggered
+			// if the SSID is the same, but we need to write if the mode changes
+			// (dangers of having the same widget write to mesh_id/ssid).
+			ssidOption.write(sectionId, newSSID);
+			ssidOption.renderUpdate(sectionId, newSSID);
 
 			const newKey = modeUsesDefaultWifiKey(value) ? morseuci.getDefaultWifiKey() : '';
 			const keyOption = this.map.lookupOption('_wpa_key', sectionId)[0];
