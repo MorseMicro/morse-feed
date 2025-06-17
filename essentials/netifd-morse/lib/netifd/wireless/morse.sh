@@ -143,11 +143,8 @@ build_morse_mod_params(){
 
 	MOD_PARAMS="$MOD_PARAMS macaddr_suffix=$ETH0_MAC_SUFFIX"
 
-	#APP-4384: Disable USB coredump support to prevent potential host system stalls.
 	#APP-4887: Keep powersave disabled by default on USB-based Morse devices to ensure the LED remains functional.
 	if [[ $path  = *usb* ]]; then
-		MOD_PARAMS="$MOD_PARAMS enable_coredump=N"
-
 		check_usb_powersave
 		if [ "$powersave_val" -eq 0 ]; then
 			MOD_PARAMS="$MOD_PARAMS enable_ps=0"
