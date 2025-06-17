@@ -15,6 +15,8 @@
 'require rpc';
 'require ui';
 
+const S1G_AUTO_ONLY_COUNTRIES = new Set(['EU', 'GB']);
+
 var callSetPassword = rpc.declare({
 	object: 'luci',
 	method: 'setPassword',
@@ -171,8 +173,21 @@ return view.extend({
 
 			// Set channel appropriately if the country was mutated
 			// so we're less likely to leave this in a broken state.
-			const bestChannel = Object.values(channelMap[value]).reduce((a, b) => Number(a.bw) > Number(b.bw) ? a : b);
-			uci.set('wireless', morseDevice['.name'], 'channel', bestChannel['s1g_chan']);
+			const bestBw = Math.max(...Object.values(channelMap[value]).map(ch => Number(ch.bw)));
+			const bestChannels = Object.values(channelMap[value]).filter(ch => Number(ch.bw) === bestBw);
+			// Choose centre channel as least likely to have back-offs
+			// (and least likely to be disabled, since we don't have access
+			// to this as we're not using iwinfo countrylist since the
+			// driver may not have been loaded).
+			const bestChannel = bestChannels[Math.floor(bestChannels.length / 2)];
+
+			if (S1G_AUTO_ONLY_COUNTRIES.has(value)) {
+				uci.set('wireless', morseDevice['.name'], 'channel', 'auto');
+				uci.set('wireless', morseDevice['.name'], 's1g_chanbw', bestChannel.bw);
+			} else {
+				uci.set('wireless', morseDevice['.name'], 'channel', bestChannel.s1g_chan);
+				uci.unset('wireless', morseDevice['.name'], 's1g_chanbw');
+			}
 		};
 
 		const systemMap = new form.Map('system');
