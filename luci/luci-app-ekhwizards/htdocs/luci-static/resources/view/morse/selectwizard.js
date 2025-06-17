@@ -6,6 +6,8 @@
 'require tools.morse.wizard as wizard';
 'require uci';
 
+const S1G_AUTO_ONLY_COUNTRIES = new Set(['EU', 'GB']);
+
 return view.extend({
 	async load() {
 		const closeButton = document.querySelector('body header button.close');
@@ -15,6 +17,7 @@ return view.extend({
 			uci.load('mesh11sd').then(() => true).catch(() => false),
 			uci.load('matter').then(() => true).catch(() => false),
 			uci.load('luci'),
+			uci.load('wireless').then(() => true).catch(() => false),
 		]);
 	},
 
@@ -35,6 +38,9 @@ return view.extend({
 	},
 
 	render([hasPrplmesh, hasMesh11sd, hasMatter]) {
+		const morseDevice = uci.sections('wireless', 'wifi-device').find(s => s.type === 'morse');
+		const autoOnlyCountry = S1G_AUTO_ONLY_COUNTRIES.has(morseDevice?.country);
+
 		const cards = [
 			this.card(
 				L.url('admin', 'morse', 'wizard'),
@@ -43,7 +49,7 @@ return view.extend({
 				L.resourceCacheBusted('view/morse/images/wizard.svg'),
 			),
 		];
-		if (hasMesh11sd) {
+		if (!autoOnlyCountry && hasMesh11sd) {
 			cards.push(this.card(
 				L.url('admin', 'morse', 'meshwizard'),
 				_('802.11s Mesh'),
@@ -51,7 +57,7 @@ return view.extend({
 				L.resourceCacheBusted('view/morse/images/meshwizard.svg'),
 			));
 		}
-		if (hasPrplmesh) {
+		if (!autoOnlyCountry && hasPrplmesh) {
 			cards.push(
 				this.card(
 					L.url('admin', 'morse', 'easymeshwizard'),
@@ -60,7 +66,7 @@ return view.extend({
 					L.resourceCacheBusted('view/morse/images/easymeshwizard.svg'),
 				));
 		}
-		if (hasMatter) {
+		if (!autoOnlyCountry && hasMatter) {
 			cards.push(
 				this.card(
 					L.url('admin', 'morse', 'matterwizard'),
@@ -69,6 +75,12 @@ return view.extend({
 					L.resourceCacheBusted('view/morse/images/matterwizard.svg'),
 				));
 		}
+
+		if (cards.length === 1) {
+			window.location.href = L.url('admin', 'morse', 'wizard');
+			return;
+		}
+
 		return E('div', { class: 'wizard-contents' }, [
 			E('h2', 'Select a Wizard'),
 			E('div', { class: 'cards' }, cards),
