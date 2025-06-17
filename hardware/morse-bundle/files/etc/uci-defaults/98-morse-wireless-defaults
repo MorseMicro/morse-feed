@@ -63,9 +63,21 @@ _change_device_defaults() {
 			# device is down, and the device is not up until we have a valid channel.
 			local bandwidth="$(awk -F, '$1==region && $2 > max {max=$2} END {print max}' \
 				region="$mm_region" /usr/share/morse-regdb/channels.csv)"
-			local channel="$(awk -F, '$1==region && $2==bw {print $3}' \
-				region="$mm_region" bw="$bandwidth" /usr/share/morse-regdb/channels.csv \
-				| sort -n | awk '{a[NR]=$1} END {print a[int((NR+1)/2)]}')"
+
+			# NB channel selection is no longer necessary, as we have
+			# moved to the default OpenWrt behaviour of using ACS if
+			# the channel is not set (and use the max bandwidth). 
+			# However, for now we only make it the explicit default
+			# in EU/GB, where it is required.
+			local channel
+			if [ "$mm_region" = EU -o "$mm_region" = GB ]; then
+				channel=auto
+				uci set "wireless.$config.s1g_chanbw=$bandwidth"
+			else
+				channel="$(awk -F, '$1==region && $2==bw {print $3}' \
+					region="$mm_region" bw="$bandwidth" /usr/share/morse-regdb/channels.csv \
+					| sort -n | awk '{a[NR]=$1} END {print a[int((NR+1)/2)]}')"
+			fi
 
 			uci set "wireless.$config.channel=$channel"
 			echo "uci-default-morse-wireless: setting $config to $mm_region on $channel" > /dev/kmsg
