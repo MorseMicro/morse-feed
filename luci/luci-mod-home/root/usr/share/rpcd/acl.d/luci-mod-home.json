@@ -7,10 +7,11 @@
 			},
 			"ubus": {
 				"system": [ "board", "info" ]
-			}
+			},
+			"uci": [ "system", "luci", "firewall", "dhcp", "network", "wireless", "mesh11sd", "prplmesh", "matter", "smart_manager" ]
 		},
 		"write": {
-			"uci": [ "dhcp" ]
+			"uci": [ "system", "luci", "firewall", "dhcp", "network", "wireless", "mesh11sd", "prplmesh", "matter", "smart_manager" ]
 		}
 	},
 
