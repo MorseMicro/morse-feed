@@ -764,7 +764,7 @@ return view.extend({
 		option = section.option(morseui.SSIDListScan, 'ssid', _('SSID/Mesh ID'));
 		if (this.hasQRCode && isMorse) {
 			option.depends('dpp', '0');
-			option.depends({ '!reverse': true, 'mode': 'sta' });
+			option.depends({ '!reverse': true, '!contains': true, 'mode': 'sta' });
 		}
 		option.readonly = getReadOnly('ssid');
 		if (option.readonly) {
