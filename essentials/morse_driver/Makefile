@@ -120,11 +120,4 @@ define Build/Compile
 		modules
 endef
 
-define KernelPackage/morse/install
-	if [ "$(CONFIG_MORSE_USB)" = "y" ]; then \
-		$(INSTALL_DIR) $(1)/etc/hotplug.d/usb; \
-		$(INSTALL_BIN) ./files/morse-usb-device.hotplug $(1)/etc/hotplug.d/usb/10-morse-usb-device; \
-	fi
-endef
-
 $(eval $(call KernelPackage,morse))
