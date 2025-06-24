@@ -146,62 +146,33 @@ r() {
 # (proxy for a proper data structure), and must be given
 # an absolute path.
 s() {
-    x="$1"
-
-    shift
-    exs=""
-    for ex in "$@"; do
-        exs="$exs --exclude $ex"
-    done
-
-    if [ -e "$x" ]; then
-        echo "Saving: $x with $exs"
-        mkdir -p "files$(dirname $x)"
-        rsync -a "$x" "files$(dirname $x)" $exs
-    fi
+	for x in "$@"; do
+		if [ -e "$x" ]; then
+			echo "Saving: $x"
+			mkdir -p "files$(dirname $x)"
+			cp -a "$x" "files$x"
+		fi
+	done
 }
 
 # Sanitise a keyword from a file
 #
-#   c files/etc/config/wireless "option key" "option password"
+#   sanitise_uci_file [option_name] files/etc/config/wireless
 #
-# This function will sanitise the lines with specified keywords in them.
+# This function will sanitise the lines with the specified uci options in them.
 #
-c() {
-    file="$1"
-
-    shift
-
-    echo "Filtering:" "$@" " From $file"
-    if [ -f "$file" ]; then
-set -x
-        for keyword in "$@"; do
-            sed -i "s/option[[:space:]]\+$keyword[[:space:]].*/option $keyword 'SANITISED'/" "$file"
-        done
-set +x
-    fi
-
+sanitise_uci_files() {
+	option_name=$1
+	shift
+	sed -i "s/option[[:space:]]\+$option_name[[:space:]].*/option $option_name 'SANITISED'/" "$@"
 }
 
-# Copy and Sanitise config files.
+# Remove sensitive data from the dump
 #
-#   f /etc/config "option key" "option password"
-#
-# This is pretty much the same as s function above, but it will
-# sanitise the options that shouldn't be in the snapshot.
-#
-f() {
-    x="$1"
-    shift
-
-    if [ -e "$x" ]; then
-        echo "Saving: $x and filtering out " "$@"
-        mkdir -p "files$(dirname $x)"
-        rsync -a "$x" "files$(dirname $x)"
-        for file in "files/$x"/*; do
-            c "$file" "$@"
-        done
-    fi
+sanitise_dump() {
+	sanitise_uci_files password files/etc/config/*
+	sanitise_uci_files key files/etc/config/wireless
+	sanitise_uci_files default_wifi_key files/etc/config/system
 }
 
 echo "Saving info to $OUTPUT_PATH/$DEBUG_DIR"
@@ -227,10 +198,9 @@ if is_easymesh_controller; then
     r prplmesh_data_model.json ubus call Device.WiFi.DataElements _get '{"depth":"10"}'
     r prplmesh_conn_map.txt    /opt/prplmesh/bin/beerocks_cli -c bml_conn_map
 fi
+
 s /var/log
-f /etc/config "password"
-# remove option key from /etc/config/wireless
-c files/etc/config/wireless "key"
+s /etc/config
 s /var/run
 s /lib/firmware/morse
 s /proc/interrupts
@@ -241,9 +211,10 @@ s /sys/kernel/debug/gpio
 s /sys/fs/pstore
 s /root/.ash_history
 
-# Reading one of these parameters errors out.
-s /sys/kernel/debug/ieee80211/$PHY/morse twt_sta_agreements twt_wi_tree 2> /dev/null
+# Reading fixed_rate errors out
+s /sys/kernel/debug/ieee80211/$PHY/morse 2> /dev/null
 
+sanitise_dump
 
 
 if $TEARDOWN_INTERFACE; then
