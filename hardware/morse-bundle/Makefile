@@ -21,7 +21,6 @@ define Package/morse-bundle
   DEPENDS:= +morse-boot-prints \
             +gpiod-tools \
             +@BUSYBOX_CONFIG_PATCH \
-            +rsync \
             +ucode
   # patch is used by the bcm2711 specific init.d script which
   # helps migrate our config to distroconfig.txt.
