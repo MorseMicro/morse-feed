@@ -577,13 +577,13 @@ drv_morse_setup() {
 			local unscaled_interval
 			if [ "$forced_listen_interval" -gt $((1000 * $max_val)) ]; then
 				scale_factor=3
-				unscaled_interval=$(("$forced_listen_interval" / 10000))
+				unscaled_interval=$(($forced_listen_interval / 10000))
 			elif [ "$forced_listen_interval" -gt $((10 * $max_val)) ]; then
 				scale_factor=2
-				unscaled_interval=$(("$forced_listen_interval" / 1000))
+				unscaled_interval=$(($forced_listen_interval / 1000))
 			elif [ "$forced_listen_interval" -gt $max_val ]; then
 				scale_factor=1
-				unscaled_interval=$(("$forced_listen_interval" / 1000))
+				unscaled_interval=$(($forced_listen_interval / 10))
 			else
 				scale_factor=0
 				unscaled_interval="$forced_listen_interval"
