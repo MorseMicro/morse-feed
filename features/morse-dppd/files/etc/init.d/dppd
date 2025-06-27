@@ -4,76 +4,61 @@ STOP=10
 USE_PROCD=1
 SERVICE=dppd
 
-find_morse_device() {
-        local device=$1
-        local type_morse
-        config_get type_morse $device type
+. /usr/share/libubox/jshn.sh
 
-        if [ "$type_morse" == "morse" ]; then
-                morse_radio=$1
-                return 1
-        fi
-}
 
-find_iface_ap_key() {
-        local iface=$1
-        local radio=$2
-        local dev_iface=
-        config_get dev_iface $iface device
+get_ap_config() {
+        ubus_output=$(ubus call network.wireless status)
+        json_init
+        json_load "$ubus_output"
+        json_get_keys radios
+        for radio in $radios; do
+                json_select "$radio"
 
-        [ "$dev_iface" != "$radio" ] && return;
+                json_select config
+                json_get_vars band
+                json_select ..
 
-        local is_ap=
-        config_get is_ap $iface mode
+                json_select interfaces
+                json_get_keys interfaces
+                for interface in $interfaces; do
+                        json_select "$interface"
+                        json_get_vars ifname
+                        json_select config
+                        json_get_vars mode encryption key
+                        json_select ..
+                        json_select ..
 
-        [ "$is_ap" != "ap" ] && return;
-
-        local encryption=
-        config_get encryption $iface encryption
-
-        [ "$encryption" != "sae" ] && return;
-
-        config_get key $iface key
-}
-
-get_encryption_key() {
-        config_load wireless
-        config_foreach find_morse_device wifi-device
-        config_foreach find_iface_ap_key wifi-iface $morse_radio
-}
-
-get_ctrl_if_path() {
-        ctrl_if_path=''
-        for cpath in /var/run/hostapd_s1g/*; do
-                if [ -S "$cpath" ]; then
-                        if [ -z "$ctrl_if_path" ]; then
-                                ctrl_if_path="$cpath"
-                        else
-                                logger -t $SERVICE -p daemon.warn "Found more than one hostapd control interface in /var/run/hostapd_s1g/*"
-                                break
+                        if [ "$band" = s1g -a "$mode" = ap ] && [ "$encryption" = sae -o "$encryption" = sae-mixed ]; then
+                                json_select ..
+                                json_select ..
+                                return 0
                         fi
-                fi
+                done
+                json_select ..
+
+                json_select ..
         done
+
+        return 1
 }
+
 
 start_service() {
-        get_encryption_key
-        if [ -z "$key" ]; then
-                logger -t $SERVICE -p daemon.crit "No AP on morse device with encryption as SAE"
+        if ! get_ap_config; then
+                logger -t $SERVICE -p daemon.crit "No AP on s1g device with encryption as sae/sae-mixed"
                 return 1
         fi
 
-        get_ctrl_if_path
-
-        if [ -z "$ctrl_if_path" ]; then
+        local ctrl_if_path="/var/run/hostapd_s1g/$ifname"
+        if ! [ -e "$ctrl_if_path" ]; then
                 logger -t $SERVICE -p daemon.warn "Unable to find hostapd control interface in /var/run/hostapd_s1g; retrying after 1 sec..."
                 sleep 1
-                get_ctrl_if_path
-        fi
 
-        if [ -z "$ctrl_if_path" ]; then
-                logger -t $SERVICE -p daemon.crit "Unable to find hostapd control interface in /var/run/hostapd_s1g"
-                return 1
+                if ! [ -e "$ctrl_if_path" ]; then
+                        logger -t $SERVICE -p daemon.crit "Unable to find hostapd control interface in /var/run/hostapd_s1g"
+                        return 1
+                fi
         fi
 
         procd_open_instance
@@ -87,8 +72,4 @@ start_service() {
         procd_set_param limits as="15000000 15000000"
         procd_set_param respawn 3600 5 50
         procd_close_instance
-}
-
-service_triggers() {
-        procd_add_reload_trigger wireless
 }
