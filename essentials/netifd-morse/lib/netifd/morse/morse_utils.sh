@@ -59,6 +59,18 @@ _get_regulatory() {
 		return 2
 	fi
 
+	# Setting auto_channel allows _get_regulatory to operate independent of netifd wireless scripts.
+	if [ -z "$auto_channel" ]; then
+		case "$channel" in
+			""|0|auto)
+				auto_channel=1 ;;
+			[0-9]*)
+				auto_channel=0 ;;
+			*)
+				return 2 ;;
+		esac
+	fi
+
 	# Choose the maximum possible bandwidth if no bw set and auto
 	# (NB if no channel is set, auto_channel is 1).
 	if [ "$auto_channel" -gt 0 -a -z "$s1g_chanbw" ]; then
