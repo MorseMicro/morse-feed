@@ -88,20 +88,22 @@ $algorithm_sec
 EOF
 }
 
-get_first_ifname() {
-	[ -n "$ifname" ] && return
+get_ifname() {
 	json_get_vars ifname
 }
 
-get_first_ap_ifname() {
+get_ap_ifname() {
 	# This relies on running after netifd morse.sh has set up the AP.
-	# Hostapd does not need to have started.
-	# At boot, this will fail due to the above, but netifd morse.sh will restart
-	# us after setting up the AP.
+	# However, this is not started at boot (no START=) line, but only
+	# when morse.sh is run (and has already created the ifaces).
+	# It will fail if there is more than one interface.
 	json_load "$(wifi status "$radio")"
 	json_select "$radio"
-	for_each_interface "ap" get_first_ifname
-	[ -n "$ifname" ] && return 0;
+	json_get_keys interface_keys interfaces
+	if [ "$(set -- $interface_keys; echo $#)" -gt 1 ]; then
+		return 1
+	fi
+	for_each_interface "ap" get_ifname
 }
 
 start_dcs() {
@@ -135,7 +137,12 @@ start_dcs() {
 	fi
 
 	ifname=
-	if ! get_first_ap_ifname "$radio"; then
+	if ! get_ap_ifname "$radio"; then
+		logger -t $SERVICE -p daemon.crit "Multiple interfaces on $radio so cannot use DCS"
+		return 1
+	fi
+
+	if [ -z "$ifname" ]; then
 		logger -t $SERVICE -p daemon.crit "Couldn't get ifname for ap on $radio"
 		return 1
 	fi
