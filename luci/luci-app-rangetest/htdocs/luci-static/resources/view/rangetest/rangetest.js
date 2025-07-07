@@ -251,7 +251,16 @@ async function updateKnownRemoteDevices() {
 
 	// If no devices are cached at all, display an error message
 	if (Object.keys(browseResults).length === 0) {
-		displayMessageToUser(MESSAGE_TYPES.WARNING, _('Remote Device Discovery'), _('No remote devices found!'));
+		displayMessageToUser(
+			MESSAGE_TYPES.WARNING,
+			_('Remote Device Discovery'),
+			_(
+				'No remote devices found!\n\n'
+				+ 'Please associate this device with a remote device you want to test against, then try again.\n\n'
+				+ 'If your device is still not appearing, you can manually enter an IPv4 address into the Remote Device dropdown.',
+			),
+			{ modal: true },
+		);
 		return;
 	}
 
@@ -283,7 +292,16 @@ async function updateKnownRemoteDevices() {
 	await Promise.allSettled(deviceInfoRequests);
 
 	if (Object.values(knownRemoteDevices).every(device => !device.compatible)) {
-		displayMessageToUser(MESSAGE_TYPES.WARNING, _('Remote Device Discovery'), _('No compatible remote devices found! Please upgrade any devices as necessary to use this tool.'));
+		displayMessageToUser(
+			MESSAGE_TYPES.WARNING,
+			_('Remote Device Discovery'),
+			_(
+				'No compatible remote devices found!\n\n'
+				+ 'Please ensure that all devices you intend to test with are running compatible versions. Upgrade them to matching versions and try again.\n\n'
+				+ 'If your device is still not appearing, you can manually enter an IPv4 address into the Remote Device dropdown.',
+			),
+			{ modal: true },
+		);
 	}
 }
 
