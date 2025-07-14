@@ -105,8 +105,30 @@ get_vfem_4v3_bcf() {
 
 build_morse_mod_params(){
 	json_select config
+	json_get_vars bcf vfem_4v3 firmware_type
 
-	json_get_vars firmware_type
+	# Remove 4v3 from BCF in case someone's tried to force it
+	# (backwards compat?).
+	bcf="${bcf/_4v3.bin/.bin}"
+	if [ "$vfem_4v3" = 1 ]; then
+		vfem_4v3_bcf=$(get_vfem_4v3_bcf "$bcf")
+		if [ -n "$vfem_4v3_bcf" ]; then
+			bcf="$vfem_4v3_bcf"
+		else
+			vfem_4v3=0
+		fi
+	fi
+
+	# Without this, we try to re-attach to running firmware
+	# which breaks some of our assumptions around bcf loading etc.
+	MOD_PARAMS="reattach_hw=0"
+	if [ -n "$bcf" ]; then
+		MOD_PARAMS="$MOD_PARAMS bcf=$bcf"
+	fi
+
+	if [ "$vfem_4v3" = 1 ]; then
+		MOD_PARAMS="$MOD_PARAMS enable_4v3_fem=1"
+	fi
 
 	for var in $MM_MOD_BOOL $MM_MOD_INT $MM_MOD_STRING; do
 		json_get_var mm_mod_val "$var"
@@ -358,28 +380,6 @@ change_module_parameters() {
 	fi
 }
 
-set_vfem_4v3_gpio(){
-	local vfem_4v3=$1
-	local vfem_4v3_gpio=$(gpiofind MM_BOOST | head -1)
-
-	if [ -z "$vfem_4v3_gpio" ]; then
-		return 1
-	fi
-
-	local cmd="gpioset -b -m signal $vfem_4v3_gpio=1"
-	local gpioset_pid=$(pgrep -fx "$cmd")
-
-	if [ "$vfem_4v3" = "1" ]; then
-		if [ -z "$gpioset_pid" ]; then
-			$cmd
-		fi
-	else
-		if [ -n "$gpioset_pid" ]; then
-			kill "$gpioset_pid"
-		fi
-	fi
-}
-
 drv_morse_setup() {
 	morse_band_override
 	json_select config
@@ -390,38 +390,17 @@ drv_morse_setup() {
 		txpower \
 		frag rts htmode \
 		ampdu \
-		bcf vfem_4v3 \
 		op_class \
 		bss_color forced_listen_interval \
 		thin_lmac_optimization
 	json_get_values basic_rate_list basic_rate
 	json_select ..
 
-	# Remove 4v3 from BCF in case someone's tried to force it
-	# (backwards compat?).
-	bcf="${bcf/_4v3.bin/.bin}"
-	if [ "$vfem_4v3" = 1 ]; then
-		vfem_4v3_bcf=$(get_vfem_4v3_bcf "$bcf")
-		if [ -n "$vfem_4v3_bcf" ]; then
-			bcf="$vfem_4v3_bcf"
-		else
-			vfem_4v3=0
-		fi
-	fi
-
-	# Without this, we try to re-attach to running firmware
-	# which breaks some of our assumptions around bcf loading etc.
-	MOD_PARAMS="reattach_hw=0"
-	if [ -n "$bcf" ]; then
-		MOD_PARAMS="$MOD_PARAMS bcf=$bcf"
-	fi
-
 	build_morse_mod_params
 
 	local inserted_module=0
 	if change_module_parameters || ! is_module_loaded; then
 		is_module_loaded && rmmod morse
-		set_vfem_4v3_gpio "$vfem_4v3"
 		/sbin/kmodloader /etc/modules.d/morse
 		inserted_module=1
 	fi
