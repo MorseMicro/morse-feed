@@ -470,7 +470,7 @@ drv_morse_setup() {
 	# of correctly cleaning them up).
 	uci -q -P /var/state set wireless._${phy}.aplist="${ifnames_ap}"
 	uci -q -P /var/state set wireless._${phy}.splist="${ifnames_sta} ${ifnames_mesh} ${ifnames_adhoc}"
-	uci -q -P /var/state set wireless._${phy}.umlist="${ifnames_none} ${ifname_monitor}"
+	uci -q -P /var/state set wireless._${phy}.umlist="${ifnames_none} ${ifnames_monitor}"
 
 	if [ -n "$ifnames_ap" ]; then
 		local hostapd_conf_file="/var/run/hostapd-$phy.conf"
