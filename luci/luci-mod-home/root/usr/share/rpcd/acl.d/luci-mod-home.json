@@ -58,5 +58,14 @@
 				"Device.WiFi.DataElements": [ "_get" ]
 			}
 		}
+	},
+
+	"luci-mod-home-index-mesh11s": {
+	"description": "Access to mesh11s get_topology",
+	"read": {
+		"ubus": {
+		"mesh11s": [ "get_topology" ]
+		}
+	}
 	}
 }
