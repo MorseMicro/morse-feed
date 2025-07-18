@@ -35,7 +35,7 @@ function get_morse_mesh_iface() {
 	});
 
 	let phy_result = _execute_command(`iwinfo dot11ah phyname path=${morsePath}`);
-	if(phy_result.output != null) {
+	if (phy_result.output != null) {
 		let phy = trim(phy_result.output);
 		let phyidx = int(readfile(`/sys/class/ieee80211/${phy}/index`));
 		let data = nl80211.request(
@@ -44,7 +44,7 @@ function get_morse_mesh_iface() {
 				{ wiphy: phyidx });
 
 		for (let res in data) {
-			if(res.iftype == nl80211.const.NL80211_IFTYPE_MESH_POINT)
+			if (res.iftype == nl80211.const.NL80211_IFTYPE_MESH_POINT)
 				return res.ifname;
 		}
 	}
@@ -57,7 +57,7 @@ function get_neighbors(iface) {
 				nl80211.const.NLM_F_DUMP,
 				{ dev: iface });
 
-	if(!sta_dump)
+	if (!sta_dump)
 		return null;
 
 	for (let sta in sta_dump) {
@@ -78,12 +78,12 @@ function get_paths(iface) {
 				nl80211.const.NLM_F_DUMP,
 				{ dev: iface });
 
-	if(!mpath_dump)
+	if (!mpath_dump)
 		return null;
 
 	let paths = [];
-	for(let path in mpath_dump) {
-		if(path["mac"] != path["mpath_next_hop"]) {
+	for (let path in mpath_dump) {
+		if (path["mac"] != path["mpath_next_hop"]) {
 			let path_info = path["mpath_info"];
 			push(paths, {
 				destination: path["mac"],
@@ -100,17 +100,17 @@ function get_count(neighbors, paths) {
 	let count = 0;
 	let non_neigh = {};
 
-	if(!neighbors)
+	if (!neighbors)
 		return count;
 
 	count += length(neighbors);
 
-	if(!paths)
+	if (!paths)
 		return count;
 
-	for(let path in paths) {
+	for (let path in paths) {
 		let mac=path["destination"];
-		if(mac && !non_neigh[mac]) {
+		if (mac && !non_neigh[mac]) {
 			non_neigh[mac] = true;
 			count++;
 		}

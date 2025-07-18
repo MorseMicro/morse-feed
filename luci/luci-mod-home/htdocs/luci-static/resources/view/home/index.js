@@ -1325,6 +1325,7 @@ return view.extend({
 
 		const cards = [];
 		const nonHaLowCards = [];
+		let meshCardAdded = false;
 
 		// List HaLow ifaces first
 		for (const wifiNetwork of wifiNetworks) {
@@ -1334,8 +1335,9 @@ return view.extend({
 					const card = createAssoclistCard(wifiNetwork, hostHints);
 					if (isHaLow(wifiNetwork)) {
 						cards.push(card);
-						if (mode == 'mesh') {
+						if (mode == 'mesh' && !meshCardAdded) {
 							cards.push(await createMesh11sTopologyCard());
+							meshCardAdded = true;
 						}
 					} else {
 						nonHaLowCards.push(card);

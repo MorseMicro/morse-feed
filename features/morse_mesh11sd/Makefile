@@ -61,6 +61,7 @@ define Package/morse_mesh11sd/install
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/src/mesh11sd $(1)/usr/sbin
 	$(INSTALL_CONF) ./files/etc/config/mesh11sd $(1)/etc/config/
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/linux_openwrt/mesh11sd/files/etc/init.d/mesh11sd $(1)/etc/init.d/
+	$(INSTALL_BIN) ./files/usr/share/rpcd/ucode/meshvisualizer $(1)/usr/share/rpcd/ucode/meshvisualizer
 endef
 
 define Package/morse_mesh11sd/conffiles
