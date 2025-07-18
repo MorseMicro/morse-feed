@@ -143,7 +143,7 @@ class Mesh11sTopologyGraph {
 			return foreignObject;
 		})
 			.placeNode((nodeUI, pos) => {
-				// Shift so that boxes are centered.
+			// Shift so that boxes are centered.
 				nodeUI.attr('x', pos.x - this.nodeWidth / 2).attr('y', pos.y - this.nodeHeight / 2);
 			})
 			.link((link) => {
