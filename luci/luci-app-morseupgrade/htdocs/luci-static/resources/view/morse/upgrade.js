@@ -159,8 +159,8 @@ return view.extend({
 	handleSave: null,
 	handleReset: null,
 
-	handleManualUpload: function (storage_size, has_rootfs_data, ev) {
-		return ui.uploadFile('/tmp/sysupgrade.bin', ev.target.firstChild)
+	handleManualUpload: function (storage_size, has_rootfs_data, _ev) {
+		return ui.uploadFile('/tmp/sysupgrade.bin')
 			.then(L.bind(this.handleSysupgrade, this, storage_size, has_rootfs_data));
 	},
 
