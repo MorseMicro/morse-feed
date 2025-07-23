@@ -8,6 +8,18 @@ USE_PROCD=1
 PROG=/sbin/smart_manager
 SERVICE=smart_manager
 
+__add_priority_spec() {
+	local prio="$2"
+	local line="$1"
+	local key val
+	key="${line%%=*}"
+	val="${line#*=}"
+
+	if [ -n "$key" ] && [ -n "$val" ]; then
+		eval "priority_${prio}_$key=$val"
+	fi
+}
+
 setup_dcs_conf() {
 	local cfg="$1"
 	local conf_path="$2"
@@ -24,6 +36,18 @@ setup_dcs_conf() {
 	config_get ewma_alpha "$cfg" ewma_alpha 30
 	config_get root_dir "$cfg" root_dir "/var/log"
 	config_get dtims_for_csa "$cfg" dtims_for_csa 10
+
+	# Adaptive RAW section
+	config_get_bool adaptive_raw_enabled "$cfg" adaptive_raw_enabled 0
+	config_get raw_eval_period_ms "$cfg" raw_eval_period_ms 1000
+	config_get raw_active_sta_weight_factor "$cfg" raw_active_sta_weight_factor 2
+	config_get non_raw_min_percentage "$cfg" non_raw_min_percentage 10
+
+	config_get chan_cap_threshold_per_sta "$cfg" chan_cap_threshold_per_sta 10
+	config_get num_traffic_stas "$cfg" num_traffic_stas 2
+	config_get total_chan_cap_threshold "$cfg" total_chan_cap_threshold 50
+	config_get retry_rate_threshold "$cfg" retry_rate_threshold 30
+	config_get low_mcs_index_threshold "$cfg" low_mcs_index_threshold 2
 
 	[ $enable_datalog -eq 0 ] && enable_datalog=false || enable_datalog=true
 	datalog=$(cat <<EOF
@@ -86,6 +110,51 @@ $algorithm_sec
 	dtims_for_csa = $dtims_for_csa
 }
 EOF
+
+adaptive_raw_block=$(cat <<EOF
+adaptive_raw : {
+	adaptive_raw_enabled = $adaptive_raw_enabled
+	raw_eval_period_ms = $raw_eval_period_ms
+	raw_active_sta_weight_factor = $raw_active_sta_weight_factor
+	non_raw_min_percentage = $non_raw_min_percentage
+
+	raw_trigger_conditions: {
+		chan_cap_threshold_per_sta = $chan_cap_threshold_per_sta
+		num_traffic_stas = $num_traffic_stas
+		total_chan_cap_threshold = $total_chan_cap_threshold
+		retry_rate_threshold = $retry_rate_threshold
+		low_mcs_index_threshold = $low_mcs_index_threshold
+	}
+EOF
+)
+	# Append each priority group assuming each one is a list
+	# example UCI config:
+	# list priority_7 'bandwidth_kbps=5000'
+	# list priority_7 'latency_ms=200'
+	# list priority_0 'bandwidth_kbps=0'
+	# list priority_0 'latency_ms=0'
+	for prio in $(seq 0 7); do
+		config_list_foreach "$cfg" priority_$prio __add_priority_spec "$prio"
+	done
+
+	for prio in $(seq 0 7); do
+		eval bk="\${priority_${prio}_bandwidth_kbps}"
+		eval lt="\${priority_${prio}_latency_ms}"
+
+		if [ -n "$bk" ] || [ -n "$lt" ]; then
+			bk="${bk:-0}"
+			lt="${lt:-0}"
+			adaptive_raw_block="${adaptive_raw_block}
+			priority_${prio} : {
+				bandwidth_kbps = ${bk},
+				latency_ms = ${lt},
+			}"
+		fi
+	done
+
+	# Close the adaptive_raw block
+	printf "%s\n" "$adaptive_raw_block" >> "$conf_path"
+	printf "}\n" >> "$conf_path"
 }
 
 get_ifname() {
