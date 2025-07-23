@@ -267,6 +267,7 @@ drv_morse_init_iface_config() {
 
 	#raw
 	config_add_int raw_sta_priority
+	config_add_int raw
 	config_add_array raws
 
 	# mesh
@@ -1150,10 +1151,10 @@ morse_hostapd_add_bss() {
 		json_select ..
 		return 1
 	}
-	json_get_vars wds wds_bridge sae_pwe dtim_period max_listen_int start_disabled dpp_configurator_connectivity
+	json_get_vars wds wds_bridge sae_pwe dtim_period max_listen_int start_disabled dpp_configurator_connectivity raw
 
 	raw_block=
-	if [ "$role" = primary ]; then
+	if [ "$_role" = primary ]; then
 		# RAWs are not supported for non-primary APs.
 		json_for_each_item morse_hostapd_add_raw raws
 	fi
@@ -1163,6 +1164,7 @@ morse_hostapd_add_bss() {
 	set_default wds 0
 	set_default start_disabled 0
 	set_default sae_pwe 1
+	set_default raw 0
 	# This controls whether DPP is advertised in the beacon. It does _not_ enable DPP,
 	# and hostapd's DPP push button support is available regardless (even if a separate
 	# dpp configurator like morse_dppd is not running).
@@ -1183,6 +1185,7 @@ ${dtim_period:+dtim_period=$dtim_period}
 ${max_listen_int:+max_listen_interval=$max_listen_int}
 ${sae_pwe:+sae_pwe=$sae_pwe}
 ${dpp_configurator_connectivity:+dpp_configurator_connectivity=$dpp_configurator_connectivity}
+${raw:+raw=1}
 $raw_block
 EOF
 
@@ -1206,14 +1209,14 @@ morse_hostapd_add_raw(){
 	config_get nominal_stas_per_beacon "$1" nominal_stas_per_beacon
 
 	append raw_block "raw={" "$N"
-	append raw_block "priority=${priority:=0}" "$N$T"
-	append raw_block "enabled=${enabled:=0}" "$N$T"
-	append raw_block "${start_time_us:+start_time_us=$start_time_us}" "$N$T"
-	append raw_block "${duration_us:+duration_us=$duration_us}" "$N$T"
-	append raw_block "${slots:+slots=$slots}" "$N$T"
-	append raw_block "cross_slot=${cross_slot:=false}" "$N$T"
-	append raw_block "${max_beacon_spread:+max_beacon_spread=$max_beacon_spread}" "$N$T"
-	append raw_block "${nominal_stas_per_beacon:+nominal_stas_per_beacon=$nominal_stas_per_beacon}" "$N$T"
+	append raw_block "priority=${priority:-0}" "$N$T"
+	append raw_block "enabled=${enabled:-0}" "$N$T"
+	append raw_block "start_time_us=${start_time_us:-0}" "$N$T"
+	append raw_block "duration_us=${duration_us:-0}" "$N$T"
+	append raw_block "slots=${slots:-0}" "$N$T"
+	append raw_block "cross_slot=${cross_slot:-0}" "$N$T"
+	append raw_block "max_beacon_spread=${max_beacon_spread:-0}" "$N$T"
+	append raw_block "nominal_stas_per_beacon=${nominal_stas_per_beacon:-0}" "$N$T"
 	append raw_block "}" "$N"
 }
 
