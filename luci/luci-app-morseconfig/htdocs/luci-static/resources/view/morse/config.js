@@ -129,12 +129,27 @@ ${_('If this interface is not the connection to external subnets, you don\'t nee
 
 const NETWORK_WITHOUT_DEVICES_INFO = _('This network interface is unused because it has no Wireless interfaces or Ethernet ports. You can add Ethernet ports using the Ethernet column, or add Wireless interfaces by configuring them in the section below.');
 
+// In the quick config page, we only really want to deal with 'normal' looking ifaces
+// to avoid confusion, so we use this to filter out things we don't care about
+// (the user can use the normal luci config if they have more complex requirements).
+function isNormalNetworkIface(netIface) {
+	return netIface.disabled !== '1' && netIface['.name'] !== 'loopback' && ['dhcp', 'static'].includes(netIface['proto']);
+}
+
 // This is based on widgets.NetworkSelect, but uses the zone style colouring
 // rather than the attached devices icons.
 const SimpleNetworkSelect = form.ListValue.extend({
 	__name__: 'CBI.SimpleNetworkSelect',
 
 	renderWidget(section_id, option_index, cfgvalue) {
+		// Because this changes on reset, we calculate the values each time here.
+		this.clear();
+		for (const networkIface of uci.sections('network', 'interface')) {
+			if (isNormalNetworkIface(networkIface)) {
+				this.value(networkIface['.name'], networkIface['.name']);
+			}
+		}
+
 		const choices = this.transformChoices();
 		for (const [k, v] of Object.entries(choices)) {
 			choices[k] = E('span', { class: 'zonebadge network-name', style: firewall.getZoneColorStyle(morseuci.getZoneForNetwork(v)) }, v);
@@ -162,6 +177,14 @@ const SimpleForwardSelect = form.ListValue.extend({
 	__name__: 'CBI.SimpleForwardSelect',
 
 	renderWidget: function (section_id, option_index, cfgvalue) {
+		// Because this changes on reset, we calculate the values each time here.
+		this.clear();
+		for (const networkIface of uci.sections('network', 'interface')) {
+			if (isNormalNetworkIface(networkIface)) {
+				this.value(networkIface['.name'], networkIface['.name']);
+			}
+		}
+
 		const choices = this.transformChoices();
 		// We have to remove the current network on render
 		// (we can't do this on construction, since the option can result
@@ -304,13 +327,6 @@ const WifiSecurityValue = form.Value.extend({
 		return true;
 	},
 });
-
-// In the quick config page, we only really want to deal with 'normal' looking ifaces
-// to avoid confusion, so we use this to filter out things we don't care about
-// (the user can use the normal luci config if they have more complex requirements).
-function isNormalNetworkIface(netIface) {
-	return netIface.disabled !== '1' && netIface['.name'] !== 'loopback' && ['dhcp', 'static'].includes(netIface['proto']);
-}
 
 function getWifiIfaceModeI18n(wifiIface) {
 	return WIFI_MODE_NAMES[wifiIface.mode] ?? _('Unknown');
@@ -470,7 +486,18 @@ return view.extend({
 		this.ethernetPorts = morseuci.getEthernetPorts(builtinEthernetPorts, await network.getDevices());
 		this.wifiDevices = (await network.getWifiDevices()).reduce((o, d) => (o[d.getName()] = d, o), {});
 		this.wifiNetworks = (await network.getWifiNetworks()).reduce((o, n) => (o[n.getName()] = n, o), {});
-		const hasWireless = Object.keys(this.wifiDevices).length > 0;
+
+		let wirelessMap = null;
+		if (Object.keys(this.wifiDevices).length > 0) {
+			wirelessMap = new form.Map('wireless', [
+				'Wireless',
+				E('a', {
+					href: L.url('admin', 'network', 'wireless'),
+					title: 'Advanced Configuration',
+					class: 'advanced-config pull-right',
+				}),
+			]);
+		}
 
 		const networkMap = new form.Map('network', [
 			_('Network Interfaces'),
@@ -480,25 +507,16 @@ return view.extend({
 				class: 'advanced-config pull-right',
 			}),
 		]);
-		if (hasWireless) {
+		if (wirelessMap) {
 			networkMap.chain('wireless');
 		}
 		networkMap.chain('firewall');
 		networkMap.chain('dhcp');
-		this.renderNetworkInterfaces(networkMap, hasWireless);
 
-		const isPrplMeshAgent = (isEasyMeshEnabled() && (uci.get('prplmesh', 'config', 'management_mode') === 'Multi-AP-Agent'));
-		let wirelessMap = null;
-		if (hasWireless) {
-			wirelessMap = new form.Map('wireless', [
-				'Wireless',
-				E('a', {
-					href: L.url('admin', 'network', 'wireless'),
-					title: 'Advanced Configuration',
-					class: 'advanced-config pull-right',
-				}),
-			]);
+		this.renderNetworkInterfaces(networkMap, wirelessMap);
 
+		if (wirelessMap) {
+			const isPrplMeshAgent = (isEasyMeshEnabled() && (uci.get('prplmesh', 'config', 'management_mode') === 'Multi-AP-Agent'));
 			// Put HaLow devices first
 			const uciWifiDevices = uci.sections('wireless', 'wifi-device').filter(s => s.type === 'morse');
 			uciWifiDevices.push(...uci.sections('wireless', 'wifi-device').filter(s => s.type !== 'morse'));
@@ -554,7 +572,7 @@ return view.extend({
 		}
 
 		const diagram = E('morse-config-diagram');
-		this.attachDynamicUpdateHandlers(diagram, this.ethernetPorts, hasWireless ? [networkMap, wirelessMap] : [networkMap]);
+		this.attachDynamicUpdateHandlers(diagram, this.ethernetPorts, wirelessMap ? [networkMap, wirelessMap] : [networkMap]);
 
 		// This is actually a promise, but we can do it along with the render.
 		diagram.updateFrom(uci, this.ethernetPorts);
@@ -566,7 +584,7 @@ return view.extend({
 			]),
 			E('div', { class: 'cbi-section' }, diagram),
 			networkMap.render(),
-			hasWireless ? wirelessMap.render() : [],
+			wirelessMap ? wirelessMap.render() : [],
 		];
 
 		return Promise.all(elements);
@@ -647,11 +665,17 @@ return view.extend({
 			// until you mutate it).
 			this.map.data.set(config_name, name, 'network', 'lan');
 
-			// It's safe to simple load/reset here rather than doing
+			// It's safe to simply load/reset here rather than doing
 			// a save since (to support the diagram) we're already putting
 			// everything into the uci cache (i.e. the 'reset' won't lose
 			// any data, _unlike_ hitting the Reset button on the page
 			// which causes a refresh).
+			return this.map.load().then(() => this.map.reset());
+		};
+
+		section.handleRemove = function (section_id, _ev) {
+			const config_name = this.uciconfig || this.map.config;
+			this.map.data.remove(config_name, section_id);
 			return this.map.load().then(() => this.map.reset());
 		};
 
@@ -669,11 +693,6 @@ return view.extend({
 		};
 
 		option = section.option(SimpleNetworkSelect, 'network', _('Network'));
-		for (const networkIface of uci.sections('network', 'interface')) {
-			if (isNormalNetworkIface(networkIface)) {
-				option.value(networkIface['.name'], networkIface['.name']);
-			}
-		}
 		option.readonly = getReadOnly('network');
 
 		const MODE_TOOLTIP = _(`
@@ -902,16 +921,70 @@ return view.extend({
 		};
 	},
 
-	renderNetworkInterfaces(map, hasWireless) {
+	renderNetworkInterfaces(map, wirelessMap) {
 		const section = map.section(form.TableSection, 'interface');
-		// We set this to anonymous so we can render the name ourselves with colour.
-		section.anonymous = true;
+		// anonymous = false would usually render the name for us, but we use CSS (in config.css) to disable
+		// this so we can render the name ourselves (with colour).
+		section.anonymous = false;
 		section.modaltitle = _('Network Interface');
-		section.filter = (sectionId) => {
-			const iface = uci.get('network', sectionId);
-			return iface.disabled !== '1' && iface['.name'] !== 'loopback' && ['dhcp', 'static'].includes(iface['proto']);
-		};
+		section.filter = sectionId => isNormalNetworkIface(uci.get('network', sectionId));
 		section.max_cols = 7;
+		section.addremove = true;
+
+		// If we don't immediately set this up correctly, it won't appear in our table
+		// due to the filter. Also, the normal handleAdd saves the current state of the
+		// form to the backend, which is a bit rude.
+		// So we monkey-patch handleAdd :(
+		section.handleAdd = function (_ev, name) {
+			const config_name = this.uciconfig || this.map.config;
+
+			if (!name) {
+				let offset = 1;
+				do {
+					name = `net${offset++}`;
+				} while (uci.get('wireless', name));
+			}
+			this.map.data.add(config_name, this.sectiontype, name);
+			this.map.data.set(config_name, name, 'proto', 'dhcp');
+
+			// It's safe to simply load/reset here rather than doing
+			// a save since (to support the diagram) we're already putting
+			// everything into the uci cache (i.e. the 'reset' won't lose
+			// any data, _unlike_ hitting the Reset button on the page
+			// which causes a refresh).
+			// Unfortunately, we also have to ask the wirelessMap to reset to
+			// correctly re-render the network dropdowns.
+			return this.map.load().then(() => {
+				if (wirelessMap) {
+					return Promise.all([wirelessMap.reset(), this.map.reset()]);
+				} else {
+					return this.map.reset();
+				}
+			});
+		};
+
+		section.handleRemove = function (sectionId, _ev) {
+			const config_name = this.uciconfig || this.map.config;
+
+			if (morseuci.getNetworkDevices(sectionId).length + morseuci.getNetworkWifiIfaces(sectionId).length > 0) {
+				// Refuse to remove if devices attached to avoid user error.
+				ui.showModal(_('Cannot remove interface'), [
+					E('p', _('Not removing due to attached ethernet/wireless devices. Remove these before removing interface.')),
+					E('div', { class: 'right' }, [E('button', { class: 'btn cbi-button', click: ui.hideModal }, _('Dismiss'))]),
+				]);
+				return;
+			}
+
+			this.map.data.remove(config_name, sectionId);
+
+			return this.map.load().then(() => {
+				if (wirelessMap) {
+					return Promise.all([wirelessMap.reset(), this.map.reset()]);
+				} else {
+					return this.map.reset();
+				}
+			});
+		};
 
 		let option;
 
@@ -937,13 +1010,6 @@ return view.extend({
 		// We disable the uci refresh for this because otherwise, when people mess around with the element,
 		// we generate spurious forwarding rules that we then have to disable.
 		option.disableUciRefresh = true;
-		for (const networkIface of uci.sections('network', 'interface')) {
-			if (networkIface.disabled === '1' || networkIface['.name'] === 'loopback' || !['dhcp', 'static'].includes(networkIface['proto'])) {
-				continue;
-			}
-
-			option.value(networkIface['.name'], networkIface['.name']);
-		}
 		option.load = (sectionId) => {
 			for (const s of uci.sections('firewall', 'forwarding')) {
 				if (s.enabled !== '0' && s.src === sectionId) {
@@ -968,7 +1034,7 @@ return view.extend({
 			}
 		};
 
-		if (hasWireless) {
+		if (wirelessMap) {
 			option = section.option(morseui.DynamicDummyValue, '_wifi_interfaces', _('Wireless'));
 			option.rawhtml = true;
 			option.cfgvalue = (sectionId) => {
