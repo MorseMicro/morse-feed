@@ -473,6 +473,7 @@ return view.extend({
 			uci.load('prplmesh').catch(() => null),
 			uci.load('mesh11sd').catch(() => null),
 			uci.load('wireless').catch(() => null),
+			uci.load('smart_manager').catch(() => null),
 			network.flushCache(true),
 		]);
 	},
@@ -599,6 +600,19 @@ return view.extend({
 			// Only HaLow devices have the static channel map which allows us to see
 			// frequencies from other countries without setting the region of the device.
 			option = section.option(widgets.WifiCountryValue, 'country', _('Country'));
+			option.validate = function (sectionId) {
+				const country = this.getUIElement(sectionId).getValue();
+				if (country == 'EU' || country == 'GB') {
+					if (!L.hasSystemFeature('morsesmartmanager'))
+						return 'Install smart_manager package to use EU/GB';
+
+					const dcs_enabled = uci.get('smart_manager', `${sectionId}_dcs`, 'enabled');
+					if (dcs_enabled && dcs_enabled === '0') {
+						return 'DCS required for EU/GB. Configure under Network → Wireless → Dynamic Channel Selection.';
+					}
+				}
+				return true;
+			};
 			option.onchange = function (ev, sectionId, value) {
 				this.map.lookupOption('_freq', sectionId)[0].toggleS1gCountry(sectionId, value);
 			};
