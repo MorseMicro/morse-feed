@@ -50,7 +50,7 @@ search () {
 		cat <<-JSON_EOF
 		{
 		    "status": "HTTPError",
-		    "error": "Could not reach upgrade server",
+		    "error": "Could not reach upgrade server at '$REPO/$target/profiles.json'",
 		    "code": "$target_status"
 		}
 		JSON_EOF
