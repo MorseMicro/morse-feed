@@ -15,8 +15,7 @@ fi
 if [ -n "$mac_label" ]; then
 	suffix="$(echo "$mac_label" | tr -d ':' | tr A-Z a-z)"
 	case "$(cat /tmp/sysinfo/board_name)" in
-		glinet,gl-mt3000|\
-		morse,*ekh19*)
+		glinet,gl-mt3000)
 			suffix=${suffix: -3}
 		;;
 		*)
@@ -31,8 +30,7 @@ if [ -n "${DEVICE_PRODUCT}" ] && [ "$DEVICE_PRODUCT" != Generic ]; then
 	prefix="${DEVICE_PRODUCT}"
 else
 	case "$(cat /tmp/sysinfo/board_name)" in
-		glinet,gl-mt3000|\
-		morse,*ekh19*)
+		glinet,gl-mt3000)
 			prefix=GL-MT3000
 		;;
 		morse,*ekh01*)
