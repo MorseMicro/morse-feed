@@ -109,7 +109,6 @@
 		<style title="text/css"><%= css %></style>
 	<% end -%>
 	<script src="<%=url('admin/translations', luci.i18n.context.lang)%><%# ?v=PKG_VERSION %>"></script>
-	<script src="<%=resource%>/luci.js"></script>
 	<script src="<%=resource%>/cbi.js"></script>
 	<script>
 		window.advancedModeToggle = <% if advanced_mode_toggle then %>true<% else %>false<% end %>;
