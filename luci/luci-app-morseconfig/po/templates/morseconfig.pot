@@ -7,15 +7,15 @@ msgctxt "Percentage unit"
 msgid "%"
 msgstr ""
 
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:1049
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:1063
 msgid "%s (%s) on %s"
 msgstr ""
 
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:1108
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:1122
 msgid "%s exists in networks %s and %s"
 msgstr ""
 
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:1051
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:1065
 msgid "%s on %s"
 msgstr ""
 
@@ -135,7 +135,7 @@ msgstr ""
 msgid "Cancel"
 msgstr ""
 
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:971
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:978
 msgid "Cannot remove interface"
 msgstr ""
 
@@ -221,12 +221,12 @@ msgid "Create Archive"
 msgstr ""
 
 #: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:319
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:1183
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:1197
 msgid "DHCP Client"
 msgstr ""
 
 #: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:311
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:1116
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:1130
 msgid "DHCP Server"
 msgstr ""
 
@@ -241,7 +241,8 @@ msgstr ""
 
 #: luci/luci-app-morseconfig/htdocs/luci-static/resources/tools/morse/wizard.js:1102
 #: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:411
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:973
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:949
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:980
 msgid "Dismiss"
 msgstr ""
 
@@ -286,7 +287,7 @@ msgstr ""
 #: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:679
 #: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:682
 #: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:688
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:1065
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:1079
 msgid "Ethernet"
 msgstr ""
 
@@ -303,11 +304,11 @@ msgstr ""
 msgid "Failed to gather snapshot"
 msgstr ""
 
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:1008
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:1022
 msgid "Forward"
 msgstr ""
 
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:1277
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:1291
 msgid "Gateway"
 msgstr ""
 
@@ -363,7 +364,7 @@ msgstr ""
 msgid "Help"
 msgstr ""
 
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:1241
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:1255
 msgid "IPv4 address %s is in networks %s and %s"
 msgstr ""
 
@@ -487,11 +488,11 @@ msgid ""
 "AP+Client."
 msgstr ""
 
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:991
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:1005
 msgid "Name"
 msgstr ""
 
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:1249
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:1263
 msgid "Netmask"
 msgstr ""
 
@@ -505,6 +506,14 @@ msgstr ""
 
 #: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:503
 msgid "Network Interfaces"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:947
+msgid "Network with that name already exists"
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:999
+msgid "New network name to add"
 msgstr ""
 
 #: luci/luci-app-morseconfig/htdocs/luci-static/resources/tools/morse/wizard.js:976
@@ -531,11 +540,16 @@ msgstr ""
 
 #: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:74
 #: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:201
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:1066
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:1080
 msgid "None"
 msgstr ""
 
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:972
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:948
+msgid ""
+"Not adding network since a network of that name exists. Choose another name."
+msgstr ""
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:979
 msgid ""
 "Not removing due to attached ethernet/wireless devices. Remove these before "
 "removing interface."
@@ -561,7 +575,7 @@ msgstr ""
 msgid "Proceed"
 msgstr ""
 
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:1182
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:1196
 msgid "Protocol"
 msgstr ""
 
@@ -650,7 +664,7 @@ msgstr ""
 msgid "Start WPS (client)"
 msgstr ""
 
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:1184
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:1198
 msgid "Static IP"
 msgstr ""
 
@@ -776,7 +790,7 @@ msgstr ""
 msgid "When configured as a DHCP Server, the address is sent to DHCP clients."
 msgstr ""
 
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:1038
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:1052
 msgid "Wireless"
 msgstr ""
 

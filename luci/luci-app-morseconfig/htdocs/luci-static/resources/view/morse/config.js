@@ -942,8 +942,15 @@ return view.extend({
 				let offset = 1;
 				do {
 					name = `net${offset++}`;
-				} while (uci.get('wireless', name));
+				} while (this.map.data.get(config_name, name));
+			} else if (this.map.data.get(config_name, name)) {
+				ui.showModal(_('Network with that name already exists'), [
+					E('p', _('Not adding network since a network of that name exists. Choose another name.')),
+					E('div', { class: 'right' }, [E('button', { class: 'btn cbi-button', click: ui.hideModal }, _('Dismiss'))]),
+				]);
+				return;
 			}
+
 			this.map.data.add(config_name, this.sectiontype, name);
 			this.map.data.set(config_name, name, 'proto', 'dhcp');
 
@@ -984,6 +991,13 @@ return view.extend({
 					return this.map.reset();
 				}
 			});
+		};
+
+		section.renderSectionAdd = function (extra_class) {
+			const element = this.super('renderSectionAdd', [extra_class]);
+			const input = element.querySelector('.cbi-section-create-name');
+			input.placeholder = _('New network name to add');
+			return element;
 		};
 
 		let option;
