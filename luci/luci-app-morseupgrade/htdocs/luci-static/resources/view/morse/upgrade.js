@@ -344,7 +344,7 @@ return view.extend({
 				this.setState(states.ERROR, `${search.error}. ${defaultMessages[ubusStatus.UpdateImageNotFoundError]}`);
 				return null;
 			case ubusStatus.NoUpdateNeededOK:
-				this.setState(states.UPDATED, `${search.error}. ${defaultMessages[ubusStatus.NoUpdateNeededOK]}`);
+				this.setState(states.UPDATED, defaultMessages[ubusStatus.NoUpdateNeededOK]);
 				return null;
 			default:
 				break;
