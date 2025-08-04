@@ -203,8 +203,9 @@
 					<%- if not wizard then %>
 						<%- if morse_dev and not morse_region then -%>
 							<div class="alert-message warning">
-								<h4><%: Region not set! %></h4>
-								<p><%: There is no region set for your morse interface. Please set your region first. %></p>
+								<h4><%: Country not set! %></h4>
+								<p><%: Your Morse HaLow device requires a country. Please set your country on the Network -> Wireless page. %></p>
+								<div class="right"><a class="btn" href="<%=url("admin/network/wireless")%>"><%:Go to wireless configuration...%></a></div>
 							</div>
 						<%- end -%>
 						<%- if morse_dev and morse_firmware_type == "thin_lmac" then -%>

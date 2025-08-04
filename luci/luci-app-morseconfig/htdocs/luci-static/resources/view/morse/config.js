@@ -526,6 +526,11 @@ return view.extend({
 				}
 				this.renderWifiDevice(wirelessMap, device);
 
+				const ifaceOptions = {};
+				if (device.type === 'morse' && !device.country) {
+					ifaceOptions.readOnlyFields = ['all'];
+				}
+
 				// Filters the easy mesh managed
 				const filterEasyMeshManagedIface = (sectionId, deviceName) => {
 					return isEasyMeshManagedIface(sectionId, deviceName);
@@ -553,21 +558,24 @@ return view.extend({
 				const isMeshManaged = isEasyMeshManagedDevice(device['.name']);
 				if (isMeshManaged) {
 					const meshManagedTitle = _(`EasyMesh Managed Interfaces`);
-					const ifaceOptions = { addRemove: false };
-					ifaceOptions.readOnlyFields = isPrplMeshAgent ? ['all'] : ['disabled', 'mode', 'network'];
+					const easyMeshIfaceOptions = Object.assign({}, ifaceOptions);
+					easyMeshIfaceOptions.addRemove = false;
+					if (!easyMeshIfaceOptions.readOnlyFields) {
+						easyMeshIfaceOptions.readOnlyFields = isPrplMeshAgent ? ['all'] : ['disabled', 'mode', 'network'];
+					}
 
 					// Render easy mesh alert
 					renderEasyMeshAlert();
 
 					// Render easy mesh managed interfaces
-					this.renderWifiInterfaces(wirelessMap, device['.name'], filterEasyMeshManagedIface, meshManagedTitle, ifaceOptions);
+					this.renderWifiInterfaces(wirelessMap, device['.name'], filterEasyMeshManagedIface, meshManagedTitle, easyMeshIfaceOptions);
 				}
 
 				// Display the title only for easy mesh managed device.
 				const nonEasyMeshManagedTitle = isMeshManaged ? _(`Non-EasyMesh Managed Interfaces`) : null;
 
 				// Render non easy mesh managed interfaces. This will also help in creating new non-mesh managed interface
-				this.renderWifiInterfaces(wirelessMap, device['.name'], filterNonEasyMeshManagedAps, nonEasyMeshManagedTitle);
+				this.renderWifiInterfaces(wirelessMap, device['.name'], filterNonEasyMeshManagedAps, nonEasyMeshManagedTitle, ifaceOptions);
 			}
 		}
 
@@ -596,28 +604,12 @@ return view.extend({
 		const section = map.section(form.NamedSection, device['.name'], 'wifi-device', displayName);
 		let option;
 
-		if (device['type'] === 'morse') {
-			// Only HaLow devices have the static channel map which allows us to see
-			// frequencies from other countries without setting the region of the device.
-			option = section.option(widgets.WifiCountryValue, 'country', _('Country'));
-			option.validate = function (sectionId) {
-				const country = this.getUIElement(sectionId).getValue();
-				if (country == 'EU' || country == 'GB') {
-					if (!L.hasSystemFeature('morsesmartmanager'))
-						return 'Install smart_manager package to use EU/GB';
-
-					const dcs_enabled = uci.get('smart_manager', `${sectionId}_dcs`, 'enabled');
-					if (dcs_enabled && dcs_enabled === '0') {
-						return 'DCS required for EU/GB. Configure under Network → Wireless → Dynamic Channel Selection.';
-					}
-				}
-				return true;
-			};
-			option.onchange = function (ev, sectionId, value) {
-				this.map.lookupOption('_freq', sectionId)[0].toggleS1gCountry(sectionId, value);
-			};
+		if (device.type === 'morse' && !device.country) {
+			option = section.option(form.DummyValue, '_nocountry');
+			option.cfgvalue = () => E('div', {}, [_('Your Morse HaLow device requires a country. Please set your country on the '), E('a', { href: L.url('admin', 'network', 'wireless') }, _('Network -> Wireless page'))]);
+		} else {
+			section.option(widgets.WifiFrequencyValue, '_freq', _('Preferred frequency'));
 		}
-		option = section.option(widgets.WifiFrequencyValue, '_freq', _('Preferred frequency'));
 	},
 
 	renderWifiInterfaces(map, deviceName, filterIface, title, options = {}) {

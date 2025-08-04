@@ -9,10 +9,15 @@ msgstr ""
 msgid "BCF may not be appropriate!"
 msgstr ""
 
+#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:206
+msgid "Country not set!"
+msgstr ""
+
 #: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:229
 msgid "Go to password configuration..."
 msgstr ""
 
+#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:208
 #: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:215
 #: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:222
 msgid "Go to wireless configuration..."
@@ -43,10 +48,6 @@ msgstr ""
 msgid "No password set!"
 msgstr ""
 
-#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:207
-msgid "Region not set!"
-msgstr ""
-
 #: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:240
 msgid ""
 "The BCF file on this device must be specified via UCI as the board type "
@@ -58,12 +59,6 @@ msgstr ""
 msgid ""
 "There is no password set on this router. Please configure a root password to "
 "protect the web interface."
-msgstr ""
-
-#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:208
-msgid ""
-"There is no region set for your morse interface. Please set your region "
-"first."
 msgstr ""
 
 #: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:249
@@ -79,6 +74,12 @@ msgstr ""
 #: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:259
 msgid ""
 "You must enable JavaScript in your browser or LuCI will not work properly."
+msgstr ""
+
+#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:207
+msgid ""
+"Your Morse HaLow device requires a country. Please set your country on the "
+"Network -> Wireless page."
 msgstr ""
 
 #: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:221
