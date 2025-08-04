@@ -490,16 +490,17 @@ async function updateUplinkWifiConnectMethods(hasQRCode, connectMethods, isUp) {
 	}
 }
 
-async function createUplinkCard(netIface, hasQRCode) {
+async function createUplinkCard(netIface, wifiDevices, hasQRCode) {
 	const device = getBestDevice(netIface);
 	let wifiNetwork = device.getWifiNetwork();
 
-	let method, speed, ssid, meshId;
+	let method, speed, ssid, meshId, country;
 	if (wifiNetwork) {
 		method = getWifiName(wifiNetwork);
 		ssid = wifiNetwork.getSSID();
 		meshId = wifiNetwork.getMeshID();
 		speed = wifiNetwork.getBitRate();
+		country = wifiDevices[wifiNetwork.getWifiDeviceName()].get('country') && wifiNetwork.ubus('net', 'iwinfo', 'country');
 	} else {
 		method = 'Ethernet';
 		speed = device.getSpeed();
@@ -534,6 +535,8 @@ async function createUplinkCard(netIface, hasQRCode) {
 				E('dd', device.getName()),
 				ips.length && E('dt', _('IP')),
 				ips.length && E('dd', ips.join(' / ')),
+				country && E('dt', _('Country')),
+				country && E('dd', country),
 				speed > 0 && E('dt', _('Speed')),
 				speed > 0 && E('dd', `${speed} Mbps`),
 				qrcodeDppMode && E('dt', _('DPP')),
@@ -763,7 +766,7 @@ function createLocalNetworksCard(networks, dhcpLeases, hostHints) {
 /* Card which focuses on connected devices if it's possible there is more
  * than one (e.g. ap/mesh/adhoc).
  */
-function createAssoclistCard(wifiNetwork, hostHints) {
+function createAssoclistCard(wifiNetwork, wifiDevices, hostHints) {
 	const mode = wifiNetwork.getMode();
 	const netIface = wifiNetwork.getNetwork();
 	const bitrate = wifiNetwork.getBitRate();
@@ -788,6 +791,12 @@ function createAssoclistCard(wifiNetwork, hostHints) {
 	const hasIp = associatedDevices.some(d => d.ip);
 	const hasIp6 = associatedDevices.some(d => d.ip6);
 	const authentication = wifiNetwork.ubus('net', 'iwinfo', 'encryption')?.authentication || [];
+	// We only show the iwinfo country if the country has been explicitly set. This is because:
+	//  - for non-HaLow, the global default '00' is a confusing country code
+	//  - for HaLow, we currently can't load the module without having a country,
+	//    so we load the module with a default country that we shouldn't use/report unless
+	//    it's explicitly set (i.e. in UCI)
+	const country = wifiDevices[wifiNetwork.getWifiDeviceName()].get('country') && wifiNetwork.ubus('net', 'iwinfo', 'country');
 	const wifiPassword = (authentication.includes('sae') || authentication.includes('psk')) && wifiNetwork.get('key');
 	const hasDppd = L.hasSystemFeature('morsedppd');
 
@@ -870,6 +879,8 @@ function createAssoclistCard(wifiNetwork, hostHints) {
 				E('dd', mode === 'mesh' ? wifiNetwork.getMeshID() : wifiNetwork.getSSID()),
 				E('dt', _('Device')),
 				E('dd', wifiNetwork.getDevice().getName()),
+				country && E('dt', _('Country')),
+				country && E('dd', country),
 				bitrate && E('dt', _('Speed (avg)')),
 				bitrate && E('dd', `${wifiNetwork.getBitRate()} Mbps`),
 			].filter(e => e)),
@@ -882,10 +893,14 @@ function createAssoclistCard(wifiNetwork, hostHints) {
 			E('dl', [
 				E('dt', mode === 'mesh' ? _('Mesh ID') : _('SSID')),
 				E('dd', mode === 'mesh' ? wifiNetwork.getMeshID() : wifiNetwork.getSSID()),
+				country && E('dt', _('Country')),
+				country && E('dd', country),
 				E('dt', _('Channel')),
 				E('dd', wifiNetwork.getChannel()),
 				E('dt', _('Frequency')),
 				E('dd', wifiNetwork.getFrequency() + wifiNetwork.getFrequencyUnit()),
+				bitrate && E('dt', _('Speed (avg)')),
+				bitrate && E('dd', `${wifiNetwork.getBitRate()} Mbps`),
 				E('dt', _('Device')),
 				E('dd', wifiNetwork.getDevice().getName()),
 				E('dt', _('IPv4')),
@@ -1332,7 +1347,7 @@ return view.extend({
 			if (!wifiNetwork.isDisabled() && wifiNetwork.isUp() && wifiNetwork.getNetwork()) {
 				const mode = wifiNetwork.getMode();
 				if (['ap', 'mesh', 'adhoc'].includes(mode)) {
-					const card = createAssoclistCard(wifiNetwork, hostHints);
+					const card = createAssoclistCard(wifiNetwork, wifiDevices, hostHints);
 					if (isHaLow(wifiNetwork)) {
 						cards.push(card);
 						if (mode == 'mesh' && !meshCardAdded) {
@@ -1374,7 +1389,7 @@ return view.extend({
 		}
 
 		if (uplink) {
-			cards.push(await createUplinkCard(uplink, hasQRCode));
+			cards.push(await createUplinkCard(uplink, wifiDevices, hasQRCode));
 		}
 
 		// List non-HaLow APs later
