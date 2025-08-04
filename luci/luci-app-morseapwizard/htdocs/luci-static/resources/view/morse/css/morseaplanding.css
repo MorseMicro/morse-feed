@@ -1,0 +1,49 @@
+:root {
+	--bottom-nav-height: 90px;
+	--max-content-width: 950px;
+	--box-shadow: #e0e2e4;
+	--box-shadow-highlight: #a0a2a4;
+}
+
+header.wizard button.close {
+	display: none;
+}
+
+/* Set up bottom nav bar for page actions.
+ */
+.cbi-page-actions {
+	padding: 0;
+	position: fixed;
+	right: 0; bottom: 0; left: 0;
+	z-index: 100;
+	margin-bottom: 0px;
+	height: var(--bottom-nav-height);
+	background-color: white;
+	box-shadow: 0 -2px 4px rgb(180, 180, 180, 0.5);
+}
+
+.cbi-page-actions .container {
+	/* There's some annoying code in the original CSS which selects
+	 * things that aren't like particular buttons.
+	 */
+	margin: auto !important;
+	float: none !important;
+	padding: 10px;
+	max-width: var(--max-content-width);
+}
+
+.cbi-page-actions-flex {
+	display: flex;
+	justify-content: space-between;
+	margin-top: 10px;
+}
+
+.wizard-contents {
+	margin: auto;
+	margin-bottom: var(--bottom-nav-height);
+	max-width: var(--max-content-width);
+}
+
+.wizard-contents h1 {
+	font-size: 30px;
+}

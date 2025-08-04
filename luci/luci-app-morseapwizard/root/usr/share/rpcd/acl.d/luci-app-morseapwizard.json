@@ -5,11 +5,13 @@
 			"ubus": {
 				"file": [ "read" ],
 				"luci-rpc": ["getBuiltinEthernetPorts"],
+				"luci": [ "getTimezones" ]
 			}
 		},
 		"write": {
 			"ubus": {
 				"file": [ "write", "exec" ],
+				"luci": [ "setLocaltime" ]
 			},
 			"uci": [ "dhcp", "firewall", "network", "wireless", "system", "prplmesh", "mesh11sd" ]
 		}

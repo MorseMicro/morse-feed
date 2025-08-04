@@ -1,0 +1,22 @@
+#!/bin/sh
+
+. /lib/functions.sh
+
+find_morse_device_country() {
+	config_get type "$1" type
+	config_get country "$1" country
+
+	echo $type $country
+	if [ "$type" = morse -a -n "$country" ]; then
+		morse_country="$country"
+	fi
+}
+
+config_load wireless
+config_foreach find_morse_device_country wifi-device
+
+# This handles both the case where country is set via persistent_vars_storage
+# _and_ when sysupgrades retaining config are done.
+if [ -z "$morse_country" ]; then
+	uci set luci.main.homepage='admin/morse/morseaplanding'
+fi

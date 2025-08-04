@@ -5,7 +5,8 @@
 			"ubus": {
 				"file": [ "read" ],
 				"luci-rpc": ["getNetworkDevices"],
-				"iwinfo": ["scan", "assoclist", "info"]
+				"iwinfo": ["scan", "assoclist", "info"],
+				"luci": [ "getTimezones" ]
 			},
 			"uci": [ "system", "luci", "firewall", "dhcp", "network", "wireless", "mesh11sd", "prplmesh", "matter", "smart_manager" ]
 		},
@@ -15,7 +16,7 @@
 			"ubus": {
 				"file": [ "write", "exec" ],
 				"uci": [ "apply", "commit", "delete"],
-				"luci": [ "setPassword" ]
+				"luci": [ "setPassword", "setLocaltime" ]
 			}
 			"uci": [ "system", "luci", "firewall", "dhcp", "network", "wireless", "mesh11sd", "prplmesh", "matter", "smart_manager" ]
 		}

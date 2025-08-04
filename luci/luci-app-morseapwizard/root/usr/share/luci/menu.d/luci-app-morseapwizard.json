@@ -1,4 +1,12 @@
 {
+    "admin/morse/morseaplanding": {
+        "order": 2,
+        "action": {
+            "type": "template",
+            "path": "morse/morseaplanding"
+        }
+    },
+
     "admin/morseapwizard": {
         "title": "Wizard",
         "order": 2,
