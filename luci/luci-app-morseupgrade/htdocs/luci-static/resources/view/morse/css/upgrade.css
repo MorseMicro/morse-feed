@@ -44,3 +44,28 @@
 	--error-low: var(--error-color-low, #d00000);
 	background: linear-gradient(var(--error-low), var(--error-high), var(--error-low));
 }
+
+.upgrade-page-controls {
+	margin: auto;
+	margin-top: 40px;
+	margin-left: 50% !important;
+	transform: translateX(-50%);
+}
+
+.upgrade-button-container {
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-start;
+	align-items: center;
+	width: min-content;
+	min-width: 14rem;
+}
+
+.upgrade-button-container > .upgrade-page-button-subtitle {
+	font-size: 0.8rem;
+	text-align: center;
+}
+
+.upgrade-page-button-subtitle > p {
+	padding: 0;
+}
