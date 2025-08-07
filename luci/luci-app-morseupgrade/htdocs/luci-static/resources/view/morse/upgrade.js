@@ -1,9 +1,11 @@
 'use strict';
-/* globals fs rpc ui view */
+/* globals fs rpc ui view uci request */
 'require view';
 'require rpc';
 'require ui';
 'require fs';
+'require uci';
+'require request';
 
 // this is a standard list propagated around LuCI to poll the device
 // after an action which would have lost connection. Used by the handleSysupgrade
@@ -109,6 +111,28 @@ function findStorageSize(procmtd, procpart) {
 	return wholesize;
 }
 
+function isUpgradeable(currentVersion, latestVersion) {
+	const parseMorseVersionString = function (morseVersion) {
+		let versionNumber = morseVersion.split('-');
+		return versionNumber[1].split('.').map(Number);
+	};
+
+	const currentSemVer = parseMorseVersionString(currentVersion);
+	const latestSemVer = parseMorseVersionString(latestVersion);
+
+	let maxLength = Math.max(currentSemVer.length, latestSemVer.length);
+	for (let i = 0; i < maxLength; i++) {
+		const currentValue = currentSemVer[i] || 0;
+		const latestValue = latestSemVer[i] || 0;
+
+		if (currentValue < latestValue) return true;
+		if (currentValue > latestValue) return false;
+	}
+
+	// identical versions
+	return false;
+}
+
 const states = {
 	LOADING: 'loading',
 	DOWNLOADING: 'downloading',
@@ -140,17 +164,17 @@ const ubusStatus = {
 const defaultMessages = {
 	ArgumentError: _('This is an internal error and may be due to configuration modifications. Please reset your device to factory defaults and try again or upgrade manually. If the problem persists, consider contacting Morse Micro support.'),
 	BoardNotFoundError: _('This may happen if the device is not recognized by the server. Please verify that your device is supported and try again.'),
-	DownloadError: _('Firmware failures can occur when there your device has intermittent internet connection or the upgrade server is experiencing failures. Please ensure that your Morse Micro device is connected to stable internet and try again.'),
-	HTTPError: _('This could be due to a network issue or server unavailability. Please check your internet connection and/or try again later.'),
-	SHAMismatchError: _('sha256sum does not match'),
-	UpdateImageNotFoundError: _('No image found'),
-	DownloadStartedOK: _('Download started'),
-	DownloadInProgressOK: _('Previous download in progress'),
-	DownloadFinishOK: _('Download completed successfully'),
-	NoUpdateNeededOK: _('Already up to date'),
-	ReadyForDownloadOK: _('Waiting for download'),
-	UpdateImageFoundOK: _('File available on MorseMicro image server'),
-	VerifyOK: _('SHA256 OK'),
+	DownloadError: _('This issue may occur when your internet connection is unstable or the device has run out of space. Please reboot your Morse Micro device and ensure it is connected to stable internet (via the browser or device) before trying again.'),
+	HTTPError: _('This could be due to a network issue or server unavailability. Please ensure either your browser or Morse Micro device has internet access before retrying.'),
+	SHAMismatchError: _('sha256sum does not match.'),
+	UpdateImageNotFoundError: _('The latest version of firmware has not been made available for your device type.'),
+	DownloadStartedOK: _('Download started...'),
+	DownloadInProgressOK: _('Previous download in progress...'),
+	DownloadFinishOK: _('Download completed successfully!'),
+	NoUpdateNeededOK: _('Already up to date!'),
+	ReadyForDownloadOK: _('Waiting for download...'),
+	UpdateImageFoundOK: _('File available on MorseMicro image server.'),
+	VerifyOK: _('SHA256 OK.'),
 };
 
 return view.extend({
@@ -323,25 +347,112 @@ return view.extend({
 			ui.awaitReconnect(...hrefs);
 	},
 
+	// use the browser to search for an upgrade image,
+	// mimic the returns of the callUpgradeSearch() rpc call
+	browserUpgradeSearch: async function () {
+		const { repo } = await uci.get('upgrade', '@upgrade[0]');
+
+		let profiles, latestVersion;
+		const profilesUrl = `${repo}/${this.query.target}/profiles.json`;
+		try {
+			let response = await fetch(profilesUrl, { cache: 'no-cache' });
+
+			if (!response.ok) {
+				throw new Error(`Could not reach upgrade server via browser (${response.status})`);
+			}
+
+			({ version_code: latestVersion, profiles } = await response.json());
+		} catch (e) {
+			return {
+				status: 'HTTPError',
+				error: 'Could not reach upgrade server',
+				code: e.message,
+			};
+		}
+
+		if (!isUpgradeable(this.query.morse_version, latestVersion)) {
+			return {
+				status: 'NoUpdateNeededOK',
+				message: 'Already up to date!',
+			};
+		}
+
+		const profile = Object.values(profiles).find(profile => profile.supported_devices.includes(this.query.board));
+
+		// skip the backend trying again by not throwing an error
+		// maybe this is dangerous and the backend should try again?
+		// I just don't see any case where it would end differently.
+		if (!profile) {
+			return {
+				status: 'BoardNotFoundError',
+				error: `No profiles found on upgrade server for device type '${this.query.board}'`,
+			};
+		}
+
+		const image = Object.values(profile.images).find(image => image.filesystem == 'squashfs' && image.type == 'sysupgrade');
+
+		if (!image) {
+			return {
+				status: 'UpdateImageNotFoundError',
+				error: `No ${latestVersion} images found on upgrade server for '${this.query.board}'`,
+			};
+		}
+
+		// mimic the backend
+		console.log(`Image found via browser is ${image.type} with ${image.filesystem}: ${image.name} ${image.sha256}`);
+		return {
+			status: 'UpdateImageFoundOK',
+			name: image.name,
+			version: latestVersion,
+			filesystem: image.filesystem,
+			sum: image.sha256,
+			url: `${repo}/${this.query.target}/${image.name}`,
+		};
+	},
+
 	// start with stat to determine initial state - dont do in load as sha256sum may take some time to calc
-	// if stat shows download in progress --> show downloading progress
-	// if stat shows download complete, search and verify, then show ready to upgrade. Flag in page to stop repeated stats. enable upgrade button
-	// if stat shows no file, search. stop poll when done
+	// if stat shows device download in progress --> show downloading progress
+	// if stat shows device download complete, search and verify, then show ready to upgrade. Flag in page to stop repeated stats. enable upgrade button
+	// if stat shows no file, search via browser and device.
+	// if browser and device have internet, preference browser results.
+	// stop poll when done.
 	// ---> if up to date, show success
-	// ---> if file found, enable download button
 	// ---> if error, show error
+	// ---> if file found, enable download button and show version as a clickable link to found image url
 
 	// download button restarts stat poll
 	// upgrade button pops sysupgrade modal
 	upgradeSearch: async function () {
-		let search = await callUpgradeSearch();
+		// attempt to search using the browser and the device simultaneously
+		const [
+			browserResult,
+			deviceResult,
+		] = await Promise.allSettled([
+			this.browserUpgradeSearch(),
+			callUpgradeSearch(),
+		]);
+
+		const browserSearch = browserResult.status === 'fulfilled' ? browserResult.value : null;
+		const deviceSearch = deviceResult.status === 'fulfilled' ? deviceResult.value : null;
+
+		this.browserConnectionAvailable = browserSearch?.status && browserSearch.status !== ubusStatus.HTTPError;
+		this.deviceConnectionAvailable = deviceSearch?.status && deviceSearch.status !== ubusStatus.HTTPError;
+
+		console.info('browserConnectionAvailable', this.browserConnectionAvailable);
+		console.info('deviceConnectionAvailable', this.deviceConnectionAvailable);
+
+		// choose a primary search result to use, prefer browser
+		const search = this.browserConnectionAvailable ? browserSearch : deviceSearch;
 
 		switch (search.status) {
 			case ubusStatus.HTTPError:
-				this.setState(states.ERROR, `${search.error}. ${defaultMessages[ubusStatus.HTTPError]} (${search.code})`);
+				this.setState(states.ERROR, `${search.error}. ${defaultMessages[ubusStatus.HTTPError]}`);
 				return null;
 			case ubusStatus.UpdateImageNotFoundError:
 				this.setState(states.ERROR, `${search.error}. ${defaultMessages[ubusStatus.UpdateImageNotFoundError]}`);
+				return null;
+			case ubusStatus.BoardNotFoundError:
+				this.setState(states.ERROR, `${search.error}. ${defaultMessages[ubusStatus.BoardNotFoundError]}`);
 				return null;
 			case ubusStatus.NoUpdateNeededOK:
 				this.setState(states.UPDATED, defaultMessages[ubusStatus.NoUpdateNeededOK]);
@@ -371,33 +482,34 @@ return view.extend({
 		switch (state) {
 			case states.UPGRADEREADY:
 				this.sysupgradeButton.classList.remove('hidden');
-				this.upgradeButton.classList.add('hidden');
+				this.upgradeButtonContainer.classList.add('hidden');
 				break;
 			case states.DOWNLOADREADY:
 				this.sysupgradeButton.classList.add('hidden');
-				this.upgradeButton.classList.remove('hidden');
+				this.upgradeButtonContainer.classList.remove('hidden');
+
+				this.deviceUpgradeButtonContainer.querySelector('button').disabled = !this.deviceConnectionAvailable;
+				this.browserUpgradeButtonContainer.querySelector('button').disabled = !this.browserConnectionAvailable;
+
+				this.deviceUpgradeButtonContainer.querySelector('.upgrade-page-button-subtitle').classList.toggle('hidden', this.deviceConnectionAvailable);
+				this.browserUpgradeButtonContainer.querySelector('.upgrade-page-button-subtitle').classList.toggle('hidden', this.browserConnectionAvailable);
+
 				break;
 			default:
 				this.sysupgradeButton.classList.add('hidden');
-				this.upgradeButton.classList.add('hidden');
+				this.upgradeButtonContainer.classList.add('hidden');
 				break;
 		}
 	},
 
 	pollState: async function () {
-		// high speed, low impact query call to test rpcd plugin present
-		// now that the rpcd plugin depends on user config, it's existence
-		// should be checked. Maybe this can be done on load...
-		let query = {};
-		try {
-			query = await callUpgradeQuery();
-		} catch (e) {
-			console.error(e);
+		if (this.query == null || typeof this.query != 'object') {
 			this.setState(states.ERROR, _(
 				'Configuration error detected. The upgrade service could'
 				+ ' not be started due to a missing or invalid system setting.'
 				+ ' Please check your device configuration or perform a factory reset before re-trying.'),
 			);
+			return;
 		}
 
 		let stat = await callUpgradeStat();
@@ -405,7 +517,7 @@ return view.extend({
 
 		switch (stat.status) {
 			case ubusStatus.DownloadInProgressOK:
-				this.setState(states.DOWNLOADING, _('Data received: ') + stat.bytes);
+				this.setState(states.DOWNLOADING, _('Downloading firmware to device: ') + stat.bytes);
 				this.stateTimeout = window.setTimeout(L.bind(this.pollState, this), 2000);
 				return;
 			case ubusStatus.ReadyForDownloadOK:
@@ -413,12 +525,12 @@ return view.extend({
 				if (this.search == null)
 					return;
 				this.foundUpgrade = true;
-				if (query.rootfs_type != this.search.filesystem)
+				if (this.query.rootfs_type != this.search.filesystem)
 					rootfs_warn = _('<br> New image is of format: ') + this.search.filesystem;
-				this.setState(states.DOWNLOADREADY, _('New firmware version available: %s').format(this.search.version) + rootfs_warn);
+				this.setState(states.DOWNLOADREADY, _('New firmware version available: <a href="%s" target="_blank">%s</a>').format(this.search.url, this.search.version) + rootfs_warn);
 				return;
 			case ubusStatus.DownloadError:
-				this.setState(states.ERROR, `${stat.error}. ${defaultMessages[ubusStatus.DownloadError]} (${stat.code})`);
+				this.setState(states.ERROR, `${stat.error}. ${defaultMessages[ubusStatus.DownloadError]}`);
 				return;
 			default:
 				break;
@@ -435,18 +547,25 @@ return view.extend({
 				return;
 		}
 
+		await this.verifyAndUpgrade();
+
+		return;
+	},
+
+	verifyAndUpgrade: async function () {
+		let rootfs_warn = '';
 		let verify = await callUpgradeVerify(this.search.sum);
 		switch (verify.status) {
 			case ubusStatus.ArgumentError:
 				console.error(this.search);
 				throw new Error('Something has gone horribly wrong in verify');
 			case ubusStatus.SHAMismatchError:
-			// this one is a bit confusing. The status was designed around passing the wrong shasum into the verify
-			// but we don't want to transition to an error state. We know there's an upstream file avaiable, so
-			// indicate something is available.
-				if (query.rootfs_type != this.search.filesystem)
+				// this one is a bit confusing. The status was designed around passing the wrong shasum into the verify
+				// but we don't want to transition to an error state. We know there's an upstream file avaiable, so
+				// indicate something is available.
+				if (this.query.rootfs_type != this.search.filesystem)
 					rootfs_warn = _('<br> New image is of format: ') + this.search.filesystem;
-				this.setState(states.DOWNLOADREADY, _('New firmware version available: %s').format(this.search.version) + rootfs_warn);
+				this.setState(states.DOWNLOADREADY, _('New firmware version available: <a href="%s" target="_blank">%s</a>').format(this.search.url, this.search.version) + rootfs_warn);
 				return;
 			default:
 				break;
@@ -467,6 +586,83 @@ return view.extend({
 		this.setState(states.LOADING, _('Checking for upgrades'));
 	},
 
+	browserDownload: async function (url, sum) {
+		if (!url || !sum) {
+			throw new Error('Correct target and sha256sum not provided to browser download function');
+		}
+
+		const downloadResponse = await fetch(url, { cache: 'no-cache' });
+
+		if (!downloadResponse.ok || !downloadResponse.body) {
+			throw new Error(`Failed to download firmware from upgrade server (${downloadResponse.status})`);
+		}
+
+		// show the download to browser progress
+		const contentLength = downloadResponse.headers.get('Content-Length');
+		const total = contentLength ? parseInt(contentLength, 10) : 0;
+		let loaded = 0;
+
+		const reader = downloadResponse.body.getReader();
+		const chunks = [];
+
+		while (true) {
+			const { done, value } = await reader.read();
+			if (done) break;
+			chunks.push(value);
+			loaded += value.length;
+
+			// aim to use percentage but fallback to using bytes, like the device upgrades
+			if (total) {
+				const percent = ((loaded / total) * 100).toFixed(2);
+				this.setState(states.DOWNLOADING, _('Downloading firmware to browser: %s%%').format(percent));
+			} else {
+				this.setState(states.DOWNLOADING, _('Downloading firmware to browser: %s bytes').format(loaded));
+			}
+		}
+
+		const data = new FormData();
+		const blob = new Blob(chunks);
+		data.append('sessionid', L.env.sessionid);
+		data.append('filename', '/tmp/sysupgrade.bin');
+		data.append('filedata', blob);
+
+		const uploadResponse = await request.post(L.env.cgi_base + '/cgi-upload', data, {
+			timeout: 0,
+			// show the upload to device progress
+			progress: (pev) => {
+				const percent = ((pev.loaded / pev.total) * 100).toFixed(2);
+				this.setState(states.DOWNLOADING, _('Uploading firmware to device: %s%%').format(percent));
+			},
+		});
+
+		if (!uploadResponse.ok) {
+			const text = await uploadResponse.text();
+			console.error('Upload failed:', text);
+			throw new Error('Upload to device failed');
+		}
+	},
+
+	// use the browser to download the firmware image and then upload it to the device
+	browserDownloadAndUpgrade: async function () {
+		if (!this.foundUpgrade) {
+			this.setState(states.LOADING);
+
+			this.search = await this.upgradeSearch();
+			if (this.search == null)
+				return;
+		}
+
+		this.setState(states.DOWNLOADING, '');
+		try {
+			await this.browserDownload(this.search.url, this.search.sum);
+			await this.verifyAndUpgrade();
+		} catch (e) {
+			console.error(e);
+			this.setState(states.ERROR, `Firmware image download failed. ${defaultMessages[ubusStatus.DownloadError]}`);
+		}
+	},
+
+	// start the download process on the device
 	startDownloadAndUpgrade: async function () {
 		if (!this.foundUpgrade) {
 			this.setState(states.LOADING);
@@ -478,7 +674,6 @@ return view.extend({
 
 		await callUpgradeDownload(this.search.name, this.search.sum);
 		this.setState(states.DOWNLOADING, '');
-
 		this.stateTimeout = window.setTimeout(L.bind(this.pollState, this), 2000);
 	},
 
@@ -487,6 +682,8 @@ return view.extend({
 			fs.trimmed('/proc/mtd'),
 			fs.trimmed('/proc/partitions'),
 			fs.trimmed('/proc/mounts'),
+			callUpgradeQuery().catch(() => null),
+			uci.load('upgrade'),
 		];
 
 		return Promise.all(tasks);
@@ -499,27 +696,54 @@ return view.extend({
 		    has_rootfs_data = (procmtd.match(/"rootfs_data"/) != null) || (procmounts.match('overlayfs:/overlay / ') != null),
 		    storage_size = findStorageSize(procmtd, procpart);
 
+		this.query = data[3];
+
 		this.startButton = E('button', {
 			class: 'cbi-button cbi-button-action',
 			style: 'margin: auto; margin-left: 50%; transform: translateX(-50%);',
 			click: ui.createHandlerFn(this, () => this.start()),
 		}, [_('Check for automatic upgrade')]);
 
-		this.upgradeButton = E('button', {
-			class: 'cbi-button cbi-button-action hidden',
-			style: 'margin: auto; margin-top: 40px; margin-left: 50%; transform: translateX(-50%);',
-			click: ui.createHandlerFn(this, () => this.startDownloadAndUpgrade()),
-		}, [_('Download and Upgrade')]);
+		this.browserUpgradeButtonContainer = E('div', { class: 'upgrade-button-container' }, [
+			E('button', {
+				title: 'firmware download will use browser internet',
+				class: 'cbi-button cbi-button-action',
+				style: 'margin: 0.5rem !important;',
+				click: ui.createHandlerFn(this, () => this.browserDownloadAndUpgrade()),
+			}, [_('Upgrade via browser')]),
+			E('div', { class: 'upgrade-page-button-subtitle' }, [
+				E('p', _('Browser could not reach upgrade server')),
+				E('p', _('(check browser internet connection)')),
+			]),
+		]),
+
+		this.deviceUpgradeButtonContainer = E('div', { class: 'upgrade-button-container' }, [
+			E('button', {
+				title: 'firmware download will use device internet',
+				class: 'cbi-button cbi-button-action',
+				style: 'margin: 0.5rem !important;',
+				click: ui.createHandlerFn(this, () => this.startDownloadAndUpgrade()),
+			}, [_('Upgrade via device')]),
+			E('div', { class: 'upgrade-page-button-subtitle' }, [
+				E('p', _('Device could not reach upgrade server')),
+				E('p', _('(check device internet connection)')),
+			]),
+		]),
+
+		this.upgradeButtonContainer = E('div', {
+			class: 'upgrade-page-controls hidden',
+		}, [E('div', { style: 'display: flex; justify-content: center; gap: 0.5rem; flex-wrap: wrap;' }, [
+			this.browserUpgradeButtonContainer,
+			this.deviceUpgradeButtonContainer,
+		])]);
 
 		this.sysupgradeButton = E('button', {
-			class: 'cbi-button cbi-button-action hidden',
-			style: 'margin: auto; margin-top: 40px; margin-left: 50%; transform: translateX(-50%);',
+			class: 'cbi-button cbi-button-action upgrade-page-controls hidden',
 			click: ui.createHandlerFn(this, () => this.handleSysupgradeAuto(storage_size, has_rootfs_data)),
 		}, [_('Upgrade')]);
 
 		this.manualUploadButton = E('button', {
-			class: 'cbi-button cbi-button-action',
-			style: 'margin: auto; margin-top: 40px; margin-left: 50%; transform: translateX(-50%);',
+			class: 'cbi-button cbi-button-action upgrade-page-controls',
 			click: L.bind(this.handleManualUpload, this, storage_size, has_rootfs_data),
 		}, [_('Manually upload firmware file')]);
 
@@ -528,6 +752,8 @@ return view.extend({
 		this.messageBox = E('div', { id: 'message', class: 'hidden', style: 'margin-top: 40px; text-align: center; display: block;' });
 
 		this.foundUpgrade = false;
+		this.browserConnectionAvailable = false;
+		this.deviceConnectionAvailable = false;
 
 		return [
 			E('h2', {}, _('Morse Upgrade')),
@@ -539,7 +765,7 @@ return view.extend({
 			this.stateElement,
 			this.messageBox,
 			this.startButton,
-			this.upgradeButton,
+			this.upgradeButtonContainer,
 			this.sysupgradeButton,
 			this.manualUploadButton,
 		];
