@@ -1036,22 +1036,12 @@ morse_set_chan_info() {
 		fi
 	fi
 
+	s1g_prim_chwidth=$(( s1g_prim_chwidth - 1 ))
+
 	set_default s1g_prim_1mhz_chan_index auto
 	if [ "$s1g_prim_1mhz_chan_index" = "auto" ]; then
-		if [ "$s1g_chanbw" = 8 ]; then
-			s1g_prim_1mhz_chan_index=3
-		elif [ "$s1g_chanbw" = 4 ]; then
-			if [ "$s1g_prim_chwidth" = 2 ]; then
-				s1g_prim_1mhz_chan_index=2
-			else
-				s1g_prim_1mhz_chan_index=1
-			fi
-		else
-			s1g_prim_1mhz_chan_index=0
-		fi
+		s1g_prim_1mhz_chan_index=$(( (s1g_chanbw - 1) / 2 ))
 	fi
-
-	s1g_prim_chwidth=$(( $s1g_prim_chwidth - 1 ))
 
 	json_add_string channel "$channel"
 	json_add_string freq "$center_freq"
