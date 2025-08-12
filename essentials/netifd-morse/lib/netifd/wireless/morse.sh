@@ -214,6 +214,7 @@ drv_morse_init_device_config() {
 	config_add_int op_class
 	config_add_int txpower
 	config_add_int s1g_chanbw
+	config_add_boolean svt_restricted_mode
 	config_add_int s1g_prim_chwidth
 	config_add_string s1g_prim_1mhz_chan_index
 	config_add_int bss_color
@@ -388,6 +389,7 @@ drv_morse_setup() {
 		phy macaddr path \
 		country \
 		s1g_chanbw \
+		svt_restricted_mode \
 		txpower \
 		frag rts htmode \
 		ampdu \
@@ -616,7 +618,7 @@ drv_morse_teardown() {
 
 morse_iface_create() {
 	local auto_channel_only=0
-	if [ "$country" = EU -o "$country" = GB ]; then
+	if [ "$svt_restricted_mode" != 1 ] && [ "$country" = EU -o "$country" = GB ]; then
 		auto_channel_only=1
 	fi
 
@@ -714,7 +716,6 @@ morse_iface_create() {
 
 		adhoc)
 			[ "$has_chan_info" != 1 ] && return 6
-			[ "$country" = EU -o "$country" = GB ] && return 9
 			[ "$auto_channel_only" = 1 ] && return 9
 			[ "$auto_channel" -gt 0 ] && return 4
 			morse_iw_interface_add "$phy" "$ifname" adhoc || return 1
