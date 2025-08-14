@@ -107,23 +107,12 @@ EOF
 		# do not have OTP bits burnt.
 		if [ "$board_type" -eq 0 ] || [ "$board" = morse,halowlink1 ]; then
 			case "$board" in
-				morse,ekh01-03 |\
-				morse,ekh03v3)
-					bcf=bcf_mf08551.bin
-				;;
-				morse,ekh01v1)
-					bcf=bcf_mf03120.bin
-				;;
-				morse,ekh01v2)
-					bcf=bcf_mf08251.bin
-				;;
 				morse,ekh04v6)
 					bcf=bcf_ekh04_v6.bin
 				;;
 				morse,halowlink1)
 					bcf=bcf_mm_hl1.bin
 				;;
-				morse,ekh01-01 |\
 				morse,halowlink2)
 					bcf=bcf_mf15457.bin
 				;;
