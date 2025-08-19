@@ -35,7 +35,7 @@ const math = require('math');
  * Temporarily defined here and in the uci-defaults script.
  * See the comment in the uci-defaults script for more information.
  */
-const API_VERSION='1.0.1';
+const API_VERSION='2.0.0';
 
 /* This is weird because running the iperf3 server
  * with -s --json will not produce any output
@@ -652,7 +652,7 @@ function info(req) {
  * it due to the nature of execv with system calls. 
  */
 function _uclient_fetch(url, post_data) {
-	const command = ['uclient-fetch', '-q', '-T', '10', '--post-data', post_data, url];
+	const command = ['uclient-fetch', '--no-check-certificate', '-q', '-T', '10', '--post-data', post_data, url];
 
 	/* Create the range test output directory if it doesn't exist. */
 	if (!fs.access(BG_OUTPUT_DIR, 'f') && fs.mkdir(BG_OUTPUT_DIR) === null) {
@@ -700,7 +700,7 @@ function remote_device_login(req) {
 		req.args.password = '';
 	}
 
-	const url = `http://${req.args.target}/ubus/`;
+	const url = `https://${req.args.target}/ubus/`;
 	const post_data = {
 		id: 0,
 		method: 'call',
@@ -741,7 +741,7 @@ function remote_device_call(req) {
 		args = {};
 	}
 	
-	const url = `http://${req.args.target}/ubus/`;
+	const url = `https://${req.args.target}/ubus/`;
 	const post_data = {
 		id: req.args.rpc_id,
 		method: 'call',

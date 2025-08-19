@@ -1,0 +1,7 @@
+#!/bin/sh
+
+# Redirect all http traffic to https.
+uci set uhttpd.main.redirect_https=1
+uci commit uhttpd
+
+exit 0

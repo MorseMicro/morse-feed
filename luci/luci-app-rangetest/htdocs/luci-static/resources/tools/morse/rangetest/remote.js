@@ -216,7 +216,7 @@ var RemoteDeviceFactory = baseclass.extend({
 	load: (url, password) => {
 		var remoteRpc = new RemoteRpcClass();
 		remoteRpc.setIpAddress(url);
-		remoteRpc.setBaseURL('http://' + url + '/ubus/');
+		remoteRpc.setBaseURL('https://' + url + '/ubus/');
 		remoteRpc.setPassword(password);
 		return remoteRpc;
 	},
