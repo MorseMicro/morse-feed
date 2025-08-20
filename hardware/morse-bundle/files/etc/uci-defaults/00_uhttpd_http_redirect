@@ -1,7 +1,12 @@
 #!/bin/sh
 
+# Do not change the setting during sysupgrade.
+if [ -f /sysupgrade.tgz ]; then
+    exit 0
+fi
+
 # Redirect all http traffic to https.
 uci set uhttpd.main.redirect_https=1
-uci commit uhttpd
 
 exit 0
+
