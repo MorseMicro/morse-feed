@@ -1,28 +1,16 @@
 'use strict';
-/* globals fs rpc ui view uci request */
+/* globals fs rpc ui view request upgradesearch */
 'require view';
 'require rpc';
 'require ui';
 'require fs';
-'require uci';
 'require request';
+'require tools.morse.morseupgrade.upgradesearch as upgradesearch';
 
 // this is a standard list propagated around LuCI to poll the device
 // after an action which would have lost connection. Used by the handleSysupgrade
 // 10.42.0.1/192.168.12.1 added by morse to attempt to reach out to our default configuration
 const hrefs = [window.location.host, '10.42.0.1', '192.168.12.1', '192.168.1.1', 'openwrt.lan'];
-
-var callUpgradeQuery = rpc.declare({
-	object: 'morseupgrade',
-	method: 'query',
-	params: [],
-});
-
-var callUpgradeSearch = rpc.declare({
-	object: 'morseupgrade',
-	method: 'search',
-	params: [],
-});
 
 var callUpgradeStat = rpc.declare({
 	object: 'morseupgrade',
@@ -70,7 +58,7 @@ function findStorageSize(procmtd, procpart) {
 
 	procmtd.split(/\n/).forEach(function (ln) {
 		var match = ln.match(/^mtd\d+: ([0-9a-f]+) [0-9a-f]+ "(.+)"$/),
-		    size = match ? parseInt(match[1], 16) : 0;
+			size = match ? parseInt(match[1], 16) : 0;
 
 		switch (match ? match[2] : '') {
 			case 'linux':
@@ -109,28 +97,6 @@ function findStorageSize(procmtd, procpart) {
 	});
 
 	return wholesize;
-}
-
-function isUpgradeable(currentVersion, latestVersion) {
-	const parseMorseVersionString = function (morseVersion) {
-		let versionNumber = morseVersion.split('-');
-		return versionNumber[1].split('.').map(Number);
-	};
-
-	const currentSemVer = parseMorseVersionString(currentVersion);
-	const latestSemVer = parseMorseVersionString(latestVersion);
-
-	let maxLength = Math.max(currentSemVer.length, latestSemVer.length);
-	for (let i = 0; i < maxLength; i++) {
-		const currentValue = currentSemVer[i] || 0;
-		const latestValue = latestSemVer[i] || 0;
-
-		if (currentValue < latestValue) return true;
-		if (currentValue > latestValue) return false;
-	}
-
-	// identical versions
-	return false;
 }
 
 const states = {
@@ -214,16 +180,16 @@ return view.extend({
 			.then((res) => {
 				/* sysupgrade opts table  [0]:checkbox element [1]:check condition [2]:args to pass */
 				var opts = {
-				    keep: [E('input', { type: 'checkbox' }), false, '-n'],
-				    force: [E('input', { type: 'checkbox' }), true, '--force'],
-				    skip_orig: [E('input', { type: 'checkbox' }), true, '-u'],
-				    backup_pkgs: [E('input', { type: 'checkbox' }), true, '-k'],
-				    },
-				    is_valid = res[1].valid,
-				    is_forceable = res[1].forceable,
-				    allow_backup = res[1].allow_backup,
-				    is_too_big = (storage_size > 0 && res[0].size > storage_size),
-				    body = [];
+						keep: [E('input', { type: 'checkbox' }), false, '-n'],
+						force: [E('input', { type: 'checkbox' }), true, '--force'],
+						skip_orig: [E('input', { type: 'checkbox' }), true, '-u'],
+						backup_pkgs: [E('input', { type: 'checkbox' }), true, '-k'],
+					},
+					is_valid = res[1].valid,
+					is_forceable = res[1].forceable,
+					allow_backup = res[1].allow_backup,
+					is_too_big = (storage_size > 0 && res[0].size > storage_size),
+					body = [];
 
 				body.push(E('p', _('The flash image was uploaded. Below is the checksum and file size listed, compare them with the original file to ensure data integrity. <br /> Click \'Continue\' below to start the flash procedure.')));
 				body.push(E('ul', {}, [
@@ -347,69 +313,6 @@ return view.extend({
 			ui.awaitReconnect(...hrefs);
 	},
 
-	// use the browser to search for an upgrade image,
-	// mimic the returns of the callUpgradeSearch() rpc call
-	browserUpgradeSearch: async function () {
-		const { repo } = await uci.get('upgrade', '@upgrade[0]');
-
-		let profiles, latestVersion;
-		const profilesUrl = `${repo}/${this.query.target}/profiles.json`;
-		try {
-			let response = await fetch(profilesUrl, { cache: 'no-cache' });
-
-			if (!response.ok) {
-				throw new Error(`Could not reach upgrade server via browser (${response.status})`);
-			}
-
-			({ version_code: latestVersion, profiles } = await response.json());
-		} catch (e) {
-			return {
-				status: 'HTTPError',
-				error: 'Could not reach upgrade server',
-				code: e.message,
-			};
-		}
-
-		if (!isUpgradeable(this.query.morse_version, latestVersion)) {
-			return {
-				status: 'NoUpdateNeededOK',
-				message: 'Already up to date!',
-			};
-		}
-
-		const profile = Object.values(profiles).find(profile => profile.supported_devices.includes(this.query.board));
-
-		// skip the backend trying again by not throwing an error
-		// maybe this is dangerous and the backend should try again?
-		// I just don't see any case where it would end differently.
-		if (!profile) {
-			return {
-				status: 'BoardNotFoundError',
-				error: `No profiles found on upgrade server for device type '${this.query.board}'`,
-			};
-		}
-
-		const image = Object.values(profile.images).find(image => image.filesystem == 'squashfs' && image.type == 'sysupgrade');
-
-		if (!image) {
-			return {
-				status: 'UpdateImageNotFoundError',
-				error: `No ${latestVersion} images found on upgrade server for '${this.query.board}'`,
-			};
-		}
-
-		// mimic the backend
-		console.log(`Image found via browser is ${image.type} with ${image.filesystem}: ${image.name} ${image.sha256}`);
-		return {
-			status: 'UpdateImageFoundOK',
-			name: image.name,
-			version: latestVersion,
-			filesystem: image.filesystem,
-			sum: image.sha256,
-			url: `${repo}/${this.query.target}/${image.name}`,
-		};
-	},
-
 	// start with stat to determine initial state - dont do in load as sha256sum may take some time to calc
 	// if stat shows device download in progress --> show downloading progress
 	// if stat shows device download complete, search and verify, then show ready to upgrade. Flag in page to stop repeated stats. enable upgrade button
@@ -422,18 +325,15 @@ return view.extend({
 
 	// download button restarts stat poll
 	// upgrade button pops sysupgrade modal
-	upgradeSearch: async function () {
-		// attempt to search using the browser and the device simultaneously
-		const [
-			browserResult,
-			deviceResult,
-		] = await Promise.allSettled([
-			this.browserUpgradeSearch(),
-			callUpgradeSearch(),
-		]);
-
-		const browserSearch = browserResult.status === 'fulfilled' ? browserResult.value : null;
-		const deviceSearch = deviceResult.status === 'fulfilled' ? deviceResult.value : null;
+	handleUpgradeSearch: async function () {
+		let browserSearch, deviceSearch;
+		try {
+			({ browser: browserSearch, device: deviceSearch } = await upgradesearch.search());
+		} catch (e) {
+			console.error('Upgrade search failed:', e);
+			this.setState(states.ERROR, defaultMessages[ubusStatus.ArgumentError]);
+			throw new Error('Something has gone horribly wrong in upgrade search');
+		}
 
 		this.browserConnectionAvailable = browserSearch?.status && browserSearch.status !== ubusStatus.HTTPError;
 		this.deviceConnectionAvailable = deviceSearch?.status && deviceSearch.status !== ubusStatus.HTTPError;
@@ -463,6 +363,7 @@ return view.extend({
 
 		if (search.status != ubusStatus.UpdateImageFoundOK) {
 			console.error(search);
+			this.setState(states.ERROR, defaultMessages[ubusStatus.ArgumentError]);
 			throw new Error('Something has gone horribly wrong in search');
 		}
 
@@ -503,7 +404,7 @@ return view.extend({
 	},
 
 	pollState: async function () {
-		if (this.query == null || typeof this.query != 'object') {
+		if (this.queryResult == null || typeof this.queryResult != 'object') {
 			this.setState(states.ERROR, _(
 				'Configuration error detected. The upgrade service could'
 				+ ' not be started due to a missing or invalid system setting.'
@@ -521,11 +422,11 @@ return view.extend({
 				this.stateTimeout = window.setTimeout(L.bind(this.pollState, this), 2000);
 				return;
 			case ubusStatus.ReadyForDownloadOK:
-				this.search = await this.upgradeSearch();
+				this.search = await this.handleUpgradeSearch();
 				if (this.search == null)
 					return;
 				this.foundUpgrade = true;
-				if (this.query.rootfs_type != this.search.filesystem)
+				if (this.queryResult.rootfs_type != this.search.filesystem)
 					rootfs_warn = _('<br> New image is of format: ') + this.search.filesystem;
 				this.setState(states.DOWNLOADREADY, _('New firmware version available: <a href="%s" target="_blank">%s</a>').format(this.search.url, this.search.version) + rootfs_warn);
 				return;
@@ -542,7 +443,7 @@ return view.extend({
 		}
 
 		if (!this.foundUpgrade) {
-			this.search = await this.upgradeSearch();
+			this.search = await this.handleUpgradeSearch();
 			if (this.search == null)
 				return;
 		}
@@ -558,12 +459,13 @@ return view.extend({
 		switch (verify.status) {
 			case ubusStatus.ArgumentError:
 				console.error(this.search);
+				this.setState(states.ERROR, defaultMessages[ubusStatus.ArgumentError]);
 				throw new Error('Something has gone horribly wrong in verify');
 			case ubusStatus.SHAMismatchError:
 				// this one is a bit confusing. The status was designed around passing the wrong shasum into the verify
 				// but we don't want to transition to an error state. We know there's an upstream file avaiable, so
 				// indicate something is available.
-				if (this.query.rootfs_type != this.search.filesystem)
+				if (this.queryResult.rootfs_type != this.search.filesystem)
 					rootfs_warn = _('<br> New image is of format: ') + this.search.filesystem;
 				this.setState(states.DOWNLOADREADY, _('New firmware version available: <a href="%s" target="_blank">%s</a>').format(this.search.url, this.search.version) + rootfs_warn);
 				return;
@@ -647,7 +549,7 @@ return view.extend({
 		if (!this.foundUpgrade) {
 			this.setState(states.LOADING);
 
-			this.search = await this.upgradeSearch();
+			this.search = await this.handleUpgradeSearch();
 			if (this.search == null)
 				return;
 		}
@@ -667,7 +569,7 @@ return view.extend({
 		if (!this.foundUpgrade) {
 			this.setState(states.LOADING);
 
-			this.search = await this.upgradeSearch();
+			this.search = await this.handleUpgradeSearch();
 			if (this.search == null)
 				return;
 		}
@@ -682,8 +584,7 @@ return view.extend({
 			fs.trimmed('/proc/mtd'),
 			fs.trimmed('/proc/partitions'),
 			fs.trimmed('/proc/mounts'),
-			callUpgradeQuery().catch(() => null),
-			uci.load('upgrade'),
+			upgradesearch.load(),
 		];
 
 		return Promise.all(tasks);
@@ -691,12 +592,12 @@ return view.extend({
 
 	render: function (data) {
 		var procmtd = data[0],
-		    procpart = data[1],
-		    procmounts = data[2],
-		    has_rootfs_data = (procmtd.match(/"rootfs_data"/) != null) || (procmounts.match('overlayfs:/overlay / ') != null),
-		    storage_size = findStorageSize(procmtd, procpart);
+			procpart = data[1],
+			procmounts = data[2],
+			has_rootfs_data = (procmtd.match(/"rootfs_data"/) != null) || (procmounts.match('overlayfs:/overlay / ') != null),
+			storage_size = findStorageSize(procmtd, procpart);
 
-		this.query = data[3];
+		this.queryResult = data[3];
 
 		this.startButton = E('button', {
 			class: 'cbi-button cbi-button-action',
@@ -754,6 +655,10 @@ return view.extend({
 		this.foundUpgrade = false;
 		this.browserConnectionAvailable = false;
 		this.deviceConnectionAvailable = false;
+
+		// if the upgrade link on the home page is clicked take the user directly to the the automatic upgrade
+		const urlAction = new URLSearchParams(window.location.search).get('action');
+		if (urlAction == 'auto-upgrade') this.startButton.click();
 
 		return [
 			E('h2', {}, _('Morse Upgrade')),
