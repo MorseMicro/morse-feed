@@ -269,6 +269,36 @@ function getBestDevice(netIface) {
 		scoreDevice(current.getWifiNetwork()) > scoreDevice(best.getWifiNetwork()) ? current : best);
 }
 
+function attemptUpgradeSearch(upgradesearch, method) {
+	return upgradesearch.search({ useBrowser: method === 'browser', useDevice: method === 'device' })
+		.then((result) => {
+			if (!result[method] || result[method]?.status === 'HTTPError') {
+				throw new Error(`No result from ${method} upgrade search`);
+			}
+
+			// Do not fall back (throw error) if search was successful but no upgrade found
+			if (result[method]?.status === 'UpdateImageFoundOK') {
+				return upgradesearch.parseMorseVersionString(result[method].version).join('.');
+			} else {
+				return null;
+			}
+		});
+}
+
+// Return the semVer string of the next upgrade version available, if found.
+// Attempt to use the browser connection to search first (inexpensive) and
+// fall back searching with the device connection if browser has no internet.
+function handleUpgradeSearch() {
+	return L.require('tools.morse.morseupgrade.upgradesearch')
+		.then(upgradesearch =>
+			upgradesearch.load().then(() =>
+				attemptUpgradeSearch(upgradesearch, 'browser')
+					.then(upgradeVersion => upgradeVersion)
+					.catch(() => attemptUpgradeSearch(upgradesearch, 'device')),
+			),
+		).catch(() => null);
+}
+
 async function startDPP(mode) {
 	const result = await callDPPPushButton(mode);
 	if (!result || (result && result.error_code)) {
@@ -292,11 +322,11 @@ async function startDPP(mode) {
 	}
 }
 
-function createSystemCard(boardinfo) {
+function createSystemCard(boardinfo, upgradeVersion) {
 	// Currently no nice way to get this.
 	const morseVersion = boardinfo.release.description.split(' ').pop().replace('Morse-', '');
 
-	return new Card('system', {
+	const card = new Card('system', {
 		heading: _('System'),
 		link: { href: L.url('admin', 'system', 'system'), title: _('System Configuration') },
 		contents: [
@@ -316,6 +346,24 @@ function createSystemCard(boardinfo) {
 			]),
 		],
 	});
+
+	// Show a link to the upgrade page if a newer version is available
+	if (upgradeVersion) {
+		card.renderCard = function () {
+			let cardNode = Card.prototype.renderCard.call(this);
+			let headerEl = cardNode.querySelector('.header h2');
+			headerEl.after(E('a',
+				{
+					href: L.url('admin', 'upgrade') + '?action=auto-upgrade',
+					style: 'margin: 0 1em; font-size: 16px; padding-top: 2px;',
+				},
+				[_('Upgrade to %s available').format(upgradeVersion)]),
+			);
+			return cardNode;
+		};
+	}
+
+	return card;
 }
 
 // Bunch up the logic to connect to wifi networks.
@@ -1200,6 +1248,11 @@ return view.extend({
 	},
 
 	async onceLoad() {
+		// Trigger a non-blocking upgrade search (if the morseupgrade is installed).
+		handleUpgradeSearch().then((upgradeVersion) => {
+			this.upgradeVersion = upgradeVersion;
+		});
+
 		const [hasQRCode, ..._] = await Promise.all([
 			fetch(DPP_QRCODE_PATH, { method: 'HEAD' }).then(r => r.ok).catch(_e => false),
 			configDiagram.loadTemplate(),
@@ -1397,7 +1450,7 @@ return view.extend({
 
 		cards.push(createModeCard(morseMode, morseuci.getEthernetPorts(builtinEthernetPorts, networkDevices)));
 		cards.push(createNetworkInterfacesCard(networks, wifiDevices));
-		cards.push(createSystemCard(boardinfo));
+		cards.push(createSystemCard(boardinfo, this.upgradeVersion));
 
 		return cards;
 	},
