@@ -1,0 +1,732 @@
+#!/usr/bin/ucode
+/* DPP handling (push button, and results).
+ *
+ * This hooks into hostapd/wpa_supplicant via ubus to:
+ *  - initiate DPP push buttons
+ *  - listen for configuration (and apply when received)
+ *  - do push button lockouts to avoid overlap
+ *  - reports status via LED
+ *  - if no HaLow iface, attempt PB on 2.4 (and then configure HaLow)
+ *
+ * The two trickiest parts are how it provides custom configuration
+ * (via DPP's EXTRA_CONF_NAMESPACE) and then handles this if it receives it
+ * (i.e. the same code is handling both sides of the interaction),
+ * and that if it attempts to do a PB on 2.4 it will shut down existing
+ * interfaces and bring up a temporary interface.
+ *
+ * Both sides of the config interaction (i.e. generation and application)
+ * are in wizard.uc. The LED interactions are in leds.uc. These are
+ * tested separately.
+ *
+ * Note that we don't expect wpa_supplicant to do _any_ of the processing;
+ * it's entirely our responsibility to set the uci configuration based
+ * on the dpp config (available via subscribing to the appropriate ubus object).
+ *
+ * Future work:
+ *  - report current status (and last status) via ubus
+ *  - consider pushing some/all lockout logic into hostapd
+ *    (in particular, this will help us not start interactions which are certain
+ *    to cause session-overlaps)
+ *  - handle DPP qrcode submission (i.e. remove dppd)
+ *
+ * How a PB interaction works, roughly:
+ *
+ *   - user initiates on both sides (via ubus call dpp_push_button or similar)
+ *   - on the AP side, we provide a custom command to dpp_push_button
+ *     which contains extra configuration in com.morsemicro.wizard, and
+ *     (if possible) kick off interaction on both 2.4/S1G
+ *   - on the STA side, if S1G is available we use that, but if it's not
+ *     we temporarily bring down any active non-S1G ifaces and
+ *     create a 2.4 STA iface to do DPP on.
+ *   - DPP happens (on other 2.4 or S1G)
+ *   - while it's happening, any other attempt to call dpp_push_button
+ *     is blocked (see dpp_pb.timer) to avoid overlap.
+ *   - if it fails, we flash - either for 5s or the lockout time,
+ *     depending on whether we think we started the interaction properly.
+ *	 - if it succeeds, then on the STA side we look for the extra configuration,
+ *     and if present use that to configure S1G (EVEN IF IT CAME OVER 2.4).
+ *     If it's not present and we used 2.4 we fail (since we only have a temp iface).
+ *     If it's not present and we used S1G, then just change the current iface.
+ *   - LEDs are reset and and 2.4 ifaces are restored; user should see
+ *     HaLow LED go on (if device has one).
+ */
+"use strict";
+
+import * as uloop from "uloop";
+import { connect } from  "ubus";
+import { cursor } from "uci";
+import { readfile, writefile } from "fs";
+
+import {
+	apply_config, generate_dpp_command
+} from "/usr/lib/dpp-handler/wizard.uc";
+import {
+	set_dpp_started_led, set_dpp_failed_led, restore_dpp_led, force_ifaces_for_phy
+} from "/usr/lib/dpp-handler/leds.uc";
+
+const ubus = connect();
+
+const DEBUG = false;
+
+// After starting a PB interaction, set a long timeout in case we don't
+// see a PB_RESULT or similar (usually a DPP-PB interaction will timeout after
+// 100 seconds).
+const FAIL_AFTER_SECS = 105;
+
+// Currently, hostapd has a 120s session overlap detection timeout
+// (AFAIK this is not according to spec - it should be 110s before push button).
+// To avoid overlapping with ourselves, we keep the failure state going
+// for 120s.
+const FINISH_AFTER_SECS = 120;
+
+// Seconds to wait for a temporary iface to appear and initiate a PB.
+const WAIT_FOR_PB_SECS = 5;
+
+// How long to show failed LED if we need to signal failure but don't actually
+// need to lockout.
+const FAIL_SIGNAL_SECS = 5;
+
+const TEMP_IFNAME = 'dpp_sta';
+const TEMP_WPA_SUPPLICANT_CONF = "/var/run/wpa_supplicant-dpp.conf";
+
+
+/**
+ * Show message if DEBUG is on.
+ *
+ * @param {string} msg - message to print to stdout.
+ */
+function debug(...msg) {
+	if (DEBUG) {
+		print(...msg, "\n");
+	}
+}
+
+
+/**
+ * Get section which created ifname (is there a cleaner way?).
+ */
+function get_ifname_section(ifname, wireless_status) {
+	for (let radio in values(wireless_status)) {
+		for (let iface in (radio["interfaces"] ?? [])) {
+			if (iface.ifname === ifname) {
+				return iface.section;
+			}
+		}
+	}
+
+	return null;
+}
+
+
+/**
+ * Commit current uci configuration, and notice.
+ *
+ * @param {uci.cursor} uci - UCI cursor object.
+ * @returns {boolean} - True on success.
+ */
+function commit_config(uci) {
+	const config_files = keys(uci.changes());
+
+	if (length(config_files) !== 0 && !uci.commit()) {
+		warn("Failed to commit changed config.\n");
+		return false;
+	}
+
+	// Tell procd about the changes, as /bin/reload_config does.
+	let success = true;
+	for (let cf in config_files) {
+		ubus.call("service", "event", { type: "config.change", data: { package: cf } });
+		if (ubus.error()) {
+			warn("Failed to signal config change:", ubus.error(), "\n");
+			success = false;
+		}
+	}
+
+	return success;
+}
+
+
+/**
+ * Brings up temporary STA interface for DPP PB exchange.
+ *
+ * This tries to avoid netifd entirely by talking directly to
+ * hostapd/wpa_supplicant; the user must run ubus network.wireless reconf
+ * to restore the previous state.
+ * It will only work on 'normal' devices (i.e. 2.4/5), not morse devices,
+ * at it relies on using ubus to configure a daemonised hostapd/wpa_supplicant.
+ *
+ * @param {string} wifi_device - Name of wireless device section.
+ * @returns {object|boolean} - Temp iface object or false on failure.
+ */
+function start_temp_iface(section) {
+	const phyname = ubus.call("iwinfo", "phyname", {section})?.phyname;
+
+	if (!phyname) {
+		warn(`Unable to find PHY to create temporary iface for ${section}.\n`);
+		return false;
+	}
+
+	force_ifaces_for_phy(phyname);
+
+	writefile(TEMP_WPA_SUPPLICANT_CONF, 'dpp_config_processing=0\n');
+
+	// Remove any existing ifaces, as they may interfere with DPP.
+	ubus.call("hostapd", "config_set", { phy: phyname });
+
+	// This also removes any existing ifaces.
+	// We can defer, because we'll pick up the event from the iface creation.
+	ubus.defer("wpa_supplicant", "config_set", {
+		phy: phyname,
+		config: [{
+			ctrl: "/var/run/wpa_supplicant",
+			iface: TEMP_IFNAME,
+			mode: "sta",
+			config: TEMP_WPA_SUPPLICANT_CONF,
+			powersave: false
+		}],
+	});
+
+	return true;
+}
+
+
+// dpp_pb is the current PB interaction; it will block other interactions.
+let dpp_pb = null;
+// dpp_listeners has all the DPPListener objects, mapped by ifname.
+const dpp_listeners = {};
+
+
+/**
+ * DPPPB prototype (i.e. class).
+ *
+ * In general, only one active of these should exist at a time
+ * (stored in dpp_pb), but note that multiple PBs can be started
+ * on this object as for an AP, we may want to PB on more than
+ * one iface. It is assumed, however, that all these PBs start
+ * at the same time, and the failure/success of the first one
+ * to report is largely counted as finishing the DPP interaction.
+ */
+const DPPPB = {
+	new: function() {
+		return proto({
+			timer: null,
+			ifnames: [],
+			waiting_for_temp_iface: false,
+		}, this);
+	},
+
+	cleanup: function () {
+		if ((TEMP_IFNAME in this.ifnames) || this.waiting_for_temp_iface) {
+			ubus.defer("network.wireless", "reconf");
+		}
+	},
+
+	set_timer: function(timer) {
+		if (this.timer) {
+			// If we don't cancel the timer, we'll likely leak memory
+			// if the timer's callback contains a reference to
+			// something interesting.
+			this.timer.cancel();
+		}
+		this.timer = timer;
+	},
+
+	start_temp_iface: function (section) {
+		// This will automatically trigger a PB once the iface exists
+		// (see start_dpp_listener_if_valid).
+		debug(`Triggering temporary iface start on ${section}.`);
+		if (!start_temp_iface(section)) {
+			return false;
+		}
+
+		const that = this;
+		this.waiting_for_temp_iface = true;
+		this.set_timer(uloop.timer(WAIT_FOR_PB_SECS * 1000, () => {
+			that.failed();
+		}));
+
+		return true;
+	},
+
+	restore_leds: function () {
+		for (let ifname in this.ifnames) {
+			restore_dpp_led(ifname);
+		}
+	},
+
+	start: function (target, options) {
+		debug("Starting PB on ", target.ubus_obj);
+		ubus.call(target.ubus_obj, "dpp_push_button", options);
+		if (ubus.error()) {
+			warn(`Unable to start DPP PB interaction on ${target.ubus_obj}: ${ubus.error()}\n`);
+			return false;
+		}
+
+		if (!this.timer || this.waiting_for_temp_iface) {
+			// We might be starting multiple interactions. Only set a timer
+			// for the first; they should be starting at the same time.
+			const that = this;
+			this.set_timer(uloop.timer(FAIL_AFTER_SECS * 1000, () => {
+				that.failed();
+			}));
+
+			// Do this regardless of whether this targets TEMP_IFNAME,
+			// since it implies we have a success (and can ignore any subsequent
+			// temporary fails). In practice, if we're using a TEMP_IFNAME, we only
+			// have one PB anyway though.
+			this.waiting_for_temp_iface = false;
+		}
+
+		set_dpp_started_led(target.ifname);
+		push(this.ifnames, target.ifname);
+		return true;
+	},
+
+	/**
+	 * Failed configuration after a successful PB.
+	 *
+	 * This should disable the lockout.
+	 */
+	failed_config: function (target) {
+		this.set_timer(null);
+		this.failed(target);
+	},
+
+	/**
+     * Fail PB interaction, either on target or if no target for all.
+	 *
+	 * If timer, consider the interaction properly started, so
+	 * lockout the user for FINISH_AFTER_SECS to avoid overlap.
+	 *
+	 * This can be called multiple times, allowing us to simultaneously-ish
+	 * time-out and flash any active LEDs for failure, and extend the
+	 * FINISH_AFTER_SECS timeout based on the last failure.
+	 */
+	failed: function (target) {
+		if (target) {
+			set_dpp_failed_led(target.ifname);
+		} else {
+			for (let ifname in this.ifnames) {
+				set_dpp_failed_led(ifname);
+			}
+		}
+
+		const that = this;
+		if (this.timer) {
+			// This implies we've started the PB, so need to lockout
+			// the user for longer to avoid session-overlap.
+			this.set_timer(uloop.timer(FINISH_AFTER_SECS * 1000, () => {
+				that.set_timer(null);
+				dpp_pb = null;
+				that.restore_leds();
+			}));
+		} else {
+			dpp_pb = null;
+			let temp_timer;
+			temp_timer = uloop.timer(FAIL_SIGNAL_SECS * 1000, () => {
+				// Only set "done" if another interaction hasn't started.
+				if (!dpp_pb) {
+					that.restore_leds();
+				}
+				temp_timer.cancel();
+			});
+		}
+
+		this.cleanup();
+	},
+
+	success: function () {
+		this.set_timer(null);
+
+		if (dpp_pb == this) {
+			dpp_pb = null;
+		}
+
+		this.restore_leds();
+		this.cleanup();
+	},
+
+	get_lockout_secs: function () {
+		return this.timer ? (this.timer.remaining() + 999) / 1000 : 0;
+	},
+};
+
+
+/**
+ * DPPListener prototype (i.e. class).
+ *
+ * One DPPListener is created for each iface you want to listen to
+ * (via a ubus_obj like wpa_supplicant.wlan0);
+ */
+const DPPListener = {
+	/**
+	 * Construct a DPPListener.
+	 */
+	new: function (target) {
+		return proto({
+			target,
+			subscriber: null
+		}, this);
+	},
+
+	is_dpp_pb: function () {
+		return dpp_pb && (this.target.ifname in dpp_pb.ifnames);
+	},
+
+	subscribe: function () {
+		// We only support a single subscription now,
+		// since we're tied to a single iface.
+		assert(!this.subscriber);
+
+		const that = this;
+		this.subscriber = ubus.subscriber(
+			(notify) => that.sub_notify(notify),
+			(id) => that.sub_remove()
+		);
+
+		if (this.subscriber.subscribe(this.target.ubus_obj)) {
+			return true;
+		} else {
+			warn(`Unable to subscribe to ${this.target.ubus_obj}: ${ubus.error()}\n`);
+			return false;
+		} 
+	},
+
+	sub_notify: function (notify) {
+		debug("Received event: ", notify.type, " ", notify.data);
+
+		switch (notify.type) {
+			case "dpp_conf_failed":
+				// Sometimes, there's no dpp_pb_result after a conf failure,
+				// so we need to trigger this immediately.
+				// This seems to happen if you try to dpp pb
+				// back to yourself with the same creds.
+				this.failed();
+				break;
+			case "dpp_conf_received":
+				this.conf = notify.data;
+				break;
+			case "dpp_pb_result":
+				// Confusingly, this happens for both PBs and QRCode interactions.
+				if (notify.data.status === "success") {
+					this.success();
+				} else {
+					// Anthing that's _not_ a success is some kind of failure.
+					warn(`DPP failed on ${this.target.ifname} due to ${notify.data.status}\n`);
+					this.failed();
+				}
+				break;
+		}
+	},
+
+	sub_remove: function () {
+		debug(`Removing listener for object: ${this.target.ifname}`);
+
+		// If we don't remove the subscriber entirely, we'll leak
+		// memory (this is safe since we only ever subscribe
+		// to a subscriber once).
+		// Ideally, we wouldn't need the subscriber to live here,
+		// but unfortunately the notify callback doesn't give us
+		// enough information to easily resolve which object
+		// it's trying to notify on.
+		this.subscriber.remove();
+
+		// This happens if the ubus object disappears.
+		// This is expected for qrcode listening (e.g. if the device is reconfigured),
+		// but if it happens during PB something has gone wrong.
+		if (this.is_dpp_pb()) {
+			dpp_pb.failed(this.target);
+		}
+
+
+		delete dpp_listeners[this.target.ifname];
+	},
+
+	failed: function () {
+		this.conf = null;
+
+		if (this.is_dpp_pb()) {
+			dpp_pb.failed(this.target);
+		}
+	},
+
+	apply_client_config: function () {
+		const uci = cursor();
+
+		let section;
+		const wireless_status = ubus.call("network.wireless", "status");
+		if (wireless_status) {
+			section = get_ifname_section(this.target.ifname, wireless_status);
+		}
+
+		// apply_config needs section to target the normal conf, but
+		// custom conf will apply without section. This would usually
+		// happen if it's a temporary interface.
+		return apply_config(uci, this.conf, section) && commit_config(uci);
+	},
+
+	success: function () {
+		let config_success = true;
+		if (this.target.mode === "Client") {
+			config_success = this.apply_client_config();
+		}
+
+		if (this.is_dpp_pb()) {
+			if (config_success) {
+				dpp_pb.success();
+			} else {
+				dpp_pb.failed_config(this.target);
+			}
+		}
+	},
+};
+
+
+/**
+ * Ubus handler for triggering DPP PB.
+ *
+ * If no mode is provided, AP mode is preferred.
+ *
+ * Will trigger DPP-PB on all APs if any HaLow APs exist.
+ * OR, will trigger DPP-PB on a STA if any HaLow STAs exist.
+ * OR, will trigger DPP-PB on a temp non-HaLow STA if any non-HaLow _radios_ exist.
+ *
+ * This enable HaLow configuration over non-HaLow radios.
+ *
+ * @param {object} req - Ubus request object (mode = sta/ap/undefined).
+ * @returns {object} - Result containing lockout info or error.
+ */
+function push_button(req) {
+	gc();
+	debug(`Object count: ${gc("count")}`);
+
+	const proposed_mode = req.args.mode;
+	const uci = cursor();
+
+	let target_ifaces = null;
+	let target_devices = null;
+
+	if (proposed_mode && !(proposed_mode in ["ap", "sta"])) {
+		return {
+			error: `DPP using mode=${proposed_mode} not valid`,
+			error_code: "bad_argument",
+		}
+	}
+
+	const lockout_remaining_secs = dpp_pb ? dpp_pb.get_lockout_secs() : 0;
+	if (lockout_remaining_secs) {
+		return {
+			error: `DPP button already pressed recently. Please wait ${lockout_remaining_secs} more seconds to avoid overlap.`,
+			error_code: "lockout",
+			lockout_remaining_secs,
+		}
+	}
+
+	const wireless_status = ubus.call("network.wireless", "status");
+	if (!wireless_status) {
+		warn("Couldn't call network:wireless.status; aborting DPP-PB: ", ubus.error(), "\n");
+		return {
+			error: 'Failed to call network:wireless.status',
+			error_code: "ubus_error",
+			lockout_remaining_secs,
+		}
+	}
+
+	// Trigger on all APs if any HaLow AP
+	// (since we use 2.4 to provide HaLow conf only).
+	if (proposed_mode === "ap" || !proposed_mode) {
+		const ap_dpp_listeners = filter(values(dpp_listeners), dppl => dppl.target.mode === "Master");
+		if ("ah" in map(ap_dpp_listeners, dppl => dppl.target.hwmode)) {
+			target_ifaces = map(ap_dpp_listeners, dppl => dppl.target);
+		}
+	}
+
+	if ((proposed_mode === "sta" || !proposed_mode) && !target_ifaces) {
+		// Trigger on HaLow STA only if it exists.
+		for (let dppl in values(dpp_listeners)) {
+			if (dppl.target.mode === "Client" && dppl.target.hwmode === "ah") {
+				target_ifaces = [dppl.target];
+				break;
+			}
+		}
+
+		// Trigger on temporary 2.4 STA if no HaLow STA
+		// (can be temporary, since only used for transferring creds).
+		if (!target_ifaces) {
+			for (let device_name, device in wireless_status) {
+				if (device.config.band === "2g") {
+					target_devices = [device_name];
+					break;
+				}
+			}
+		}
+	}
+
+	if (!target_ifaces && !target_devices) {
+		return {
+			"error": "Unable to discover an active interface to trigger DPP push button on",
+			"error_code": "no_available_mode",
+			lockout_remaining_secs,
+		}
+	}
+
+	dpp_pb = DPPPB.new();
+
+	let some_success = false;
+	for (let target in target_ifaces) {
+		const options = {};
+		if (target.mode === "Master") {
+			const section = get_ifname_section(target.ifname, wireless_status);
+			if (!section) {
+				warn(`Unable to start DPP PB interaction on ${target.ubus_obj}: no section for ${target.ifname}.\n`);
+				continue;
+			}
+			options.command = generate_dpp_command(uci, section);
+			if (!options.command) {
+				warn(`Unable to start DPP PB interaction on ${target.ubus_obj}: failed to generate command.\n`);
+				continue;
+			}
+		}
+
+		if (dpp_pb.start(target, options)) {
+			some_success = true;
+		}
+	}
+
+	for (let device_name in target_devices) {
+		if (dpp_pb.start_temp_iface(device_name)) {
+			some_success = true;
+		}
+	}
+
+	if (!some_success) {
+		dpp_pb.failed();
+		return {
+			error: "Unable to trigger dpp push button",
+			error_code: "dpp_failed",
+			lockout_remaining_secs: 0,
+		};
+	}
+
+	return {
+		lockout_remaining_secs: dpp_pb.get_lockout_secs(),
+	};
+}
+
+
+/**
+ * Subscribe to DPP events on a ubus object if appropriate.
+ *
+ * If we want to listen/subscribe to the ubus object
+ * (i.e. it's hostapd.wlan0 or similar), we create a DPPListener
+ * and store it in dpp_listeners.
+ *
+ * @param ubus_obj - ubus object to subscribe to (e.g. hostapd.wlan0)
+ */
+function start_dpp_listener_if_valid(ubus_obj) {
+	const ubus_obj_split = split(ubus_obj, ".");
+
+	if (!(ubus_obj_split[0] in ["wpa_supplicant", "hostapd"]) || !ubus_obj_split[1]) {
+		return;
+	}
+
+	const target = {
+		ubus_obj,
+		ifname: ubus_obj_split[1],
+	};
+	const iwinfo_info = ubus.call("iwinfo", "info", {device: target.ifname});
+	if (!iwinfo_info) {
+		warn(`Unable to call iwinfo for ${target.ifname}; ignoring.\n`);
+		return;
+	}
+	target.hwmode = iwinfo_info.hwmode;
+	target.mode = iwinfo_info.mode;
+
+	if (!(
+		(target.hwmode === "ah" && target.mode in ["Master", "Client"])
+		|| target.mode === "Master"
+		|| (target.mode === "Client" && target.ifname === TEMP_IFNAME)
+	)) {
+		debug(`Ignoring interface ${target.ifname} (${target.hwmode}, ${target.mode}); cannot target`);
+		return;  // Ignore if interface is not one we can handle
+	}
+
+	assert(!dpp_listeners[target.ifname], "Trying to add DPPListener when one already exists!");
+
+	const dpp_listener = DPPListener.new(target);
+	if (!dpp_listener.subscribe()) {
+		return;
+	}
+
+	dpp_listeners[target.ifname] = dpp_listener;
+
+	if (target.ifname === TEMP_IFNAME && dpp_pb) {
+		if (!dpp_pb.start(target)) {
+			dpp_pb.failed(target);
+		}
+	}
+}
+
+
+/**
+ * Start listening to DPP events.
+ *
+ * This not only finds all current hostapd/wpa_supplicants, but
+ * also listens to any future ones that appear
+ * (i.e. due to reconfigurations).
+ */
+function start_dpp_listeners() {
+	for (let ubus_obj in ubus.list()) {
+		start_dpp_listener_if_valid(ubus_obj);
+	}
+
+	ubus.listener("ubus.object.add", (type, data) => {
+		debug(`Saw new object: ${data.path}`);
+		start_dpp_listener_if_valid(data.path);
+		gc();
+		debug(`Object count: ${gc("count")}`);
+	});
+}
+
+
+let ubus_methods = {
+	push_button: {
+		call: push_button,
+		args: {
+			mode: "",
+		},
+	},
+
+	get_lockout_secs: {
+		call: () => ({ lockout_remaining_secs: dpp_pb ? dpp_pb.get_lockout_secs() : 0 }),
+	}
+};
+
+
+if (DEBUG) {
+	ubus_methods = {
+		...ubus_methods,
+
+		// Testing helpers - these allow us to easily interact with components of the
+		// system, but are not public interfaces.
+		_start_temp_iface: {
+			call: (req) => start_temp_iface(req.args.section),
+			args: {
+				section: "",
+			},
+		},
+
+		_generate_dpp_command: {
+			call: (req) => ({"command": generate_dpp_command(cursor(), req.args.section)}),
+			args: {
+				section: "",
+			},
+		},
+	};
+}
+
+
+uloop.init();
+ubus.publish("dpp", ubus_methods);
+start_dpp_listeners();
+uloop.run();

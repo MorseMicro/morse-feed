@@ -2,11 +2,10 @@
 # Copyright (C) 2022 Morse Micro
 #
 
-
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=dpp-handler
-PKG_RELEASE:=1
+PKG_RELEASE:=3
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -14,24 +13,28 @@ define Package/dpp-handler
   SECTION:=net
   CATEGORY:=Morse Micro
   SUBMENU:=Features
-  TITLE:=Handle DPP actions/results for Morse S1G hostapd/wpa_supplicant
+  TITLE:=Handle DPP actions/results for Morse devices
   MAINTAINER:=Morse Micro
-  DEPENDS:= wpa_supplicant_s1g +libwpa_client_s1g
+  DEPENDS:= wpa_supplicant_s1g +ucode +ucode-mod-fs +ucode-mod-ubus +ucode-mod-uci +ucode-mod-math +ucode-mod-uloop
 endef
 
 define Package/dpp-handler/description
-  This package adds a ubus (rpcd ucode) handler for DPP related
-  actions (push button to initiate, and set UCI config if successful).
-  Currently, success is detected by a wpa_event_listener.
+  This package adds a ubus handler for DPP related
+  actions (push button to initiate, and set UCI config if successful). It's currently
+  somewhat tied to preferring S1G DPP-PB over other things.
+endef
+
+define Build/Compile
+
 endef
 
 define Package/dpp-handler/install
 	$(INSTALL_DIR) $(1)/usr/sbin
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/wpa_event_listener 	$(1)/usr/sbin
-	$(INSTALL_DIR) $(1)/usr/share/rpcd/ucode
-	$(INSTALL_DATA) ./files/usr/share/rpcd/ucode/* $(1)/usr/share/rpcd/ucode
-	$(INSTALL_DIR) $(1)/usr/share/dpp-handler
-	$(INSTALL_BIN) ./files/usr/share/dpp-handler/* $(1)/usr/share/dpp-handler
+	$(INSTALL_BIN) ./files/usr/sbin/* $(1)/usr/sbin/.
+	$(INSTALL_DIR) $(1)/usr/lib/dpp-handler
+	$(INSTALL_DATA) ./files/usr/lib/dpp-handler/* $(1)/usr/lib/dpp-handler/.
+	$(INSTALL_DIR) $(1)/etc/init.d
+	$(INSTALL_BIN) ./files/etc/init.d/* $(1)/etc/init.d/.
 endef
 
 $(eval $(call BuildPackage,dpp-handler))
