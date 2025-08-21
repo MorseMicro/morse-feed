@@ -9,8 +9,6 @@
 # New states are:
 #   factory_reset/rebooting - 'about to happen' states in morse-button
 #                             (triggered by holding down button)
-#   dpp_started/dpp_failed - if we have no morse specific LED
-#                            and need to re-use one of the normal ones
 
 # This is run before /tmp/sysinfo/board_name is populated on boot.
 board_name="$(strings /proc/device-tree/compatible | head -1)"
@@ -91,7 +89,6 @@ set_three_pwmled_normal() {
 # preinit -> done
 # done -> upgrade
 # done -> ap_change -> sta_change -> factory_reset
-# done -> dpp_started -> dpp_failed -> done
 set_three_pwmled_state() {
 	case "$1" in
 	preinit|preinit_regular)
@@ -110,14 +107,6 @@ set_three_pwmled_state() {
 		led_set_color "$status" "$blue"
 		led_blink "$status"
 		;;
-	dpp_started)
-		led_set_color "$halow" "$dark_purple"
-		led_blink_slow "$halow"
-		;;
-	dpp_failed)
-		led_set_color "$halow" "$dark_purple"
-		led_blink_fast "$halow"
-		;;
 	factory_reset)
 		led_off "$halow"
 		led_off "$wifi"
@@ -135,10 +124,7 @@ set_three_pwmled_state() {
 		led_blink_fast "$status"
 		;;
 	done)
-		# This state is called both after boot completes and after a DPP session finishes.
 		set_three_pwmled_normal
-		# DPP overrides the normal halow led trigger, so restore it here by calling the led script.
-		/etc/init.d/led restart
 		;;
 	esac
 }
@@ -160,16 +146,6 @@ set_single_rgbled_state() {
 		;;
 	upgrade)
 		led_blink "$status_blue"
-		;;
-	dpp_started)
-		# purple
-		led_blink_slow "$status_red"
-		led_blink_slow "$status_blue"
-		;;
-	dpp_failed)
-		# purple
-		led_blink_fast "$status_red"
-		led_blink_fast "$status_blue"
 		;;
 	rebooting)
 		# Because rebooting and factory_reset are triggered
@@ -213,8 +189,6 @@ set_state() {
 	elif [ -n "$boot" -o -n "$failsafe" -o -n "$running" -o -n "$upgrade" ]; then
 		# This is the normal action, but with our additional button generated states added
 		# for our enhanced button scripts.
-		# Note that unlike the above we don't handle dpp_started/dpp_failed, since
-		# the default LED setup doesn't give us a suitable target.
 		case "$1" in
 		factory_reset)
 			led_off "$running"
