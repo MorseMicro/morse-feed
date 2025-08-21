@@ -42,8 +42,9 @@ show_raw_partition_data()
 show_factory_data()
 {
 	local mm_region
+	local board_name="$(cat /tmp/sysinfo/board_name)"
 
-	case "$(cat /tmp/sysinfo/board_name)" in
+	case "$board_name" in
 		morse,halowlink1 |\
 		morse,halowlink2)
 			case "$1" in
@@ -54,13 +55,9 @@ show_factory_data()
 					show_raw_partition_data factory 0x4080 32
 				;;
 				mm_region)
-					mm_region="$(show_raw_partition_data factory 0x40c0 2)"
-					# APP-2988 - for HaLowLink 1, use AU region as default so EVT devices come up
-					# on first boot (no factory partition is written).
-					if [ -n "$mm_region" ]; then
-						echo "$mm_region"
-					else
-						echo AU
+					# morse,halowlink2s were incorrectly set to mm_region=US
+					if [ $board_name != morse,halowlink2 ]; then
+						show_raw_partition_data factory 0x40c0 2
 					fi
 				;;
 			esac
