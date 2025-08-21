@@ -1,0 +1,86 @@
+From 45d33985db2527473bff0677f470a778f6920b3c Mon Sep 17 00:00:00 2001
+From: James Haggerty <james.haggerty@morsemicro.com>
+Date: Wed, 20 Aug 2025 12:56:06 +1000
+Subject: [PATCH] dppd: (APP-5117) use dpp_configurator_params for conf=sta
+
+From my reading of the docs (and mostly the code),
+DPP_CONFIGURATOR_SIGN is intended purely to onboard the AP.
+To tell the configurator how to onboard stas, we should
+set dpp_configurator_params, which will then be used when
+an rx_presence_announcement happens to construct the
+appropriate GAS response.
+
+Also, the hostapd parsing code does not understand a single
+configuration with two conf= strings and prefers the conf=ap
+(mostly), so DPP_CONFIGURATOR_SIGN is definitely odd.
+---
+ daemon/dppd.c | 22 ++++++++++++++--------
+ 1 file changed, 14 insertions(+), 8 deletions(-)
+
+diff --git a/daemon/dppd.c b/daemon/dppd.c
+index 1e14772..2136599 100644
+--- a/daemon/dppd.c
++++ b/daemon/dppd.c
+@@ -347,10 +347,12 @@ hostapd_init_sequence(mmsm_backend_intf_t *hostapd,
+     mmsm_data_item_t *result = NULL;
+     uint8_t *field = NULL;
+     char conf_command[520];
++    char sta_conf_command[520];
+     char hex_ap_ssid[65] = {0};
+     char ap_ssid[33];
+     char hex_passphrase[126] = {0};
+     int len = 0;
++    int sta_conf_len = 0;
+     int i;
+ 
+     /* Adding connector with no feedback */
+@@ -389,8 +391,11 @@ hostapd_init_sequence(mmsm_backend_intf_t *hostapd,
+         sprintf(hex_ap_ssid + (2 * i), "%02x", ap_ssid[i]);
+     }
+     len = snprintf(conf_command, sizeof(conf_command),
+-        "DPP_CONFIGURATOR_SIGN conf=ap-%s configurator=%d ssid=%s conf=sta-%s",
+-        ap_conf_mode, configurator_id, hex_ap_ssid, ap_conf_mode);
++        "DPP_CONFIGURATOR_SIGN conf=ap-%s configurator=%d ssid=%s",
++        ap_conf_mode, configurator_id, hex_ap_ssid);
++    sta_conf_len = snprintf(sta_conf_command, sizeof(sta_conf_command),
++        "SET dpp_configurator_params conf=sta-dpp+%s configurator=%d ssid=%s",
++        ap_conf_mode, configurator_id, hex_ap_ssid);
+ 
+     if (strstr(ap_conf_mode, "sae"))
+     {
+@@ -415,12 +420,19 @@ hostapd_init_sequence(mmsm_backend_intf_t *hostapd,
+         }
+         snprintf(conf_command + len, sizeof(conf_command) - len,
+             " pass=%s", hex_passphrase);
++        snprintf(sta_conf_command + sta_conf_len, sizeof(sta_conf_command) - sta_conf_len,
++            " pass=%s", hex_passphrase);
+     }
+     result = mmsm_request(hostapd, conf_command);
+     CTRL_IF_CHECK_RESULTS(result, DPP_ERROR_CODE_HOSTAPD_DPP_ERROR,
+                           "Bad Hostapd DPP_CONFIGURATOR_SIGN command\n");
+     mmsm_data_item_free(result);
+ 
++    result = mmsm_request(hostapd, sta_conf_command);
++    CTRL_IF_CHECK_RESULTS(result, DPP_ERROR_CODE_CTRL_IF_ERROR,
++                          "Make sure Hostapd is up and path is correct\n");
++    mmsm_data_item_free(result);
++
+     /* Update Hostapd internal passphrase as we do not use (cannot read from
+      * the interface) the one in the config file */
+     if (strstr(ap_conf_mode, "sae"))
+@@ -433,12 +445,6 @@ hostapd_init_sequence(mmsm_backend_intf_t *hostapd,
+         mmsm_data_item_free(result);
+     }
+ 
+-    result = mmsm_request(hostapd,
+-                          "SET dpp_configurator_params configurator=1");
+-    CTRL_IF_CHECK_RESULTS(result, DPP_ERROR_CODE_CTRL_IF_ERROR,
+-                          "Make sure Hostapd is up and path is correct\n");
+-    mmsm_data_item_free(result);
+-
+     return DPP_ERROR_CODE_SUCCESS;
+ }
+ 
+-- 
+2.34.1
+
