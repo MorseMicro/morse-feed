@@ -1260,11 +1260,6 @@ morse_wpa_supplicant_add() {
 		/usr/sbin/wpa_supplicant_s1g -t -D nl80211 -s -i $_ifname -c $_config -B
 	fi
 
-	# React to DPP events (this will handle modifying our UCI configuration on successful DPP)
-	if [ "$dpp" = 1 ]; then
-		echo "Attempting to start DPP result listener..."
-		ubus call dpp start_qrcode_listener
-	fi
 	return 0
 }
 
