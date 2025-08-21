@@ -1,0 +1,15 @@
+# As with password, this must happen after the uci-defaults for the uboot env are loaded.
+# See also /morse/scripts/save_dropbear_setup.sh
+
+mkdir -p /etc/dropbear
+chmod 700 /etc/dropbear
+
+# Do not change the password if this is an upgrade.
+if [ -f /sysupgrade.tgz ]; then
+    exit 0
+fi
+
+# Disable SSH by default
+uci set dropbear.@dropbear[0].enable=0
+
+exit 0
