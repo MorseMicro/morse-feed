@@ -822,8 +822,8 @@ return view.extend({
 			advanced: {
 				protocol: ['udp', 'tcp'],
 				direction: ['send', 'receive'],
-				length: 20,
-				omit: 5,
+				omit: 10, // It can take up to 10 seconds for MMRC to settle.
+				length: 70, // 60 seconds of good data after 10 seconds of warmup.
 			},
 		};
 		return Promise.all([getLocalTests(), info()]);
@@ -1183,26 +1183,25 @@ return view.extend({
 		o.rmempty = false;
 		o.optional = false;
 
-		o = s.option(form.ListValue, 'length', _('Test Length'), _('Longer tests may yield more accurate results'));
-		o.value(10, _('Short (10 seconds per subtest)'));
-		o.value(20, _('Medium (20 seconds per subtest)'));
-		o.value(30, _('Long (30 seconds per subtest)'));
+		o = s.option(form.Flag, 'quick_test', _('Quick Tests'), _('Run 10s subtests with the first 2s omitted. Standard tests run for 70s with the first 10s omitted and generally yield more accurate results.'));
+		o.renderWidget = function (sectionId, optionIndex, cfgvalue) {
+			const uiElem = form.Flag.prototype.renderWidget.call(this, sectionId, optionIndex, cfgvalue);
+			uiElem.style.minWidth = '18rem';
+			uiElem.style.paddingLeft = '0.25rem';
+			return uiElem;
+		};
+		o.default = false;
 		o.rmempty = false;
 		o.optional = false;
 
 		const updateOmitTime = () => {
-			// ListValue option values get automatically converted to strings, convert them back.
-			this.rangetestConfiguration.advanced.length = parseInt(this.rangetestConfiguration.advanced.length);
-			switch (this.rangetestConfiguration.advanced.length) {
-				case 10:
-					this.rangetestConfiguration.advanced.omit = 2;
-					break;
-				case 20:
-					this.rangetestConfiguration.advanced.omit = 5;
-					break;
-				case 30:
-					this.rangetestConfiguration.advanced.omit = 10;
-					break;
+			this.rangetestConfiguration.advanced.quick_test = parseInt(this.rangetestConfiguration.advanced.quick_test);
+			if (this.rangetestConfiguration.advanced.quick_test) {
+				this.rangetestConfiguration.advanced.length = 10;
+				this.rangetestConfiguration.advanced.omit = 2;
+			} else {
+				this.rangetestConfiguration.advanced.length = 70;
+				this.rangetestConfiguration.advanced.omit = 10;
 			}
 		};
 
