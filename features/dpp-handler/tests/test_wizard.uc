@@ -383,4 +383,14 @@ return {
 		assert(!wizard.apply_config(uci, conf, "default_radio1"));
 	},
 
+	has_custom_target_true: function () {
+		const uci = MockUCICursor.new(mock_extender_uci_data());
+		assert(wizard.has_custom_target(uci));
+	},
+
+	has_custom_target_false_if_no_sta: function () {
+		const uci = MockUCICursor.new(mock_extender_uci_data());
+		uci.set("wireless", "default_radio1", "mode", "mesh");
+		assert(!wizard.has_custom_target(uci));
+	},
 };

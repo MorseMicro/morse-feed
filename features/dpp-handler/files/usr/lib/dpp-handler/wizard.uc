@@ -12,6 +12,7 @@ import { readfile } from "fs";
 import { rand } from "math";
 
 const EXTRA_CONF_NAMESPACE = "com.morsemicro.wizard";
+const DEFAULT_NETWORK = "lan";
 
 
 /**
@@ -71,6 +72,64 @@ function check_config(config, params) {
 
 
 /**
+ * Find a valid HaLow device/iface to target for custom config.
+ *
+ * @param {object} uci - UCI cursor.
+ * @returns {object|null} - Details of target (iface/device/bridge) if found.
+ */
+function get_custom_target(uci) {
+	const t = {};
+	t.device = find_morse_device(uci);
+	if (!t.device) {
+		warn("Unable to find morse wifi-device in UCI wireless config.\n");
+		return null;
+	}
+
+	const sta_ifaces = filter(find_ifaces(uci, t.device), s => uci.get("wireless", s, "mode") === 'sta');
+	if (length(sta_ifaces) !== 1) {
+		warn("Unable to find exactly one STA wifi-iface in UCI wireless config.\n");
+		return null;
+	}
+
+	t.iface = sta_ifaces[0];
+	if (uci.get("wireless", t.iface, "network") !== DEFAULT_NETWORK) {
+		warn(`Morse iface not on ${DEFAULT_NETWORK} network.\n`);
+		return null;
+	}
+
+	const bridge_device = uci.get("network", DEFAULT_NETWORK, "device");
+	if (!bridge_device) {
+		warn(`Network ${DEFAULT_NETWORK} has no device, so likely not bridged.\n`);
+		return false;
+	}
+
+	const networks = uci.get_all("network");
+	t.bridge = filter(keys(networks),
+		s => networks[s]["type"] === "bridge" && networks[s]["name"] === bridge_device)[0];
+	if (!t.bridge) {
+		warn(`Unable to find bridge ${bridge_device} in config.\n`);
+		return false;
+	}
+
+	return t;
+}
+
+
+/**
+ * Determine if there's a valid iface for HaLow custom config.
+ *
+ * If this is not true, we should not initiate a 2.4 DPP, since any
+ * custom config wouldn't be applicable anyway.
+ *
+ * @param {object} uci - UCI cursor.
+ * @returns {boolean} - Details of target (iface/device/bridge) if found.
+ */
+export function has_custom_target(uci) {
+	return !!get_custom_target(uci);
+};
+
+
+/**
  * Applies custom DPP configuration from extra_conf.
  *
  * Interpret a custom (EXTRA_CONF_NAMESPACE) conf object.
@@ -97,36 +156,8 @@ function check_config(config, params) {
  * @returns {boolean} - True on successful config.
  */
 function apply_custom_config(uci, config) {
-	const DEFAULT_NETWORK = "lan";
-	const morse_device = find_morse_device(uci);
-	if (!morse_device) {
-		warn("Unable to find morse wifi-device in UCI wireless config.\n");
-		return false;
-	}
-
-	const morse_ifaces = find_ifaces(uci, morse_device);
-	if (length(morse_ifaces) !== 1) {
-		warn("Unable to find exactly one morse wifi-iface in UCI wireless config.\n");
-		return false;
-	};
-
-	const morse_iface = morse_ifaces[0];
-	if (uci.get("wireless", morse_iface, "network") !== DEFAULT_NETWORK) {
-		warn(`Morse iface not on ${DEFAULT_NETWORK} network.\n`);
-		return false;
-	}
-
-	const device = uci.get("network", DEFAULT_NETWORK, "device");
-	if (!device) {
-		warn(`Network ${DEFAULT_NETWORK} has no device, so likely not bridged.\n`);
-		return false;
-	}
-
-	const networks = uci.get_all("network");
-	const bridge = filter(keys(networks),
-		s => networks[s]["type"] === "bridge" && networks[s]["name"] === device)[0];
-	if (!bridge) {
-		warn(`Unable to find bridge ${device} in config.\n`);
+	const target = get_custom_target(uci);
+	if (!target) {
 		return false;
 	}
 
@@ -135,32 +166,32 @@ function apply_custom_config(uci, config) {
 		if (!check_config(config, ["country", "ssid", "key", "encryption"])) {
 			return false;
 		}
-		uci.set("wireless", morse_device, "country", config.country);
+		uci.set("wireless", target.device, "country", config.country);
 
-		uci.set("wireless", morse_iface, "mode", "sta");
+		uci.set("wireless", target.iface, "mode", "sta");
 		// Disable powersave since this is only used for Extenders where
 		// power is not a concern (powersave causes higher latency).
-		uci.set("wireless", morse_iface, "powersave", "0");
-		uci.set("wireless", morse_iface, "ssid", config.ssid);
-		uci.delete("wireless", morse_iface, "mesh_id");
-		uci.set("wireless", morse_iface, "key", config.key);
-		uci.set("wireless", morse_iface, "encryption", config.encryption);
-		uci.delete("wireless", morse_iface, "dpp");
+		uci.set("wireless", target.iface, "powersave", "0");
+		uci.set("wireless", target.iface, "ssid", config.ssid);
+		uci.delete("wireless", target.iface, "mesh_id");
+		uci.set("wireless", target.iface, "key", config.key);
+		uci.set("wireless", target.iface, "encryption", config.encryption);
+		uci.delete("wireless", target.iface, "dpp");
 		break;
 
 	case 'mesh11s':
 		if (!check_config(config, ["country", "channel", "mesh_id", "key", "encryption"])) {
 			return false;
 		}
-		uci.set("wireless", morse_device, "country", config.country);
-		uci.set("wireless", morse_device, "channel", config.channel);
+		uci.set("wireless", target.device, "country", config.country);
+		uci.set("wireless", target.device, "channel", config.channel);
 
-		uci.set("wireless", morse_iface, "mode", "mesh");
-		uci.set("wireless", morse_iface, "mesh_id", config.mesh_id);
-		uci.delete("wireless", morse_iface, "ssid");
-		uci.set("wireless", morse_iface, "key", config.key);
-		uci.set("wireless", morse_iface, "encryption", config.encryption);
-		uci.delete("wireless", morse_iface, "dpp");
+		uci.set("wireless", target.iface, "mode", "mesh");
+		uci.set("wireless", target.iface, "mesh_id", config.mesh_id);
+		uci.delete("wireless", target.iface, "ssid");
+		uci.set("wireless", target.iface, "key", config.key);
+		uci.set("wireless", target.iface, "encryption", config.encryption);
+		uci.delete("wireless", target.iface, "dpp");
 		break;
 
 	case 'prplmesh':
@@ -171,27 +202,26 @@ function apply_custom_config(uci, config) {
 			warn("Configurator requests prplmesh but prplmesh is not installed.");
 			return false;
 		}
-
-		uci.set("wireless", morse_device, "country", config.country);
+		uci.set("wireless", target.device, "country", config.country);
 		// prplmesh shouldn't require a channel, but currently does due to
 		// a bug with bringing up a HaLow AP and STA at the same time.
-		uci.set("wireless", morse_device, "channel", config.channel);
+		uci.set("wireless", target.device, "channel", config.channel);
 
-		uci.set("wireless", morse_iface, "mode", "ap");
-		uci.set("wireless", morse_iface, "ssid", config.ssid);
-		uci.delete("wireless", morse_iface, "mesh_id");
-		uci.set("wireless", morse_iface, "key", config.key);
-		uci.set("wireless", morse_iface, "encryption", config.encryption);
-		uci.set("wireless", morse_iface, "bss_transition", "1");
-		uci.set("wireless", morse_iface, "multi_ap", "3");
-		uci.set("wireless", morse_iface, "ieee80211k", "1");
-		uci.set("wireless", morse_iface, "ieee80211w", "2");
-		uci.set("wireless", morse_iface, "ifname", "wlan-prpl");
-		uci.delete("wireless", morse_iface, "dpp");
+		uci.set("wireless", target.iface, "mode", "ap");
+		uci.set("wireless", target.iface, "ssid", config.ssid);
+		uci.delete("wireless", target.iface, "mesh_id");
+		uci.set("wireless", target.iface, "key", config.key);
+		uci.set("wireless", target.iface, "encryption", config.encryption);
+		uci.set("wireless", target.iface, "bss_transition", "1");
+		uci.set("wireless", target.iface, "multi_ap", "3");
+		uci.set("wireless", target.iface, "ieee80211k", "1");
+		uci.set("wireless", target.iface, "ieee80211w", "2");
+		uci.set("wireless", target.iface, "ifname", "wlan-prpl");
+		uci.delete("wireless", target.iface, "dpp");
 
-		const backhaul_sta = "default_bh_" + morse_device;
+		const backhaul_sta = "default_bh_" + target.device;
 		uci.set("wireless", backhaul_sta, "wifi-iface");
-		uci.set("wireless", backhaul_sta, "device", morse_device);
+		uci.set("wireless", backhaul_sta, "device", target.device);
 		uci.set("wireless", backhaul_sta, "network", DEFAULT_NETWORK);
 		uci.set("wireless", backhaul_sta, "mode", "sta");
 		// Disable powersave since this is only used for Extenders where
@@ -215,18 +245,18 @@ function apply_custom_config(uci, config) {
 		uci.set("prplmesh", "config", "wired_backhaul", "0");
 		uci.set("prplmesh", "config", "operating_mode", "WDS-Repeater");
 
-		// prplmesh demands that its bridge is named br-prpl. How annoying.
-		uci.set("network", bridge, "name", "br-prpl");
+		// prplmesh demands that its target.bridge is named br-prpl. How annoying.
+		uci.set("network", target.bridge, "name", "br-prpl");
 		const morse_macaddr = readfile("/sys/class/net/wlan0/address");
 		const suffix = morse_macaddr
 			? substr(rtrim(morse_macaddr), 3)
 			: join(':', map([rand(), rand(), rand(), rand(), rand()], (n) => hexenc(chr(n % 256))));
-		uci.set("network", bridge, "macaddr", `f2:${suffix}`);
+		uci.set("network", target.bridge, "macaddr", `f2:${suffix}`);
 		uci.set("network", DEFAULT_NETWORK, "device", "br-prpl");
 
-		uci.set("prplmesh", morse_device, "wifi-device");
-		uci.set("prplmesh", morse_device, "hostap_iface", "wlan-prpl");
-		uci.set("prplmesh", morse_device, "sta_iface", "wlan-prpl-1");
+		uci.set("prplmesh", target.device, "wifi-device");
+		uci.set("prplmesh", target.device, "hostap_iface", "wlan-prpl");
+		uci.set("prplmesh", target.device, "sta_iface", "wlan-prpl-1");
 
 		// Configure the other radios to be managed via prplmesh.
 		// prplmesh handles the synchronisation of network credentials from the Halow Base controller.

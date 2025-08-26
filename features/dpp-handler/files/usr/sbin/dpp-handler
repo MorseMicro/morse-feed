@@ -58,7 +58,7 @@ import { cursor } from "uci";
 import { readfile, writefile } from "fs";
 
 import {
-	apply_config, generate_dpp_command
+	apply_config, generate_dpp_command, has_custom_target
 } from "/usr/lib/dpp-handler/wizard.uc";
 import {
 	set_dpp_started_led, set_dpp_failed_led, restore_dpp_led, force_ifaces_for_phy
@@ -550,9 +550,12 @@ function push_button(req) {
 			}
 		}
 
-		// Trigger on temporary 2.4 STA if no HaLow STA
-		// (can be temporary, since only used for transferring creds).
-		if (!target_ifaces) {
+		// Trigger on temporary 2.4 STA if no HaLow STA configured but there
+		// is uci configuration for a STA (i.e. it would be nice to configure it).
+		// If we don't check whether we have a sane custom target, we may accidentally
+		// configure a HaLow AP! The 2.4 STA can be temporary only, as it's just used
+		// for transferring the config.
+		if (!target_ifaces && has_custom_target(uci)) {
 			for (let device_name, device in wireless_status) {
 				if (device.config.band === "2g") {
 					target_devices = [device_name];
