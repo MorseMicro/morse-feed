@@ -290,6 +290,28 @@ return view.extend({
 			});
 	},
 
+	handleSysupgradeRetry: async function () {
+		// attempt to clean up but non-critical files
+		try {
+			fs.remove('/tmp/sysupgrade.bin');
+			fs.remove('/tmp/sysupgrade.pid');
+		} catch (e) {
+			console.error('Failed to clean up files from previous upgrade attempt:', e);
+		}
+
+		try {
+			await fs.remove('/tmp/sysupgrade.status');
+		} catch (e) {
+			console.error('Could not remove /tmp/sysupgrade.status:', e);
+			L.error('ERROR', 'Failed to clear previous download attempt. Please reboot your device.');
+		}
+
+		// redirect the user back to the automatic upgrade search view
+		const url = new URL(window.location.href);
+		url.searchParams.set('action', 'auto-upgrade');
+		window.location.assign(url.toString());
+	},
+
 	handleSysupgradeConfirm: function (opts) {
 		ui.showModal(_('Flashing…'), [
 			E('p', { class: 'spinning' }, _('The system is flashing now.<br /> DO NOT POWER OFF THE DEVICE!<br /> Wait a few minutes before you try to reconnect. It might be necessary to renew the address of your computer to reach the device again, depending on your settings.')),
@@ -395,6 +417,9 @@ return view.extend({
 				this.deviceUpgradeButtonContainer.querySelector('.upgrade-page-button-subtitle').classList.toggle('hidden', this.deviceConnectionAvailable);
 				this.browserUpgradeButtonContainer.querySelector('.upgrade-page-button-subtitle').classList.toggle('hidden', this.browserConnectionAvailable);
 
+				break;
+			case states.ERROR:
+				this.retrySysupgradeButton.classList.remove('hidden');
 				break;
 			default:
 				this.sysupgradeButton.classList.add('hidden');
@@ -648,6 +673,11 @@ return view.extend({
 			click: L.bind(this.handleManualUpload, this, storage_size, has_rootfs_data),
 		}, [_('Manually upload firmware file')]);
 
+		this.retrySysupgradeButton = E('button', {
+			class: 'cbi-button cbi-button-action upgrade-page-controls hidden',
+			click: ui.createHandlerFn(this, () => this.handleSysupgradeRetry()),
+		}, [_('Retry')]);
+
 		this.stateElement = E('div', { class: 'upgrade-state hidden' });
 
 		this.messageBox = E('div', { id: 'message', class: 'hidden', style: 'margin-top: 40px; text-align: center; display: block;' });
@@ -658,7 +688,10 @@ return view.extend({
 
 		// if the upgrade link on the home page is clicked take the user directly to the the automatic upgrade
 		const urlAction = new URLSearchParams(window.location.search).get('action');
-		if (urlAction == 'auto-upgrade') this.startButton.click();
+		if (urlAction == 'auto-upgrade') {
+			window.history.replaceState({}, document.title, window.location.pathname);
+			this.startButton.click();
+		}
 
 		return [
 			E('h2', {}, _('Morse Upgrade')),
@@ -673,6 +706,7 @@ return view.extend({
 			this.upgradeButtonContainer,
 			this.sysupgradeButton,
 			this.manualUploadButton,
+			this.retrySysupgradeButton,
 		];
 	},
 });

@@ -38,7 +38,9 @@
 				"/sbin/sysupgrade --test /tmp/sysupgrade.bin": [ "exec" ],
 				"/sbin/sysupgrade /tmp/sysupgrade.bin": [ "exec" ],
 				"/tmp/backup.tar.gz": [ "write" ],
-				"/tmp/sysupgrade.bin": [ "write" ]
+				"/tmp/sysupgrade.bin": [ "write" ],
+				"/tmp/sysupgrade.status": [ "write" ],
+				"/tmp/sysupgrade.pid": [ "write" ]
 			},
 			"ubus": {
 				"morseupgrade": [ "*" ],
