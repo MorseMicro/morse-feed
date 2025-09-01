@@ -18,6 +18,13 @@ case "$board" in
 			uci set luci.main.advancedmodetoggle='1'
 		fi
 	;;
+	morse,halowlink2)
+		if ! uci -q get luci.main.advancedmodetoggle; then
+			uci set luci.main.advancedmodetoggle='1'
+		fi
+		img_root="/www/luci-static/morseargon/img"
+		ln -sf "mm8108-chip-bg.webp" "${img_root}/mm-chip-bg.webp"
+    ;;
 esac
 
 exit 0
