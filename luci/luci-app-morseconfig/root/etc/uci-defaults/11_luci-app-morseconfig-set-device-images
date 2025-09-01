@@ -1,0 +1,31 @@
+#!/bin/sh
+
+# Update device image symlink for morse-config-diagram only if a device-specific image exists.
+root="/www/luci-static/resources/custom-elements"
+images="$root/device-images"
+tag="luci-app-morseconfig: "
+
+[ -d "$images" ] || { logger -t "$tag" "Device images directory not found. Images may appear generic" ; exit 1; }
+
+device_type="$(board_name)"
+
+# Fallback to generic if board name is not recognized
+variant=""
+case "$device_type" in
+  morse,*) variant="${device_type#morse,}" ;;
+esac
+
+[ -z "$variant" ] && { logger -t "$tag" "Could not find board name, Images may appear generic" ; exit 0 ; }
+
+src="$images/$variant.svg"
+logger -t "$tag" "Update device image to $src"
+
+if [ -f "$src" ]; then
+  # Remove existing symlink if any
+  rm -f "$root/device_image.svg"
+  ln -sf "$src" "$root/device_image.svg"
+else
+  logger -t "$tag" "Device image $src not found, using generic image"
+fi
+
+exit 0

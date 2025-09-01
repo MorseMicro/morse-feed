@@ -47,6 +47,19 @@ This allows us to have a webcomponent like:
 
 import xml.dom.minidom
 
+STATIC_IMAGE_PATH = "/luci-static/resources/custom-elements/device_image.svg"
+IMAGE_GROUP_IDS = ["AP_DESC", "STA_DESC", "GATE_DESC", "POINT_DESC"]
+
+def update_image_refs(doc):
+    """Within the given group ids, replace <image> xlink:href with href=STATIC_IMAGE_PATH."""
+    for group in doc.getElementsByTagName("g"):
+        gid = group.getAttribute("id")
+        if gid not in IMAGE_GROUP_IDS:
+            continue
+        for img in group.getElementsByTagName("image"):
+            if img.hasAttribute("xlink:href"):
+                img.removeAttribute("xlink:href")
+            img.setAttribute("href", STATIC_IMAGE_PATH)
 
 def make_slots(doc):
     """Process all data-slot marked elements and set their id.
@@ -209,6 +222,7 @@ if __name__ == '__main__':
     simplify(doc)
     make_slots(doc)
     make_groups(doc)
+    update_image_refs(doc)
 
     doc.writexml(sys.stdout, indent='  ', addindent='  ', newl='\n')
 
