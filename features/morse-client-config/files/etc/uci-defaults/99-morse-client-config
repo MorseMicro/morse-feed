@@ -1,0 +1,49 @@
+#!/bin/sh
+
+# Replace standard UI with simple client setup UI if we have
+# an 'all bridged' setup with a STA.
+
+_find_morse_device() {
+    # Enable the morse wifi-device and store in _wifi_device_name
+    local section_name="$1"
+
+    if [ "$(config_get "$section_name" type)" = "morse" ]; then
+        _morse_device_name="$section_name"
+    fi
+}
+
+config_load wireless
+config_foreach _find_morse_device wifi-device
+if [ -z "$_morse_device_name" ]; then
+    # Note that 95-morse-wireless-defaults should already have done a sleep at this point.
+    echo "client-config: unable to find morse device; reboot to retry" > /dev/kmsg
+    exit 1
+fi
+
+# If it doesn't look like it has a STA interface we can configure,
+# then abort.
+DEFAULT_IFACE="default_$_morse_device_name"
+if [ "$(config_get "$DEFAULT_IFACE" mode)" != sta ] ||
+	[ "$(config_get "$DEFAULT_IFACE" network)" != lan ] ||
+	[ -n "$(config_get "$DEFAULT_IFACE" ssid)" ]
+then
+	exit 0
+fi
+
+config_load network
+if [ "$(config_get lan proto)" != dhcp ] ||
+	[ -z "$(config_get lan ipaddr)" ]
+then
+	exit 0
+fi
+
+# This usually works in concert with morse_modeswitch_button,
+# which will configure LAN in dhcp client mode.
+# /www-client-config/cgi-bin/config will reverse this.
+uci batch <<- END
+	set network.lan.proto=static
+	delete dhcp.lan.ignore
+	set uhttpd.main.home='/www-client-config'
+END
+
+exit 0

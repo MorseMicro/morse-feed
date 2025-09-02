@@ -1,0 +1,105 @@
+#!/usr/bin/env ucode
+
+'use strict';
+
+/* Confusingly, this file is called luci because if we have an annoying
+ * browser cache situation we want it to seamlessly replace the existing
+ * page.
+ */
+
+import { cursor } from 'uci';
+import { connect } from 'ubus';
+import { stdin, stdout } from 'fs';
+import request from 'luci.http';
+
+const uci = cursor();
+const ubus = connect();
+
+function set_if_not_null(config, section, option, value) {
+	if (value !== null) {
+		uci.set(config, section, option, value);
+	}
+}
+
+function find_morse_device() {
+    const w = uci.get_all("wireless");
+    return filter(keys(w),
+        s => w[s][".type"] === "wifi-device" && w[s]["type"] === "morse" && w[s]["disabled"] !== "1")[0];
+}
+
+
+let req = request(getenv());
+
+switch (req.getenv("REQUEST_METHOD")) {
+
+case "GET":
+	const morse_device = find_morse_device();
+	const countries = morse_device && ubus.call("iwinfo", "countrylist", {"device": morse_device});
+	if (!countries || !countries["results"]) {
+		req.write(render("./config_error.uc", { message: "Unable to list available countries for HaLow device." }));
+	} else {
+		const data = {
+			ap: { exists: false },
+			sta: { exists: false },
+			countries: countries["results"],
+		};
+
+		for (let s_name, s in uci.get_all("wireless")) {
+			if (s[".type"] === "wifi-iface" && s["disabled"] !== "1" && s["mode"] in ["ap", "sta"]) {
+				data[s["mode"]].password = uci.get("wireless", s_name, "key");
+				data[s["mode"]].ssid = uci.get("wireless", s_name, "ssid");
+				data[s["mode"]].exists = true;
+			}
+		}
+
+		if (!data.sta.exists) {
+			req.write(render("./config_error.uc", { message: "No HaLow client interface available for configuration." }));
+		} else {
+			req.write(render("./config.uc", data));
+		}
+	}
+	break;
+
+case "POST":
+	for (let s_name, s in uci.get_all("wireless")) {
+		if (s[".type"] === "wifi-device" && s["band"] === "s1g") {
+			// Do not set non-S1G countries in case AU/JP selected in US.
+			set_if_not_null("wireless", s_name, "country", req.formvalue("country"));
+		}
+	}
+
+	for (let s_name, s in uci.get_all("wireless")) {
+		if (s[".type"] === "wifi-iface" && s["disabled"] !== "1" && s["mode"] in ["ap", "sta"]) {
+			if (req.formvalue("use-client-creds") === "on" || s["mode"] === "sta") {
+				set_if_not_null("wireless", s_name, "ssid", req.formvalue("sta_ssid"));
+				set_if_not_null("wireless", s_name, "key", req.formvalue("sta_password"));
+			} else if (s["mode"] === "ap") {
+				set_if_not_null("wireless", s_name, "key", req.formvalue("ap_password"));
+				set_if_not_null("wireless", s_name, "ssid", req.formvalue("ap_ssid"));
+			}
+		}
+	}
+
+	uci.set("dhcp", "lan", "ignore", "1");
+	uci.set("network", "lan", "proto", "dhcp");
+	uci.set("uhttpd", "main", "home", "/www");
+	// morseapwizard will usually set this to a region select page, which we don't need.
+	uci.delete("luci", "main", "homepage");
+
+	const config_files = uci.changes();
+	uci.commit();
+	// Tell procd about the changes, as /bin/reload_config does.
+	for (let cf in config_files) {
+		ubus.call("service", "event", { type: "config.change", data: { package: cf } });
+	}
+	req.write(render("./config_result.uc"));
+
+	break;
+
+default:
+	req.status(405);
+	break;
+
+}
+
+req.close();

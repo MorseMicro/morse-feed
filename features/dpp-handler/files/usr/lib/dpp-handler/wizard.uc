@@ -130,6 +130,31 @@ export function has_custom_target(uci) {
 
 
 /**
+ * Remove initial config.
+ *
+ * If the morse-client-config package was used, it will have established
+ * a DHCP server on the LAN interface. We should remove this, and force
+ * it back to client mode.
+ *
+ * If morseapwizard was used, it will have added a country select page
+ * which we no longer need.
+ *
+ * @param {object} uci - UCI cursor.
+ */
+function remove_initial_config(uci) {
+	if (uci.get("uhttpd", "main", "home") === "/www-client-config") {
+		uci.set("dhcp", DEFAULT_NETWORK, "ignore", "1");
+		uci.set("network", DEFAULT_NETWORK, "proto", "dhcp");
+		uci.set("uhttpd", "main", "home", "/www");
+	}
+
+	if (uci.get("luci", "main", "homepage") === "admin/morse/morseaplanding") {
+		uci.delete("luci", "main", "homepage");
+	}
+}
+
+
+/**
  * Applies custom DPP configuration from extra_conf.
  *
  * Interpret a custom (EXTRA_CONF_NAMESPACE) conf object.
@@ -166,6 +191,7 @@ function apply_custom_config(uci, config) {
 		if (!check_config(config, ["country", "ssid", "key", "encryption"])) {
 			return false;
 		}
+		remove_initial_config(uci);
 		uci.set("wireless", target.device, "country", config.country);
 
 		uci.set("wireless", target.iface, "mode", "sta");
@@ -183,6 +209,7 @@ function apply_custom_config(uci, config) {
 		if (!check_config(config, ["country", "channel", "mesh_id", "key", "encryption"])) {
 			return false;
 		}
+		remove_initial_config(uci);
 		uci.set("wireless", target.device, "country", config.country);
 		uci.set("wireless", target.device, "channel", config.channel);
 
@@ -202,6 +229,7 @@ function apply_custom_config(uci, config) {
 			warn("Configurator requests prplmesh but prplmesh is not installed.");
 			return false;
 		}
+		remove_initial_config(uci);
 		uci.set("wireless", target.device, "country", config.country);
 		// prplmesh shouldn't require a channel, but currently does due to
 		// a bug with bringing up a HaLow AP and STA at the same time.

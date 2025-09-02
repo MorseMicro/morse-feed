@@ -17,6 +17,9 @@
 #   1. BTN_0 for 5 to 10 seconds:  ap
 #   2. BTN_0 for 10 or more seconds:  sta
 
+# This must run after 95-morse-wireless-defaults and before
+# 99-morse-client-config.
+
 . /lib/functions.sh
 
 _find_morse_device() {
@@ -40,13 +43,7 @@ fi
 
 mode="$(persistent_vars_storage.sh READ mm_mode 2> /dev/null)"
 if [ -z "$mode" ]; then
-	# For now, we default to configuring as an AP.
-	# This allows an easy demo without needing uboot env
-	# set on the device before flashing or doing complex
-	# things to move out of some kind of partial state
-	# (where we have a sta up to do the DPP but also have
-	# the management interface accessible).
-	# APP-2988 to fix before release.
+	# Default to configuring as an AP if nothing set.
 	mode="ap"
 	persistent_vars_storage.sh WRITE mm_mode ap
 fi
@@ -59,7 +56,7 @@ fi
 config_load wireless
 config_foreach _find_morse_device wifi-device
 if [ -z "$_morse_device_name" ]; then
-	# Note that 98-morse-wireless-defaults should already have done a sleep at this point.
+	# Note that 95-morse-wireless-defaults should already have done a sleep at this point.
 	echo "modeswitch: unable to find morse device to switch mode; reboot to retry" > /dev/kmsg
 	exit 1
 fi
