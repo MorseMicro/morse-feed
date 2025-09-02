@@ -113,9 +113,6 @@ EOF
 				morse,halowlink1)
 					bcf=bcf_mm_hl1.bin
 				;;
-				morse,halowlink2)
-					bcf=bcf_mf15457.bin
-				;;
 				*)
 					if [[ $path  = *usb* ]]; then
 						bcf=bcf_mf15457.bin

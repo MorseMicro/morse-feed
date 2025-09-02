@@ -60,6 +60,11 @@ show_factory_data()
 						show_raw_partition_data factory 0x40c0 2
 					fi
 				;;
+				mm_sku)
+					# This is used to select a BCF other than the OTP default.
+					# See /lib/netifd/wireless/morse.sh
+					show_raw_partition_data factory 0x40e0 32
+				;;
 			esac
 		;;
 		glinet,gl-mt3000|\

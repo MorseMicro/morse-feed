@@ -107,6 +107,16 @@ build_morse_mod_params(){
 	json_select config
 	json_get_vars bcf vfem_4v3 firmware_type
 
+	if [ -z "$bcf" ]; then
+		mm_sku=$(persistent_vars_storage.sh READ mm_sku | tr 'A-Z-' 'a-z_')
+		if [ -n "$mm_sku" ]; then
+			proposed_bcf="bcf_$mm_sku.bin"
+			if [ -e "/lib/firmware/morse/$proposed_bcf" ]; then
+				bcf="$proposed_bcf"
+			fi
+		fi
+	fi
+
 	# Remove 4v3 from BCF in case someone's tried to force it
 	# (backwards compat?).
 	bcf="${bcf/_4v3.bin/.bin}"
