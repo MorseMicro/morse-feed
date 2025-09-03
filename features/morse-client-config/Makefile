@@ -36,6 +36,7 @@ endef
 define Package/morse-client-config/install
 	$(INSTALL_DIR) $(1)/www-client-config
 	$(INSTALL_DATA) ./files/www-client-config/index.html $(1)/www-client-config/
+	$(INSTALL_DATA) ./files/www-client-config/style.css $(1)/www-client-config/
 
 	$(INSTALL_DIR) $(1)/www-client-config/cgi-bin
 	$(INSTALL_BIN) ./files/www-client-config/cgi-bin/* $(1)/www-client-config/cgi-bin/
