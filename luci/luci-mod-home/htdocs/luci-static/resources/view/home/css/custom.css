@@ -59,6 +59,14 @@
 		box-shadow: 0 0 1rem 0 var(--box-shadow-highlight);
 	}
 
+	&.can-expand {
+		cursor: pointer;
+
+		&:hover {
+			box-shadow: 0 0 1rem 0 var(--box-shadow-highlight);
+		}
+	}
+
 	.header {
 		display: flex;
 		justify-content: space-between;

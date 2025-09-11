@@ -356,6 +356,7 @@ function createSystemCard(boardinfo, upgradeVersion) {
 				{
 					href: L.url('admin', 'upgrade') + '?action=auto-upgrade',
 					style: 'margin: 0 1em; font-size: 16px; padding-top: 2px;',
+					click: e => e.stopPropagation(),
 				},
 				[_('Upgrade to %s available').format(upgradeVersion)]),
 			);
@@ -1194,22 +1195,36 @@ class Card {
 	}
 
 	renderCard() {
+		const classes = ['card'];
 		const smallContents = E('div', { class: 'small-contents' }, this.contents);
 		if (this.maxContents) {
+			classes.push('can-expand');
+
 			for (const e of smallContents.querySelectorAll('.click-to-expand')) {
 				e.onclick = () => this.expand();
 				e.classList.add('can-expand');
 			}
 		}
 
+		if (this.highlights) {
+			classes.push(...this.highlights.map(h => `highlight-${makeClass(h)}`));
+		}
+
 		return E('section', {
 			id: this.id,
-			class: 'card ' + (this.highlights ?? []).map(h => `highlight-${makeClass(h)}`).join(' '),
+			class: classes.join(' '),
+			click: (e) => {
+				if (this.maxContents) {
+					this.expand();
+					e.stopPropagation();
+				}
+			},
 		}, [
 			E('div', { class: 'header' }, [
 				E('h2', this.heading),
 				this.link && E('a', {
 					href: this.link.href,
+					click: e => e.stopPropagation(),
 					title: this.link.title,
 					class: 'bs-icon bs-icon-settings-cog advanced-config',
 				}),
