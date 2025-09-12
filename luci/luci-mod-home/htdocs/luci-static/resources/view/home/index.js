@@ -977,18 +977,23 @@ function createAssoclistCard(wifiNetwork, wifiDevices, hostHints) {
 		// only intended to filter out that case. For other modes the station
 		// does not show in the list at all if it has the wrong credentials.
 		d => d.authorized,
-	).map(d => ({
-		mac: d.mac,
-		hostname: hostHints.getHostnameByMACAddr(d.mac),
-		ip: hostHints.getIPAddrByMACAddr(d.mac),
-		ip6: hostHints.getIP6AddrByMACAddr(d.mac),
-		connected_time: Math.round(d.connected_time / 60),
-		noise: d.noise,
-		signal: d.signal,
-	}));
-	const hasHostname = associatedDevices.some(d => d.hostname);
-	const hasIp = associatedDevices.some(d => d.ip);
-	const hasIp6 = associatedDevices.some(d => d.ip6);
+	).map((d) => {
+		const addresses = [hostHints.getHostnameByMACAddr(d.mac), hostHints.getIPAddrByMACAddr(d.mac)];
+		const ipv6address = hostHints.getIP6AddrByMACAddr(d.mac);
+		if (ipv6address && !ipv6address.startsWith('fe80::')) {
+			addresses.push(ipv6address);
+		}
+		return {
+			mac: d.mac,
+			addresses,
+			connected_time: Math.round(d.connected_time / 60),
+			noise: d.noise,
+			signal: d.signal,
+			tx: d.tx,
+			rx: d.rx,
+		};
+	});
+	const hasAddress = associatedDevices.some(d => d.addresses.length > 0);
 	const authentication = wifiNetwork.ubus('net', 'iwinfo', 'encryption')?.authentication || [];
 	// We only show the iwinfo country if the country has been explicitly set. This is because:
 	//  - for non-HaLow, the global default '00' is a confusing country code
@@ -1056,13 +1061,15 @@ function createAssoclistCard(wifiNetwork, wifiDevices, hostHints) {
 	let table;
 	if (associatedDevices.length > 0) {
 		table = E('table', { class: 'table cbi-section-table' }, th([
-			_('MAC Address'), hasHostname && _('Hostname'), hasIp && _('IPv4'), hasIp6 && _('IPv6'),
-			_('Time connected'), _('Noise'), _('Signal'),
+			_('MAC Address'), hasAddress && _('Addresses'),
+			_('Time connected'), _('Signal / Noise'), _('RX Rate / TX Rate'),
 		].filter(t => t)));
 
 		cbi_update_table(table, associatedDevices.map(d => [
-			d.mac, d.hostname ?? (hasHostname && ' '), d.ip ?? (hasIp && ' '), d.ip6 ?? (hasIp6 && ' '),
-			d.connected_time + _(' min(s)'), d.noise + _(' dBm'), d.signal + _(' dBm'),
+			d.mac, d.addresses.map(addr => `<a target="_blank" href="https://${addr.includes('::') ? `[${addr}]` : addr}/">${addr}</a>`).join('<br>'),
+			d.connected_time + '&nbsp;' + _('min(s)'),
+			renderSignalBadge(Math.min((d.signal + 110) / 70 * 100, 100), d.signal, d.noise, 'ap'),
+			`${formatWifiRate(d.rx)}<br>${formatWifiRate(d.tx)}`,
 		].filter(t => t)));
 	} else {
 		table = E('em', _('No active devices'));
@@ -1078,8 +1085,8 @@ function createAssoclistCard(wifiNetwork, wifiDevices, hostHints) {
 				E('dd', mode === 'mesh' ? wifiNetwork.getMeshID() : wifiNetwork.getSSID()),
 				E('dt', _('Device')),
 				E('dd', wifiNetwork.getDevice().getName()),
-				country && E('dt', _('Country')),
-				country && E('dd', country),
+				E('dt', _('Channel')),
+				E('dd', getChanInfo(wifiNetwork) ?? wifiNetwork.getChannel()),
 				bitrate && E('dt', _('Speed (avg)')),
 				bitrate && E('dd', `${wifiNetwork.getBitRate()} Mbps`),
 			].filter(e => e)),
@@ -1095,9 +1102,9 @@ function createAssoclistCard(wifiNetwork, wifiDevices, hostHints) {
 				country && E('dt', _('Country')),
 				country && E('dd', country),
 				E('dt', _('Channel')),
-				E('dd', wifiNetwork.getChannel()),
-				E('dt', _('Frequency')),
-				E('dd', wifiNetwork.getFrequency() + wifiNetwork.getFrequencyUnit()),
+				E('dd', getChanInfo(wifiNetwork)),
+				E('dt', _('Encryption')),
+				E('dd', wifiNetwork.getActiveEncryption()),
 				bitrate && E('dt', _('Speed (avg)')),
 				bitrate && E('dd', `${wifiNetwork.getBitRate()} Mbps`),
 				E('dt', _('Device')),
@@ -1106,8 +1113,6 @@ function createAssoclistCard(wifiNetwork, wifiDevices, hostHints) {
 				E('dd', netIface.getIPAddr() ?? _('None')),
 				E('dt', _('IPv6')),
 				E('dd', netIface.getIP6Addr() ?? _('None')),
-				E('dt', _('Encryption')),
-				E('dd', wifiNetwork.getActiveEncryption()),
 			].filter(e => e)),
 			E('h2', { style: 'margin: 0' }, _('Associated devices')),
 			connectMethods,
