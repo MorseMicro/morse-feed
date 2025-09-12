@@ -209,6 +209,20 @@ function getWifiName(wifiNetwork) {
 	return wifiNetwork.ubus('dev', 'iwinfo', 'hwmodes_text') ?? _('Wi-Fi');
 }
 
+function getChanInfo(wifiNetwork) {
+	const freqInfo = `${wifiNetwork.getFrequency()} ${wifiNetwork.getFrequencyUnit()}`;
+	if (!freqInfo) {
+		// We might have a channel here, but it will be uci channel which could
+		// change on connection, so better to report nothing if no frequency.
+		return null;
+	} else if (isHaLow(wifiNetwork)) {
+		const chanbw = wifiNetwork.ubus('dev', 'iwinfo', 'htmode');
+		return `${wifiNetwork.getChannel()} (${freqInfo}; ${chanbw} MHz)`;
+	} else {
+		return `${wifiNetwork.getChannel()} (${freqInfo})`;
+	}
+}
+
 function getL2Devices(netIface) {
 	// Like netIface.getL2Device, but converts bridge into its associated sub-devices
 	// and excludes WDS generated interfaces.
@@ -267,6 +281,99 @@ function getBestDevice(netIface) {
 
 	return devices.reduce((best, current) =>
 		scoreDevice(current.getWifiNetwork()) > scoreDevice(best.getWifiNetwork()) ? current : best);
+}
+
+// Copied from luci-mod-network view/network/wireless.js
+function formatWifiRate(rate) {
+	var s = '%.1f\xa0%s, %d\xa0%s'.format(rate.rate / 1000, _('Mbps'), rate.mhz, _('MHz')),
+		ht = rate.ht, vht = rate.vht,
+		nss = rate.nss,
+		mcs = rate.mcs, sgi = rate.short_gi,
+		he = rate.he, he_gi = rate.he_gi,
+		he_dcm = rate.he_dcm;
+
+	if (ht || vht) {
+		if (vht) s += ', VHT-MCS\xa0%d'.format(mcs);
+		if (nss) s += ', VHT-NSS\xa0%d'.format(nss);
+		if (ht) s += ', MCS\xa0%s'.format(mcs);
+		if (sgi) s += ', ' + _('Short GI').replace(/ /g, '\xa0');
+	}
+
+	if (he) {
+		s += ', HE-MCS\xa0%d'.format(mcs);
+		if (nss) s += ', HE-NSS\xa0%d'.format(nss);
+		if (he_gi) s += ', HE-GI\xa0%d'.format(he_gi);
+		if (he_dcm) s += ', HE-DCM\xa0%d'.format(he_dcm);
+	}
+
+	return s;
+}
+
+// Copied from luci-mod-network view/network/wireless.js
+function renderSignalBadge(signalPercent, signalValue, noiseValue, mode) {
+	var icon, title, value;
+
+	if (signalPercent < 0)
+		icon = L.resource('icons/signal-none.png');
+	else if (signalPercent == 0)
+		icon = L.resource('icons/signal-0.png');
+	else if (signalPercent < 25)
+		icon = L.resource('icons/signal-0-25.png');
+	else if (signalPercent < 50)
+		icon = L.resource('icons/signal-25-50.png');
+	else if (signalPercent < 75)
+		icon = L.resource('icons/signal-50-75.png');
+	else
+		icon = L.resource('icons/signal-75-100.png');
+
+	if (signalValue != null && signalValue != 0) {
+		if (noiseValue != null && noiseValue != 0) {
+			value = '%d/%d\xa0%s'.format(signalValue, noiseValue, _('dBm'));
+			title = '%s: %d %s / %s: %d %s / %s %d'.format(
+				_('Signal'), signalValue, _('dBm'),
+				_('Noise'), noiseValue, _('dBm'),
+				_('SNR'), signalValue - noiseValue);
+		} else {
+			value = '%d\xa0%s'.format(signalValue, _('dBm'));
+			title = '%s: %d %s'.format(_('Signal'), signalValue, _('dBm'));
+		}
+	} else if (signalPercent > -1) {
+		switch (mode) {
+			case 'ap':
+				title = _('No client associated');
+				break;
+
+			case 'sta':
+			case 'adhoc':
+			case 'mesh':
+				title = _('Not associated');
+				break;
+
+			default:
+				title = _('No RX signal');
+		}
+
+		if (noiseValue != null && noiseValue != 0) {
+			value = '---/%d\xa0%s'.format(noiseValue, _('dBm'));
+			title = '%s / %s: %d %s'.format(title, _('Noise'), noiseValue, _('dBm'));
+		} else {
+			value = '---\xa0%s'.format(_('dBm'));
+		}
+	} else {
+		value = E('em', {}, E('small', {}, [_('disabled')]));
+		title = _('Interface is disabled');
+	}
+
+	return E('div', {
+		'style': 'display: inline-flex;',
+		'title': title,
+		'data-tooltip': title,
+		'data-signal': signalValue,
+		'data-noise': noiseValue,
+	}, [
+		E('img', { 'data-tooltip': title, 'style': 'padding-right: 10px', 'src': icon }),
+		value,
+	]);
 }
 
 function attemptUpgradeSearch(upgradesearch, method) {
@@ -539,17 +646,28 @@ async function updateUplinkWifiConnectMethods(hasQRCode, connectMethods, isUp) {
 	}
 }
 
-async function createUplinkCard(netIface, wifiDevices, hasQRCode) {
+async function createUplinkCard(netIface, wifiDevices, wifiNetworks, hasQRCode) {
 	const device = getBestDevice(netIface);
-	let wifiNetwork = device.getWifiNetwork();
+	const wifiNetwork = device.getWifiNetwork() && wifiNetworks[device.getWifiNetwork().getName()];
 
-	let method, speed, ssid, meshId, country;
+	let mode, method, speed, ssid, meshId, country, encryption, chanInfo, signalInfo, assocInfo;
 	if (wifiNetwork) {
+		mode = wifiNetwork.getMode();
 		method = getWifiName(wifiNetwork);
 		ssid = wifiNetwork.getSSID();
 		meshId = wifiNetwork.getMeshID();
 		speed = wifiNetwork.getBitRate();
 		country = wifiDevices[wifiNetwork.getWifiDeviceName()].get('country') && wifiNetwork.ubus('net', 'iwinfo', 'country');
+		encryption = wifiNetwork.getActiveEncryption();
+		chanInfo = getChanInfo(wifiNetwork);
+		if (speed > 0) {
+			// Only bother rendering signalInfo if we appear to have a connection,
+			// otherwise the reported noise value is confusing.
+			signalInfo = renderSignalBadge(wifiNetwork.getSignalPercent(), wifiNetwork.getSignal(), wifiNetwork.getNoise(), mode);
+		}
+		if (wifiNetwork?.assoclist?.length === 1) {
+			assocInfo = wifiNetwork.assoclist[0];
+		}
 	} else {
 		method = 'Ethernet';
 		speed = device.getSpeed();
@@ -571,6 +689,23 @@ async function createUplinkCard(netIface, wifiDevices, hasQRCode) {
 		updateUplinkWifiConnectMethods(hasQRCode, connectMethods, isUp);
 	}
 
+	let connStatus = '✘';
+	let connClass = 'medium-number';
+	let connString = _('Disconnected');
+	if (isUp) {
+		if (speed >= 1000) {
+			connStatus = `${Math.round(speed / 100) / 10} Gbps`;
+			connString = _('Max Throughput');
+		} else if (speed > 0) {
+			connStatus = `${Math.round(speed * 10) / 10} Mbps`;
+			connString = _('Max Throughput');
+		} else {
+			connStatus = '✔';
+			connClass = 'big-number';
+			connString = _('Connected');
+		}
+	}
+
 	return new Card(`uplink-${netIface.getName()}`, {
 		heading: _('Uplink') + ` (${method})`,
 		highlights: [device, netIface],
@@ -578,16 +713,16 @@ async function createUplinkCard(netIface, wifiDevices, hasQRCode) {
 			E('dl', [
 				ssid && E('dt', _('SSID')),
 				ssid && E('dd', ssid),
-				meshId && E('dt', _('SSID')),
+				meshId && E('dt', _('Mesh ID')),
 				meshId && E('dd', meshId),
 				E('dt', _('Device')),
 				E('dd', device.getName()),
 				ips.length && E('dt', _('IP')),
 				ips.length && E('dd', ips.join(' / ')),
-				country && E('dt', _('Country')),
-				country && E('dd', country),
-				speed > 0 && E('dt', _('Speed')),
-				speed > 0 && E('dd', `${speed} Mbps`),
+				signalInfo && E('dt', _('Signal / Noise')),
+				signalInfo && E('dd', {}, signalInfo.cloneNode(true)),
+				chanInfo && E('dt', _('Channel')),
+				chanInfo && E('dd', chanInfo),
 				qrcodeDppMode && E('dt', _('DPP')),
 				qrcodeDppMode && E('dd', _('Looking for Access Point...')),
 			].filter(e => e)),
@@ -600,28 +735,43 @@ async function createUplinkCard(netIface, wifiDevices, hasQRCode) {
 					}),
 				])
 				: E('div', { class: 'main-counter' }, [
-					E('button', { class: 'big-number click-to-expand' }, isUp ? '✔' : '✘'),
-					E('button', { class: 'big-text click-to-expand' }, isUp ? _('Connected') : _('Disconnected')),
+					E('button', { class: `${connClass} click-to-expand` }, connStatus),
+					E('button', { class: 'big-text click-to-expand' }, connString),
 				]),
 		],
 		maxContents: wifiNetwork && [
 			E('dl', [
 				ssid && E('dt', _('SSID')),
 				ssid && E('dd', ssid),
-				meshId && E('dt', _('SSID')),
+				meshId && E('dt', _('Mesh ID')),
 				meshId && E('dd', meshId),
 				E('dt', _('Device')),
 				E('dd', device.getName()),
+				country && E('dt', _('Country')),
+				country && E('dd', country),
 				ips.length && E('dt', _('IP')),
 				ips.length && E('dd', ips.join(' / ')),
-				speed > 0 && E('dt', _('Speed')),
-				speed > 0 && E('dd', `${speed} Mbps`),
+				chanInfo && E('dt', _('Channel')),
+				chanInfo && E('dd', chanInfo),
+				encryption && E('dt', _('Encryption')),
+				encryption && E('dd', encryption),
+				assocInfo && E('dt', _('Time connected')),
+				assocInfo && E('dd', Math.round(assocInfo.connected_time / 60) + '&nbsp;' + _('min(s)')),
+				signalInfo && E('dt', _('Signal / Noise')),
+				signalInfo && E('dd', {}, signalInfo.cloneNode(true)),
+				assocInfo && E('dt', _('RX Rate *')),
+				assocInfo && E('dd', formatWifiRate(assocInfo.rx)),
+				assocInfo && E('dt', _('TX Rate *')),
+				assocInfo && E('dd', formatWifiRate(assocInfo.tx)),
 				E('dt', _('Connected')),
 				E('dd', {
 					style: `color: ${isUp ? 'green' : 'red'}`,
 				}, isUp ? _('yes') : _('no')),
 			].filter(e => e)),
-			// Currently, we only support DPP on HaLow (custom script).
+			E('em', [
+				`* Theoretical maximum bitrate for current bandwidth and MCS. If there
+				is little traffic, sending data over the link may improve the MCS.`,
+			]),
 			connectMethods,
 		].filter(e => e),
 	});
@@ -1397,21 +1547,21 @@ return view.extend({
 		const wifiDevices = makeObj(await network.getWifiDevices());
 		const wanNetworks = makeObj(await network.getWANNetworks());
 		const wan6Networks = makeObj(await network.getWAN6Networks());
-		const wifiNetworks = await network.getWifiNetworks().then(
+		const wifiNetworks = makeObj(await network.getWifiNetworks().then(
 			networks => Promise.all(networks.map(async (network) => {
 				// Patch assoclist into wifi networks.
 				// Ugly, but this is what status page and dashboard do...
 				const assoclist = await network.getAssocList();
 				network.assoclist = assoclist.toSorted((a, b) => a.mac > b.mac);
 				return network;
-			})));
+			}))));
 
 		const cards = [];
 		const nonHaLowCards = [];
 		let meshCardAdded = false;
 
 		// List HaLow ifaces first
-		for (const wifiNetwork of wifiNetworks) {
+		for (const wifiNetwork of Object.values(wifiNetworks)) {
 			if (!wifiNetwork.isDisabled() && wifiNetwork.isUp() && wifiNetwork.getNetwork()) {
 				const mode = wifiNetwork.getMode();
 				if (['ap', 'mesh', 'adhoc'].includes(mode)) {
@@ -1437,7 +1587,7 @@ return view.extend({
 		}
 
 		const localNetworks = [];
-		let uplink;
+		const uplinks = [];
 		for (const netIface of networks) {
 			const devices = getL2Devices(netIface);
 			if (devices.length === 0) {
@@ -1446,7 +1596,7 @@ return view.extend({
 
 			const name = netIface.getName();
 			if (wanNetworks[name] || wan6Networks[name] || netIface.getProtocol() === 'dhcp') {
-				uplink = netIface;
+				uplinks.push(netIface);
 			} else if (netIface.getProtocol() === 'static' && netIface.getDevice()?.getName() !== 'lo') {
 				localNetworks.push(netIface);
 			}
@@ -1456,8 +1606,8 @@ return view.extend({
 			cards.push(createLocalNetworksCard(localNetworks, dhcpLeases, hostHints));
 		}
 
-		if (uplink) {
-			cards.push(await createUplinkCard(uplink, wifiDevices, hasQRCode));
+		for (const uplink of uplinks) {
+			cards.push(await createUplinkCard(uplink, wifiDevices, wifiNetworks, hasQRCode));
 		}
 
 		// List non-HaLow APs later
