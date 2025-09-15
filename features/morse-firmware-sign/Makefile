@@ -34,8 +34,8 @@ endef
 define Package/morse-firmware-sign/install
 	$(INSTALL_DIR) $(1)/usr/share/keys
 	$(INSTALL_DATA) ./files/usr/share/keys/* $(1)/usr/share/keys/
-	$(INSTALL_DIR) $(1)/etc/profile.d
-	$(INSTALL_BIN) ./files/etc/profile.d/enable_fw_sign_validation.sh $(1)/etc/profile.d/
+	$(INSTALL_DIR) $(1)/etc/uci-defaults
+	$(INSTALL_BIN) ./files/etc/uci-defaults/* $(1)/etc/uci-defaults/
 endef
 
 define Package/morse-firmware-sign/postinst
