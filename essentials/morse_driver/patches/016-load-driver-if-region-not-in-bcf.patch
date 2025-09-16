@@ -1,0 +1,124 @@
+From 9a90f25f260aa62e4ede5a8d893eb522d0cccdea Mon Sep 17 00:00:00 2001
+From: James Haggerty <james.haggerty@morsemicro.com>
+Date: Thu, 11 Sep 2025 14:11:04 +1000
+Subject: [PATCH] APP-5501 Load driver even if region not in BCF
+
+This helps us correctly hotplug the wireless configuration
+on OpenWrt and exposes the available countries in sysfs.
+Obviously, this is a hack and the driver should _not_ be used
+in this state; we prevent this by blocking interface
+bring-up.
+---
+ firmware.c | 32 ++++++++++++++++++++++++++++++--
+ mac.c      |  6 ++++++
+ morse.h    |  1 +
+ 3 files changed, 37 insertions(+), 2 deletions(-)
+
+diff --git a/firmware.c b/firmware.c
+index 8852d647..bb2390aa 100644
+--- a/firmware.c
++++ b/firmware.c
+@@ -266,6 +266,7 @@ static int morse_bcf_load(struct morse *mors, const struct firmware *bcf,
+ 	int config_len = -1;
+ 	int regdom_len;
+ 	const char *reg_prefix = ".regdom_";
++	char *regdom_to_load = NULL;
+ 	u8 *bcf_buf = devm_kmalloc(mors->dev, ROUND_BYTES_TO_WORD(bcf->size), GFP_KERNEL);
+ 
+ 	if (!bcf_buf)
+@@ -326,6 +327,7 @@ static int morse_bcf_load(struct morse *mors, const struct firmware *bcf,
+ 			r = strscpy(mors->regdoms[0], mors->country, sizeof(*mors->regdoms));
+ 			if (r != 2)
+ 				MORSE_WARN(mors, "Bad country code length\n");
++			regdom_to_load = mors->country;
+ 		} else {
+ 			for (regdom_index = 0, i = 0; i < ehdr.e_shnum; i++) {
+ 				if (get_section_header(bcf->data, &ehdr, &shdr, i) != 0)
+@@ -338,11 +340,37 @@ static int morse_bcf_load(struct morse *mors, const struct firmware *bcf,
+ 					    sh_strs + shdr.sh_name + 8, 3);
+ 				if (r != 2)
+ 					MORSE_WARN(mors, "Bad country code length\n");
++				if (strcmp(mors->regdoms[regdom_index], mors->country) == 0) {
++					regdom_to_load = mors->country;
++				}
+ 				regdom_index += 1;
+ 			}
+ 		}
+ 	}
+ 
++	if (regdom_to_load) {
++		mors->has_valid_regdom = true;
++	} else if (mors->num_regdoms) {
++		/* If region not supported and it's not set via OTP, force to first regdom.
++		 * This is helpful in initial bring-up, but userspace should
++		 * know to select a valid country (based on sysfs) before actually
++		 * using the device, since this may cause the driver and
++		 * firmware to have differing views about allowable frequencies.
++		 * This is a obviously a terrible hack.
++		 */
++		mors->has_valid_regdom = false;
++		regdom_to_load = mors->regdoms[0];
++		MORSE_ERR(mors,
++			"Unable to find country=%s in BCF; fix before using driver\n",
++			mors->country);
++	} else {
++		/* This will cause failure at the bottom, but we put it here
++		 * to make the patch minimal.
++		 */
++		mors->has_valid_regdom = false;
++		regdom_to_load = mors->country;
++	}
++
+ 	/* Download board config section to firmware */
+ 	for (i = 0; i < ehdr.e_shnum; i++) {
+ 		if (get_section_header(bcf->data, &ehdr, &shdr, i) != 0)
+@@ -382,7 +410,7 @@ static int morse_bcf_load(struct morse *mors, const struct firmware *bcf,
+ 		if (strncmp(sh_strs + shdr.sh_name, reg_prefix, reglen) != 0)
+ 			continue;	/* Not a regdom section */
+ 
+-		if (strncmp(sh_strs + shdr.sh_name + 8, mors->country, 2) != 0)
++		if (strncmp(sh_strs + shdr.sh_name + 8, regdom_to_load, 2) != 0)
+ 			continue;	/* Not the configured regdom */
+ 
+ 		bcf_address += config_len;
+@@ -415,7 +443,7 @@ static int morse_bcf_load(struct morse *mors, const struct firmware *bcf,
+ 		break;
+ 	}
+ 	if (i >= ehdr.e_shnum) {
+-		MORSE_ERR(mors, "Country code %s not found in BCF", mors->country);
++		MORSE_ERR(mors, "Country code %s not found in BCF", regdom_to_load);
+ 		devm_kfree(mors->dev, bcf_buf);
+ 		return -1;
+ 	}
+diff --git a/mac.c b/mac.c
+index 24789d85..1cae659b 100644
+--- a/mac.c
++++ b/mac.c
+@@ -2902,6 +2902,12 @@ static int morse_mac_ops_add_interface(struct ieee80211_hw *hw, struct ieee80211
+ 	bool is_ap = false;
+ 	bool is_sta = false;
+ 
++	if (!mors->has_valid_regdom) {
++		MORSE_ERR(mors, "%s: Unable to start interface as country %s not in BCF\n",
++			__func__, mors->country);
++		return -EPERM;
++	}
++
+ 	if (!morse_mac_is_iface_type_supported(vif)) {
+ 		MORSE_ERR(mors, "%s: Attempt to add type %d, not supported\n", __func__, vif->type);
+ 		return -EOPNOTSUPP;
+diff --git a/morse.h b/morse.h
+index c0d54519..68099f3b 100644
+--- a/morse.h
++++ b/morse.h
+@@ -1204,6 +1204,7 @@ struct morse {
+ 
+ 	char (*regdoms)[3];
+ 	int num_regdoms;
++	bool has_valid_regdom;
+ 
+ 	/* Stored Channel Information, sta_type, enc_mode, RAW */
+ 	struct morse_custom_configs custom_configs;
+-- 
+2.34.1
+
