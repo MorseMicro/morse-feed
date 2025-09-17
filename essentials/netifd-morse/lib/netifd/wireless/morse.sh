@@ -36,6 +36,22 @@ WMM_AC_CONFIGS="wmm_ac_bk_aifs wmm_ac_bk_cwmin wmm_ac_bk_cwmax wmm_ac_bk_txop_li
 			    wmm_ac_be_aifs wmm_ac_be_cwmin wmm_ac_be_cwmax wmm_ac_be_txop_limit wmm_ac_be_acm
 			    wmm_ac_vi_aifs wmm_ac_vi_cwmin wmm_ac_vi_cwmax wmm_ac_vi_txop_limit wmm_ac_vi_acm
 			    wmm_ac_vo_aifs wmm_ac_vo_cwmin wmm_ac_vo_cwmax wmm_ac_vo_txop_limit wmm_ac_vo_acm "
+RAW_BLOCK_CONFIGS="raw0_enabled raw0_start_time_us raw0_duration_us raw0_slots raw0_cross_slot
+				raw0_max_beacon_spread raw0_nominal_stas_per_beacon raw0_start_offset raw0_period
+				raw1_enabled raw1_start_time_us raw1_duration_us raw1_slots raw1_cross_slot
+				raw1_max_beacon_spread raw1_nominal_stas_per_beacon raw1_start_offset raw1_period
+				raw2_enabled raw2_start_time_us raw2_duration_us raw2_slots raw2_cross_slot
+				raw2_max_beacon_spread raw2_nominal_stas_per_beacon raw2_start_offset raw2_period
+				raw3_enabled raw3_start_time_us raw3_duration_us raw3_slots raw3_cross_slot
+				raw3_max_beacon_spread raw3_nominal_stas_per_beacon raw3_start_offset raw3_period
+				raw4_enabled raw4_start_time_us raw4_duration_us raw4_slots raw4_cross_slot
+				raw4_max_beacon_spread raw4_nominal_stas_per_beacon raw4_start_offset raw4_period
+				raw5_enabled raw5_start_time_us raw5_duration_us raw5_slots raw5_cross_slot
+				raw5_max_beacon_spread raw5_nominal_stas_per_beacon raw5_start_offset raw5_period
+				raw6_enabled raw6_start_time_us raw6_duration_us raw6_slots raw6_cross_slot
+				raw6_max_beacon_spread raw6_nominal_stas_per_beacon raw6_start_offset raw6_period
+				raw7_enabled raw7_start_time_us raw7_duration_us raw7_slots raw7_cross_slot
+				raw7_max_beacon_spread raw7_nominal_stas_per_beacon raw7_start_offset raw7_period"
 
 check_cac(){
 	json_select config
@@ -279,7 +295,7 @@ drv_morse_init_iface_config() {
 	#raw
 	config_add_int raw_sta_priority
 	config_add_int raw
-	config_add_array raws
+	config_add_string $RAW_BLOCK_CONFIGS
 
 	# mesh
 	config_add_string mesh_id
@@ -1154,18 +1170,17 @@ morse_hostapd_add_bss() {
 	}
 	json_get_vars wds wds_bridge sae_pwe dtim_period max_listen_int start_disabled dpp_configurator_connectivity raw
 
+	set_default raw 0
 	raw_block=
 	if [ "$_role" = primary ]; then
 		# RAWs are not supported for non-primary APs.
-		json_for_each_item morse_hostapd_add_raw raws
+		[ "$raw" -gt 0 ] && morse_hostapd_add_raw
 	fi
-
 	json_select ..
 
 	set_default wds 0
 	set_default start_disabled 0
 	set_default sae_pwe 1
-	set_default raw 0
 	# This controls whether DPP is advertised in the beacon. It does _not_ enable DPP,
 	# and hostapd's DPP push button support is available regardless (even if a separate
 	# dpp configurator like morse_dppd is not running).
@@ -1186,39 +1201,49 @@ ${dtim_period:+dtim_period=$dtim_period}
 ${max_listen_int:+max_listen_interval=$max_listen_int}
 ${sae_pwe:+sae_pwe=$sae_pwe}
 ${dpp_configurator_connectivity:+dpp_configurator_connectivity=$dpp_configurator_connectivity}
-${raw:+raw=1}
+${raw:+raw=$raw}
 $raw_block
 EOF
 
 	append hostapd_conf_files "$hostapd_ifname_conf_file"
 }
 
-morse_hostapd_add_raw(){
-	local cfgtype priority enabled start_time_us duration_us slots cross_slot max_beacon_spread nominal_stas_per_beacon
-	local T="	"
-	config_load wireless
-	config_get cfgtype "$1" TYPE
-	[ "$cfgtype" != "raw" ] && return
+morse_hostapd_add_raw() {
+	local enabled start_time_us duration_us slots cross_slot \
+	      max_beacon_spread nominal_stas_per_beacon
+	#Clear previous raw_block
+	raw_block=""
+	local max_raw=8 idx=-1
+	while [ "$idx" -lt "$max_raw" ]; do
+		idx=$(( idx + 1 ))
+		json_get_var enabled                    "raw${idx}_enabled"
+		# If not enabled, skip this RAW definition
+		[ "$enabled" != 1 ] && continue
 
-	config_get priority "$1" priority
-	config_get enabled "$1" enabled
-	config_get start_time_us "$1" start_time_us
-	config_get duration_us "$1" duration_us
-	config_get slots "$1" slots
-	config_get cross_slot "$1" cross_slot
-	config_get max_beacon_spread "$1" max_beacon_spread
-	config_get nominal_stas_per_beacon "$1" nominal_stas_per_beacon
+		json_get_var start_time_us              "raw${idx}_start_time_us"
+		json_get_var duration_us                "raw${idx}_duration_us"
+		json_get_var slots                      "raw${idx}_slots"
+		json_get_var cross_slot                 "raw${idx}_cross_slot"
+		json_get_var max_beacon_spread          "raw${idx}_max_beacon_spread"
+		json_get_var nominal_stas_per_beacon    "raw${idx}_nominal_stas_per_beacon"
+		json_get_var praw_period                "raw${idx}_period"
+		json_get_var praw_start_offset          "raw${idx}_start_offset"
 
-	append raw_block "raw={" "$N"
-	append raw_block "priority=${priority:-0}" "$N$T"
-	append raw_block "enabled=${enabled:-0}" "$N$T"
-	append raw_block "start_time_us=${start_time_us:-0}" "$N$T"
-	append raw_block "duration_us=${duration_us:-0}" "$N$T"
-	append raw_block "slots=${slots:-0}" "$N$T"
-	append raw_block "cross_slot=${cross_slot:-0}" "$N$T"
-	append raw_block "max_beacon_spread=${max_beacon_spread:-0}" "$N$T"
-	append raw_block "nominal_stas_per_beacon=${nominal_stas_per_beacon:-0}" "$N$T"
-	append raw_block "}" "$N"
+		append raw_block "raw={" "$N"
+		# RAW index indicates the priority
+		[ -n "$idx" ]                     && append raw_block "priority=${idx}" "$N$T"
+		[ -n "$enabled" ]                 && append raw_block "enabled=${enabled}" "$N$T"
+		[ -n "$start_time_us" ]           && append raw_block "start_time_us=${start_time_us}" "$N$T"
+		[ -n "$duration_us" ]             && append raw_block "duration_us=${duration_us}" "$N$T"
+		[ -n "$slots" ]                   && append raw_block "slots=${slots}" "$N$T"
+		[ -n "$cross_slot" ]              && append raw_block "cross_slot=${cross_slot}" "$N$T"
+		[ -n "$max_beacon_spread" ]       && append raw_block "max_beacon_spread=${max_beacon_spread}" "$N$T"
+		[ -n "$nominal_stas_per_beacon" ] && append raw_block "nominal_stas_per_beacon=${nominal_stas_per_beacon}" "$N$T"
+		[ -n "$praw_period" ]             && append raw_block "praw_period=${praw_period}" "$N$T"
+		[ -n "$praw_start_offset" ]       && append raw_block "praw_start_offset=${praw_start_offset}" "$N$T"
+
+		append raw_block "}" "$N"
+	done
 }
 
 #################################################
