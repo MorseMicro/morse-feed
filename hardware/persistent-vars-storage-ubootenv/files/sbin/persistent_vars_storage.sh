@@ -8,8 +8,13 @@ trap exit_handler EXIT
 
 exit_handler()
 {
-	if [ "$?" -ne 0 ]; then
-		echo "Usage: $0 OPERATION(READ|READALL|WRITE|ERASE) KEY [VALUE]" 1>&2
+	status=$?
+	#Exit code 2 indicates intentional exit due to usage error
+	if [ "$status" -eq 2 ]; then
+		echo "User usage error"
+		exit 2
+	elif [ "$status" -ne 0 ]; then
+		echo "Usage: $0 OPERATION(READ|READALL|WRITE|ERASE|RESTORE) KEY [VALUE]" 1>&2
 		exit 1
 	fi
 }
@@ -55,10 +60,7 @@ show_factory_data()
 					show_raw_partition_data factory 0x4080 32
 				;;
 				mm_region)
-					# morse,halowlink2s were incorrectly set to mm_region=US
-					if [ $board_name != morse,halowlink2 ]; then
-						show_raw_partition_data factory 0x40c0 2
-					fi
+					show_raw_partition_data factory 0x40c0 2
 				;;
 				mm_sku)
 					# This is used to select a BCF other than the OTP default.
@@ -97,8 +99,19 @@ all_keys="device_password default_wifi_key dpp_priv_key mm_region
 	mm_virtual_wire mm_mode dropbear_authorized_keys dropbear_ed25519_host_key
 	dropbear_rsa_host_key"
 
+# Does factory data exist for this key?
+factory_has_key() {
+	val="$(show_factory_data "$1" 2> /dev/null || true)"
+	[ -n "$val" ]
+}
+
 case "$operation" in
 	READ)
+		# If this key is marked ERASED, do not try to read it
+		erased_flag=$(fw_printenv -n -c "$conffile" "${key}_ERASED" 2> /dev/null || true)
+		if [ "$erased_flag" = "1" ]; then
+			exit 0
+		fi
 		if ! fw_printenv -n -c "$conffile" "$key" 2> /dev/null; then
 			# If the user asks for env data that's not available, fall back to factory
 			# defaults for the device (if available).
@@ -114,10 +127,28 @@ case "$operation" in
 
 	WRITE)
 		value="$3"
+		# Refuse to write empty values. Use ERASE instead.
+		if [ -z "$value" ]; then
+			echo "ERROR: Empty values cannot be written, use ERASE instead" 1>&2
+			exit 2
+		fi
 		fw_setenv -c "$conffile" "$key" "$value"
 	;;
 
 	ERASE)
+		fw_setenv -c "$conffile" "$key"
+		# If factory data is available for this key, mark it ERASED
+		if factory_has_key "$key"; then
+			fw_setenv -c "$conffile" "${key}_ERASED" "1"
+			echo "WARNING: $key exists in factory data and is ignored currently. \
+				To restore it, run $0 RESTORE $key." 1>&2
+		fi
+	;;
+
+	RESTORE)
+		# Clear the ERASED flag if it exists, so READ falls back to factory data
+		fw_setenv -c "$conffile" "${key}_ERASED"
+		# Also clear any existing value in the env if it was overridden
 		fw_setenv -c "$conffile" "$key"
 	;;
 
