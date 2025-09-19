@@ -264,6 +264,16 @@ return wizard.AbstractWizardView.extend({
 				uci.set('network', iface, 'proto', 'dhcp');
 			}
 		}
+
+		const ahwlanBridgeName = uci.get('network', 'ahwlan', 'device');
+		if (ahwlanBridgeName) {
+			const ahwlanBridgeDevice = uci.sections('network', 'device').find(s => s.type == 'bridge' && s.name == ahwlanBridgeName);
+			if (ahwlanBridgeDevice) {
+				uci.set('network', ahwlanBridgeDevice['.name'], 'ipv6', uci.get('network', 'wizard', 'ipv6'));
+				uci.set('network', ahwlanBridgeDevice['.name'], 'neighreachabletime', uci.get('network', 'wizard', 'neighreachabletime'));
+				uci.set('network', ahwlanBridgeDevice['.name'], 'arp_announce', uci.get('network', 'wizard', 'arp_announce'));
+			}
+		}
 	},
 
 	async loadPages() {
@@ -435,6 +445,89 @@ return wizard.AbstractWizardView.extend({
 		option.ucisection = morseDeviceName;
 		option.rmempty = false;
 		option.retain = true;
+
+		// Some of the large station count settings here are applied to the bridge device created (usually br-ahwlan).
+		// If no bridge device is created, these will not work. However all paths through this wizard currently create a
+		// bridge. If this needs to be updated to work with no bridge, a 'wlan*' network.device must be created and the
+		// settings applied to that device.
+
+		option = page.heading(_('Advanced settings'));
+		option.depends('mode', 'ap');
+
+		option = page.option(morseui.Slider, 'large_station_count', _('Large Station Count Optimisations'),
+			_('If you are connecting many stations to this AP (>20), these settings may improve performance.'),
+		);
+		option.uciconfig = 'network';
+		option.ucisection = 'wizard';
+		option.depends(`wireless.${morseInterfaceName}.mode`, 'ap');
+		// This is on morseInterfaceName instead of wizard due to odd luci behaviour.
+		const largeStationCountDepender = `network.${morseInterfaceName}.large_station_count`;
+
+		option = page.option(form.Flag, 'ipv6', 'Enable IPv6', _('IPv6 can be disabled to reduce traffic'));
+		option.uciconfig = 'network';
+		option.ucisection = 'wizard';
+		option.depends(largeStationCountDepender, '1');
+		option.default = '1';
+
+		option = page.option(form.Value, 'neighreachabletime', _('Neighbour cache validity'),
+			_('Time in milliseconds. Can be increased to reduce ARP traffic. Suggestion 1 hour: 3600000'),
+		);
+		option.uciconfig = 'network';
+		option.ucisection = 'wizard';
+		option.depends(largeStationCountDepender, '1');
+		option.placeholder = '30000';
+		option.datatype = 'uinteger';
+
+		option = page.option(form.ListValue, 'arp_announce', _('Configure arp_announce'),
+			_('Setting this to 2 can help reduce ARP traffic in some situations. This setting applies to the entire system.'),
+		);
+		option.uciconfig = 'network';
+		option.ucisection = 'wizard';
+		option.depends(largeStationCountDepender, '1');
+		option.optional = true;
+		option.placeholder = _('-- Not set --');
+		option.value('2');
+
+		// netifd does not know the boot setting, so cant undo if the user set something here and then undid it.
+		// A reboot will eventually reset the value.
+		option = page.option(form.Value, 'neighgcthresh', _('Neighbour cache garbage collection thresholds'),
+			_(`Increase the ARP garbage collection threshold (number of neighbours) to reduce ARP traffic.
+				Suggestion: Use a value double the expected number of clients.
+				This setting applies to the entire system and can only be unset by rebooting this device.`),
+		);
+		option.uciconfig = 'network';
+		option.ucisection = 'globals';
+		option.depends(largeStationCountDepender, '1');
+		option.placeholder = '128';
+		option.datatype = 'uinteger';
+
+		option = page.option(form.Flag, 'isolate', _('Isolate Clients'), _('Prevent client to client communication.'));
+		option.uciconfig = 'wireless';
+		option.ucisection = morseInterfaceName;
+		option.depends(largeStationCountDepender, '1');
+
+		option = page.option(form.Value, 'max_inactivity', _('Station inactivity limit'),
+			_('Increasing this value can reduce traffic. Units: seconds. Suggestion: Use a value larger than the number of clients.'),
+		);
+		option.uciconfig = 'wireless';
+		option.ucisection = morseInterfaceName;
+		option.depends(largeStationCountDepender, '1');
+		option.optional = true;
+		option.placeholder = 300;
+		option.datatype = 'uinteger';
+
+		if (L.hasSystemFeature('morsefwtlm')) {
+			option = page.option(form.ListValue, 'firmware_type', _('Firmware Type'),
+				_('Thin LMAC firmware is required for MM6108 access points to associate to more than 200 clients.'),
+			);
+			option.uciconfig = 'wireless';
+			option.ucisection = morseDeviceName;
+			option.depends(largeStationCountDepender, '1');
+			option.optional = true;
+			option.default = '';
+			option.value('', 'SoftMAC (standard mode)');
+			option.value('thin_lmac', 'Thin LMAC (AP only, supporting many stations)');
+		}
 
 		/*****************************************************************************/
 
