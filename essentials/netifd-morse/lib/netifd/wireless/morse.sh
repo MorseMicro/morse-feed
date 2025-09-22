@@ -1147,6 +1147,10 @@ ${hostapd_noscan:+noscan=1}
 ${tx_burst:+tx_queue_data2_burst=$tx_burst}
 $base_cfg
 
+# anti-clogging does not work and creates issues in high station count networks (100+)
+# This effectively disables it
+anti_clogging_threshold=99999
+
 EOF
 	json_select ..
 }
