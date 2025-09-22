@@ -265,6 +265,12 @@ define Package/hostapd_s1g/install
 	$(INSTALL_DIR) $(1)/usr/sbin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/hostapd/hostapd_s1g $(1)/usr/sbin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/hostapd/hostapd_cli_s1g $(1)/usr/sbin
+
+ifeq ($(CONFIG_MORSE_HOSTAPD_APSTA_HANDLER),y)
+	$(INSTALL_DIR) $(1)/etc/init.d
+	$(INSTALL_BIN) ./files/etc/init.d/apsta-handler $(1)/etc/init.d
+	$(INSTALL_BIN) ./files/usr/sbin/apsta-handler $(1)/usr/sbin
+endif
 endef
 
 define Package/wpa_supplicant_s1g/install
