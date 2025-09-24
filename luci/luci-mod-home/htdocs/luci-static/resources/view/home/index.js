@@ -978,7 +978,7 @@ function createAssoclistCard(wifiNetwork, wifiDevices, hostHints) {
 		// does not show in the list at all if it has the wrong credentials.
 		d => d.authorized,
 	).map((d) => {
-		const addresses = [hostHints.getHostnameByMACAddr(d.mac), hostHints.getIPAddrByMACAddr(d.mac)];
+		const addresses = [hostHints.getHostnameByMACAddr(d.mac), hostHints.getIPAddrByMACAddr(d.mac)].filter(a => a);
 		const ipv6address = hostHints.getIP6AddrByMACAddr(d.mac);
 		if (ipv6address && !ipv6address.startsWith('fe80::')) {
 			addresses.push(ipv6address);
