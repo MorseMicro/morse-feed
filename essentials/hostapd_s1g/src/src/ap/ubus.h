@@ -40,8 +40,6 @@ struct hostapd_ubus_bss {
 	int notify_response;
 };
 
-void hostapd_s1g_ubus_add_main(struct hapd_interfaces *interfaces);
-void hostapd_s1g_ubus_free_main();
 void hostapd_ubus_add_iface(struct hostapd_iface *iface);
 void hostapd_ubus_free_iface(struct hostapd_iface *iface);
 void hostapd_ubus_add_bss(struct hostapd_data *hapd);

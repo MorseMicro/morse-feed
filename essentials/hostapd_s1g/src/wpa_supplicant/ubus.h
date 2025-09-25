@@ -25,7 +25,7 @@ void wpas_ubus_add_bss(struct wpa_supplicant *wpa_s);
 void wpas_ubus_free_bss(struct wpa_supplicant *wpa_s);
 
 void wpas_ubus_notify_type(struct wpa_supplicant *wpa_s, const char *type);
-void wpas_ubus_event_state(struct wpa_supplicant *wpa_s, const char *state);
+
 #ifdef CONFIG_WPS
 void wpas_ubus_notify(struct wpa_supplicant *wpa_s, const struct wps_credential *cred);
 #endif

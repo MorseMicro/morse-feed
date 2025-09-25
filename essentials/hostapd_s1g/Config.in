@@ -34,23 +34,3 @@ if PACKAGE_wpa_supplicant_s1g
 		prompt "Enable dbus support"
 
 endif
-
-config MORSE_HOSTAPD_APSTA_HANDLER
-	bool
-	default n
-	depends on PACKAGE_hostapd_s1g && PACKAGE_wpa_supplicant_s1g
-	select PACKAGE_ucode
-	select PACKAGE_ucode-mod-log
-	select PACKAGE_ucode-mod-fs
-	select PACKAGE_ucode-mod-ubus
-	select PACKAGE_ucode-mod-uloop
-	prompt "AP-STA channel follow (APSTA handler)"
-	help
-	  Enable APSTA handler functionality in hostapd.
-
-	  With this enabled, a local AP will automatically switch its channel to match
-	  the S1G channel of the upstream AP that the station interface is connected to.
-	  This ensures that HaLow radios behave in the same way as other radios on OpenWrt.
-
-	  Without this enabled, if you have both AP/Client on the same radio,
-	  the Client will not associate unless it is manually set to the correct channel.

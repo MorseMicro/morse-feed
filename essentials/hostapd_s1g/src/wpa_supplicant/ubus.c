@@ -9,7 +9,6 @@
 
 #include "utils/includes.h"
 #include "utils/common.h"
-#include "common/defs.h"
 #include "utils/eloop.h"
 #include "utils/wpabuf.h"
 #include "common/ieee802_11_defs.h"
@@ -18,20 +17,10 @@
 #include "dpp_supplicant.h"
 #include "ubus.h"
 #include <libubox/blobmsg_json.h>
-#include "bss.h"
-#include "config.h"
-
-#define VALID_BW(bw)       ((bw) == 1 || (bw) == 2 || (bw) == 4 || (bw) == 8)
-#define VALID_PBW(pbw, bw) (((pbw) == 1 || (pbw) == 2) && (pbw) <= (bw))
-#define VALID_PCI(idx, bw) ((idx) >= 0 && (idx) < (bw))
 
 static struct ubus_context *ctx;
 static struct blob_buf b;
 static int ctx_ref;
-
-int hostapd_config_s1g_val(const struct hostapd_config *conf) {
-	return 0;
-}
 
 static inline struct wpa_global *get_wpa_global_from_object(struct ubus_object *obj)
 {
@@ -356,146 +345,4 @@ void wpas_ubus_notify(struct wpa_supplicant *wpa_s, const struct wps_credential 
 //	ubus_notify(ctx, &wpa_s->ubus.obj, "wps_credentials", b.head, -1);
 	ubus_send_event(ctx, "wps_credentials", b.head);
 }
-
 #endif /* CONFIG_WPS */
-
-static inline struct ieee80211_ht_operation *get_ht_ie(struct wpa_bss *bss)
-{
-    const u8 *ie;
-
-    if (!bss)
-        return NULL;
-
-    ie = wpa_bss_get_ie(bss, WLAN_EID_HT_OPERATION);
-    if (!ie)
-        return NULL;
-
-    /* Need the full HT Operation struct (22 bytes) */
-    if (ie[1] < sizeof(struct ieee80211_ht_operation))
-        return NULL;
-
-    return (struct ieee80211_ht_operation *)(ie + 2);
-}
-
-static inline struct ieee80211_vht_operation *get_vht_ie(struct wpa_bss *bss)
-{
-    const u8 *ie;
-
-    if (!bss)
-        return NULL;
-
-    ie = wpa_bss_get_ie(bss, WLAN_EID_VHT_OPERATION);
-    if (!ie)
-        return NULL;
-
-    /* Need the full VHT Operation struct (5 bytes) */
-    if (ie[1] < sizeof(struct ieee80211_vht_operation))
-        return NULL;
-
-    return (struct ieee80211_vht_operation *)(ie + 2);
-}
-
-struct s1g_chan_info {
-    int op_class;
-    int channel;
-    int bandwidth;
-    int prim_chwidth;
-    int prim_1mhz_chan;
-    int prim_1mhz_index;
-};
-
-int wpas_get_current_chan_info(struct wpa_supplicant *wpa_s,
-                               struct s1g_chan_info *out)
-{
-    struct ieee80211_ht_operation *ht_oper;
-    struct ieee80211_vht_operation *vht_oper;
-
-    int s1g_chan, s1g_bw, s1g_prim_1mhz_chan, prim_bw, s1g_prim_1mhz_index;
-    const struct ah_class *classp = NULL;
-
-    if (!wpa_s || !wpa_s->current_bss || !out)
-        return -1;
-
-    /* Point to the right chan pairs. */
-    morse_set_s1g_ht_chan_pairs(wpa_s->conf->country);
-    ht_oper = get_ht_ie(wpa_s->current_bss);
-    vht_oper = get_vht_ie(wpa_s->current_bss);
-    if (!ht_oper) {
-        wpa_msg(wpa_s, MSG_INFO, "S1G: missing HT Operation IE in current BSS");
-        return -1;
-    }
-
-    s1g_chan            = morse_s1g_get_oper_chan_from_ht_vht_ies(wpa_s->conf->country, ht_oper, vht_oper);
-    s1g_bw              = morse_s1g_chan_to_bw(s1g_chan);
-    s1g_prim_1mhz_chan  = morse_s1g_get_prim_chane_from_ht_ie(wpa_s->conf->country, ht_oper);
-    prim_bw             = morse_s1g_get_prim_chwidth_from_ht_ies(ht_oper);
-    s1g_prim_1mhz_index = morse_s1g_get_prim_1mhz_ch_idx(wpa_s->conf->country, s1g_chan, s1g_bw, s1g_prim_1mhz_chan);
-
-	/* Validate the parameters */
-    if (s1g_chan            <= 0    ||
-        s1g_prim_1mhz_chan  <= 0    ||
-        !VALID_BW(s1g_bw)           ||
-        !VALID_PBW(prim_bw, s1g_bw) ||
-        !VALID_PCI(s1g_prim_1mhz_index, s1g_bw)) {
-        wpa_msg(wpa_s, MSG_INFO,
-                "S1G: invalid derived params (chan=%d, bw=%d, prim=%d)",
-                s1g_chan, s1g_bw, s1g_prim_1mhz_chan);
-        return -1;
-    }
-
-    classp = morse_s1g_ch_to_op_class(s1g_bw, wpa_s->conf->country, s1g_chan);
-    if (!classp) {
-        wpa_msg(wpa_s, MSG_INFO,
-                "S1G: op-class lookup failed (bw=%d, cc=%s, chan=%d)",
-                s1g_bw, wpa_s->conf->country, s1g_chan);
-        return -1;
-    }
-
-    /* Fill result */
-    out->op_class       = classp->global_op_class;
-    out->channel        = s1g_chan;
-    out->bandwidth      = s1g_bw;
-    out->prim_chwidth   = prim_bw;
-    out->prim_1mhz_chan = s1g_prim_1mhz_chan;
-    out->prim_1mhz_index= s1g_prim_1mhz_index;
-    wpa_msg(wpa_s, MSG_INFO,
-            "S1G: op_class=%d chan=%d bw=%dMHz prim_bw=%d prim1MHz=%d prim1MHzIndex=%d cc=%s",
-            out->op_class,
-            out->channel,
-            out->bandwidth,
-            out->prim_chwidth,
-            out->prim_1mhz_chan,
-            out->prim_1mhz_index,
-            wpa_s->conf->country);
-
-    return 0;
-}
-
-void wpas_ubus_event_state(struct wpa_supplicant *wpa_s, const char *state)
-{
-    if (!ctx || !wpa_s || !wpa_s->ifname || !state)
-        return;
-
-    struct blob_buf b = {0};
-    blob_buf_init(&b, 0);
-    blobmsg_add_string(&b, "ifname", wpa_s->ifname);
-    blobmsg_add_string(&b, "state", state);
-
-    if (wpa_s->wpa_state == WPA_COMPLETED) {
-        struct s1g_chan_info s1g_chan_info;
-        if (!wpas_get_current_chan_info(wpa_s, &s1g_chan_info)) {
-            blobmsg_add_u32(&b, "op_class",                  s1g_chan_info.op_class);
-            blobmsg_add_u32(&b, "channel",                   s1g_chan_info.channel);
-            blobmsg_add_u32(&b, "s1g_chanbw",                s1g_chan_info.bandwidth);
-            blobmsg_add_u32(&b, "s1g_prim_chwidth",          s1g_chan_info.prim_chwidth);
-            blobmsg_add_u32(&b, "s1g_prim_1mhz_chan_index",  s1g_chan_info.prim_1mhz_index);
-            blobmsg_add_u32(&b, "s1g_prim_1mhz_chan",        s1g_chan_info.prim_1mhz_chan);
-        }
-    }
-
-    ubus_send_event(ctx, "wpa_supplicant_s1g.state", b.head);
-
-    blob_buf_free(&b);
-    return;
-}
-
