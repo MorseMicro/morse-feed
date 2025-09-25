@@ -10,9 +10,9 @@ exit_handler()
 {
 	status=$?
 	#Exit code 2 indicates intentional exit due to usage error
-	if [ "$status" -eq 2 ]; then
+	if [ "$status" -eq 3 ]; then
 		echo "User usage error"
-		exit 2
+		exit 3
 	elif [ "$status" -ne 0 ]; then
 		echo "Usage: $0 OPERATION(READ|READALL|WRITE|ERASE|RESTORE) KEY [VALUE]" 1>&2
 		exit 1
@@ -43,6 +43,9 @@ show_raw_partition_data()
 	# Running this through shell/echo strips the nulls and puts a newline in (consistent with fw_printenv)
 	echo "$(dd if="$(find_mtd_partition "$partition")" bs=1  skip=$(($skip)) count="$count" 2> /dev/null)"
 }
+
+# This is here so we can iterate over all currently set keys.
+FACTORY_KEYS="device_password default_wifi_key mm_region mm_sku"
 
 show_factory_data()
 {
@@ -93,11 +96,6 @@ else
 fi
 
 operation="$1"
-key="$2"
-
-all_keys="device_password default_wifi_key dpp_priv_key mm_region
-	mm_virtual_wire mm_mode dropbear_authorized_keys dropbear_ed25519_host_key
-	dropbear_rsa_host_key"
 
 # Does factory data exist for this key?
 factory_has_key() {
@@ -107,6 +105,7 @@ factory_has_key() {
 
 case "$operation" in
 	READ)
+		key="$2"
 		# If this key is marked ERASED, do not try to read it
 		erased_flag=$(fw_printenv -n -c "$conffile" "${key}_ERASED" 2> /dev/null || true)
 		if [ "$erased_flag" = "1" ]; then
@@ -120,32 +119,51 @@ case "$operation" in
 	;;
 
 	READALL)
-		for key in $all_keys; do
-			printf '%s=%s\n' "$key" "$($0 READ "$key")"
-		done
+		# This has a minor bug if you have a multiline key where one
+		# of the lines starts with BLAH=, as it will consider this a variable.
+		# Unfortunately, fw_printenv seems to have no way of just listing the keys,
+		# and reading directly from the partition seemed to be going too far.
+		{
+			echo "$FACTORY_KEYS" | tr ' ' '\n';
+			fw_printenv -c "$conffile" | sed -n '/^[^= ]*=/{s/=.*//;p}';
+		} | sort -u | {
+			while read -r key; do
+				printf '%s=%s\n' "$key" "$($0 READ "$key")"
+			done
+		}
 	;;
 
 	WRITE)
+		key="$2"
 		value="$3"
 		# Refuse to write empty values. Use ERASE instead.
 		if [ -z "$value" ]; then
 			echo "ERROR: Empty values cannot be written, use ERASE instead" 1>&2
-			exit 2
+			exit 3
+		fi
+		if factory_has_key "$key"; then
+			fw_setenv -c "$conffile" "${key}_ERASED"
 		fi
 		fw_setenv -c "$conffile" "$key" "$value"
 	;;
 
 	ERASE)
+		key="$2"
 		fw_setenv -c "$conffile" "$key"
 		# If factory data is available for this key, mark it ERASED
 		if factory_has_key "$key"; then
 			fw_setenv -c "$conffile" "${key}_ERASED" "1"
-			echo "WARNING: $key exists in factory data and is ignored currently. \
-				To restore it, run $0 RESTORE $key." 1>&2
+			echo "WARNING: $key exists in factory data and is ignored currently." 1>&2
+			echo "To restore it, run $0 RESTORE $key." 1>&2
 		fi
 	;;
 
 	RESTORE)
+		key="$2"
+		if ! factory_has_key "$key"; then
+			echo "ERROR: no factory value to RESTORE, doing nothing." 1>&2
+			exit 3
+		fi
 		# Clear the ERASED flag if it exists, so READ falls back to factory data
 		fw_setenv -c "$conffile" "${key}_ERASED"
 		# Also clear any existing value in the env if it was overridden
