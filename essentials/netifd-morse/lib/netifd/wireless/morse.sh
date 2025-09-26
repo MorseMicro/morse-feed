@@ -431,7 +431,7 @@ drv_morse_setup() {
 	if change_module_parameters || ! is_module_loaded; then
 		# Sleeping here avoids issues with trying to probe a SPI device
 		# immediately after a reset. See: SW-17138
-		is_module_loaded && rmmod morse && sleep 0.3
+		is_module_loaded && rmmod morse && sleep 1
 		/sbin/kmodloader /etc/modules.d/morse
 		inserted_module=1
 	fi

@@ -34,7 +34,7 @@ wait_for_iface() {
 		for f in /sys$DEVPATH/device/net/wlan*; do
 			[ -e "$f" ] && return 0  # Interface appeared
 		done
-		sleep 0.1
+		sleep 1
 		elapsed=$((elapsed + interval_ms))
 	done
 	return 1  # Timed out
