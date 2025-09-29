@@ -433,20 +433,21 @@ drv_morse_setup() {
 		# immediately after a reset. See: SW-17138
 		is_module_loaded && rmmod morse && sleep 1
 		/sbin/kmodloader /etc/modules.d/morse
+		# Give time for 15-morse-wifi-re-enable to run, otherwise
+		# if this script finishes very quickly after reinsertion
+		# it may try to bring up the wifi iface again.
+		# This also gives enough time for the phy to appear
+		# (see find_phy below).
+		sleep 1
 		inserted_module=1
 	fi
 	# don't do iw reg set as in mac80211; set via modparam
 
-	local retries=3
-	while ! find_phy; do
-		sleep 1
-		retries="$((retries - 1))"
-		if [ "$retries" -le 0 ]; then
-			echo "Could not find PHY for device '$1'" >&2
-			wireless_set_retry 0
-			return 1
-		fi
-	done
+	if ! find_phy; then
+		echo "Could not find PHY for device '$1'" >&2
+		wireless_set_retry 0
+		return 1
+	fi
 
 	# wlan? is automatically created on module insertion, but will
 	# usually have been cleaned up by the hotplug. However, if we've

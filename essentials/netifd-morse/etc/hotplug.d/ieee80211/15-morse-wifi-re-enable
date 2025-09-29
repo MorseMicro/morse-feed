@@ -1,95 +1,81 @@
 #!/bin/sh
 
-# Hotplug handler for Morse Wi-Fi devices
+# Hotplug handler for Wi-Fi devices
 #
-# This script manages the dynamic addition and removal of Morse Wi-Fi devices
-# by responding to hotplug events triggered by the system. It ensures that the
-# UCI wireless configuration remains in sync with the actual hardware state.
-#
-# On device insertion (`ACTION=add`):
-#   * Checks if the inserted PHY is already registered in the UCI wireless state.
-#   * Verifies the device is a Morse radio (via sysfs driver and UCI configuration).
-#   * If the device was previously disabled due to removal, it re-enables it in UCI
-#     and reconfigures the wireless subsystem.
-#
-# On device removal (`ACTION=remove`):
-#   * Confirms the removed PHY is registered and enabled in UCI.
-#   * Matches the system path against known Morse devices in UCI.
-#   * If matched, disables the device in UCI and marks it as removed by hotplug.
-#
-# This maintains accurate system configuration based on the presence
-# or absence of Morse Wi-Fi devices.
+# Reconfigures wi-fi if the user is adding/removing devices.
+# Without this, if a user inserts a USB Wi-Fi device they would have to manually
+# run `wifi up` (or click 'Restart' in LuCI), as the normal OpenWrt
+# hotplug only inserts the configuration, and on boot relies on
+# `reload_config` to cause the Wi-Fi bringup.
 
-. /lib/functions.sh
-
-handle_wireless_add() {
-	local wifi_device="$1"
-	local phy=$DEVICENAME
-
-	config_get device_type "$wifi_device" type
-	[ "$device_type" != "morse" ] && return
-
-	local device_path="$(iwinfo dot11ah path "$phy")"
-	config_get path $wifi_device path
-
-	if [ -n "$path" ] && [ "$path" = "$device_path" ]; then
-		config_get disabled $wifi_device disabled
-		config_get disabled_by_hotplug $wifi_device disabled_by_hotplug
-		#Re-enable Morse device only if it was disabled by the hotplug script
-		if [ "$disabled_by_hotplug" = "1" ] && [ "$disabled" = "1" ]; then
-			logger -t morse-wifi-re-enable "Morse Wi-Fi device: $wifi_device is inserted, hence enable it"
-			uci set wireless.$wifi_device.disabled=0
-			uci delete wireless.$wifi_device.disabled_by_hotplug
-			uci commit wireless
-		fi
-
-	fi
-}
-
-handle_wireless_remove() {
-	local wifi_device="$1"
-
-	config_get device_type "$wifi_device" type
-	[ "$device_type" != "morse" ] && return
-
-	config_get device_path "$wifi_device" path
-	# Remove optional 'platform/' & 'devices/' prefixes for consistent comparison
-	device_path="${device_path##*platform/}"
-	device_path="${device_path##*devices/}"
-
-	# Normalize DEVPATH to compare against UCI config
-	DEVPATH="${DEVPATH##*platform/}"
-	DEVPATH="${DEVPATH##*devices/}"
-	DEVPATH="${DEVPATH%%/ieee80211/*}"
-
-	if [ "$device_path" = "$DEVPATH" ]; then
-		config_get disabled $wifi_device disabled
-		# Disable only if the device is enabled by user
-		if [ -z "$disabled" ] || [ "$disabled" = "0" ]; then
-			logger -t morse-wifi-re-enable "Morse Wi-Fi device: $wifi_device is removed, hence disable it"
-			uci set wireless."$wifi_device".disabled="1"
-			uci set wireless."$wifi_device".disabled_by_hotplug="1"
-			uci commit wireless
-		fi
-	fi
-}
-
-phy="$DEVICENAME"
-phy_found="$(uci_get_state wireless "_$phy")"
-config_load wireless
-
-if [ "$ACTION" = "add" ]; then
-	# Proceed only if the device is identified as a Morse device during Add
-	basename "$(readlink -f "/sys/class/ieee80211/$phy/device/driver/")" | grep '^morse_' || return
-	if [ -z "$phy_found" ]; then
-		config_foreach handle_wireless_add wifi-device
-		/sbin/wifi up
-	fi
+if [ "$ACTION" != add -a "$ACTION" != remove ]; then
+	exit 0
 fi
 
-if [ "$ACTION" = "remove" ]; then
-	if [ -n "$phy_found" ]; then
-		config_foreach handle_wireless_remove wifi-device
-		/sbin/wifi up
-	fi
+wireless_status="$(ubus call network.wireless status)"
+if [ "$?" != 0 ]; then
+	# This catches the case on initial module load where netifd has not been
+	# started. We don't want to do a `wifi up` here, as this happens with reload_config
+	# once all uci files have been initialised (i.e. at the end of /etc/init.d/boot).
+	# However, since at this point syslog is not yet up, in the normal case
+	# you won't see this log message.
+	logger -t morse-wifi-re-enable "Ignoring Wi-Fi hotplug $ACTION as netifd is not up"
+	exit 0
 fi
+
+. /usr/share/libubox/jshn.sh
+
+json_init
+json_load "$wireless_status"
+json_get_keys radios
+
+for radio in $radios; do
+	json_select "$radio"
+	json_get_vars pending autostart
+	json_select config
+	json_get_vars path band
+	json_select ..
+	json_select ..
+
+	if [ "$band" != "s1g" ]; then
+		# This code should work in the generic case, but currently it's in netifd-morse
+		# so let's only try to deal with Morse wifi chips.
+		continue
+	fi
+
+	case "$DEVPATH" in
+	*"$path"*)
+		if [ "$pending" = 1 ]; then
+			# This is to catch the case where morse.sh is rmmod/modprobing the driver to change the module
+			# parameters. Unfortunately, if morse.sh has no interfaces to configure, it can finish very quickly
+			# after inserting the module, so there's a short sleep added there to make sure this hotplug script
+			# "knows" that the interface is currently being reconfigured (otherwise it will bounce).
+			logger -t morse-wifi-re-enable "Ignoring Wi-Fi $DEVICENAME hotplug $ACTION as interface being reconfigured"
+			exit 0
+		elif [ "$autostart" = 0 ]; then
+			# If you've brought down wifi with wifi down, hotplugging or rmmod/modprobing morse should not
+			# bring it up (otherwise this may interfere with low level activities).
+			logger -t morse-wifi-re-enable "Ignoring Wi-Fi $DEVICENAME hotplug $ACTION as wifi has been brought down manually"
+			exit 0
+		else
+			logger -t morse-wifi-re-enable "Setting up Wi-Fi "$radio" after $DEVICENAME hotplug $ACTION"
+			# We run `wifi up` here even for removal, as we want the detection code to rerun but for the iface
+			# _not_ to be marked manually down (i.e. autostart should remain 1}.
+			# Unfortunately, because wifi up is a toggle (brings things down then up), it will run
+			# (and fail) the setup code twice in the removal case.
+			wifi up "$radio"
+			# More than one path match would be pretty unexpected.
+			exit 0
+		fi
+		;;
+	esac
+done
+
+# Note that if there were _no_ radios at all and this added one, we do nothing here, as
+# the UCI wireless config won't be propagated to network.wireless status until `wifi up` is called!
+# We could detect this situation, but in the normal config case the wifi-device is disabled anyway,
+# so the extra complexity is probably not worth the risk for now.
+# It would be nice to do this, but if we did want to we'd also want to apply morse-wireless-defaults
+# on hotplug, and potentially kick the user back to the wizard, so this is probably a bigger question
+# and potentially a separate hotplug script elsewhere.
+logger -t morse-wifi-re-enable "Ignoring Wi-Fi $DEVICENAME hotplug $ACTION as network.wireless status does not have a path for $DEVPATH"
