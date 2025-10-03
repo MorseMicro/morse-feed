@@ -9,6 +9,7 @@
 
 #include "utils/includes.h"
 #include "utils/common.h"
+#include "common/defs.h"
 #include "utils/eloop.h"
 #include "utils/wpabuf.h"
 #include "common/ieee802_11_defs.h"
@@ -17,10 +18,20 @@
 #include "dpp_supplicant.h"
 #include "ubus.h"
 #include <libubox/blobmsg_json.h>
+#include "bss.h"
+#include "config.h"
+
+#define VALID_BW(bw)       ((bw) == 1 || (bw) == 2 || (bw) == 4 || (bw) == 8)
+#define VALID_PBW(pbw, bw) (((pbw) == 1 || (pbw) == 2) && (pbw) <= (bw))
+#define VALID_PCI(idx, bw) ((idx) >= 0 && (idx) < (bw))
 
 static struct ubus_context *ctx;
 static struct blob_buf b;
 static int ctx_ref;
+
+int hostapd_config_s1g_val(const struct hostapd_config *conf) {
+	return 0;
+}
 
 static inline struct wpa_global *get_wpa_global_from_object(struct ubus_object *obj)
 {
@@ -264,7 +275,7 @@ void wpas_ubus_notify_dpp_pb_result(struct wpa_supplicant *wpa_s, const char *st
 
 #ifdef CONFIG_DPP
 void wpas_ubus_notify_dpp_conf_received(struct wpa_supplicant *wpa_s,
-                                        const struct dpp_config_obj *conf)
+										const struct dpp_config_obj *conf)
 {
 	char *encryption, *ssid, *key;
 
@@ -291,8 +302,8 @@ void wpas_ubus_notify(struct wpa_supplicant *wpa_s, const struct wps_credential 
 		auth_type = WPS_AUTH_WPA2PSK;
 
 	if (auth_type != WPS_AUTH_OPEN &&
-	    auth_type != WPS_AUTH_WPAPSK &&
-	    auth_type != WPS_AUTH_WPA2PSK) {
+		auth_type != WPS_AUTH_WPAPSK &&
+		auth_type != WPS_AUTH_WPA2PSK) {
 		wpa_printf(MSG_DEBUG, "WPS: Ignored credentials for "
 			   "unsupported authentication type 0x%x",
 			   auth_type);
@@ -345,4 +356,21 @@ void wpas_ubus_notify(struct wpa_supplicant *wpa_s, const struct wps_credential 
 //	ubus_notify(ctx, &wpa_s->ubus.obj, "wps_credentials", b.head, -1);
 	ubus_send_event(ctx, "wps_credentials", b.head);
 }
+
 #endif /* CONFIG_WPS */
+
+void wpas_ubus_event_state(struct wpa_supplicant *wpa_s, const char *state)
+{
+	if (!ctx || !wpa_s || !wpa_s->ifname || !state)
+		return;
+
+	struct blob_buf b = {0};
+	blob_buf_init(&b, 0);
+	blobmsg_add_string(&b, "ifname", wpa_s->ifname);
+	blobmsg_add_string(&b, "state", state);
+	ubus_send_event(ctx, "wpa_supplicant_s1g.state", b.head);
+
+	blob_buf_free(&b);
+	return;
+}
+
