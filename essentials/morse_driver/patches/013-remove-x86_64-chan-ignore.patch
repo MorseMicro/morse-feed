@@ -1,15 +1,21 @@
-This workaround was put in the driver to easily build
-in STA configurations without mac80211 modifications, but
-is inappropriate in OpenWrt (when we have the necessary
-patches in mac80211). See SW-14709.
+From 0504c56aadd5c4b8d90dcf8e8438a01f226e48d6 Mon Sep 17 00:00:00 2001
+From: James Haggerty <james.haggerty@morsemicro.com>
+Date: Fri, 25 Jul 2025 09:11:22 +1000
+Subject: [PATCH] This workaround was put in the driver to easily build in STA
+ configurations without mac80211 modifications, but is inappropriate in
+ OpenWrt (when we have the necessary patches in mac80211). See SW-14709.
 
-diff --git a/mac.h b/mac.h
-index 4f2e451b..943c78ea 100644
---- a/mac.h
-+++ b/mac.h
-@@ -14,13 +14,6 @@
- /* The maximum number of frames to send after a DTIM to firmware */
- #define MORSE_MAX_MC_FRAMES_AFTER_DTIM (10)
+---
+ morse.h | 7 -------
+ 1 file changed, 7 deletions(-)
+
+diff --git a/morse.h b/morse.h
+index 842ca292..8340f568 100644
+--- a/morse.h
++++ b/morse.h
+@@ -50,13 +50,6 @@
+ #define MAC80211_VERSION_CODE LINUX_VERSION_CODE
+ #endif
  
 -/* Re-Define the IGNORE channel flag, if not defined by the cfg80211 patch.
 - * The flag won't be used by MM81xx.
@@ -18,6 +24,9 @@ index 4f2e451b..943c78ea 100644
 -#define IEEE80211_CHAN_IGNORE	IEEE80211_CHAN_DISABLED
 -#endif
 -
- /**
-  * struct morse_queue_params - QoS parameters
-  *
+ #define MORSE_SEMVER_GET_MAJOR(x) (((x) >> 22) & 0x3FF)
+ #define MORSE_SEMVER_GET_MINOR(x) (((x) >> 10) & 0xFFF)
+ #define MORSE_SEMVER_GET_PATCH(x) ((x) & 0x3FF)
+-- 
+2.34.1
+

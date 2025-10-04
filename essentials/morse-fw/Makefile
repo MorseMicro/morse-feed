@@ -13,11 +13,12 @@ include $(TOPDIR)/rules.mk
 PKG_NAME:=morse-fw
 PKG_RELEASE=2
 
-PKG_VERSION:=rel_1_15_3_2025_Apr_16
+PKG_VERSION:=1.16.4
 
-PKG_SOURCE:= morsemicro-fw-rel_1_15_3_2025_Apr_16.tar
-PKG_SOURCE_URL:=https://github.com/MorseMicro/firmware_binaries/releases/download/v1.15.3/
-PKG_HASH:=de7e3e9f1b7b97aff9d63687c4d3e99fe2544fcfc7e5567df1ab0da194656469
+PKG_SOURCE_VERSION:=68fcf18643b0fe12d1ff73ad03089b8c0b7d2979
+PKG_SOURCE_URL:=https://github.com/MorseMicro/morse-firmware.git
+PKG_HASH:=dbc6b5428fc6d4defa89a29c00c99a73ca07f704501d3618eddacb826007f486
+PKG_SOURCE_PROTO:=git
 
 PKG_MAINTAINER:=Morse Micro <info@morsemicro.com>
 PKG_BUILD_PARALLEL:=1
@@ -26,8 +27,6 @@ RSTRIP:=:
 
 include $(INCLUDE_DIR)/kernel.mk
 include $(INCLUDE_DIR)/package.mk
-
-TAR_CMD=$(HOST_TAR) -C $(1) $(TAR_OPTIONS)
 
 define Package/morse-fw-6108
   CATEGORY:=Morse Micro
@@ -104,7 +103,7 @@ define install_file_or_override
 	if [ -e ./files/lib/firmware/morse/$(1) ]; then \
 		$(INSTALL_DATA) ./files/lib/firmware/morse/$(1) $(2)/lib/firmware/morse/; \
 	else \
-		$(INSTALL_DATA) $(PKG_BUILD_DIR)/lib/firmware/morse/$(1) $(2)/lib/firmware/morse/; \
+		$(INSTALL_DATA) $(PKG_BUILD_DIR)/firmware/$(1) $(2)/lib/firmware/morse/; \
 	fi
 endef
 

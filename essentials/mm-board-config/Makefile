@@ -13,11 +13,13 @@ include $(TOPDIR)/rules.mk
 PKG_NAME:=morse-board-config
 PKG_RELEASE=6
 
-PKG_VERSION:=rel_1_15_3_2025_Apr_16
+PKG_VERSION:=1.16.4
 
-PKG_SOURCE:=morsemicro-bcf-rel_1_15_3_2025_Apr_16.tar
-PKG_SOURCE_URL:=https://github.com/MorseMicro/bcf_binaries/releases/download/v1.15.3/
-PKG_HASH:=bd794c829b57a9049b67bdc9ec9015c5f51ebf7716836e6a37a7962fb5121ef3
+PKG_SOURCE_VERSION:=68fcf18643b0fe12d1ff73ad03089b8c0b7d2979
+PKG_SOURCE_URL:=https://github.com/MorseMicro/morse-firmware.git
+PKG_HASH:=4a9ccc2fa085597cd2a83f0833508aa230d2c37eee8a54b195be0da48aa6325a
+PKG_SOURCE_PROTO:=git
+
 
 PKG_MAINTAINER:=Morse Micro <info@morsemicro.com>
 PKG_BUILD_PARALLEL:=1
@@ -50,8 +52,6 @@ define Package/morse-board-config-hotplug-model/description
   programmed into the Morse chips OTP bits.
 endef
 
-TAR_CMD=$(HOST_TAR) -C $(1) $(TAR_OPTIONS)
-
 define Build/Compile
 
 endef
@@ -60,7 +60,7 @@ define Package/morse-board-config/install
 	$(INSTALL_DIR) $(1)/usr/share/morse-bcf
 	$(INSTALL_DIR) $(1)/lib/firmware/morse
 
-	$(INSTALL_DATA) $(PKG_BUILD_DIR)/lib/firmware/morse/* $(1)/lib/firmware/morse/
+	find $(PKG_BUILD_DIR)/bcf -name "*.bin" -exec $(INSTALL_DATA) {} $(1)/lib/firmware/morse/ \;
 
 	# Install files from override folder, including failsafe.
 	for file in ./files/lib/firmware/morse/*; do \
@@ -75,11 +75,6 @@ define Package/morse-board-config/install
 
 	# Link the failsafe bcf by default so userspace can query the driver.
 	ln -s /lib/firmware/morse/bcf_failsafe.bin $(1)/lib/firmware/morse/bcf_default.bin
-
-	# Create symlinks for the production programmed otp devices
-	while IFS=, read -r board_type suffix serial; do \
-		ln -s /lib/firmware/morse/bcf_$$$${serial}.bin $(1)/lib/firmware/morse/bcf_boardtype_$$$${board_type}.bin; \
-	done < ./files/usr/share/morse-bcf/db.txt
 
 	$(INSTALL_DATA) ./files/usr/share/morse-bcf/db.txt $(1)/usr/share/morse-bcf/db.txt
 endef

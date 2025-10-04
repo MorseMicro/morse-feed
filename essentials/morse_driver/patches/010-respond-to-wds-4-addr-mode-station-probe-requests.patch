@@ -5,15 +5,14 @@ backported version mismatches causing compiler errors.
 
 --- a/mac.c
 +++ b/mac.c
-@@ -947,12 +947,7 @@ void morse_mac_fill_tx_info(struct morse
+@@ -945,11 +945,7 @@ void morse_mac_fill_tx_info(struct morse *mors,
  
  		if (info->flags & IEEE80211_TX_STATUS_EOSP)
  			tx_info->flags |= cpu_to_le32(MORSE_TX_CONF_FLAGS_IMMEDIATE_REPORT);
 -#if KERNEL_VERSION(6, 6, 0) > LINUX_VERSION_CODE
--	} else if (ieee80211_is_mgmt(hdr->frame_control) &&
--		   !ieee80211_is_bufferable_mmpdu(hdr->frame_control)) {
+-	} else if (ieee80211_is_mgmt(fc) && !ieee80211_is_bufferable_mmpdu(fc)) {
 -#else
- 	} else if (ieee80211_is_mgmt(hdr->frame_control) && !ieee80211_is_bufferable_mmpdu(skb)) {
+ 	} else if (ieee80211_is_mgmt(fc) && !ieee80211_is_bufferable_mmpdu(skb)) {
 -#endif
  		/*
  		 * Note, this does not handle the special IBSS case where probe responses
