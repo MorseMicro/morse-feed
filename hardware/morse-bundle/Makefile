@@ -43,11 +43,13 @@ define Package/morse-bundle/install
 	$(INSTALL_DIR) $(1)/etc/config
 	$(INSTALL_DIR) $(1)/etc/board.d
 	$(INSTALL_DIR) $(1)/etc/uci-defaults
+	$(INSTALL_DIR) $(1)/etc/boot-defaults
 	$(INSTALL_DIR) $(1)/etc/sysctl.d
 	$(INSTALL_DIR) $(1)/morse/scripts
 	$(if $(CONFIG_TARGET_bcm27xx_bcm2711), \
 		$(INSTALL_BIN) ./files/etc/init.d_bcm2711/* $(1)/etc/init.d/.)
 	$(INSTALL_BIN) ./files/etc/uci-defaults/* $(1)/etc/uci-defaults/.
+	$(INSTALL_BIN) ./files/etc/boot-defaults/* $(1)/etc/boot-defaults/.
 	$(if $(CONFIG_TARGET_ramips_mt76x8), \
 		$(INSTALL_BIN) ./files/etc/uci-defaults-ramips/* $(1)/etc/uci-defaults/.
 	)

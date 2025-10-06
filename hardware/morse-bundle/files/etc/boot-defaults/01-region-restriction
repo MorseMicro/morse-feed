@@ -1,0 +1,35 @@
+#!/bin/sh
+
+# Apply region restrictions.
+# Because this runs in early boot, we haven't setup uci yet and haven't
+# generated the appropriate /etc/fw_sys.config file.
+
+added=0
+if [ ! -e /etc/fw_sys.config ]; then
+	case "$(board_name)" in
+	morse,halowlink1|\
+	morse,halowlink2)
+		echo '/dev/mtd1 0x0 0x8000 0x1000' > /etc/fw_sys.config
+		added=1
+		;;
+	*)
+		echo region-lock: no config to do region select on first boot. > /dev/kmsg
+		exit 1
+		;;
+	esac
+fi
+
+mm_region="$(persistent_vars_storage.sh READ mm_region)"
+
+if [ "$added" = 1 ]; then
+	rm /etc/fw_sys.config
+fi
+
+if [ -n "$mm_region" ]; then
+	for fname in $(find /lib/firmware -name "mm_region_${mm_region}_*"); do
+		mv "$fname" "$(echo "$fname" | sed "s/mm_region_${mm_region}_//")"
+	done
+fi
+
+# Remove any unused files to avoid confusion, even if region not set at all.
+find /lib/firmware -name 'mm_region_*' -exec rm '{}' +
