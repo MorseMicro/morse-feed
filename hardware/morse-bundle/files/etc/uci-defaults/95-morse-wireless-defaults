@@ -93,7 +93,14 @@ _change_device_defaults() {
 	fi
 
 	if [ -n "$mm_region" ]; then
-		uci set "wireless.$config.country=$mm_region"
+		if [ "$type" = mac80211 -a "$mm_region" = EU ]; then
+			# EU is not a valid country code, and can't be used for non-HaLow WiFi.
+			# Default to DE as a reasonable stop-gap, particularly given
+			# we only use 2.4GHz (and not 5GHz).
+			uci set "wireless.$config.country=DE"
+		else
+			uci set "wireless.$config.country=$mm_region"
+		fi
 	fi
 
 	uci batch <<- END
