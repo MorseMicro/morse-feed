@@ -124,7 +124,7 @@ build_morse_mod_params(){
 	json_get_vars bcf vfem_4v3 firmware_type
 
 	if [ -z "$bcf" ]; then
-		mm_sku=$(persistent_vars_storage.sh READ mm_sku | tr 'A-Z-' 'a-z_')
+		mm_sku=$(persistent_vars_storage.sh READ mm_sku 2> /dev/null | tr 'A-Z-' 'a-z_')
 		if [ -n "$mm_sku" ]; then
 			proposed_bcf="bcf_$mm_sku.bin"
 			if [ -e "/lib/firmware/morse/$proposed_bcf" ]; then
@@ -424,6 +424,13 @@ drv_morse_setup() {
 		thin_lmac_optimization
 	json_get_values basic_rate_list basic_rate
 	json_select ..
+
+	mm_region=$(persistent_vars_storage.sh READ mm_region 2> /dev/null)
+	if [ -n "$mm_region" -a "$mm_region" != "$country" ]; then
+		echo "Cannot set country=$country as device is locked to $mm_region" >&2
+		wireless_set_retry 0
+		return 1
+	fi
 
 	build_morse_mod_params
 
