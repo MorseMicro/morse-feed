@@ -9,7 +9,7 @@
 
 import { cursor } from 'uci';
 import { connect } from 'ubus';
-import { stdin, stdout } from 'fs';
+import { stdin, stdout, popen } from 'fs';
 import request from 'luci.http';
 
 const uci = cursor();
@@ -27,6 +27,16 @@ function find_morse_device() {
         s => w[s][".type"] === "wifi-device" && w[s]["type"] === "morse" && w[s]["disabled"] !== "1")[0];
 }
 
+function get_mm_region() {
+	const fd = popen('persistent_vars_storage.sh READ mm_region 2>/dev/null');
+
+	let mm_region = null;
+	if (fd) {
+		mm_region = fd.read('all');
+		fd.close();
+	}
+	return mm_region || "";
+}
 
 let req = request(getenv());
 
@@ -34,37 +44,50 @@ switch (req.getenv("REQUEST_METHOD")) {
 
 case "GET":
 	const morse_device = find_morse_device();
-	const countries = morse_device && ubus.call("iwinfo", "countrylist", {"device": morse_device});
-	if (!countries || !countries["results"]) {
-		req.write(render("./config_error.uc", { message: "Unable to list available countries for HaLow device." }));
+	const mm_region = get_mm_region();
+	const data = {
+		ap: { exists: false },
+		sta: { exists: false },
+		countries: null,
+	};
+
+	if (!morse_device) {
+		req.write(render("./config_error.uc", { message: "No Morse device to configure." }));
+		break;
+	}
+
+	if (!mm_region) {
+		data.countries = morse_device && ubus.call("iwinfo", "countrylist", {"device": morse_device});
+		if (!data.countries || !data.countries["results"]) {
+			req.write(render("./config_error.uc", { message: "Unable to list available countries for HaLow device." }));
+			break;
+		}
+	}
+
+	for (let s_name, s in uci.get_all("wireless")) {
+		if (s[".type"] === "wifi-iface" && s["disabled"] !== "1" && s["mode"] in ["ap", "sta"]) {
+			data[s["mode"]].password = uci.get("wireless", s_name, "key");
+			data[s["mode"]].ssid = uci.get("wireless", s_name, "ssid");
+			data[s["mode"]].exists = true;
+		}
+	}
+
+	if (!data.sta.exists) {
+		req.write(render("./config_error.uc", { message: "No HaLow client interface available for configuration." }));
 	} else {
-		const data = {
-			ap: { exists: false },
-			sta: { exists: false },
-			countries: countries["results"],
-		};
-
-		for (let s_name, s in uci.get_all("wireless")) {
-			if (s[".type"] === "wifi-iface" && s["disabled"] !== "1" && s["mode"] in ["ap", "sta"]) {
-				data[s["mode"]].password = uci.get("wireless", s_name, "key");
-				data[s["mode"]].ssid = uci.get("wireless", s_name, "ssid");
-				data[s["mode"]].exists = true;
-			}
-		}
-
-		if (!data.sta.exists) {
-			req.write(render("./config_error.uc", { message: "No HaLow client interface available for configuration." }));
-		} else {
-			req.write(render("./config.uc", data));
-		}
+		req.write(render("./config.uc", data));
 	}
 	break;
 
 case "POST":
 	for (let s_name, s in uci.get_all("wireless")) {
-		if (s[".type"] === "wifi-device" && s["band"] === "s1g") {
-			// Do not set non-S1G countries in case AU/JP selected in US.
-			set_if_not_null("wireless", s_name, "country", req.formvalue("country"));
+		if (s[".type"] === "wifi-device") {
+			let country = req.formvalue("country");
+			if (s["band"] !== "s1g" && country === "EU") {
+				// EU is not a valid country code. See also 95-morse-wireless-defaults.
+				country = "DE";
+			}
+			set_if_not_null("wireless", s_name, "country", country);
 		}
 	}
 

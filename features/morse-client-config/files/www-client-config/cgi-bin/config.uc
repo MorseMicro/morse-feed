@@ -18,6 +18,7 @@
 			If your HaLow light does not come on, reset your device
 			and check the SSID/password.
 
+		{% if (countries): %}
 		<div class="row">
 			<label for="country">Country</label>
 			<select id="country" name="country" required>
@@ -29,6 +30,7 @@
 				{% endfor %}
 			</select>
 		</div>
+		{% endif %}
 
 		<h3>Client (HaLow)</h3>
 
