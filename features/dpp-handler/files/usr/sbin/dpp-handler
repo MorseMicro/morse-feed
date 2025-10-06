@@ -697,11 +697,15 @@ let ubus_methods = {
 		call: push_button,
 		args: {
 			mode: "",
+			ubus_rpc_session: "",
 		},
 	},
 
 	get_lockout_secs: {
 		call: () => ({ lockout_remaining_secs: dpp_pb ? dpp_pb.get_lockout_secs() : 0 }),
+		args: {
+			ubus_rpc_session: "",
+		},
 	}
 };
 
