@@ -1,16 +1,16 @@
+#
 msgid ""
 msgstr ""
-"Project-Id-Version: \n"
-"POT-Creation-Date: \n"
-"PO-Revision-Date: \n"
+"Project-Id-Version: morse-feed\n"
+"POT-Creation-Date: 2024-08-20 00:00+0000\n"
+"PO-Revision-Date: 2025-10-01 23:07+0000\n"
 "Last-Translator: Automatically generated\n"
-"Language-Team: none\n"
+"Language-Team: Japanese\n"
 "Language: ja\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Poedit 3.4.1\n"
 
 #: luci/luci-theme-morse/htdocs/luci-static/resources/view/morse/sysauth.js:12
 msgid "Authorization Required"
@@ -18,7 +18,7 @@ msgstr "認証が必要です"
 
 #: luci/luci-theme-morse/luasrc/view/themes/morse/header.htm:120
 msgid "BCF may not be appropriate!"
-msgstr ""
+msgstr "BCFが適切ではない可能性があります！"
 
 #: luci/luci-theme-morse/luasrc/view/themes/morse/header.htm:115
 msgid "Go to password configuration..."
@@ -26,9 +26,7 @@ msgstr "パスワード設定に移動します..."
 
 #: luci/luci-theme-morse/luasrc/view/themes/morse/sysauth.htm:49
 msgid "Invalid username and/or password! Please try again."
-msgstr ""
-"ユーザー名またはパスワード、またはその両方が無効です。もう一度お試しくださ"
-"い。"
+msgstr "ユーザー名またはパスワード、またはその両方が無効です。もう一度お試しください。"
 
 #: luci/luci-theme-morse/luasrc/view/themes/morse/header.htm:139
 msgid "JavaScript required!"
@@ -64,28 +62,26 @@ msgid ""
 "isn't set in the OTP bits. Currently, your HaLow device is using the non-"
 "functional failsafe BCF."
 msgstr ""
+"このデバイスのボードタイプがOTPビットに設定されていないため、BCFファイルはUCIで指定する必要があります。現在、HaLowデバイスは機能しないフェイルセーフBCFを使用しています。"
 
 #: luci/luci-theme-morse/luasrc/view/themes/morse/header.htm:114
 msgid ""
-"There is no password set on this router. Please configure a root password to "
-"protect the web interface."
-msgstr ""
-"このルーターにはパスワードが設定されていません。Webインターフェースを保護する"
-"には、rootパスワードを設定してください。"
+"There is no password set on this router. Please configure a root password to"
+" protect the web interface."
+msgstr "このルーターにはパスワードが設定されていません。Webインターフェースを保護するには、rootパスワードを設定してください。"
 
 #: luci/luci-theme-morse/luasrc/view/themes/morse/header.htm:107
 msgid ""
 "There is no region set for your morse interface. Please set your region "
 "first."
-msgstr ""
-"Morseインターフェースに地域が設定されていません。最初に地域を設定してくださ"
-"い。"
+msgstr "Morseインターフェースに地域が設定されていません。最初に地域を設定してください。"
 
 #: luci/luci-theme-morse/luasrc/view/themes/morse/header.htm:130
 msgid ""
 "This device is a virtual wire kit. Saving any configuration will disable "
 "virtual wire mode. A factory reset will restore virtual wire mode."
 msgstr ""
+"このデバイスはバーチャルワイヤキットです。設定を保存するとバーチャルワイヤモードは無効になります。工場出荷時リセットでバーチャルワイヤモードが復元されます。"
 
 #: luci/luci-theme-morse/luasrc/view/themes/morse/sysauth.htm:30
 msgid "Username"
@@ -93,11 +89,9 @@ msgstr "ユーザー名"
 
 #: luci/luci-theme-morse/luasrc/view/themes/morse/header.htm:127
 msgid "Virtual Wire Device"
-msgstr ""
+msgstr "バーチャルワイヤデバイス"
 
 #: luci/luci-theme-morse/luasrc/view/themes/morse/header.htm:140
 msgid ""
 "You must enable JavaScript in your browser or LuCI will not work properly."
-msgstr ""
-"ブラウザでJavaScriptを有効にする必要があります。有効にしないと、LuCIが正しく"
-"動作しません。"
+msgstr "ブラウザでJavaScriptを有効にする必要があります。有効にしないと、LuCIが正しく動作しません。"

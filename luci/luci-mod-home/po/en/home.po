@@ -1,0 +1,627 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Project-Id-Version: PACKAGE VERSION\n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: none\n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:133
+msgid "Access Point"
+msgstr "Access Point"
+
+#: luci/luci-mod-home/root/usr/share/rpcd/acl.d/luci-mod-home.json:64
+msgid "Access to mesh11s get_topology"
+msgstr "Access to mesh11s get_topology"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1243
+msgid "Active"
+msgstr "Active"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:136
+msgid "Ad-Hoc"
+msgstr "Ad-Hoc"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1064
+msgid "Addresses"
+msgstr "Addresses"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1198
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1216
+msgid "Agent status"
+msgstr "Agent status"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1117
+msgid "Associated devices"
+msgstr "Associated devices"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:792
+msgid "Change mode via wizard"
+msgstr "Change mode via wizard"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:724
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:754
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1088
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1104
+msgid "Channel"
+msgstr "Channel"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:134
+msgid "Client"
+msgstr "Client"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:871
+msgid "Configuration"
+msgstr "Configuration"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1016
+msgid "Connect a new device"
+msgstr "Connect a new device"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:534
+msgid "Connect to Access Point"
+msgstr "Connect to Access Point"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:705
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:766
+msgid "Connected"
+msgstr "Connected"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1207
+msgid "Connected Agents"
+msgstr "Connected Agents"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1095
+msgid "Connected Devices"
+msgstr "Connected Devices"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1316
+msgid "Connected Mesh Nodes"
+msgstr "Connected Mesh Nodes"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:750
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1102
+msgid "Country"
+msgstr "Country"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:538
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1018
+msgid "Credentials"
+msgstr "Credentials"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1320
+msgid "Current Device’s View of the Mesh Network"
+msgstr "Current Device’s View of the Mesh Network"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:950
+msgid "DHCP Leases"
+msgstr "DHCP Leases"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:726
+msgid "DPP"
+msgstr "DPP"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:575
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1049
+msgid "DPP Push button"
+msgstr "DPP Push button"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:562
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1047
+msgid "DPP QR Code"
+msgstr "DPP QR Code"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:414
+msgid ""
+"DPP button has already been pressed. Wait at least %d seconds to avoid "
+"session overlaps."
+msgstr ""
+"DPP button has already been pressed. Wait at least %d seconds to avoid "
+"session overlaps."
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:718
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:748
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1086
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1110
+msgid "Device"
+msgstr "Device"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:871
+msgid "Devices"
+msgstr "Devices"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:694
+msgid "Disconnected"
+msgstr "Disconnected"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:419
+msgid "Dismiss"
+msgstr "Dismiss"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:501
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:756
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1106
+msgid "Encryption"
+msgstr "Encryption"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1386
+msgid "Expand"
+msgstr "Expand"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:925
+msgid "Expiry"
+msgstr "Expiry"
+
+#: luci/luci-mod-home/root/usr/share/rpcd/acl.d/luci-mod-home.json:28
+msgid "Grant access to DHCP status display"
+msgstr "Grant access to DHCP status display"
+
+#: luci/luci-mod-home/root/usr/share/rpcd/acl.d/luci-mod-home.json:3
+msgid "Grant access to main status display"
+msgstr "Grant access to main status display"
+
+#: luci/luci-mod-home/root/usr/share/rpcd/acl.d/luci-mod-home.json:19
+msgid "Grant access to mode info"
+msgstr "Grant access to mode info"
+
+#: luci/luci-mod-home/root/usr/share/rpcd/acl.d/luci-mod-home.json:37
+msgid "Grant access to wireless status display"
+msgstr "Grant access to wireless status display"
+
+#: luci/luci-mod-home/root/usr/share/rpcd/acl.d/luci-mod-home.json:47
+msgid "Grant access to wps/ubus get for prplmesh"
+msgstr "Grant access to wps/ubus get for prplmesh"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:197
+msgid "HaLow"
+msgstr "HaLow"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:154
+msgid "HaLow 11s Mesh"
+msgstr "HaLow 11s Mesh"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:144
+msgid "HaLow 11s Mesh Extender"
+msgstr "HaLow 11s Mesh Extender"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:145
+msgid "HaLow 11s Mesh Gate"
+msgstr "HaLow 11s Mesh Gate"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:143
+msgid "HaLow 11s Mesh Router"
+msgstr "HaLow 11s Mesh Router"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:151
+msgid "HaLow Access Point"
+msgstr "HaLow Access Point"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:153
+msgid "HaLow Ad-Hoc"
+msgstr "HaLow Ad-Hoc"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:152
+msgid "HaLow Client"
+msgstr "HaLow Client"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:147
+msgid "HaLow EasyMesh Agent"
+msgstr "HaLow EasyMesh Agent"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:146
+msgid "HaLow EasyMesh Controller"
+msgstr "HaLow EasyMesh Controller"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:142
+msgid "HaLow Extender"
+msgstr "HaLow Extender"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:155
+msgid "HaLow Monitor"
+msgstr "HaLow Monitor"
+
+#: luci/luci-mod-home/root/usr/share/luci/menu.d/luci-mod-home.json:3
+msgid "Home"
+msgstr "Home"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:443
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:924
+msgid "Hostname"
+msgstr "Hostname"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:720
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:752
+msgid "IP"
+msgstr "IP"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:881
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:924
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:943
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:955
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1112
+msgid "IPv4"
+msgstr "IPv4"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:883
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:925
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:945
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:957
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1114
+msgid "IPv6"
+msgstr "IPv6"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:925
+msgid "IPv6 Expiry"
+msgstr "IPv6 Expiry"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1243
+msgid "Inactive"
+msgstr "Inactive"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:364
+msgid "Interface is disabled"
+msgstr "Interface is disabled"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:497
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1022
+msgid "Key/Password"
+msgstr "Key/Password"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:445
+msgid "Linux Kernel"
+msgstr "Linux Kernel"
+
+#: luci/luci-mod-home/ucode/template/home.ut:8
+msgid "Loading view..."
+msgstr "Loading view..."
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:937
+msgid "Local Network"
+msgstr "Local Network"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:727
+msgid "Looking for Access Point..."
+msgstr "Looking for Access Point..."
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:924
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1064
+msgid "MAC Address"
+msgstr "MAC Address"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:288
+msgid "MHz"
+msgstr "MHz"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1212
+msgid "Management mode"
+msgstr "Management mode"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:148
+msgid "Matter"
+msgstr "Matter"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:698
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:701
+msgid "Max Throughput"
+msgstr "Max Throughput"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:288
+msgid "Mbps"
+msgstr "Mbps"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:716
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:746
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1020
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1084
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1100
+msgid "Mesh ID"
+msgstr "Mesh ID"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:135
+msgid "Mesh Point"
+msgstr "Mesh Point"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1310
+msgid "Mesh status"
+msgstr "Mesh status"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:791
+msgid "Mode"
+msgstr "Mode"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:441
+msgid "Model"
+msgstr "Model"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:137
+msgid "Monitor"
+msgstr "Monitor"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:941
+msgid "Name(s)"
+msgstr "Name(s)"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:871
+msgid "Network"
+msgstr "Network"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:889
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:890
+msgid "Network Interfaces"
+msgstr "Network Interfaces"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:915
+msgid "Never"
+msgstr "Never"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:156
+msgid "No HaLow enabled"
+msgstr "No HaLow enabled"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:353
+msgid "No RX signal"
+msgstr "No RX signal"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1075
+msgid "No active devices"
+msgstr "No active devices"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:933
+msgid "No active leases"
+msgstr "No active leases"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:343
+msgid "No client associated"
+msgstr "No client associated"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:334
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:358
+msgid "Noise"
+msgstr "Noise"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:882
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:884
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:944
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:946
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:956
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:958
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1113
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1115
+msgid "None"
+msgstr "None"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:349
+msgid "Not associated"
+msgstr "Not associated"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:447
+msgid "OpenWrt"
+msgstr "OpenWrt"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1214
+msgid "Operating mode"
+msgstr "Operating mode"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:879
+msgid "Protocol"
+msgstr "Protocol"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:762
+msgid "RX Rate *"
+msgstr "RX Rate *"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1065
+msgid "RX Rate / TX Rate"
+msgstr "RX Rate / TX Rate"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1145
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1269
+msgid "Reset"
+msgstr "Reset"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1404
+msgid "Restore"
+msgstr "Restore"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:141
+msgid "Router with HaLow Access Point"
+msgstr "Router with HaLow Access Point"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:335
+msgid "SNR"
+msgstr "SNR"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:486
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:714
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:744
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1020
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1084
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1100
+msgid "SSID"
+msgstr "SSID"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:559
+msgid "Save & Apply"
+msgstr "Save & Apply"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1048
+msgid "Scan the Client QR Code in the app."
+msgstr "Scan the Client QR Code in the app."
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:564
+msgid ""
+"Scan the QR Code in the app to connect this device to your Access Point."
+msgstr ""
+"Scan the QR Code in the app to connect this device to your Access Point."
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:571
+msgid ""
+"Scan this QR Code in the app to connect this device to your Access Point."
+msgstr ""
+"Scan this QR Code in the app to connect this device to your Access Point."
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:733
+msgid ""
+"Scan this QR Code in the app to connect this device to your HaLow Access "
+"Point"
+msgstr ""
+"Scan this QR Code in the app to connect this device to your HaLow Access "
+"Point"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:299
+msgid "Short GI"
+msgstr "Short GI"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:333
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:338
+msgid "Signal"
+msgstr "Signal"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:722
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:760
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1065
+msgid "Signal / Noise"
+msgstr "Signal / Noise"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1090
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1108
+msgid "Speed (avg)"
+msgstr "Speed (avg)"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:591
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1054
+msgid "Start DPP push button"
+msgstr "Start DPP push button"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:577
+msgid "Start DPP push button on the Access Point, then"
+msgstr "Start DPP push button on the Access Point, then"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:437
+msgid "System"
+msgstr "System"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:438
+msgid "System Configuration"
+msgstr "System Configuration"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:764
+msgid "TX Rate *"
+msgstr "TX Rate *"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:758
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1065
+msgid "Time connected"
+msgstr "Time connected"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:416
+msgid "Unable to start DPP"
+msgstr "Unable to start DPP"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:412
+msgid ""
+"Unable to start DPP (internal error). Check system logs or reset device."
+msgstr ""
+"Unable to start DPP (internal error). Check system logs or reset device."
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:781
+msgid "Unknown"
+msgstr "Unknown"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:468
+msgid "Upgrade to %s available"
+msgstr "Upgrade to %s available"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:710
+msgid "Uplink"
+msgstr "Uplink"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:536
+msgid ""
+"Use the \"Start WPS (client)\" button on the EasyMesh Agent card to connect "
+"to an EasyMesh Controller."
+msgstr ""
+"Use the \"Start WPS (client)\" button on the EasyMesh Agent card to connect "
+"to an EasyMesh Controller."
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:452
+msgid "Version"
+msgstr "Version"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:166
+msgid "WEP Open System"
+msgstr "WEP Open System"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:167
+msgid "WEP Shared Key"
+msgstr "WEP Shared Key"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:209
+msgid "Wi-Fi"
+msgstr "Wi-Fi"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1080
+msgid "Wireless Configuration"
+msgstr "Wireless Configuration"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1143
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1267
+msgid "Zoom in"
+msgstr "Zoom in"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1144
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1268
+msgid "Zoom out"
+msgstr "Zoom out"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1199
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1217
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1311
+msgid "active"
+msgstr "active"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:331
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:333
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:334
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:337
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:338
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:357
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:358
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:360
+msgid "dBm"
+msgstr "dBm"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:363
+msgid "disabled"
+msgstr "disabled"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1055
+msgid "here, and then on the Client."
+msgstr "here, and then on the Client."
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:592
+msgid "here."
+msgstr "here."
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1199
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1217
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1311
+msgid "inactive"
+msgstr "inactive"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:759
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:917
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1070
+msgid "min(s)"
+msgstr "min(s)"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:769
+msgid "no"
+msgstr "no"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:769
+msgid "yes"
+msgstr "yes"

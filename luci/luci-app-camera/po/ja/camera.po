@@ -1,11 +1,14 @@
+#
 msgid ""
 msgstr ""
-"Content-Type: text/plain; charset=UTF-8\n"
-"Project-Id-Version: PACKAGE VERSION\n"
+"Project-Id-Version: morse-feed\n"
+"POT-Creation-Date: 2024-08-20 00:00+0000\n"
+"PO-Revision-Date: 2025-10-01 23:07+0000\n"
 "Last-Translator: Automatically generated\n"
-"Language-Team: none\n"
+"Language-Team: Japanese\n"
 "Language: ja\n"
 "MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
@@ -53,9 +56,7 @@ msgstr "ビットレート(kbps）"
 msgid ""
 "Camera viewing is currently not supported via https. <a href=\"%s\">Connect "
 "via http</a>."
-msgstr ""
-"現在、https経由でのカメラ表示はサポートされていません。<a href=\"%s\">http経"
-"由で接続します</a>。"
+msgstr "現在、https経由でのカメラ表示はサポートされていません。<a href=\"%s\">http経由で接続します</a>。"
 
 #: luci/luci-app-camera/htdocs/luci-static/resources/view/cameras/cameras.js:1426
 #: luci/luci-app-camera/root/usr/share/luci/menu.d/luci-app-camera.json:3
@@ -75,8 +76,9 @@ msgid "Config"
 msgstr "設定"
 
 #: luci/luci-app-camera/htdocs/luci-static/resources/view/cameras/cameras.js:924
-msgid "Disconnected bad stream. Consider decreasing bitrate before restarting."
-msgstr ""
+msgid ""
+"Disconnected bad stream. Consider decreasing bitrate before restarting."
+msgstr "品質の悪いストリームが切断されました。再起動する前にビットレートを下げることを検討してください。"
 
 #: luci/luci-app-camera/htdocs/luci-static/resources/view/cameras/cameras.js:1253
 msgid "Discover"
@@ -159,7 +161,7 @@ msgstr "中断されたストリーム。ビットレートを下げることを
 #: luci/luci-app-camera/htdocs/luci-static/resources/view/cameras/cameras.js:1147
 msgid "Last seen 1 minute ago"
 msgid_plural "Last seen %s minutes ago"
-msgstr[0] "%s分前に最後に表示"
+msgstr[0] "最後の確認: %s分前"
 
 #: luci/luci-app-camera/htdocs/luci-static/resources/view/cameras/cameras.js:1438
 #: luci/luci-app-camera/htdocs/luci-static/resources/view/cameras/cameras.js:1444
@@ -168,7 +170,7 @@ msgstr "ライブビュー"
 
 #: luci/luci-app-camera/htdocs/luci-static/resources/view/cameras/cameras.js:826
 msgid "Loading..."
-msgstr ""
+msgstr "読み込み中..."
 
 #: luci/luci-app-camera/htdocs/luci-static/resources/view/cameras/cameras.js:1074
 msgid "MediaMTX port failure:"
@@ -258,7 +260,4 @@ msgid ""
 "device you're using, for the best performance you should only use this page "
 "on your HaLow Access Point."
 msgstr ""
-"お使いのデバイスは現在、HaLowクライアントとして動作しています。カメラページ"
-"は、ネットワーク上のすべてのカメラと、使用しているデバイスを介したプロキシス"
-"トリームを表示することを目的としているため、最高のパフォーマンスを実現するに"
-"は、このページはHaLowアクセスポイントでのみご使用ください。"
+"お使いのデバイスは現在、HaLowクライアントとして動作しています。カメラページは、ネットワーク上のすべてのカメラと、使用しているデバイスを介したプロキシストリームを表示することを目的としているため、最高のパフォーマンスを実現するには、このページはHaLowアクセスポイントでのみご使用ください。"

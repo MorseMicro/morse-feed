@@ -1,0 +1,202 @@
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: morse-feed\n"
+"POT-Creation-Date: 2024-08-20 00:00+0000\n"
+"PO-Revision-Date: 2025-10-02 04:27+0000\n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: Japanese\n"
+"Language: ja\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: luci/luci-app-morseapwizard/htdocs/luci-static/resources/view/morse/morseapwizard.js:439
+msgid "802.11s Mesh"
+msgstr "802.11sメッシュ"
+
+#: luci/luci-app-morseapwizard/htdocs/luci-static/resources/view/morse/morseapwizard.js:341
+msgid ""
+"<p>Easy Mesh Controller configuration allows centralized management of WiFi "
+"network credentials. The HaLow Gateway's network credentials will be "
+"automatically applied to all extenders. <p>Note: The extender's QR code for "
+"Wi-Fi connection will no longer be valid."
+msgstr ""
+"<p>Easy Mesh Controller を設定すると、Wi-Fi ネットワークの認証情報を一元管理できます。HaLow "
+"ゲートウェイの認証情報は、すべてのエクステンダーに自動的に適用されます。<p>注意: エクステンダーの Wi-Fi 接続用 QR "
+"コードは無効になります。"
+
+#: luci/luci-app-morseapwizard/htdocs/luci-static/resources/view/morse/morseapwizard.js:57
+msgid ""
+"<p>This device is currently setup as an Access Point mode or equivalent "
+"(shown by a solid green Status LED). If you would like to connect to an "
+"existing HaLow network, you should reset the device to Extender mode (shown "
+"by a solid aqua Status LED): <ul> <li>hold the mode button until the Status "
+"LED starts <strong>quickly flashing aqua</strong>, then release the button "
+"<li>wait until the LED is <strong>solid aqua</strong> <li>a short button "
+"press first on the Access Point then on the Extender will initiate pairing; "
+"see the user guide for details </ul>"
+msgstr ""
+"<p>このデバイスは現在アクセスポイントモード（ステータス LED が緑色点灯）で動作しています。既存の HaLow "
+"ネットワークに接続したい場合は、デバイスをエクステンダーモード（ステータス LED がシアン点灯）にリセットしてください。 <ul> <li>ステータス"
+" LED が<strong>シアンで高速点滅</strong>し始めるまでモードボタンを押し続けてから離します <li>LED "
+"が<strong>シアンで点灯</strong>するまで待ちます "
+"<li>まずアクセスポイント、次にエクステンダーで短くボタンを押すとペアリングが開始されます。詳細はユーザーガイドをご覧ください </ul>"
+
+#: luci/luci-app-morseapwizard/htdocs/luci-static/resources/view/morse/morseapwizard.js:35
+msgid ""
+"<p>This device is currently setup as an Extender (shown by a solid aqua "
+"Status LED), which is not configurable in general. To be able to change "
+"these settings requires resetting the device to Access Point mode (shown by "
+"a solid green Status LED): <ul> <li>hold the mode button until the Status "
+"LED starts <strong>slowly flashing green</strong>, then release the button "
+"<li>wait until the LED is <strong>solid green</strong> <li>find this device "
+"at 192.168.12.1 </ul> <p>To stay in Extender mode but make a new connection "
+"to an Access Point: <ul> <li>hold the mode button and wait until the Status "
+"LED starts <strong>quickly flashing aqua</strong>, then release the button "
+"<li>wait until the LED is <strong>solid aqua</strong> <li>a short button "
+"press first on the Access Point then on the Extender will initiate pairing; "
+"see the user guide for details </ul>"
+msgstr ""
+"<p>このデバイスは現在エクステンダー（ステータス LED "
+"がシアン点灯）として設定されており、通常は設定を変更できません。これらの設定を変更するには、デバイスをアクセスポイントモード（ステータス LED "
+"が緑色点灯）にリセットする必要があります。 <ul> <li>ステータス LED "
+"が<strong>緑でゆっくり点滅</strong>し始めるまでモードボタンを押し続けてから離します <li>LED "
+"が<strong>緑で点灯</strong>するまで待ちます <li>このデバイスに 192.168.12.1 でアクセスします </ul> "
+"<p>エクステンダーモードのままアクセスポイントへ新しく接続する場合: <ul> <li>モードボタンを押し続け、ステータス LED "
+"が<strong>シアンで高速点滅</strong>し始めたら離します <li>LED が<strong>シアンで点灯</strong>するまで待ちます"
+" <li>まずアクセスポイント、次にエクステンダーで短くボタンを押すとペアリングが開始されます。詳細はユーザーガイドをご覧ください </ul>"
+
+#: luci/luci-app-morseapwizard/htdocs/luci-static/resources/view/morse/morseapwizard.js:69
+msgid ""
+"<p>This device is in a state where this wizard cannot work (%s). To "
+"configure via this page, you should factory reset: <ul> <li>hold the mode "
+"button until the Status LED starts <strong>slowly flashing green</strong>, "
+"then release the button <li>wait until the LED is <strong>solid "
+"green</strong> <li>find this device at 192.168.12.1 </ul>"
+msgstr ""
+"<p>このウィザードは現在の状態（%s）では動作できません。このページで設定するには、工場出荷時設定にリセットしてください。 <ul> "
+"<li>ステータス LED が<strong>緑でゆっくり点滅</strong>し始めるまでモードボタンを押し続けてから離します <li>LED "
+"が<strong>緑で点灯</strong>するまで待ちます <li>このデバイスに 192.168.12.1 でアクセスします </ul>"
+
+#: luci/luci-app-morseapwizard/htdocs/luci-static/resources/view/morse/morseapwizard.js:438
+msgid "Access Point"
+msgstr "アクセスポイント"
+
+#: luci/luci-app-morseapwizard/htdocs/luci-static/resources/view/morse/morseapwizard.js:346
+msgid ""
+"After saving a 2.4 GHz Wi-Fi uplink configuration, you will need to connect "
+"to the correct network on the Home page. Find the Uplink card, click on the "
+"\"Disconnected\" cross, then set the SSID and password."
+msgstr ""
+"2.4 GHz Wi-Fi アップリンクの設定を保存した後は、ホームページで正しいネットワークに接続する必要があります。Uplink "
+"カードを探し、「Disconnected」のバツ印をクリックしてから SSID とパスワードを設定してください。"
+
+#: luci/luci-app-morseapwizard/htdocs/luci-static/resources/view/morse/morseaplanding.js:102
+msgid "An error occurred while saving the form:"
+msgstr "フォームの保存中にエラーが発生しました:"
+
+#: luci/luci-app-morseapwizard/htdocs/luci-static/resources/view/morse/morseaplanding.js:190
+msgid "Apply"
+msgstr "適用"
+
+#: luci/luci-app-morseapwizard/htdocs/luci-static/resources/view/morse/morseaplanding.js:168
+msgid ""
+"Before you can use your HaLow device, you must set the country "
+"appropriately."
+msgstr "HaLow デバイスを使用する前に、適切な国を設定する必要があります。"
+
+#: luci/luci-app-morseapwizard/htdocs/luci-static/resources/view/morse/morseaplanding.js:138
+msgid "Country"
+msgstr "国"
+
+#: luci/luci-app-morseapwizard/htdocs/luci-static/resources/view/morse/morseaplanding.js:105
+msgid "Dismiss"
+msgstr "閉じる"
+
+#: luci/luci-app-morseapwizard/htdocs/luci-static/resources/view/morse/morseapwizard.js:440
+msgid "EasyMesh Controller"
+msgstr "EasyMeshコントローラー"
+
+#: luci/luci-app-morseapwizard/htdocs/luci-static/resources/view/morse/morseapwizard.js:438
+msgid "Fastest mode if <4km range."
+msgstr "到達距離が 4 km 未満の場合は最も高速なモードです。"
+
+#: luci/luci-app-morseapwizard/root/usr/share/rpcd/acl.d/luci-app-morseapwizard.json:3
+msgid "Grant enough access for morseapwizard to rewrite config"
+msgstr "morseapwizard が設定を書き換えられるよう十分なアクセス権限を付与します"
+
+#: luci/luci-app-morseapwizard/htdocs/luci-static/resources/view/morse/morseaplanding.js:135
+msgid "HaLow Configuration"
+msgstr "HaLow設定"
+
+#: luci/luci-app-morseapwizard/htdocs/luci-static/resources/view/morse/morseapwizard.js:429
+msgid "HaLow Mode"
+msgstr "HaLowモード"
+
+#: luci/luci-app-morseapwizard/htdocs/luci-static/resources/view/morse/morseapwizard.js:450
+msgid ""
+"HaLow Wi-Fi devices will get an IP on this device's local network and use "
+"2.4 GHz Wi-Fi for an uplink (not an Ethernet cable)."
+msgstr ""
+"HaLow Wi-Fi デバイスはこの装置のローカルネットワークで IP を取得し、アップリンクには 2.4 GHz Wi-Fi（Ethernet "
+"ケーブルではありません）を使用します。"
+
+#: luci/luci-app-morseapwizard/htdocs/luci-static/resources/view/morse/morseapwizard.js:448
+msgid "HaLow Wi-Fi devices will get an IP on this device's local network."
+msgstr "HaLow Wi-Fi デバイスはこの装置のローカルネットワークで IP を取得します。"
+
+#: luci/luci-app-morseapwizard/htdocs/luci-static/resources/view/morse/morseapwizard.js:447
+msgid "HaLow Wi-Fi devices will get an IP on your existing router's network."
+msgstr "HaLow Wi-Fi デバイスは既存のルーターのネットワークで IP を取得します。"
+
+#: luci/luci-app-morseapwizard/ucode/template/morse/morseaplanding.ut:8
+msgid "Loading view..."
+msgstr "ビューを読み込み中..."
+
+#: luci/luci-app-morseapwizard/htdocs/luci-static/resources/view/morse/morseapwizard.js:444
+#: luci/luci-app-morseapwizard/htdocs/luci-static/resources/view/morse/morseapwizard.js:458
+msgid "Network Mode"
+msgstr "ネットワークモード"
+
+#: luci/luci-app-morseapwizard/htdocs/luci-static/resources/view/morse/morseapwizard.js:388
+msgid "No non-HaLow Wi-Fi radios found"
+msgstr "HaLow 以外の Wi-Fi 無線が見つかりません"
+
+#: luci/luci-app-morseapwizard/htdocs/luci-static/resources/view/morse/morseaplanding.js:101
+msgid "Save error"
+msgstr "保存エラー"
+
+#: luci/luci-app-morseapwizard/htdocs/luci-static/resources/view/morse/morseaplanding.js:139
+msgid ""
+"The country determines the frequencies used by your HaLow device. For "
+"details, see the <a href=\"%s\" target=\"_blank\">regulatory data table</a>."
+msgstr ""
+"国の設定によって HaLow デバイスが使用する周波数が決まります。詳細は <a href=\"%s\" "
+"target=\"_blank\">規制データ表</a> を参照してください。"
+
+#: luci/luci-app-morseapwizard/htdocs/luci-static/resources/view/morse/morseapwizard.js:439
+#: luci/luci-app-morseapwizard/htdocs/luci-static/resources/view/morse/morseapwizard.js:440
+msgid "Use extra devices for more range."
+msgstr "追加のデバイスを使って通信範囲を広げます。"
+
+#: luci/luci-app-morseapwizard/htdocs/luci-static/resources/view/morse/morseaplanding.js:121
+msgid ""
+"Usually, you would set the country for your Morse Micro HaLow device here. "
+"However, no Morse Micro device has been detected. If this is a transient "
+"issue, you can set the country later on the Network -> Wireless page."
+msgstr ""
+"通常はここで Morse Micro HaLow デバイスの国を設定しますが、Morse Micro "
+"デバイスが検出されませんでした。一時的な問題であれば、後で「ネットワーク -> 無線」ページで国を設定できます。"
+
+#: luci/luci-app-morseapwizard/htdocs/luci-static/resources/view/morse/morseaplanding.js:120
+#: luci/luci-app-morseapwizard/htdocs/luci-static/resources/view/morse/morseaplanding.js:167
+msgid "Welcome!"
+msgstr "ようこそ！"
+
+#: luci/luci-app-morseapwizard/htdocs/luci-static/resources/view/morse/morseapwizard.js:407
+#: luci/luci-app-morseapwizard/htdocs/luci-static/resources/view/morse/morseapwizard.js:468
+#: luci/luci-app-morseapwizard/root/usr/share/luci/menu.d/luci-app-morseapwizard.json:11
+msgid "Wizard"
+msgstr "ウィザード"

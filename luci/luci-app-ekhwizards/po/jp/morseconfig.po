@@ -1,0 +1,927 @@
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: morse-feed\n"
+"POT-Creation-Date: 2024-08-20 00:00+0000\n"
+"PO-Revision-Date: 2025-10-02 04:30+0000\n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: Japanese\n"
+"Language: ja\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/matterwizard.js:243
+msgid "3 wire"
+msgstr "3線式"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/matterwizard.js:242
+msgid "4 wire"
+msgstr "4線式"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/selectwizard.js:49
+msgid "802.11s Mesh"
+msgstr "802.11sメッシュ"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:14
+msgid "802.11s Mesh Wizard"
+msgstr "802.11sメッシュウィザード"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:451
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:599
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:703
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:578
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:707
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:402
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:482
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:647
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:740
+msgid "<abbr title=\"Service Set Identifier\">SSID</abbr>"
+msgstr "<abbr title=\"Service Set Identifier\">SSID</abbr>"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:442
+msgid ""
+"<b>DPP</b> (Device Provisioning Protocol) lets you scan a QR code to "
+"automatically connect to a HaLow access point."
+msgstr ""
+"<b>DPP</b>（Device Provisioning Protocol）は、QR コードをスキャンして HaLow "
+"アクセスポイントに自動接続できます。"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:654
+msgid ""
+"<br><strong>This AP cannot Be Managed by EasyMesh.</strong> The current "
+"network settings prevent it from being managed by EasyMesh.<br>Choose a "
+"different <strong>Upstream Network</strong> or <strong>Traffic Mode</strong>"
+" to allow EasyMesh management."
+msgstr ""
+"<br><strong>この AP は EasyMesh で管理できません。</strong> 現在のネットワーク設定では EasyMesh "
+"管理が行えません。<br>EasyMesh "
+"管理を有効にするには、別の<strong>アップストリームネットワーク</strong>または<strong>トラフィックモード</strong>を選択してください。"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:653
+msgid "<p>This Wi-Fi AP is managed by <b>EasyMesh</b>.</p>"
+msgstr "<p>この Wi-Fi AP は <b>EasyMesh</b> によって管理されています。</p>"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:17
+msgid ""
+"<p>This wizard will guide you in setting up this device as part of EasyMesh."
+" <p>You can exit now if you prefer to complete your configuration "
+"manually.</p>"
+msgstr ""
+"<p>このウィザードは、本機を EasyMesh の一部として設定する手順を案内します。 <p>手動で設定したい場合は、今すぐ終了できます。</p>"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/matterwizard.js:29
+msgid ""
+"<p>This wizard will guide you in setting up this device as part of a Matter "
+"application. <p>You can exit now if you prefer to complete your "
+"configuration manually.</p>"
+msgstr ""
+"<p>このウィザードは、本機を Matter アプリケーションの一部として設定する手順を案内します。 "
+"<p>手動で設定したい場合は、今すぐ終了できます。</p>"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:15
+msgid ""
+"<p>This wizard will guide you in setting up this device as part of an "
+"802.11s mesh. <p>You can exit now if you prefer to complete your "
+"configuration manually.</p>"
+msgstr ""
+"<p>このウィザードは、本機を 802.11s メッシュの一部として設定する手順を案内します。 "
+"<p>手動で設定したい場合は、今すぐ終了できます。</p>"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:17
+msgid ""
+"<p>This wizard will guide you in setting up your device as a simple "
+"<b>Client</b> or <b>Access Point</b>. <p>You can exit now if you prefer to "
+"complete your configuration manually.</p>"
+msgstr ""
+"<p>このウィザードは、本機をシンプルな<b>クライアント</b>または<b>アクセスポイント</b>として設定する手順を案内します。 "
+"<p>手動で設定したい場合は、今すぐ終了できます。</p>"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:369
+msgid "Access Point"
+msgstr "アクセスポイント"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:441
+msgid ""
+"All devices in the EasyMesh network will share the same <b>SSID</b> and MUST"
+" operate on the same <b>Operating Frequency</b>.<br> On an EasyMesh Agent, "
+"the SSID is auto-configured by the Controller after successful pairing."
+msgstr ""
+"EasyMesh ネットワーク内のすべてのデバイスは同じ <b>SSID</b> "
+"と同じ<b>動作周波数</b>で動作する必要があります。<br>EasyMesh エージェントでは、ペアリングが完了するとコントローラーが SSID "
+"を自動設定します。"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:404
+msgid ""
+"All devices in the mesh must have the same <b>Mesh ID</b>, which is a "
+"arbitrary string that identifies the mesh similar to an SSID."
+msgstr ""
+"メッシュ内のすべてのデバイスは同じ<b>メッシュ ID</b>を持つ必要があります。これは SSID と同様にメッシュを識別する任意の文字列です。"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:737
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:735
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:768
+msgid "Almost there..."
+msgstr "あと少しです..."
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:373
+msgid ""
+"An 802.11s <b>Mesh Gate</b> provides both a Mesh Point and a co-located non-"
+"mesh network (e.g. an AP, an upstream Ethernet connection, etc.). It "
+"broadcasts mesh gate announcements to help align the mesh nodes, making it "
+"easier for traffic to reach the non-mesh network."
+msgstr ""
+"802.11s の<b>メッシュゲート</b>は、メッシュポイントと併設された非メッシュネットワーク（AP や上流の Ethernet "
+"接続など）の両方を提供します。メッシュゲート告知をブロードキャストしてメッシュノードの整合を助け、非メッシュネットワークへトラフィックが届きやすくします。"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:374
+msgid "An 802.11s <b>Mesh Point</b> is a node in an 802.11s mesh network."
+msgstr "802.11s の<b>メッシュポイント</b>は、802.11s メッシュネットワーク内のノードです。"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:412
+msgid ""
+"An <b>EasyMesh Agent</b> is a logical entity that executes the commands "
+"received from the Multi-AP Controller, and reports measurements and "
+"capabilities data for fronthaul APs, clients and backhaul links to a Multi-"
+"AP Controller and/or to other Multi-AP Agents."
+msgstr ""
+"<b>EasyMesh エージェント</b>は、マルチ AP コントローラーから受け取ったコマンドを実行し、フロントホール "
+"AP、クライアント、バックホールリンクの測定値と機能データをマルチ AP コントローラーや他のマルチ AP エージェントに報告する論理エンティティです。"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:411
+msgid ""
+"An <b>EasyMesh Controller</b> is a Multi-AP device that is the primarily "
+"responsible for managing the EasyMesh topology. It is capable of steering "
+"weak clients to maintain a healthy network."
+msgstr ""
+"<b>EasyMesh コントローラー</b>は EasyMesh トポロジーを管理する主たる役割を持つマルチ AP "
+"デバイスです。弱いクライアントを誘導してネットワークを健全に保つことができます。"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/landing.js:136
+msgid "An error occurred while saving the form:"
+msgstr "次のフォームの保存中にエラーが発生しました:"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/landing.js:241
+msgid "Apply"
+msgstr "適用"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:351
+msgid ""
+"As with any Wi-Fi network, HaLow has <b>Clients</b> (also known as stations)"
+" which discover and connect to an <b>Access Point</b>. If you select client,"
+" non-HaLow devices can use the HaLow link by connecting to the other "
+"interfaces."
+msgstr ""
+"他の Wi-Fi ネットワークと同様に、HaLow "
+"には<b>クライアント</b>（ステーションとも呼ばれます）があり、これらが<b>アクセスポイント</b>を検出して接続します。クライアントを選択すると、HaLow"
+" 以外のデバイスも他のインターフェース経由で HaLow リンクを利用できます。"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:457
+msgid "Authentication method"
+msgstr "認証方式"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:392
+msgid ""
+"Available <b>Bandwidths</b> and <b>Channels</b> differ greatly across "
+"regions. The higher your bandwidth, the greater the potential throughput of "
+"the connection. If you're deploying multiple HaLow access points you may "
+"want to select distinct channels and a lower bandwidth to reduce "
+"interference."
+msgstr ""
+"利用可能な<b>帯域幅</b>と<b>チャネル</b>は地域によって大きく異なります。帯域幅が広いほど接続の潜在的なスループットは高くなります。複数の "
+"HaLow アクセスポイントを展開する場合は、干渉を減らすためにチャネルを分け、帯域幅を狭くすることを検討してください。"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/matterwizard.js:238
+msgid "BLE Protocol"
+msgstr "BLE プロトコル"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/matterwizard.js:250
+msgid "BLE UART Port"
+msgstr "BLE UART ポート"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/matterwizard.js:214
+msgid "BLE UART port to use"
+msgstr "使用する BLE UART ポート"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/matterwizard.js:213
+msgid "BLE protocol to use"
+msgstr "使用する BLE プロトコル"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:515
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/matterwizard.js:284
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:484
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:631
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:552
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:700
+msgid "Bridge"
+msgstr "ブリッジ"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:625
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:694
+msgid "Bridge/Router"
+msgstr "ブリッジ/ルーター"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:738
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:736
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:769
+msgid "Click <b>Apply</b> to persist your configuration."
+msgstr "<b>適用</b>をクリックして設定を保存します。"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:796
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/matterwizard.js:307
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:785
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:837
+msgid "Click below to exit the wizard"
+msgstr "下のボタンをクリックしてウィザードを終了します"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:370
+msgid "Client"
+msgstr "クライアント"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/landing.js:199
+msgid "Confirmation"
+msgstr "確認"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:779
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:765
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:820
+msgid "Connect Ethernet devices to your network."
+msgstr "Ethernet デバイスをネットワークに接続します。"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:789
+msgid "Connect another device via <b>Ethernet</b> to use your new HaLow link."
+msgstr "新しい HaLow リンクを利用するには、別のデバイスを<b>Ethernet</b>経由で接続してください。"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:808
+msgid "Connect other HaLow-enabled devices to use your new HaLow network."
+msgstr "新しい HaLow ネットワークを利用するには、他の HaLow 対応デバイスを接続してください。"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:780
+msgid ""
+"Connect this device to your HaLow access point by scanning the QR code in "
+"the mobile application, then clicking"
+msgstr "モバイルアプリで QR コードをスキャンし、その後クリックしてこのデバイスを HaLow アクセスポイントに接続します"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:767
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:753
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:803
+msgid "Connect this device to your existing network via an Ethernet cable."
+msgstr "このデバイスを Ethernet ケーブルで既存のネットワークに接続します。"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:446
+msgid "Connect to a HaLow Network"
+msgstr "HaLow ネットワークに接続"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:758
+msgid ""
+"Connect your device to EasyMesh Agents by pressing wps button from the "
+"Status page"
+msgstr "ステータスページから WPS ボタンを押して、デバイスを EasyMesh エージェントに接続します"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:753
+msgid ""
+"Connect your device to an EasyMesh Controller by pressing wps_client from "
+"the Status page"
+msgstr "ステータスページで wps_client を押し、デバイスを EasyMesh コントローラーに接続します"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/landing.js:163
+msgid "Country"
+msgstr "国"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:462
+msgid "DPP (Device Provisioning Protocol) QR Code"
+msgstr "DPP（Device Provisioning Protocol）QR コード"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/matterwizard.js:217
+msgid "Discriminator"
+msgstr "ディスクリミネーター"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/landing.js:139
+msgid "Dismiss"
+msgstr "却下"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/selectwizard.js:58
+msgid "EasyMesh"
+msgstr "EasyMesh"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:426
+msgid "EasyMesh Agent"
+msgstr "EasyMesh エージェント"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:425
+msgid "EasyMesh Controller"
+msgstr "EasyMesh コントローラー"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:422
+msgid "EasyMesh Device Mode"
+msgstr "EasyMesh デバイスモード"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:16
+msgid "EasyMesh Wizard"
+msgstr "EasyMesh ウィザード"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:661
+msgid "Enable HaLow Access Point"
+msgstr "HaLow アクセスポイントを有効にする"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:654
+msgid ""
+"Enable an <b>Access Point</b> (AP) to let non-mesh HaLow devices connect to "
+"the network. This interface will be bridged with the mesh interface."
+msgstr ""
+"<b>アクセスポイント</b>（AP）を有効にして、メッシュではない HaLow "
+"デバイスがネットワークに接続できるようにします。このインターフェースはメッシュインターフェースとブリッジされます。"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:619
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:723
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:598
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:723
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:667
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:756
+msgid "Encryption"
+msgstr "暗号化"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:565
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:543
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:612
+msgid "Ethernet"
+msgstr "イーサネット"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:516
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/matterwizard.js:285
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:485
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:553
+msgid "Extender"
+msgstr "エクステンダー"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:441
+msgid "Fill in the credentials to connect to a HaLow Access Point."
+msgstr "HaLow アクセスポイントに接続するための認証情報を入力してください。"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:771
+msgid ""
+"For advanced 802.11s mesh settings, you can navigate to Network->Wireless "
+"page once you exit the wizard"
+msgstr "高度な 802.11s メッシュ設定は、ウィザードを終了後に「ネットワーク -> 無線」ページで行えます"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/landing.js:160
+msgid "HaLow Configuration"
+msgstr "HaLow 設定"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:653
+msgid "HaLow Wi-Fi Access Point"
+msgstr "HaLow Wi-Fi アクセスポイント"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/landing.js:187
+msgid "Hostname"
+msgstr "ホスト名"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/landing.js:187
+msgid "Hostname is used for many device id purposes, including DNS."
+msgstr "ホスト名は DNS を含むさまざまなデバイス ID の用途に使用されます。"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:532
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:501
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:569
+msgid ""
+"If you use a <b>Wi-Fi</b> upstream, fill in the Wi-Fi AP credentials. The "
+"HaLow connected devices obtain IP addresses from the DHCP server on this "
+"device, and this device uses NAT to forward IP traffic."
+msgstr ""
+"<b>Wi-Fi</b> を上流として使用する場合は、Wi-Fi AP の認証情報を入力してください。HaLow 接続デバイスはこの装置の DHCP "
+"サーバーから IP アドレスを取得し、この装置は NAT を使用して IP トラフィックを転送します。"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:530
+msgid ""
+"If you use an <b>Ethernet</b> upstream, the HaLow connected devices obtain "
+"IP addresses from the DHCP server on this device, and this device uses NAT "
+"to forward IP traffic."
+msgstr ""
+"<b>Ethernet</b> を上流として使用する場合、HaLow 接続デバイスはこの装置の DHCP サーバーから IP "
+"アドレスを取得し、この装置が NAT で IP トラフィックを転送します。"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:499
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:567
+msgid ""
+"If you use an <b>Ethernet</b> upstream, we recommend choosing <b>Bridge</b>."
+" This allows HaLow connected devices to obtain IPs from your Ethernet "
+"network."
+msgstr ""
+"<b>Ethernet</b> を上流として使用する場合は、<b>ブリッジ</b>を選択することを推奨します。これにより HaLow 接続デバイスが "
+"Ethernet ネットワークから IP を取得できます。"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:355
+msgid ""
+"In <b>Access Point</b> mode, the device can accept connections from HaLow "
+"clients."
+msgstr "<b>アクセスポイント</b>モードでは、デバイスが HaLow クライアントからの接続を受け付けます。"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:506
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:574
+msgid ""
+"In <b>Bridge</b> mode this device and the HaLow connected devices obtain IP "
+"addresses from your current upstream network."
+msgstr "<b>ブリッジ</b>モードでは、このデバイスと HaLow 接続デバイスが現在の上流ネットワークから IP アドレスを取得します。"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:495
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/matterwizard.js:273
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:462
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:532
+msgid ""
+"In <b>Bridged</b> traffic mode, non-HaLow devices obtain IPs from your HaLow"
+" link."
+msgstr "<b>ブリッジ</b>トラフィックモードでは、非 HaLow デバイスが HaLow リンクから IP を取得します。"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:356
+msgid ""
+"In <b>Client</b> mode, the device discovers and connects to a HaLow access "
+"point (AP)."
+msgstr "<b>クライアント</b>モードでは、デバイスが HaLow アクセスポイント（AP）を検出して接続します。"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:496
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/matterwizard.js:274
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:463
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:533
+msgid ""
+"In <b>Extender</b> traffic mode, non-HaLow devices obtain IPs from the DHCP "
+"server on this device and this device uses NAT to forward IP traffic."
+msgstr ""
+"<b>エクステンダー</b>トラフィックモードでは、非 HaLow デバイスがこの装置の DHCP サーバーから IP を取得し、この装置が NAT で"
+" IP トラフィックを転送します。"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:535
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:504
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:572
+msgid ""
+"In <b>None</b> mode, your device will have a static IP address and run a "
+"DHCP server on all interfaces, the HaLow and non-HaLow networks will be "
+"isolated from each other."
+msgstr ""
+"<b>なし</b>モードでは、デバイスは静的 IP アドレスを使用し、すべてのインターフェースで DHCP サーバーを実行します。HaLow "
+"ネットワークと非 HaLow ネットワークは互いに分離されます。"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:493
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/matterwizard.js:271
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:460
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:530
+msgid ""
+"In <b>None</b> traffic mode, non-HaLow and HaLow networks are isolated. This"
+" device will use a static IP address and run a DHCP server on the non-HaLow "
+"interface."
+msgstr ""
+"<b>なし</b>トラフィックモードでは、非 HaLow ネットワークと HaLow ネットワークが分離されます。このデバイスは静的 IP "
+"アドレスを使用し、非 HaLow インターフェースで DHCP サーバーを実行します。"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:512
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:580
+msgid ""
+"In <b>Router with Firewall</b> mode the HaLow connected devices obtain IP "
+"addresses from the DHCP server on this device, and this device uses NAT to "
+"forward IP traffic. The admin interface will be blocked on the network you "
+"connect to, which is the normal behaviour for a home router. Choose this "
+"when connecting directly to the internet."
+msgstr ""
+"<b>ファイアウォール付きルーター</b>モードでは、HaLow 接続デバイスがこの装置の DHCP サーバーから IP アドレスを取得し、この装置が "
+"NAT で IP "
+"トラフィックを転送します。管理インターフェースは接続先ネットワークからアクセスできなくなり、家庭用ルーターとして通常の挙動になります。インターネットに直接接続する場合に選択してください。"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:508
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:576
+msgid ""
+"In <b>Router</b> mode the HaLow connected devices obtain IP addresses from "
+"the DHCP server on this device, and this device uses NAT to forward IP "
+"traffic. <strong>Only use this if you intend to connect to a trusted "
+"network</strong>, as this admin interface will be accessible on the upstream"
+" network."
+msgstr ""
+"<b>ルーター</b>モードでは、HaLow 接続デバイスがこの装置の DHCP サーバーから IP アドレスを取得し、この装置が NAT で IP "
+"トラフィックを転送します。<strong>上流ネットワークから管理インターフェースへアクセスできるため、信頼できるネットワークに接続する場合にのみ使用してください。</strong>"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/matterwizard.js:207
+msgid ""
+"Lighting application discriminator value. This is an interger value unique "
+"to this device. The value is used to the identify the device that need to be"
+" commissioned by the controller"
+msgstr ""
+"照明アプリケーションのディスクリミネーター値です。これはこのデバイスに固有の整数値で、コントローラーがコミッショニングする対象デバイスを識別するために使用します。"
+
+#: luci/luci-app-ekhwizards/ucode/template/wizard_view.ut:8
+msgid "Loading view..."
+msgstr "ビューを読み込み中..."
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:461
+msgid "Manual credentials"
+msgstr "手動入力の認証情報"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/selectwizard.js:67
+msgid "Matter"
+msgstr "Matter"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/matterwizard.js:183
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/matterwizard.js:186
+msgid "Matter Application"
+msgstr "Matter アプリケーション"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/matterwizard.js:205
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/matterwizard.js:219
+msgid "Matter Configurations"
+msgstr "Matter 設定"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/matterwizard.js:28
+msgid "Matter Wizard"
+msgstr "Matter ウィザード"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:389
+msgid "Mesh Gate (Mesh Point with collocated network)"
+msgstr "メッシュゲート（併設ネットワークを持つメッシュポイント）"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:415
+msgid "Mesh ID"
+msgstr "メッシュID"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:385
+msgid "Mesh Mode"
+msgstr "メッシュモード"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:430
+msgid "Mesh Passphrase"
+msgstr "メッシュパスフレーズ"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:388
+msgid "Mesh Point"
+msgstr "メッシュポイント"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:366
+msgid "Mode selection"
+msgstr "モード選択"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:514
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:563
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:628
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/matterwizard.js:283
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:483
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:541
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:607
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:551
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:610
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:676
+msgid "None"
+msgstr "なし"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/matterwizard.js:210
+msgid ""
+"OTA Application discriminator value. This is an interger value unique to "
+"this device. The value is used to the identify the device that need to be "
+"commissioned by the controller"
+msgstr ""
+"OTA "
+"アプリケーションのディスクリミネーター値です。これはこのデバイスに固有の整数値で、コントローラーがコミッショニングする対象デバイスを識別するために使用します。"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/matterwizard.js:228
+msgid "OTA Discriminator"
+msgstr "OTA ディスクリミネーター"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:627
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:606
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:675
+msgid "OWE"
+msgstr "OWE"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/matterwizard.js:13
+msgid ""
+"On/Off Lighing Application. This is a Matter controlled light. The "
+"controller will be able to contol the light after provissioning"
+msgstr "オン/オフ照明アプリケーションです。これは Matter で制御される照明で、プロビジョニング後にコントローラーから制御できます。"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/matterwizard.js:21
+msgid "On/Off Lighting Application"
+msgstr "オン/オフ照明アプリケーション"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:477
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:439
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:433
+msgid "Operating Frequency"
+msgstr "動作周波数"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/matterwizard.js:22
+msgid "Over-The-Air Matter Software Update Provider"
+msgstr "OTA Matter ソフトウェア更新プロバイダー"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/matterwizard.js:15
+msgid ""
+"Over-The-Air Matter Software Update Provider Application. This is used to "
+"update the Matter application image"
+msgstr "OTA Matter ソフトウェア更新プロバイダーアプリケーションです。Matter アプリケーションのイメージ更新に使用します。"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:465
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:630
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:714
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:609
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:679
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:716
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:421
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:502
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:678
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:749
+msgid "Passphrase"
+msgstr "パスフレーズ"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/landing.js:195
+msgid "Password"
+msgstr "パスワード"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:632
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:701
+msgid "Router"
+msgstr "ルーター"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:637
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:706
+msgid "Router with Firewall"
+msgstr "ファイアウォール付きルーター"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:670
+msgid "SSID"
+msgstr "SSID"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/landing.js:135
+msgid "Save error"
+msgstr "保存エラー"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:440
+msgid "Setup EasyMesh Network"
+msgstr "EasyMesh ネットワークをセットアップ"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:391
+msgid "Setup HaLow Network - AP"
+msgstr "HaLow ネットワークのセットアップ - AP"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:403
+msgid "Setup Mesh Network"
+msgstr "メッシュネットワークをセットアップ"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/selectwizard.js:42
+msgid "Setup your device as a normal Access Point (AP) or Client (Station)."
+msgstr "デバイスを通常のアクセスポイント（AP）またはクライアント（ステーション）として設定します。"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/selectwizard.js:59
+msgid ""
+"Setup your device as part of EasyMesh (either as a Mesh Controller or a Mesh"
+" Agent)."
+msgstr "デバイスを EasyMesh の一部（メッシュコントローラーまたはメッシュエージェント）として設定します。"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/selectwizard.js:68
+msgid ""
+"Setup your device as part of Matter. (Matter not certified for this product)"
+msgstr "デバイスを Matter の一部として設定します。（この製品は Matter 認証を受けていません）"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/selectwizard.js:50
+msgid ""
+"Setup your device as part of an 802.11s Mesh (either as a Mesh Point or a "
+"Mesh Gate)."
+msgstr "デバイスを 802.11s メッシュの一部（メッシュポイントまたはメッシュゲート）として設定します。"
+
+#: luci/luci-app-ekhwizards/root/usr/share/rpcd/acl.d/luci-app-ekhwizards.json:3
+msgid "Some perms the wizards require mostly copied from luci-app-morseconfig"
+msgstr "ウィザードが必要とする権限の一部は主に luci-app-morseconfig からコピーされています"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/selectwizard.js:41
+msgid "Standard Wi-Fi HaLow"
+msgstr "標準 Wi-Fi HaLow"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/landing.js:184
+msgid "System Configuration"
+msgstr "システム設定"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/landing.js:164
+msgid ""
+"The country determines the capabilities of your HaLow network. "
+"<strong>Warning:</strong> If you are currently using HaLow, modifying this "
+"value may cause you to lose access to this device. For details, see the <a "
+"href=\"%s\" target=\"_blank\">regulatory data table</a>."
+msgstr ""
+"国の設定によって HaLow ネットワークの機能が決まります。<strong>警告:</strong> 現在 HaLow "
+"を使用している場合、この値を変更すると本機へのアクセスを失う可能性があります。詳細は <a href=\"%s\" "
+"target=\"_blank\">規制データ表</a> を参照してください。"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/landing.js:214
+msgid "This wizard will guide you through the initial setup of this device."
+msgstr "このウィザードは、本機の初期セットアップを案内します。"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:485
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/matterwizard.js:262
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:450
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:621
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:517
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:690
+msgid "Traffic Mode"
+msgstr "トラフィックモード"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:508
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/matterwizard.js:278
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:477
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:545
+msgid "Traffic mode"
+msgstr "トラフィックモード"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:539
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:518
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:586
+msgid "Upstream Network"
+msgstr "アップストリームネットワーク"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:558
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:536
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:605
+msgid "Upstream network"
+msgstr "アップストリームネットワーク"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:626
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:605
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:674
+msgid "WPA-PSK"
+msgstr "WPA-PSK"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:624
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:724
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:603
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:724
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:672
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:757
+msgid "WPA2-PSK"
+msgstr "WPA2-PSK"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:725
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:725
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:758
+msgid "WPA2-PSK/WPA3-SAE Mixed Mode"
+msgstr "WPA2-PSK/WPA3-SAE 混在モード"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:625
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:726
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:604
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:726
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:673
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:759
+msgid "WPA3-SAE"
+msgstr "WPA3-SAE"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:518
+msgid ""
+"We recommend configuring this device as a <b>Bridge</b>. This allows non-"
+"HaLow devices to obtain IPs over your HaLow link. <p>However, if the HaLow "
+"Access Point you connect to does not have <abbr title=\"Wireless "
+"Distribution System\">WDS</abbr> (aka 4 address mode) enabled, select "
+"<b>Extender</b> to create a separate network for the non-HaLow devices. "
+"<em>All HaLow access points configured via this wizard have WDS "
+"enabled.</em> This device will run a DHCP server on the non-HaLow "
+"interfaces, and it will use NAT to forward IP traffic between HaLow and non-"
+"HaLow networks. <p>Choose <b>None</b> to keep the HaLow and non-HaLow "
+"networks isolated, this is the mode the device uses after factory reset."
+msgstr ""
+"このデバイスは<b>ブリッジ</b>として構成することを推奨します。これにより非 HaLow デバイスが HaLow リンク経由で IP "
+"を取得できます。<p>接続する HaLow アクセスポイントで <abbr title=\"Wireless Distribution "
+"System\">WDS</abbr>（4 アドレスモード）が有効でない場合は、非 HaLow "
+"デバイス用に別ネットワークを作成するため<b>エクステンダー</b>を選択してください。<em>このウィザードで設定される HaLow "
+"アクセスポイントでは WDS が有効になっています。</em>このデバイスは非 HaLow インターフェースで DHCP サーバーを実行し、HaLow "
+"と非 HaLow ネットワーク間の IP トラフィックを NAT で転送します。<p><b>なし</b>を選択すると、HaLow ネットワークと非 "
+"HaLow ネットワークは分離されたままになります。これは工場出荷時のモードです。"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:451
+msgid ""
+"We recommend configuring this device as a <b>Bridge</b>. This allows non-"
+"HaLow devices to obtain IPs over your HaLow link. <p>To create a separate "
+"network for the HaLow and the non-HaLow devices select <b>Extender</b>. In "
+"which case, this device will run a DHCP server on the non-HaLow interfaces, "
+"and it will use NAT to forward IP traffic between HaLow and non-HaLow "
+"networks. <p>Choose <b>None</b> to keep the HaLow and non-HaLow networks "
+"isolated, this is the mode the device uses after factory reset."
+msgstr ""
+"このデバイスは<b>ブリッジ</b>として構成することを推奨します。これにより非 HaLow デバイスが HaLow リンク経由で IP "
+"を取得できます。<p>HaLow デバイスと非 HaLow "
+"デバイスで別のネットワークを作成する場合は<b>エクステンダー</b>を選択してください。その場合、このデバイスは非 HaLow インターフェースで "
+"DHCP サーバーを実行し、HaLow と非 HaLow ネットワーク間の IP トラフィックを NAT "
+"で転送します。<p><b>なし</b>を選択すると、HaLow ネットワークと非 HaLow "
+"ネットワークは分離されたままになります。これは工場出荷時のモードです。"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:486
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/matterwizard.js:263
+msgid ""
+"We recommend configuring this device as an <b>Extender</b> to create a "
+"separate network for the non-HaLow devices. This device will run a DHCP "
+"server on the non-HaLow interfaces, and it will use NAT to forward IP "
+"traffic between HaLow and non-HaLow networks. <p>Choose <b>None</b> to keep "
+"the HaLow and non-HaLow networks isolated, this is the mode the device uses "
+"after factory reset."
+msgstr ""
+"非 HaLow デバイス用に別ネットワークを作成するため、このデバイスを<b>エクステンダー</b>として構成することを推奨します。このデバイスは非 "
+"HaLow インターフェースで DHCP サーバーを実行し、HaLow と非 HaLow ネットワーク間の IP トラフィックを NAT "
+"で転送します。<p><b>なし</b>を選択すると、HaLow ネットワークと非 HaLow "
+"ネットワークは分離されたままになります。これは工場出荷時のモードです。"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/landing.js:196
+msgid ""
+"We recommend setting a password. This will protect both the web interface "
+"and ssh access."
+msgstr "パスワードの設定を推奨します。これにより Web インターフェースと SSH アクセスの両方が保護されます。"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/landing.js:213
+msgid "Welcome!"
+msgstr "ようこそ！"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:16
+msgid "Wi-Fi HaLow Wizard"
+msgstr "Wi-Fi HaLow ウィザード"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:795
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/matterwizard.js:306
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:784
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:836
+msgid "Wizard Complete"
+msgstr "ウィザード完了"
+
+#: luci/luci-app-ekhwizards/root/usr/share/luci/menu.d/luci-app-ekhwizards.json:11
+msgid "Wizards"
+msgstr "ウィザード"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:519
+msgid ""
+"You are using this HaLow device as a mesh gate, you should configure how it "
+"connects to the internet (or some other network). <p> If you choose "
+"<b>None</b>, your device will have a static IP address and run a DHCP server"
+" on all interfaces, the HaLow and non-HaLow networks will be isolated from "
+"each other. If you choose an upstream network, your HaLow and non-HaLow "
+"networks will be connected. </p>"
+msgstr ""
+"この HaLow デバイスをメッシュゲートとして使用する場合は、インターネット（または別のネットワーク）への接続方法を設定する必要があります。 "
+"<p><b>なし</b>を選択すると、デバイスは静的 IP アドレスを使用し、すべてのインターフェースで DHCP サーバーを実行します。HaLow "
+"ネットワークと非 HaLow ネットワークは互いに分離されたままです。アップストリームネットワークを選択すると、HaLow ネットワークと非 HaLow"
+" ネットワークが接続されます。</p>"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:540
+msgid ""
+"You are using this HaLow device as an EasyMesh Controller, you should "
+"configure how it connects to the internet (or some other network). <p> If "
+"you choose <b>None</b>, your device will have a static IP address and run a "
+"DHCP server on all interfaces, the HaLow and non-HaLow networks will be "
+"isolated from each other. If you choose an upstream network, your HaLow and "
+"non-HaLow networks will be connected. <p>"
+msgstr ""
+"この HaLow デバイスを EasyMesh "
+"コントローラーとして使用する場合は、インターネット（または別のネットワーク）への接続方法を設定する必要があります。 "
+"<p><b>なし</b>を選択すると、デバイスは静的 IP アドレスを使用し、すべてのインターフェースで DHCP サーバーを実行します。HaLow "
+"ネットワークと非 HaLow ネットワークは互いに分離されたままです。アップストリームネットワークを選択すると、HaLow と非 HaLow "
+"のネットワークが接続されます。 <p>"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:587
+msgid ""
+"You are using this HaLow device as an access point, you should configure how"
+" it connects to the internet (or some other network). <p> If you choose "
+"<b>None</b>, your device will have a static IP address and run a DHCP server"
+" on all interfaces, the HaLow and non-HaLow networks will be isolated from "
+"each other. If you choose an upstream network, your HaLow and non-HaLow "
+"networks will be connected. <p>"
+msgstr ""
+"この HaLow デバイスをアクセスポイントとして使用する場合は、インターネット（または別のネットワーク）への接続方法を設定する必要があります。 "
+"<p><b>なし</b>を選択すると、デバイスは静的 IP アドレスを使用し、すべてのインターフェースで DHCP サーバーを実行します。HaLow "
+"ネットワークと非 HaLow ネットワークは互いに分離されたままです。アップストリームネットワークを選択すると、HaLow と非 HaLow "
+"のネットワークが接続されます。 <p>"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:371
+msgid ""
+"You can configure your device as a <b>Mesh Point</b> or a <b>Mesh Gate</b>, "
+"which is a Mesh Point with a co-located non-mesh network (e.g. an AP, an "
+"upstream Ethernet connection, etc.)."
+msgstr ""
+"デバイスは <b>メッシュポイント</b>、または併設された非メッシュネットワーク（AP や上流の Ethernet "
+"接続など）を持つ<b>メッシュゲート</b>として設定できます。"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/matterwizard.js:183
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/matterwizard.js:205
+msgid "You can configure your device as a Matter application"
+msgstr "デバイスを Matter アプリケーションとして設定できます"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:409
+msgid ""
+"You can configure your device as an <b>EasyMesh Controller</b> or as an "
+"<b>EasyMesh Agent</b>"
+msgstr "デバイスを <b>EasyMesh コントローラー</b>または<b>EasyMesh エージェント</b>として設定できます"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:772
+msgid ""
+"You can enable B.A.T.M.A.N for 802.11s mesh from the advanced 802.11s mesh "
+"settings"
+msgstr "高度な 802.11s メッシュ設定から、802.11s メッシュ用の B.A.T.M.A.N を有効にできます"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/landing.js:215
+msgid "You can exit now if you'd prefer to configure manually."
+msgstr "手動で設定する場合は、ここで終了できます。"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:763
+msgid "You can view the EasyMesh topology from the Status page"
+msgstr "ステータスページで EasyMesh のトポロジーを確認できます"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/matterwizard.js:241
+msgid "bcm"
+msgstr "bcm"

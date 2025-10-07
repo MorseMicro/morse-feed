@@ -1,0 +1,623 @@
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: morse-feed\n"
+"POT-Creation-Date: 2024-08-20 00:00+0000\n"
+"PO-Revision-Date: 2025-10-02 04:31+0000\n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: Japanese\n"
+"Language: ja\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:133
+msgid "Access Point"
+msgstr "アクセスポイント"
+
+#: luci/luci-mod-home/root/usr/share/rpcd/acl.d/luci-mod-home.json:64
+msgid "Access to mesh11s get_topology"
+msgstr "mesh11s get_topology へのアクセス"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1243
+msgid "Active"
+msgstr "アクティブ"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:136
+msgid "Ad-Hoc"
+msgstr "アドホック"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1064
+msgid "Addresses"
+msgstr "アドレス"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1198
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1216
+msgid "Agent status"
+msgstr "エージェントの状態"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1117
+msgid "Associated devices"
+msgstr "関連付けられたデバイス"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:792
+msgid "Change mode via wizard"
+msgstr "ウィザードでモードを変更"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:724
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:754
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1088
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1104
+msgid "Channel"
+msgstr "チャネル"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:134
+msgid "Client"
+msgstr "クライアント"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:871
+msgid "Configuration"
+msgstr "設定"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1016
+msgid "Connect a new device"
+msgstr "新しいデバイスを接続"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:534
+msgid "Connect to Access Point"
+msgstr "アクセスポイントに接続"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:705
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:766
+msgid "Connected"
+msgstr "接続済み"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1207
+msgid "Connected Agents"
+msgstr "接続中のエージェント"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1095
+msgid "Connected Devices"
+msgstr "接続中のデバイス"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1316
+msgid "Connected Mesh Nodes"
+msgstr "接続中のメッシュノード"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:750
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1102
+msgid "Country"
+msgstr "国"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:538
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1018
+msgid "Credentials"
+msgstr "認証情報"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1320
+msgid "Current Device’s View of the Mesh Network"
+msgstr "このデバイスから見たメッシュネットワーク"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:950
+msgid "DHCP Leases"
+msgstr "DHCP リース"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:726
+msgid "DPP"
+msgstr "DPP"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:575
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1049
+msgid "DPP Push button"
+msgstr "DPP プッシュボタン"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:562
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1047
+msgid "DPP QR Code"
+msgstr "DPP QR コード"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:414
+msgid ""
+"DPP button has already been pressed. Wait at least %d seconds to avoid "
+"session overlaps."
+msgstr "DPP ボタンは既に押されています。セッションの重複を避けるため、少なくとも %d 秒待ってください。"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:718
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:748
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1086
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1110
+msgid "Device"
+msgstr "デバイス"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:871
+msgid "Devices"
+msgstr "デバイス"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:694
+msgid "Disconnected"
+msgstr "未接続"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:419
+msgid "Dismiss"
+msgstr "閉じる"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:501
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:756
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1106
+msgid "Encryption"
+msgstr "暗号化"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1386
+msgid "Expand"
+msgstr "展開"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:925
+msgid "Expiry"
+msgstr "有効期限"
+
+#: luci/luci-mod-home/root/usr/share/rpcd/acl.d/luci-mod-home.json:28
+msgid "Grant access to DHCP status display"
+msgstr "DHCP ステータス表示へのアクセスを許可"
+
+#: luci/luci-mod-home/root/usr/share/rpcd/acl.d/luci-mod-home.json:3
+msgid "Grant access to main status display"
+msgstr "メインステータス表示へのアクセスを許可"
+
+#: luci/luci-mod-home/root/usr/share/rpcd/acl.d/luci-mod-home.json:19
+msgid "Grant access to mode info"
+msgstr "モード情報へのアクセスを許可"
+
+#: luci/luci-mod-home/root/usr/share/rpcd/acl.d/luci-mod-home.json:37
+msgid "Grant access to wireless status display"
+msgstr "無線ステータス表示へのアクセスを許可"
+
+#: luci/luci-mod-home/root/usr/share/rpcd/acl.d/luci-mod-home.json:47
+msgid "Grant access to wps/ubus get for prplmesh"
+msgstr "prplmesh の wps/ubus get へのアクセスを許可"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:197
+msgid "HaLow"
+msgstr "HaLow"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:154
+msgid "HaLow 11s Mesh"
+msgstr "HaLow 11s メッシュ"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:144
+msgid "HaLow 11s Mesh Extender"
+msgstr "HaLow 11s メッシュエクステンダー"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:145
+msgid "HaLow 11s Mesh Gate"
+msgstr "HaLow 11s メッシュゲート"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:143
+msgid "HaLow 11s Mesh Router"
+msgstr "HaLow 11s メッシュルーター"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:151
+msgid "HaLow Access Point"
+msgstr "HaLow アクセスポイント"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:153
+msgid "HaLow Ad-Hoc"
+msgstr "HaLow アドホック"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:152
+msgid "HaLow Client"
+msgstr "HaLow クライアント"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:147
+msgid "HaLow EasyMesh Agent"
+msgstr "HaLow EasyMesh エージェント"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:146
+msgid "HaLow EasyMesh Controller"
+msgstr "HaLow EasyMesh コントローラー"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:142
+msgid "HaLow Extender"
+msgstr "HaLow エクステンダー"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:155
+msgid "HaLow Monitor"
+msgstr "HaLow モニター"
+
+#: luci/luci-mod-home/root/usr/share/luci/menu.d/luci-mod-home.json:3
+msgid "Home"
+msgstr "ホーム"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:443
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:924
+msgid "Hostname"
+msgstr "ホスト名"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:720
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:752
+msgid "IP"
+msgstr "IP"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:881
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:924
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:943
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:955
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1112
+msgid "IPv4"
+msgstr "IPv4"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:883
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:925
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:945
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:957
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1114
+msgid "IPv6"
+msgstr "IPv6"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:925
+msgid "IPv6 Expiry"
+msgstr "IPv6 の有効期限"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1243
+msgid "Inactive"
+msgstr "非アクティブ"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:364
+msgid "Interface is disabled"
+msgstr "インターフェースが無効です"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:497
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1022
+msgid "Key/Password"
+msgstr "キー/パスワード"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:445
+msgid "Linux Kernel"
+msgstr "Linux カーネル"
+
+#: luci/luci-mod-home/ucode/template/home.ut:8
+msgid "Loading view..."
+msgstr "ビューを読み込み中..."
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:937
+msgid "Local Network"
+msgstr "ローカルネットワーク"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:727
+msgid "Looking for Access Point..."
+msgstr "アクセスポイントを検索中..."
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:924
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1064
+msgid "MAC Address"
+msgstr "MAC アドレス"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:288
+msgid "MHz"
+msgstr "MHz"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1212
+msgid "Management mode"
+msgstr "管理モード"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:148
+msgid "Matter"
+msgstr "Matter"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:698
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:701
+msgid "Max Throughput"
+msgstr "最大スループット"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:288
+msgid "Mbps"
+msgstr "Mbps"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:716
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:746
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1020
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1084
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1100
+msgid "Mesh ID"
+msgstr "メッシュ ID"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:135
+msgid "Mesh Point"
+msgstr "メッシュポイント"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1310
+msgid "Mesh status"
+msgstr "メッシュの状態"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:791
+msgid "Mode"
+msgstr "モード"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:441
+msgid "Model"
+msgstr "モデル"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:137
+msgid "Monitor"
+msgstr "モニター"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:941
+msgid "Name(s)"
+msgstr "名前"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:871
+msgid "Network"
+msgstr "ネットワーク"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:889
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:890
+msgid "Network Interfaces"
+msgstr "ネットワークインターフェース"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:915
+msgid "Never"
+msgstr "なし"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:156
+msgid "No HaLow enabled"
+msgstr "HaLow が有効になっていません"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:353
+msgid "No RX signal"
+msgstr "受信信号がありません"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1075
+msgid "No active devices"
+msgstr "アクティブなデバイスはありません"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:933
+msgid "No active leases"
+msgstr "有効なリースはありません"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:343
+msgid "No client associated"
+msgstr "関連付けられたクライアントがありません"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:334
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:358
+msgid "Noise"
+msgstr "ノイズ"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:882
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:884
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:944
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:946
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:956
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:958
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1113
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1115
+msgid "None"
+msgstr "なし"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:349
+msgid "Not associated"
+msgstr "未関連付け"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:447
+msgid "OpenWrt"
+msgstr "OpenWrt"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1214
+msgid "Operating mode"
+msgstr "動作モード"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:879
+msgid "Protocol"
+msgstr "プロトコル"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:762
+msgid "RX Rate *"
+msgstr "受信速度 *"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1065
+msgid "RX Rate / TX Rate"
+msgstr "受信速度 / 送信速度"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1145
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1269
+msgid "Reset"
+msgstr "リセット"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1404
+msgid "Restore"
+msgstr "復元"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:141
+msgid "Router with HaLow Access Point"
+msgstr "HaLow アクセスポイント付きルーター"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:335
+msgid "SNR"
+msgstr "SNR"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:486
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:714
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:744
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1020
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1084
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1100
+msgid "SSID"
+msgstr "SSID"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:559
+msgid "Save & Apply"
+msgstr "保存して適用"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1048
+msgid "Scan the Client QR Code in the app."
+msgstr "アプリでクライアント用 QR コードをスキャンしてください。"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:564
+msgid ""
+"Scan the QR Code in the app to connect this device to your Access Point."
+msgstr "アプリで QR コードをスキャンして、このデバイスをアクセスポイントに接続してください。"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:571
+msgid ""
+"Scan this QR Code in the app to connect this device to your Access Point."
+msgstr "アプリでこの QR コードをスキャンすると、このデバイスをアクセスポイントに接続できます。"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:733
+msgid ""
+"Scan this QR Code in the app to connect this device to your HaLow Access "
+"Point"
+msgstr "アプリでこの QR コードをスキャンすると、このデバイスを HaLow アクセスポイントに接続できます"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:299
+msgid "Short GI"
+msgstr "ショート GI"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:333
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:338
+msgid "Signal"
+msgstr "信号"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:722
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:760
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1065
+msgid "Signal / Noise"
+msgstr "信号 / ノイズ"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1090
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1108
+msgid "Speed (avg)"
+msgstr "速度（平均）"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:591
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1054
+msgid "Start DPP push button"
+msgstr "DPP プッシュボタンを開始"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:577
+msgid "Start DPP push button on the Access Point, then"
+msgstr "アクセスポイントで DPP プッシュボタンを開始し、その後"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:437
+msgid "System"
+msgstr "システム"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:438
+msgid "System Configuration"
+msgstr "システム設定"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:764
+msgid "TX Rate *"
+msgstr "送信速度 *"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:758
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1065
+msgid "Time connected"
+msgstr "接続時間"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:416
+msgid "Unable to start DPP"
+msgstr "DPP を開始できません"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:412
+msgid ""
+"Unable to start DPP (internal error). Check system logs or reset device."
+msgstr "DPP を開始できません（内部エラー）。システムログを確認するか、デバイスをリセットしてください。"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:781
+msgid "Unknown"
+msgstr "不明"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:468
+msgid "Upgrade to %s available"
+msgstr "%s へのアップグレードが利用可能です"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:710
+msgid "Uplink"
+msgstr "アップリンク"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:536
+msgid ""
+"Use the \"Start WPS (client)\" button on the EasyMesh Agent card to connect "
+"to an EasyMesh Controller."
+msgstr ""
+"EasyMesh エージェントのカードにある「Start WPS (client)」ボタンを使用して、EasyMesh "
+"コントローラーに接続してください。"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:452
+msgid "Version"
+msgstr "バージョン"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:166
+msgid "WEP Open System"
+msgstr "WEP オープンシステム"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:167
+msgid "WEP Shared Key"
+msgstr "WEP 共有キー"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:209
+msgid "Wi-Fi"
+msgstr "Wi-Fi"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1080
+msgid "Wireless Configuration"
+msgstr "無線設定"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1143
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1267
+msgid "Zoom in"
+msgstr "ズームイン"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1144
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1268
+msgid "Zoom out"
+msgstr "ズームアウト"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1199
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1217
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1311
+msgid "active"
+msgstr "アクティブ"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:331
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:333
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:334
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:337
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:338
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:357
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:358
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:360
+msgid "dBm"
+msgstr "dBm"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:363
+msgid "disabled"
+msgstr "無効"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1055
+msgid "here, and then on the Client."
+msgstr "ここを押してからクライアント側で操作してください。"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:592
+msgid "here."
+msgstr "ここを押してください。"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1199
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1217
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1311
+msgid "inactive"
+msgstr "非アクティブ"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:759
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:917
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1070
+msgid "min(s)"
+msgstr "分"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:769
+msgid "no"
+msgstr "いいえ"
+
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:769
+msgid "yes"
+msgstr "はい"
