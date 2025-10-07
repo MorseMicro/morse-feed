@@ -835,6 +835,8 @@ small {
 }
 
 .main-left {
+  display: flex;
+  flex-direction: column;
   flex-shrink: 0;
   width: 15rem;
   height: 100%;
@@ -842,6 +844,19 @@ small {
   box-shadow: rgb(0 0 0 / 75%) 0 0 15px -5px;
   overflow-x: auto;
   z-index: 100;
+
+  .nav {
+    flex: 1 1 auto;
+  }
+
+  .menu-version {
+    margin: 0 1rem 1.5rem;
+    margin-top: auto;
+    font-size: 0.75rem;
+    color: var(--gray-dark);
+    text-align: center;
+    flex-shrink: 0;
+  }
 
   .sidenav-header {
     padding: 1.5rem 0.5rem;

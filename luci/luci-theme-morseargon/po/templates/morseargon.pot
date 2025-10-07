@@ -5,21 +5,21 @@ msgstr "Content-Type: text/plain; charset=UTF-8"
 msgid "Advanced Config"
 msgstr ""
 
-#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:239
+#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:242
 msgid "BCF may not be appropriate!"
 msgstr ""
 
-#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:206
+#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:209
 msgid "Country not set!"
 msgstr ""
 
-#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:229
+#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:232
 msgid "Go to password configuration..."
 msgstr ""
 
-#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:208
-#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:215
-#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:222
+#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:211
+#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:218
+#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:225
 msgid "Go to wireless configuration..."
 msgstr ""
 
@@ -27,7 +27,7 @@ msgstr ""
 msgid "Invalid username and/or password! Please try again."
 msgstr ""
 
-#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:258
+#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:261
 msgid "JavaScript required!"
 msgstr ""
 
@@ -35,54 +35,54 @@ msgstr ""
 msgid "Log in"
 msgstr ""
 
-#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:220
+#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:223
 msgid ""
 "Morse device using FullMAC firmware - only Client/Station mode will work!"
 msgstr ""
 
-#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:213
+#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:216
 msgid "Morse device using Thin LMAC firmware - only AP mode will work!"
 msgstr ""
 
-#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:227
+#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:230
 msgid "No password set!"
 msgstr ""
 
-#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:240
+#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:243
 msgid ""
 "The BCF file on this device must be specified via UCI as the board type "
 "isn't set in the OTP bits. Currently, your HaLow device is using the non-"
 "functional failsafe BCF."
 msgstr ""
 
-#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:228
+#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:231
 msgid ""
 "There is no password set on this router. Please configure a root password to "
 "protect the web interface."
 msgstr ""
 
-#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:249
+#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:252
 msgid ""
 "This device is a virtual wire kit. Saving any configuration will disable "
 "virtual wire mode. A factory reset will restore virtual wire mode."
 msgstr ""
 
-#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:246
+#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:249
 msgid "Virtual Wire Device"
 msgstr ""
 
-#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:259
+#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:262
 msgid ""
 "You must enable JavaScript in your browser or LuCI will not work properly."
 msgstr ""
 
-#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:207
+#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:210
 msgid ""
 "Your Morse HaLow device requires a country. Please set your country on the "
 "Network -> Wireless page."
 msgstr ""
 
-#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:221
+#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:224
 msgid ""
 "Your Morse device is using FullMAC firmware, which is an optimisation for "
 "client/station mode where processing is offloading to the Morse chip. This "
@@ -90,7 +90,7 @@ msgid ""
 "maintained when the host processor is off."
 msgstr ""
 
-#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:214
+#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:217
 msgid ""
 "Your Morse device is using Thin LMAC firmware, which is an optimisation for "
 "AP mode to support large numbers of clients/stations."

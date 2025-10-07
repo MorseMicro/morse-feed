@@ -6,6 +6,8 @@
 	local posix = require "nixio.fs"
 
 	local boardinfo = util.ubus("system", "board")
+	local desc = boardinfo and boardinfo.release and boardinfo.release.description and (boardinfo.release.description):match("Morse%-(%S+)")
+	local morse_version = desc and "Version "..desc or null
 	local morse_mode_short_display = "Unknown"
 	local modeinfo = util.ubus("morse-mode", "query")
 	if modeinfo then
@@ -138,6 +140,7 @@
 					</div>
 				</div>
 			</div>
+			<div class="menu-version"><%= morse_version or "" %></div>
 		</div>
 		<% end -%>
 		<div class="main-right">

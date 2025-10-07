@@ -265,7 +265,9 @@ return baseclass.extend({
 		}
 
 		if (l == 1) {
-			document.querySelector('#mainmenu').appendChild(ul);
+			const menuContainer = document.querySelector('#mainmenu');
+			const versionEl = menuContainer.querySelector('.menu-version');
+			menuContainer.insertBefore(ul, versionEl);
 		}
 		return ul;
 	},
