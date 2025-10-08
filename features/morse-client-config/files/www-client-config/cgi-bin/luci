@@ -57,11 +57,12 @@ case "GET":
 	}
 
 	if (!mm_region) {
-		data.countries = morse_device && ubus.call("iwinfo", "countrylist", {"device": morse_device});
-		if (!data.countries || !data.countries["results"]) {
+		const countrylist = morse_device && ubus.call("iwinfo", "countrylist", {"device": morse_device});
+		if (!countrylist|| !countrylist["results"]) {
 			req.write(render("./config_error.uc", { message: "Unable to list available countries for HaLow device." }));
 			break;
 		}
+		data.countries = countrylist["results"];
 	}
 
 	for (let s_name, s in uci.get_all("wireless")) {
