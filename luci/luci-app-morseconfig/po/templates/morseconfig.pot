@@ -307,7 +307,7 @@ msgstr ""
 msgid "Forward"
 msgstr ""
 
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:1283
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:1285
 msgid "Gateway"
 msgstr ""
 
@@ -363,7 +363,7 @@ msgstr ""
 msgid "Help"
 msgstr ""
 
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:1247
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:1249
 msgid "IPv4 address %s is in networks %s and %s"
 msgstr ""
 
@@ -491,7 +491,7 @@ msgstr ""
 msgid "Name"
 msgstr ""
 
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:1255
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:1257
 msgid "Netmask"
 msgstr ""
 

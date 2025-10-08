@@ -1243,7 +1243,11 @@ return view.extend({
 						continue;
 					}
 
-					if (value === this.section.formvalue(section['.name'], 'ipaddr')) {
+					const proto = this.section.formvalue(section['.name'], 'proto');
+					const ipaddr = this.section.formvalue(section['.name'], 'ipaddr');
+					// Only flag clashes when the other interface is *static*.
+					// Interfaces with *dhcp* don’t have a fixed IP. Skip validation check for *dhcp*
+					if (value === ipaddr && proto === 'static') {
 						return _('IPv4 address %s is in networks %s and %s').format(value, sectionId, section['.name']);
 					}
 				}
