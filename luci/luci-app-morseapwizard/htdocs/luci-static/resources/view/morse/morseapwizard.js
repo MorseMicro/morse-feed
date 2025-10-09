@@ -339,9 +339,12 @@ return view.extend({
 
 	updateInfoBox() {
 		const EASYMESH_INFO = _(`
-			<p>Easy Mesh Controller configuration allows centralized management of WiFi network credentials.
+			Easy Mesh Controller configuration allows centralized management of WiFi network credentials.
 			The HaLow Gateway's network credentials will be automatically applied to all extenders.
-			<p>Note: The extender's QR code for Wi-Fi connection will no longer be valid.
+			<br><br><i>Note: The extender's QR code for Wi-Fi connection will no longer be valid.
+		`);
+		const MESH11S_BETA_WARNING = _(`
+			802.11s Mesh is currently in beta for this product.
 		`);
 		const WIFI_UPLINK_INFO = _(`
 			After saving a 2.4 GHz Wi-Fi uplink configuration, you will need to connect to the correct
@@ -354,14 +357,15 @@ return view.extend({
 			|| (this.data.wizard.device_mode === 'prplmesh' && this.data.wizard.network_mode_prplmesh === 'routed_wifi24')
 		);
 		const shouldShowEasyMeshInfo = (this.data.wizard.device_mode === 'prplmesh');
+		const shouldShowMesh11sBetaWarning = (this.data.wizard.device_mode === 'mesh' && L.hasSystemFeature('mesh11sd', 'beta'));
 
-		let message = '';
-		if (shouldShowWifi24UplinkInfo) {
-			message += WIFI_UPLINK_INFO;
-		}
+		let message = shouldShowWifi24UplinkInfo ? WIFI_UPLINK_INFO : '';
 		if (shouldShowEasyMeshInfo) {
 			if (message) message += '<br><br>'; // Add spacing between messages
 			message += EASYMESH_INFO;
+		} else if (shouldShowMesh11sBetaWarning) {
+			if (message) message += '<br><br>'; // Add spacing between messages
+			message += MESH11S_BETA_WARNING;
 		}
 
 		// Update the infobox
@@ -436,18 +440,19 @@ return view.extend({
 			]));
 		};
 		makeOptionWithInfo('standard', _('Access Point'), _('Fastest mode if <4km range.'));
-		makeOptionWithInfo('mesh', _('802.11s Mesh'), _('Use extra devices for more range.'));
 		makeOptionWithInfo('prplmesh', _('EasyMesh Controller'), _('Use extra devices for more range.'));
+		makeOptionWithInfo('mesh', _('802.11s Mesh'), _('Use extra devices for more range.'));
 		o.onchange = () => this.saveToUciCache();
 		o.default = 'standard';
 
 		o = s.option(form.ListValue, 'network_mode', _('Network Mode'));
 		o.widget = 'radio';
 		o.orientation = 'vertical';
-		o.value('bridged', _('HaLow Wi-Fi devices will get an IP on your existing router\'s network.'));
-		const routed_wan_string = _('HaLow Wi-Fi devices will get an IP on this device\'s local network.');
+		const routed_wan_string = _('Wi-Fi HaLow devices will get an IP on this device\'s local network.');
 		o.value('routed_wan', routed_wan_string);
-		const routed_wifi24_string = _('HaLow Wi-Fi devices will get an IP on this device\'s local network and use 2.4 GHz Wi-Fi for an uplink (not an Ethernet cable).');
+		const bridged_string = _('Wi-Fi HaLow devices will get an IP on your existing router\'s network.');
+		o.value('bridged', E('span', {}, [bridged_string, E('em', { style: 'margin-left: 1rem;' }, _('(Recommended)'))]));
+		const routed_wifi24_string = _('Wi-Fi HaLow devices will get an IP on this device\'s local network and use 2.4 GHz Wi-Fi for an uplink (not an Ethernet cable).');
 		o.value('routed_wifi24', routed_wifi24_string);
 		o.depends({ '!reverse': true, 'device_mode': 'prplmesh' });
 		o.onchange = () => this.saveToUciCache();
