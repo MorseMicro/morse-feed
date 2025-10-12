@@ -9,14 +9,15 @@ include $(TOPDIR)/rules.mk
 PKG_NAME:=morse_driver
 PKG_RELEASE=3
 
-PKG_VERSION:=1.16.4
+PKG_VERSION:=1.17.8
 
 PKG_LICENSE:=GPLv2
 PKG_LICENSE_FILES:=LICENSE
 
 PKG_SOURCE_VERSION:=$(PKG_VERSION)
 PKG_SOURCE_URL:=https://github.com/MorseMicro/morse_driver.git
-PKG_HASH:=abacddf6fabe024d8496799048d83eaf4d447dd70f22eac8af17e0b02c831d53
+PKG_MIRROR_HASH:=19d84870458c21bf8199b3f97a8002825428c728d29e41a7244f2b7b0eca0fc3
+PKG_SOURCE_MIRROR:=0
 PKG_SOURCE_PROTO:=git
 
 PKG_MAINTAINER:=Morse Micro
@@ -28,8 +29,9 @@ include $(INCLUDE_DIR)/package.mk
 DTC=$(wildcard $(LINUX_DIR)/scripts/dtc/dtc)
 
 define KernelPackage/morse
-  SUBMENU:=Wireless Drivers
-  TITLE:=Morse Micro WIFI HaLow driver
+  CATEGORY:=Morse Micro
+  SUBMENU:=Essentials
+  TITLE:=Morse Micro Wi-Fi HaLow driver
   DEPENDS:= +kmod-mmc +kmod-mac80211 +kmod-trelay +kmod-lib-crc7 morse-fw +morse-board-config +MORSE_USB:kmod-usb-core
   FILES:=\
     $(PKG_BUILD_DIR)/morse.ko \

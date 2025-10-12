@@ -1,19 +1,8 @@
---- a/spi.c
-+++ b/spi.c
-@@ -175,10 +175,12 @@ static int morse_spi_setup(struct spi_de
- 	spi->bits_per_word = 8;
- 	spi->max_speed_hz = max_speed_hz;
- 
-+#if 0
- 	if (spi->max_speed_hz > MAX_SPI_CLK_SPEED) {
- 		dev_err(&spi->dev, "SPI clocks above 50MHz are not supported by Morse chip\n");
- 		return -EPERM;
- 	}
-+#endif
- 
- 	ret = spi_setup(spi);
- 	if (ret < 0) {
-@@ -432,7 +434,7 @@ static u8 *morse_spi_find_data_ack(struc
+Index: morse_driver-rel_1_17_0_2025_Oct_10/spi.c
+===================================================================
+--- morse_driver-rel_1_17_0_2025_Oct_10.orig/spi.c
++++ morse_driver-rel_1_17_0_2025_Oct_10/spi.c
+@@ -441,7 +441,7 @@ static u8 *morse_spi_find_token(struct m
  {
  	u8 *cp = data;
  
@@ -22,7 +11,7 @@
  		cp++;
  
  	if (cp == end)
-@@ -529,13 +531,10 @@ static int morse_spi_cmd53_read(struct m
+@@ -562,13 +562,10 @@ static int morse_spi_cmd53_read(struct m
  	cp += 4;
  
  	if (!block) {
@@ -37,7 +26,7 @@
  		if (is_rk3288)
  			/* Short transactions are sometimes delayed. These extra bytes give enough
  			 * cycles to receive all the data. This could be optimised to a lower
-@@ -601,6 +600,7 @@ static int morse_spi_cmd53_write(struct
+@@ -634,6 +631,7 @@ static int morse_spi_cmd53_write(struct
  	u8 *resp;
  	u8 *end;
  	u8 *ack = cp;
@@ -45,7 +34,7 @@
  	u32 data_size;
  	int i;
  
-@@ -656,10 +656,11 @@ static int morse_spi_cmd53_write(struct
+@@ -689,10 +687,11 @@ static int morse_spi_cmd53_write(struct
  		/* crc */
  		*cp = (crc & 0xFF00) >> 8;
  		*(cp + 1) = (crc & 0xFF);
@@ -57,4 +46,4 @@
 +		cp += mspi->inter_block_delay_bytes;
  	}
  
- 	/* Do the actual transfer */
+ 	if (enable_ext_xtal_init) {

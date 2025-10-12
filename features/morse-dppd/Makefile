@@ -10,11 +10,12 @@ include $(TOPDIR)/rules.mk
 PKG_NAME:=morse-dppd
 PKG_RELEASE:=1
 
-PKG_VERSION:=1.16.4
+PKG_VERSION:=1.17.8
 
 PKG_SOURCE_VERSION:=$(PKG_VERSION)
 PKG_SOURCE_URL:=https://github.com/MorseMicro/dpp-daemon.git
-PKG_HASH:=c603eaa7ac71fa80051473b4eea68db7747c078c14992fc2d771d65ee3caece5
+PKG_MIRROR_HASH:=c96c0b1cb032a79bd869991c7aa09a6ff14446e90c524af4c47587d711c42991
+PKG_SOURCE_MIRROR:=0
 PKG_SOURCE_PROTO:=git
 
 MAKE_PATH:=daemon
@@ -61,7 +62,8 @@ TARGET_CFLAGS += -Wno-deprecated-declarations
 
 define Package/morse-dppd
   SECTION:=Utilities
-  CATEGORY:=Utilities
+  CATEGORY:=Morse Micro
+  SUBMENU:=Features
   TITLE:=MorseMicro 802.11ah DPP Daemon
   MAINTAINER:=Morse Micro
   DEPENDS:=dppd-creds +libnl +libnl-genl +libopenssl +libncurses +libmicrohttpd-ssl +avahi-utils +libwpa_client_s1g

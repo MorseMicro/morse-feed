@@ -1,9 +1,7 @@
-diff --git a/hostapd/config_file.c b/hostapd/config_file.c
-index 0259f6b82..f579530b7 100644
 --- a/hostapd/config_file.c
 +++ b/hostapd/config_file.c
-@@ -5241,6 +5241,12 @@ int hostapd_config_s1g_val(struct hostapd_config *conf)
- 	int chan_width;
+@@ -5262,6 +5262,12 @@ int hostapd_config_s1g_val(struct hostap
+ 	int prim_chwidth = 0;
  	int errors = 0;
  
 +	/* Special region is set for s1g. Reset from backup for a valid s1g to ht conversion */
@@ -12,11 +10,9 @@ index 0259f6b82..f579530b7 100644
 +		conf->country[1] = conf->op_country[1];
 +	}
 +
- 	morse_set_s1g_ht_chan_pairs(conf->country);
- 
- 	if (conf->acs) {
-diff --git a/hostapd/main.c b/hostapd/main.c
-index c8ccd6aff..7d01b176a 100644
+ 	if (morse_ap_configure_channelization(conf->country, conf->op_class)) {
+ 		errors++;
+ 		return errors;
 --- a/hostapd/main.c
 +++ b/hostapd/main.c
 @@ -33,6 +33,7 @@
@@ -44,11 +40,9 @@ index c8ccd6aff..7d01b176a 100644
  	/* Deinitialize all interfaces */
  	for (i = 0; i < interfaces.count; i++) {
  		if (!interfaces.iface[i])
-diff --git a/wpa_supplicant/wpa_supplicant.c b/wpa_supplicant/wpa_supplicant.c
-index eb3296292..60538b411 100644
 --- a/wpa_supplicant/wpa_supplicant.c
 +++ b/wpa_supplicant/wpa_supplicant.c
-@@ -1168,6 +1168,7 @@ void wpa_supplicant_set_state(struct wpa_supplicant *wpa_s,
+@@ -1171,6 +1171,7 @@ void wpa_supplicant_set_state(struct wpa
  		sme_sched_obss_scan(wpa_s, 0);
  	}
  	wpa_s->wpa_state = state;

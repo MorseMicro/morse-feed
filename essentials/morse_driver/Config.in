@@ -1,8 +1,3 @@
-config SELECT_morse_driver
-	bool "Enable Morse driver"
-	default y
-	depends on !SELECT_morse-driver-internal
-
 config MORSE_SDIO
 	bool "SDIO support "
 	default y

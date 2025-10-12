@@ -13,11 +13,12 @@ include $(TOPDIR)/rules.mk
 PKG_NAME:=morse-fw
 PKG_RELEASE=2
 
-PKG_VERSION:=1.16.4
+PKG_VERSION:=1.17.8
 
-PKG_SOURCE_VERSION:=68fcf18643b0fe12d1ff73ad03089b8c0b7d2979
+PKG_SOURCE_VERSION:=1457e131f1b1cd7728d73ae3a09729b1782a776a
 PKG_SOURCE_URL:=https://github.com/MorseMicro/morse-firmware.git
-PKG_HASH:=dbc6b5428fc6d4defa89a29c00c99a73ca07f704501d3618eddacb826007f486
+PKG_MIRROR_HASH:=e60879d98a34cf0b1f0375e5158bac757e24819eb58d906670d872bfe96fe252
+PKG_SOURCE_MIRROR:=0
 PKG_SOURCE_PROTO:=git
 
 PKG_MAINTAINER:=Morse Micro <info@morsemicro.com>
@@ -29,6 +30,7 @@ include $(INCLUDE_DIR)/kernel.mk
 include $(INCLUDE_DIR)/package.mk
 
 define Package/morse-fw-6108
+  SECTION:=firmware
   CATEGORY:=Morse Micro
   SUBMENU:=Essentials
   URL:=$(PKG_SOURCE_URL)
@@ -41,6 +43,7 @@ define Package/morse-fw/config
 endef
 
 define Package/morse-fw-6108-tlm
+  SECTION:=firmware
   CATEGORY:=Morse Micro
   SUBMENU:=Essentials
   URL:=$(PKG_SOURCE_URL)
@@ -54,6 +57,7 @@ define Package/morse-fw-6108-tlm/description
 endef
 
 define Package/morse-fw-8108
+  SECTION:=firmware
   CATEGORY:=Morse Micro
   SUBMENU:=Essentials
   URL:=$(PKG_SOURCE_URL)
