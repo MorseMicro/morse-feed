@@ -51,6 +51,18 @@ else
 	esac
 fi
 
+# Trim prefix so hostname is not too large and is lowercase.
+# This is particularly important so that the SSID is not illegal,
+# as we base the default SSID on the hostname. However, the trim
+# is from the start if possible to maintain specificity.
+# e.g. qemu-standard-pc-q35-ich9-2009 -> pc-q35-ich9-2009
+prefix=$(echo "$prefix" | awk -F- '{
+	while (index($0, "-") && length() > 20) {
+		sub(/^[^-]*-/, "")
+	}
+	print substr($0, 1, 20)
+}')
+
 ucidef_set_hostname "$(echo "$prefix-$suffix" | tr -c -d 'A-Za-z0-9_-')"
 
 board_config_flush
