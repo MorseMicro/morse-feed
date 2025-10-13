@@ -697,6 +697,9 @@ morse_iface_create() {
 
 	case "$mode" in
 		ap)
+			if [ "$firmware_type" = fullmac ]; then
+				return 11
+			fi
 			if [ "$auto_channel_only" = 1 ]; then
 				[ "$auto_channel" = 0 ] && return 8
 
@@ -720,6 +723,9 @@ morse_iface_create() {
 		;;
 
 		sta)
+			if [ "$firmware_type" = thin_lmac ]; then
+				return 11
+			fi
 			[ -z "$country" ] && return 5
 			[ "$wds" -gt 0 ] && wdsflag="4addr on"
 			morse_iw_interface_add "$phy" "$ifname" managed "$wdsflag" return 1
@@ -742,6 +748,9 @@ morse_iface_create() {
 		;;
 
 		mesh)
+			if [ "$firmware_type" = thin_lmac -o "$firmware_type" = fullmac ]; then
+				return 11
+			fi
 			[ "$has_chan_info" != 1 ] && return 6
 			[ "$auto_channel_only" = 1 ] && return 9
 			[ "$auto_channel" -gt 0 ] && return 4
@@ -751,6 +760,9 @@ morse_iface_create() {
 		;;
 
 		adhoc)
+			if [ "$firmware_type" = thin_lmac -o "$firmware_type" = fullmac ]; then
+				return 11
+			fi
 			[ "$has_chan_info" != 1 ] && return 6
 			[ "$auto_channel_only" = 1 ] && return 9
 			[ "$auto_channel" -gt 0 ] && return 4
@@ -758,6 +770,9 @@ morse_iface_create() {
 		;;
 
 		monitor)
+			if [ "$firmware_type" = thin_lmac -o "$firmware_type" = fullmac ]; then
+				return 11
+			fi
 			[ "$has_chan_info" != 1 ] && return 6
 			morse_iw_interface_add "$phy" "$ifname" monitor || return 1
 			ip link set "$ifname" up
@@ -820,6 +835,9 @@ morse_iface_bringup() {
 			;;
 		10)
 			echo "wifi-iface $iface_index mode=$mode ignored; EU/GB must have smart_manager installed and active for dynamic channel selection (DCS)"
+			;;
+		11)
+			echo "wifi-iface $iface_index mode=$mode ignored; firmware_type cannot be "$firmware_type" for this mode"
 			;;
 		0)
 			# This helps us track if we've managed to successfully create
