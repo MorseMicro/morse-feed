@@ -83,11 +83,13 @@ ifneq ($(CONFIG_MORSE_RC),y)
   MORSE_MAKEDEFS += CONFIG_DISABLE_MORSE_RC=y
 endif
 
+MAC80211_VERSION := $(shell grep '^PKG_VERSION:=' $(TOPDIR)/package/kernel/mac80211/Makefile | cut -d'=' -f2 | cut -d'-' -f1)
+
 MORSE_MAKEDEFS += \
   MORSE_VERSION=0-$(PKG_VERSION) \
   KERNEL_SRC=$(LINUX_DIR) \
   CONFIG_MORSE_SDIO_ALIGNMENT=$(CONFIG_MORSE_SDIO_ALIGNMENT) \
-  CONFIG_BACKPORT_VERSION=v6.1.24
+  CONFIG_BACKPORT_VERSION=v$(MAC80211_VERSION)
 # This refers to the version of mac80211 backported to OpenWrt
 # Occasionally patches are required to remove some parts of the driver
 # as OpenWrt may sometimes pull in further patches from later kernel versions
