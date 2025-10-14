@@ -22,7 +22,7 @@ MM_MOD_BOOL="enable_mac80211_connection_monitor mcs10_mode enable_rts_8mhz
 			enable_sched_scan enable_1mhz_probes enable_ext_xtal_init
 			enable_hw_scan enable_mcast_rate_control enable_mm_vendor_ie
 			enable_page_slicing enable_pv1 enable_sched_scan enable_secureboot
-			enable_short_bcn_as_dtim_override enable_hw_leds enable_pre_assoc_ps"
+			enable_short_bcn_as_dtim_override enable_hw_leds enable_pre_assoc_ps chan_test_mode"
 MM_MOD_STRING="serial country test_mode debug_mask macaddr_octet mcs_mask dhcpc_lease_update_script
 			fw_bin_file sdio_clk_debugfs"
 MM_MOD_UNKNOWN=
@@ -121,7 +121,7 @@ get_vfem_4v3_bcf() {
 
 build_mod_params() {
 	json_select config
-	json_get_vars bcf vfem_4v3 firmware_type
+	json_get_vars bcf vfem_4v3 firmware_type chan_test_mode
 
 	if [ -z "$bcf" ]; then
 		mm_sku=$(persistent_vars_storage.sh READ mm_sku 2> /dev/null | tr 'A-Z-' 'a-z_')
@@ -267,6 +267,12 @@ drv_morse_init_device_config() {
 	config_add_string firmware_type
 	config_add_string s1g_chzn
 
+	#channel test mode parameters
+	config_add_string chan_test_freq
+	config_add_int chan_test_bw
+	config_add_int chan_test_prim_chwidth
+	config_add_int chan_test_prim_chan_index
+
 	#module parameters
 	config_add_string bcf  # handled separately due to boost bcf
 	config_add_int $MM_MOD_INT
@@ -399,7 +405,8 @@ is_module_loaded() {
 
 change_module_parameters() {
 	local module="$1"
-	local params="$2"
+	local module_config_file="$2"
+	local params="$3"
 	local extra_params=""
 
 	if [ "$module" = morse ]; then
@@ -418,14 +425,38 @@ change_module_parameters() {
 	$module $params
 	END
 
-	if cmp -s "$proposed_module" "/etc/modules.d/$module"; then
+	if cmp -s "$proposed_module" "$module_config_file"; then
 		# Parameters didn't change; do nothing.
 		rm "$proposed_module"
 		return 1
 	else
-		mv "$proposed_module" "/etc/modules.d/$module"
+		mv "$proposed_module" "$module_config_file"
 		return 0
 	fi
+}
+
+morse_set_chan_test_freq() {
+	local ifname="$1"
+	local freq="$2"
+	local bw="$3"
+	local prim_chwidth="$4"
+	local prim_chan_index="$5"
+
+	if [ -z "$freq" ]; then
+		echo "Channel test frequency parameter missing" >&2
+		return 1
+	fi
+
+	set_default bw 1
+	set_default prim_chwidth 1
+	set_default prim_chan_index 0
+
+	morse_cli -i "$ifname" channel -c "$freq" -o "$bw" -p "$prim_chwidth" -n "$prim_chan_index" || {
+		echo "Failed to set channel test frequency parameters via morse_cli" >&2
+		return 1
+	}
+
+	return 0
 }
 
 drv_morse_setup() {
@@ -438,7 +469,8 @@ drv_morse_setup() {
 		frag rts htmode \
 		ampdu \
 		forced_listen_interval \
-		thin_lmac_optimization
+		thin_lmac_optimization \
+		chan_test_mode
 	json_get_vars country s1g_chzn op_class channel \
 		s1g_chanbw s1g_prim_chwidth s1g_prim_1mhz_chan_index
 	json_get_values basic_rate_list basic_rate
@@ -459,20 +491,30 @@ drv_morse_setup() {
 
 	build_mod_params
 
+	local morse_module_config_file="/etc/modules.d/morse-driver"
+	local dot11ah_module_config_file="/etc/modules.d/dot11ah"
+	# If chan_test_mode is requested, morse_test_driver must be used
+	if [ "$chan_test_mode" == "1" ]; then
+		morse_module_config_file="/etc/modules.d/morse-test-driver"
+		[ ! -f "$morse_module_config_file" ] && \
+			echo "ERROR: Channel test mode requested but morse-test-driver module config missing." >&2 && \
+			return 1
+	fi
+
 	local inserted_module=0
-	if change_module_parameters dot11ah "$DOT11AH_MOD_PARAMS"; then
+	if change_module_parameters dot11ah "$dot11ah_module_config_file" "$DOT11AH_MOD_PARAMS"; then
 		is_module_loaded morse && rmmod morse
 		is_module_loaded dot11ah && rmmod dot11ah
 	fi
 
-	if change_module_parameters morse "$MOD_PARAMS" || ! is_module_loaded morse; then
+	if change_module_parameters morse "$morse_module_config_file" "$MOD_PARAMS" || ! is_module_loaded morse; then
 		# Sleeping here avoids issues with trying to probe a SPI device
 		# immediately after a reset. See: SW-17138
 		is_module_loaded && rmmod morse && sleep 1
 		# This needs to be separate to force kmodloader to
 		# read the dot11ah modparams.
-		/sbin/kmodloader /etc/modules.d/dot11ah
-		/sbin/kmodloader /etc/modules.d/morse
+		/sbin/kmodloader $dot11ah_module_config_file
+		/sbin/kmodloader $morse_module_config_file
 		# Give time for 15-morse-wifi-re-enable to run, otherwise
 		# if this script finishes very quickly after reinsertion
 		# it may try to bring up the wifi iface again.
@@ -520,6 +562,13 @@ drv_morse_setup() {
 
 	set_default rts 1000
 	iw phy "$phy" set rts "${rts%%.*}"
+
+	if [ -n "$txpower" ]; then
+		iw phy "$phy" set txpower limit "${txpower%%.*}00"
+	else
+		iw phy "$phy" set txpower auto
+	fi
+
 
 	[ -n "$frag" ] && iw phy "$phy" set frag "${frag%%.*}"
 
@@ -622,6 +671,13 @@ drv_morse_setup() {
 			fi
 
 			morse_cli -i $ifname li $unscaled_interval $scale_factor
+		fi
+
+		if [ "$chan_test_mode" = "1" ]; then
+			json_select config
+			json_get_vars chan_test_freq chan_test_bw chan_test_prim_chwidth chan_test_prim_chan_index chan_test_mode
+			json_select ..
+			morse_set_chan_test_freq "$ifname" "$chan_test_freq" "$chan_test_bw" "$chan_test_prim_chwidth" "$chan_test_prim_chan_index"
 		fi
 	fi
 
@@ -818,6 +874,23 @@ morse_iface_bringup() {
 		macaddr="$(morse_generate_mac $phy)"
 		macidx="$(($macidx + 1))"
 	}
+
+	if [ "$chan_test_mode" = "1" ]; then
+		case "$mode" in
+			ap|sta)
+				if [ "$interface_count" -ge 1 ]; then
+					echo "wifi-iface $iface_index mode=$mode ignored; chan_test_mode permits a single interface"
+					json_select ..
+					return
+				fi
+				;;
+			*)
+				echo "wifi-iface $iface_index mode=$mode ignored; chan_test_mode supports only ap/sta modes"
+				json_select ..
+				return
+				;;
+		esac
+	fi
 
 	json_add_string macaddr "$macaddr"
 

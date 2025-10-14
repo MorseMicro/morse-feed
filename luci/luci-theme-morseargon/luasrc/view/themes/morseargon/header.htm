@@ -85,6 +85,7 @@
 		{"/sbin/persistent_vars_storage.sh", "READ", "mm_virtual_wire"},
 		true
 	).stdout == "1\n";
+	local morse_test_mode = posix.stat("/etc/modules.d/morse-test-driver", "type") ~= nil;
 -%>
 <!DOCTYPE html>
 <html lang="<%=luci.i18n.context.lang%>">
@@ -241,6 +242,12 @@
 						<div id="bcf-warning" class="alert-message warning">
 							<h4><%:BCF may not be appropriate!%></h4>
 							<p><%:The BCF file on this device must be specified via UCI as the board type isn't set in the OTP bits. Currently, your HaLow device is using the non-functional failsafe BCF.%></p>
+						</div>
+					<%- end -%>
+					<%- if morse_test_mode then -%>
+						<div class="alert-message warning">
+							<h4><%:HaLow Wi-Fi Driver Running in Test Mode.%></h4>
+							<p><%:The HaLow Wi-Fi driver being used is the test mode version. Perform a factory reset to restore the normal production driver.%></p>
 						</div>
 					<%- end -%>
 					<%- if virtual_wire and not user_configured then -%>
