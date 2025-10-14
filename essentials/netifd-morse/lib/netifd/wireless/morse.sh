@@ -256,7 +256,6 @@ drv_morse_init_device_config() {
 	config_add_boolean svt_restricted_mode
 	config_add_int s1g_prim_chwidth
 	config_add_string s1g_prim_1mhz_chan_index
-	config_add_int bss_color
 	config_add_boolean ampdu
 	config_add_int forced_listen_interval
 	config_add_boolean noscan
@@ -288,6 +287,7 @@ drv_morse_init_iface_config() {
 	config_add_int maxassoc
 	config_add_int max_listen_int
 	config_add_int dtim_period
+	config_add_int s1g_bss_color
 	config_add_int start_disabled
 	config_add_int sae_pwe
 	config_add_string $TX_Q_CONFIGS
@@ -410,7 +410,7 @@ change_module_parameters() {
 		# Therefore we store these as a comment in /etc/modules.d/morse
 		# (and changing this comment will mean that we will decide
 		# to reload the module; see use of cmp below).
-		extra_params="# Extra params: bss_color=$bss_color forced_listen_interval=$forced_listen_interval"
+		extra_params="# Extra params: forced_listen_interval=$forced_listen_interval"
 	fi
 
 	local proposed_module="$(mktemp)"
@@ -437,7 +437,7 @@ drv_morse_setup() {
 		txpower \
 		frag rts htmode \
 		ampdu \
-		bss_color forced_listen_interval \
+		forced_listen_interval \
 		thin_lmac_optimization
 	json_get_vars country s1g_chzn op_class channel \
 		s1g_chanbw s1g_prim_chwidth s1g_prim_1mhz_chan_index
@@ -598,8 +598,6 @@ drv_morse_setup() {
 		else
 			morse_cli -i $ifname ampdu disable
 		fi
-
-		[ -n "$bss_color" ] && morse_cli -i $ifname bsscolor $bss_color
 
 		if [ -n "$forced_listen_interval" ]
 		then
@@ -1218,7 +1216,7 @@ morse_hostapd_add_bss() {
 		json_select ..
 		return 1
 	}
-	json_get_vars wds wds_bridge sae_pwe dtim_period max_listen_int start_disabled dpp_configurator_connectivity raw
+	json_get_vars wds wds_bridge sae_pwe dtim_period max_listen_int start_disabled dpp_configurator_connectivity raw s1g_bss_color
 
 	set_default raw 0
 	raw_block=
@@ -1252,6 +1250,7 @@ ${max_listen_int:+max_listen_interval=$max_listen_int}
 ${sae_pwe:+sae_pwe=$sae_pwe}
 ${dpp_configurator_connectivity:+dpp_configurator_connectivity=$dpp_configurator_connectivity}
 ${raw:+raw=$raw}
+${s1g_bss_color:+s1g_bss_color=$s1g_bss_color}
 $raw_block
 EOF
 
