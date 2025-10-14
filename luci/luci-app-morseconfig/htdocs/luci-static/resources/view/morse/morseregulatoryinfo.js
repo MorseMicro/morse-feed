@@ -1,8 +1,8 @@
 'use strict';
 
-/* globals request view */
-'require request';
+/* globals halow view */
 'require view';
+'require halow';
 
 const COLUMN_NAMES = {
 	country_code: _('Country Code', 'ISO-3166 two character country code'),
@@ -46,49 +46,24 @@ return view.extend({
 	handleSave: null,
 	handleReset: null,
 
-	load: async function () {
-		// We don't use halow.loadChannelMap here because we don't want the DRIVER_COUNTRIES filtering.
-		const channelsResponse = await request.get(`/halow-channels.csv?v=${L.env.resource_version}`, { cache: true });
-		if (!channelsResponse.ok) {
-			L.error(`Unable to load channel map: {response.statusText}`);
+	load: halow.loadChannels,
+
+	render: function (halowChannels) {
+		const dropdown_options = [];
+		for (const [country_code, info] of Object.entries(halowChannels.getCountryInfo())) {
+			if (Object.keys(info.channelizations).length === 0) {
+				dropdown_options.push({ country_code, country: info.country });
+			} else {
+				for (const chzn of Object.values(info.channelizations)) {
+					dropdown_options.push({ country_code: `${country_code}:${chzn.codename}`, country: `${info.country} (${chzn.fullname})` });
+				}
+			}
 		}
 
-		const [header, ...csv_lines] = channelsResponse.text().trim().split(/[\r\n]+/).map(line => line.split(','));
-
-		// code -> [channelinfo]
-		const channel_map = {};
-		// code -> country
-		const country_map = {};
-
-		for (const csv_line of csv_lines) {
-			const channel = {};
-
-			if (csv_line.length < header.length) {
-				throw Error(`Invalid channels.csv file ${csv_line.length} vs ${header.length}: ${csv_line}`);
-			}
-
-			for (let i = 0; i < header.length; ++i) {
-				channel[header[i]] = `${csv_line[i]}${COLUMN_UNITS[header[i]] || ''}`;
-			}
-
-			if (channel_map[channel.country_code] === undefined) {
-				channel_map[channel.country_code] = [];
-			}
-
-			channel_map[channel.country_code].push(COLUMN_DISPLAY.map(col => channel[col]));
-			country_map[channel.country_code] = channel.country;
-		}
-
-		return [channel_map, country_map];
-	},
-
-	render: function ([channel_map, country_map]) {
-		const country_options = Object.entries(country_map)
-			.sort((a, b) => a[1].localeCompare(b[1]))
-			.map(([code, country]) => E('option', { value: code }, [`${country} (${code})`]));
-		const country_selector = E('select', { id: 'country' },
-			[E('option', { disabled: '', selected: '', hidden: '' }, _('--- select country ---', 'A dropdown prompt for a country list filter'))].concat(country_options),
-		);
+		dropdown_options.sort((a, b) => a.country.localeCompare(b.country));
+		const country_selector = E('select', { id: 'country' }, [
+			E('option', { disabled: '', selected: '', hidden: '' }, _('--- select country ---', 'A dropdown prompt for a country list filter')),
+		].concat(dropdown_options.map(o => E('option', { value: o.country_code }, o.country))));
 
 		const channel_info = E('table', { class: 'table hidden', id: 'top_10' }, [
 			E('tr', { class: 'tr table-titles' }, COLUMN_DISPLAY.map(col =>
@@ -98,7 +73,14 @@ return view.extend({
 
 		country_selector.addEventListener('change', (ev) => {
 			channel_info.classList.remove('hidden');
-			cbi_update_table(channel_info, channel_map[ev.currentTarget.value]);
+			const [country_code, chzn] = ev.currentTarget.value.split(':');
+			let channels = Object.values(halowChannels.getMap(country_code, chzn));
+			channels.sort((a, b) => {
+				if (a.bw !== b.bw) return a.bw - b.bw;
+				return a.centre_freq_mhz - b.centre_freq_mhz;
+			});
+			cbi_update_table(channel_info,
+				channels.map(channel => COLUMN_DISPLAY.map(col => `${channel[col]}${COLUMN_UNITS[col] || ''}`)));
 		});
 
 		return [
