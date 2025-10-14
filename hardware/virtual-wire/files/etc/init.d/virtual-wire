@@ -30,7 +30,7 @@ _start_wifi_device() {
 		# device is down, and the device is not up until we have a valid channel.
 		local country=$(uci -q get wireless."$section_name".country)
 		if [ -n "$country" ]; then
-			local channel="$(awk < /usr/share/morse-regdb/channels.csv -F, '$1 == "'"$country"'" {print $2, $3}' \
+			local channel="$(awk < /usr/share/morse-regdb/channels.csv -F, -v cc="$country" '$1 == cc && $3 == "True" {print $4, $5}' \
 				| sort -n | awk 'END {print $2}')"
 			logger -t virtual-wire -p daemon.notice "setting channel $channel for $country"
 			if [ -n "$channel" ]; then

@@ -51,6 +51,7 @@ _get_regulatory() {
 	channel=$2
 	s1g_chanbw=$3
 	op_class=$4
+	s1g_chzn=$5
 
 	local cc; local bw; local l_op; local g_op; local freq
 	local remainder
@@ -74,13 +75,13 @@ _get_regulatory() {
 	# Choose the maximum possible bandwidth if no bw set and auto
 	# (NB if no channel is set, auto_channel is 1).
 	if [ "$auto_channel" -gt 0 -a -z "$s1g_chanbw" ]; then
-		s1g_chanbw="$(awk -F, '$1==country && $2 > max {max=$2} END {print max}' \
-			country="$country" /usr/share/morse-regdb/channels.csv)"
+		s1g_chanbw="$(awk -F, '$1==country && (!$2 || (!chzn && $3 == "True") || $2 ~ ("(^|;)" chzn "(;|$)")) && $4 > max {max=$4} END {print max}' \
+			chzn="$s1g_chzn" country="$country" /usr/share/morse-regdb/channels.csv)"
 	fi
 
 	oIFS=$IFS
 	HEADER=1
-	while IFS=, read -r cc bw ch l_op g_op freq remainder; do
+	while IFS=, read -r cc chzn default_chzn bw ch l_op g_op freq remainder; do
 		if [ "$HEADER" = 1 ]; then
 			HEADER=0
 			continue
@@ -88,6 +89,20 @@ _get_regulatory() {
 
 		if [ "$cc" != "$country" ]; then
 			continue
+		fi
+
+		if [ -n "$chzn" ]; then
+			if [ -n "$s1g_chzn" ]; then
+				case "$chzn" in
+				"$s1g_chzn"|"$s1g_chzn;"*|*";$s1g_chzn"|*";$s1g_chzn;"*)
+					;;
+				*)
+					continue
+					;;
+				esac
+			elif [ "$default_chzn" != True ]; then
+				continue
+			fi
 		fi
 
 		if [ -n "$s1g_chanbw" -a "$bw" != "$s1g_chanbw" ]; then
@@ -99,6 +114,12 @@ _get_regulatory() {
 		fi
 
 		if [ "$auto_channel" -gt 0 -o "$channel" = "$ch" ]; then
+			s1g_chanbw=$bw
+
+			# If an auto channel is selected here, we use the op_class to restrict
+			# to the right bandwidth. Oddly, hostapd_s1g (ACS) and smart_manager (DCS)
+			# appear to not respect this op_class completely, but do use it to determine
+			# the bandwidth.
 			if [ -z "$op_class" ]; then
 				op_class="$g_op"
 			fi

@@ -119,7 +119,7 @@ get_vfem_4v3_bcf() {
 	fi
 }
 
-build_morse_mod_params(){
+build_mod_params() {
 	json_select config
 	json_get_vars bcf vfem_4v3 firmware_type
 
@@ -145,9 +145,22 @@ build_morse_mod_params(){
 		fi
 	fi
 
+	case "$s1g_chzn" in
+	80211_2020)
+		DOT11AH_MOD_PARAMS="channelization_scheme=1"
+		;;
+	80211_2024)
+		DOT11AH_MOD_PARAMS="channelization_scheme=2"
+		;;
+	80211_revmf)
+		DOT11AH_MOD_PARAMS="channelization_scheme=3"
+		;;
+	esac
+
 	# Without this, we try to re-attach to running firmware
 	# which breaks some of our assumptions around bcf loading etc.
-	MOD_PARAMS="reattach_hw=0"
+	MOD_PARAMS="$MOD_PARAMS reattach_hw=0"
+
 	if [ -n "$bcf" ]; then
 		MOD_PARAMS="$MOD_PARAMS bcf=$bcf"
 	fi
@@ -253,6 +266,7 @@ drv_morse_init_device_config() {
 	config_add_boolean vfem_4v3
 	config_add_boolean thin_lmac_optimization
 	config_add_string firmware_type
+	config_add_string s1g_chzn
 
 	#module parameters
 	config_add_string bcf  # handled separately due to boost bcf
@@ -380,30 +394,36 @@ get_matter_config() {
 }
 
 is_module_loaded() {
-	lsmod | grep -q '^morse '
+	test -e "/sys/module/$1"
 }
 
 change_module_parameters() {
-	# These are parameters that we use morse_cli to configure,
-	# but because we have no way to revert back to the original
-	# state any change requires us to reload the module.
-	#
-	# Therefore we store these as a comment in /etc/modules.d/morse
-	# (and changing this comment will mean that we will decide
-	# to reload the module; see use of cmp below).
-	local morse_cli_params="bss_color=$bss_color forced_listen_interval=$forced_listen_interval"
-	local proposed_module="$(mktemp)"
-	cat > "$proposed_module" <<-MORSE
-	# Morse module, with subsequent morse_cli commands: $morse_cli_params
-	morse $MOD_PARAMS
-	MORSE
+	local module="$1"
+	local params="$2"
+	local extra_params=""
 
-	if cmp -s "$proposed_module" /etc/modules.d/morse; then
+	if [ "$module" = morse ]; then
+		# These are parameters that we use morse_cli to configure,
+		# but because we have no way to revert back to the original
+		# state any change requires us to reload the module.
+		#
+		# Therefore we store these as a comment in /etc/modules.d/morse
+		# (and changing this comment will mean that we will decide
+		# to reload the module; see use of cmp below).
+		extra_params="# Extra params: bss_color=$bss_color forced_listen_interval=$forced_listen_interval"
+	fi
+
+	local proposed_module="$(mktemp)"
+	cat > "$proposed_module" <<-END
+	$module $params
+	END
+
+	if cmp -s "$proposed_module" "/etc/modules.d/$module"; then
 		# Parameters didn't change; do nothing.
 		rm "$proposed_module"
 		return 1
 	else
-		mv "$proposed_module" /etc/modules.d/morse
+		mv "$proposed_module" "/etc/modules.d/$module"
 		return 0
 	fi
 }
@@ -413,15 +433,14 @@ drv_morse_setup() {
 	json_select config
 	json_get_vars \
 		phy macaddr path \
-		country \
-		s1g_chanbw \
 		svt_restricted_mode \
 		txpower \
 		frag rts htmode \
 		ampdu \
-		op_class \
 		bss_color forced_listen_interval \
 		thin_lmac_optimization
+	json_get_vars country s1g_chzn op_class channel \
+		s1g_chanbw s1g_prim_chwidth s1g_prim_1mhz_chan_index
 	json_get_values basic_rate_list basic_rate
 	json_select ..
 
@@ -432,13 +451,27 @@ drv_morse_setup() {
 		return 1
 	fi
 
-	build_morse_mod_params
+	if [ "$country" = AU -a "$s1g_chzn" != 80211_2020 -a "$firmware_type" = fullmac ]; then
+		echo "FullMAC in AU only supports s1g_chzn=80211_2020."
+		wireless_set_retry 0
+		return 1
+	fi
+
+	build_mod_params
 
 	local inserted_module=0
-	if change_module_parameters || ! is_module_loaded; then
+	if change_module_parameters dot11ah "$DOT11AH_MOD_PARAMS"; then
+		is_module_loaded morse && rmmod morse
+		is_module_loaded dot11ah && rmmod dot11ah
+	fi
+
+	if change_module_parameters morse "$MOD_PARAMS" || ! is_module_loaded morse; then
 		# Sleeping here avoids issues with trying to probe a SPI device
 		# immediately after a reset. See: SW-17138
 		is_module_loaded && rmmod morse && sleep 1
+		# This needs to be separate to force kmodloader to
+		# read the dot11ah modparams.
+		/sbin/kmodloader /etc/modules.d/dot11ah
 		/sbin/kmodloader /etc/modules.d/morse
 		# Give time for 15-morse-wifi-re-enable to run, otherwise
 		# if this script finishes very quickly after reinsertion
@@ -540,32 +573,15 @@ drv_morse_setup() {
 	if [ -n "$ifnames_mesh" ]; then
 		get_mesh11sd_config
 		json_select config
-		json_get_vars op_class channel country s1g_prim_chwidth s1g_prim_1mhz_chan_index
 		json_get_vars mesh_max_peer_links mesh_plink_timeout mesh_hwmp_rootmode mesh_gate_announcements mesh_fwding mesh_rssi_threshold mbca_config mbca_min_beacon_gap_ms mbca_tbtt_adj_interval_sec mesh_beacon_timing_report_int mbss_start_scan_duration_ms mesh_beacon_less_mode mesh_dynamic_peering mesh_rssi_margin mesh_blacklist_timeout
 		json_select ..
 
 		for_each_interface "mesh" morse_setup_mesh
 	fi
 
-	if [ -n "$ifnames_adhoc" ]; then
-		json_select config
-		json_get_vars op_class channel country s1g_prim_chwidth s1g_prim_1mhz_chan_index
-		json_select ..
-
-		for_each_interface "adhoc" morse_setup_adhoc
-	fi
-
-	if [ -n "$ifnames_monitor" ]; then
-		json_select config
-		json_get_vars op_class channel country s1g_chanbw s1g_prim_chwidth s1g_prim_1mhz_chan_index
-		json_select ..
-
-		for_each_interface "monitor" morse_setup_monitor
-	fi
-
-	if [ -n "$ifnames_none" ]; then
-		for_each_interface "none" morse_setup_none
-	fi
+	for_each_interface "adhoc" morse_setup_adhoc
+	for_each_interface "monitor" morse_setup_monitor
+	for_each_interface "none" morse_setup_none
 
 	# Ideally, this would also be in the hostapd/wpa_supplicant config,
 	# but for now they don't have support so we use morse_cli.
@@ -1002,9 +1018,9 @@ morse_setup_monitor() {
 	fi
 
 	center_freq=
-	_get_regulatory "$country" "$channel" "$s1g_chanbw" "$op_class"
+	_get_regulatory "$country" "$channel" "$s1g_chanbw" "$op_class" "$s1g_chzn"
 	if [ $? -ne 0 ]; then
-		echo "Couldn't find reg for monitor in $country with ch=$channel op=$op_class" >&2
+		echo "Couldn't find regulatory data for $country with ch=$channel bw=$s1g_chanbw op=$op_class chzn=$s1g_chzn" >&2
 		return
 	fi
 	#multiply the center_freq by 1000 and remove the decimal part
@@ -1061,9 +1077,9 @@ morse_interface_cleanup() {
 
 morse_set_chan_info() {
 	center_freq=
-	_get_regulatory "$country" "$channel" "$s1g_chanbw" "$op_class"
+	_get_regulatory "$country" "$channel" "$s1g_chanbw" "$op_class" "$s1g_chzn"
 	if [ $? -ne 0 ]; then
-		echo "Couldn't find regulatory data for $country with ch=$channel bw=$s1g_chanbw op=$op_class" >&2
+		echo "Couldn't find regulatory data for $country with ch=$channel bw=$s1g_chanbw op=$op_class chzn=$s1g_chzn" >&2
 		return 1
 	fi
 
