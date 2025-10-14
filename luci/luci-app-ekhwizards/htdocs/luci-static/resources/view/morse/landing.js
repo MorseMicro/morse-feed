@@ -55,7 +55,7 @@ return view.extend({
 
 		return Promise.all([
 			callGetTimezones(),
-			halow.loadChannelMap(),
+			halow.loadChannels(),
 			uci.load('luci'),
 			uci.load('wireless').catch(() => null),
 		]);
@@ -143,7 +143,7 @@ return view.extend({
 		}
 	},
 
-	render([timezones, channelMap]) {
+	render([timezones, channels]) {
 		this.timezones = timezones;
 
 		const morseDevice = uci.sections('wireless', 'wifi-device').find(s => s.type === 'morse');
@@ -173,8 +173,12 @@ return view.extend({
 
 			// Set channel appropriately if the country was mutated
 			// so we're less likely to leave this in a broken state.
-			const bestBw = Math.max(...Object.values(channelMap[value]).map(ch => Number(ch.bw)));
-			const bestChannels = Object.values(channelMap[value]).filter(ch => Number(ch.bw) === bestBw);
+			const currentChannels = Object.values(channels.getMap(value));
+			const bestBw = Math.max(...currentChannels.map(ch => Number(ch.bw)));
+			// Sort by frequency, since AU channel ordering is not the frequency order (!).
+			const bestChannels = currentChannels
+				.filter(ch => Number(ch.bw) === bestBw)
+				.toSorted((a, b) => Number(a.centre_freq_mhz) - Number(b.centre_freq_mhz));
 			// Choose centre channel as least likely to have back-offs
 			// (and least likely to be disabled, since we don't have access
 			// to this as we're not using iwinfo countrylist since the
