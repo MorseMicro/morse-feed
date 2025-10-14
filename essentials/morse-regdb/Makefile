@@ -18,12 +18,12 @@ PKG_NAME:=morse-regdb
 PKG_RELEASE:=1
 PKG_BUILD_DEPENDS:=python3/host
 
-PKG_SOURCE_VERSION:=v2.4.1
+PKG_SOURCE_VERSION:=v2.6.0-regdbconverter-updates
 # This points to an internal repo, but the repo is not used unless REGENERATE is set
 # (see initial comment).
 PKG_SOURCE_URL:=ssh://git@bitbucket.org/morsemicro/morse_regdb.git
 PKG_SOURCE_PROTO:=git
-PKG_MIRROR_HASH:=5609713ce587ba189baa5b6e3a99fddc5a36c7f0f77a1c2e5d7d45647d023114
+PKG_MIRROR_HASH:=b7ce6bb8dadc53ed4dde2e7f3f6753e2f52815b6aeb96ddcb809a55bc9a0c370
 
 PKG_VERSION:=$(PKG_SOURCE_VERSION)
 
@@ -53,13 +53,13 @@ endef
 define Build/Compile
 	$(if $(REGENERATE),
 		mkdir -p artefacts
-		python3 $(PKG_BUILD_DIR)/regdbconverter.py -v -f csv $(PKG_BUILD_DIR)/regdb_Sub-1_GHz.tsv > artefacts/repo_channels.csv
+
+		python3 $(PKG_BUILD_DIR)/regdbconverter.py -v -m $(PKG_BUILD_DIR)/morse_ah_ac_channel_mappings.tsv -f csv $(PKG_BUILD_DIR)/regdb_Sub-1_GHz.tsv > artefacts/repo_channels.csv
 		find patch/ -type f -name '*.patch' -print0 | sort -z | xargs -r -t -0 -n 1 patch -p1 -i
 	)
 
 	mkdir -p $(PKG_BUILD_DIR)/artefacts
-	# Mash the 5g shim channels in.
-	python3 add_5g_shim_channels.py < artefacts/repo_channels.csv > $(PKG_BUILD_DIR)/artefacts/channels.csv
+	python3 fix_channelization_info.py < artefacts/repo_channels.csv > $(PKG_BUILD_DIR)/artefacts/channels.csv
 endef
 
 define Package/morse-regdb/install
