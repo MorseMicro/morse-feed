@@ -17,9 +17,10 @@ fi
 migrate_channelization() {
 	local config="$1"
 
+	config_get type "$config" type
 	config_get country "$config" country
 
-	if [ "$country" = AU ]; then
+	if [ "$country" = AU -a "$type" = morse ]; then
 		uci set "wireless.$config.s1g_chzn"=80211_2020
 	fi
 }
