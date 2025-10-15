@@ -74,8 +74,8 @@ _change_device_defaults() {
 				channel=auto
 				uci set "wireless.$config.s1g_chanbw=$bandwidth"
 			else
-				channel="$(awk -F, '$1==cc && $3 == "True" && $4==bw {print $7, $4}' \
-					cc="$mm_region" bw="$bw" /usr/share/morse-regdb/channels.csv \
+				channel="$(awk -F, '$1==cc && $3 == "True" && $4==bw {print $8, $5}' \
+					cc="$mm_region" bw="$bandwidth" /usr/share/morse-regdb/channels.csv \
 					| sort -n | awk '{a[NR]=$2} END {print a[int((NR+1)/2)]}')"
 			fi
 
