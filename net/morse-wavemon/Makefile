@@ -27,7 +27,7 @@ define Package/morse-wavemon
   SECTION:=utils
   CATEGORY:=Network
   TITLE:=Morse Micro WIFI HaLow aware wavemon
-  DEPENDS:= +kmod-morse +libnl +libncurses +nload
+  DEPENDS:= kmod-morse +libnl +libncurses +nload
   FILES:=\
 	$(PKG_BUILD_DIR)/wavemon
   PROVIDES:=morse-wavemon

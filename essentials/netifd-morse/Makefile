@@ -23,7 +23,7 @@ define Package/netifd-morse
   SUBMENU:=Essentials
   TITLE:=Morse Micro HaLow support for netifd
   DEPENDS:= netifd \
-	+kmod-morse +kmod-cfg80211 \
+	kmod-morse +kmod-cfg80211 \
 	+morse-regdb +wpa_supplicant_s1g +hostapd_s1g +morsecli
 endef
 
