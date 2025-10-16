@@ -26,8 +26,6 @@ PKG_BUILD_PARALLEL:=1
 include $(INCLUDE_DIR)/kernel.mk
 include $(INCLUDE_DIR)/package.mk
 
-DTC=$(wildcard $(LINUX_DIR)/scripts/dtc/dtc)
-
 define KernelPackage/morse
   CATEGORY:=Morse Micro
   SUBMENU:=Essentials
@@ -42,6 +40,10 @@ define KernelPackage/morse
 endef
 
 define KernelPackage/morse/config
+    config MORSE_USB
+        bool "USB support "
+        depends on USB_SUPPORT
+        default y
     source "$(SOURCE)/Config.in"
 endef
 
