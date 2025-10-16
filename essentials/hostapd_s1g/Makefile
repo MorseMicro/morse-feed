@@ -32,7 +32,6 @@ define Package/hostapd_s1g
   TITLE:=Morse Micro HaLow hostapd
   DEPENDS:= +kmod-morse +kmod-cfg80211 +morsecli +libnl +libopenssl +libubus +libblobmsg-json
   USERID:=network=101:network=101
-  PROVIDES:=hostapd_s1g
 endef
 
 define Package/hostapd_s1g/description
@@ -41,7 +40,43 @@ define Package/hostapd_s1g/description
 endef
 
 define Package/hostapd_s1g/config
-    source "$(SOURCE)/Config.in"
+	if PACKAGE_hostapd_s1g
+
+		config MORSE_HOSTAPD_S1G_EAP
+			bool
+			default n
+			prompt "Enable Extensible Authentication Protocol (EAP) support"
+
+		config MORSE_HOSTAPD_S1G_ACS
+			bool
+			default n
+			prompt "Enable automatic channel selection (ACS) support"
+			help
+				This will allow hostapd to pick the channel automatically when channel is set
+				to "acs_survey" or "0". Eventually, other ACS algorithms can be added in
+				similar way.
+
+		config MORSE_HOSTAPD_APSTA_HANDLER
+			bool
+			default n
+			depends on PACKAGE_wpa_supplicant_s1g
+			select PACKAGE_ucode
+			select PACKAGE_ucode-mod-log
+			select PACKAGE_ucode-mod-fs
+			select PACKAGE_ucode-mod-ubus
+			select PACKAGE_ucode-mod-uloop
+			prompt "AP-STA channel follow (APSTA handler)"
+			help
+				Enable APSTA handler functionality in hostapd.
+
+				With this enabled, a local AP will automatically switch its channel to match
+				the S1G channel of the upstream AP that the station interface is connected to.
+				This ensures that HaLow radios behave in the same way as other radios on OpenWrt.
+
+				Without this enabled, if you have both AP/Client on the same radio,
+				the Client will not associate unless it is manually set to the correct channel.
+
+	endif
 endef
 
 define Package/wpa_supplicant_s1g
@@ -51,7 +86,6 @@ define Package/wpa_supplicant_s1g
   TITLE:=Morse Micro HaLow wpa_supplicant
   DEPENDS:= +kmod-morse +kmod-cfg80211 +morsecli +libnl +libopenssl +libubus +MORSE_WPA_SUPPLICANT_S1G_DBUS:dbus +MORSE_WPA_SUPPLICANT_S1G_DBUS:libdbus +libblobmsg-json
   USERID:=network=101:network=101
-  PROVIDES:=wpa_supplicant_s1g
 endef
 
 define Package/libwpa_client_s1g
@@ -67,7 +101,25 @@ define Package/libwpa_client_s1g/description
 endef
 
 define Package/wpa_supplicant_s1g/config
-    source "$(SOURCE)/Config.in"
+	if PACKAGE_wpa_supplicant_s1g
+
+		config MORSE_WPA_SUPPLICANT_S1G_MESH_NETWORKING
+			bool
+			default n
+			prompt "Enable mesh networking support"
+
+		config MORSE_WPA_SUPPLICANT_S1G_EAP
+			bool
+			default n
+			prompt "Enable Extensible Authentication Protocol (EAP) support"
+
+		config MORSE_WPA_SUPPLICANT_S1G_DBUS
+			bool
+			default n
+			prompt "Enable dbus support"
+
+	endif
+
 endef
 
 MAKE_FLAGS += \
