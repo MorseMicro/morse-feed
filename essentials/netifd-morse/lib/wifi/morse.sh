@@ -105,13 +105,16 @@ EOF
 		# We force HaLowLink 1 since 4v3 support currently requires
 		# an explicit BCF file, though currently the AZW modules
 		# do not have OTP bits burnt.
-		if [ "$board_type" -eq 0 ] || [ "$board" = morse,halowlink1 ]; then
+		if [ "$board_type" -eq 0 ] || [ "$board" = morse,halowlink1 ] || [ "$board" = morse,halowlink2 ]; then
 			case "$board" in
 				morse,ekh04v6)
 					bcf=bcf_ekh04_v6.bin
 				;;
 				morse,halowlink1)
 					bcf=bcf_mm_hl1.bin
+				;;
+				morse,halowlink2)
+					bcf=bcf_mf15457.bin
 				;;
 				*)
 					if [[ $path  = *usb* ]]; then
