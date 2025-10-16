@@ -210,12 +210,20 @@ function getWifiName(wifiNetwork) {
 }
 
 function getChanInfo(wifiNetwork) {
+	if (!wifiNetwork.getFrequency()) {
+		if (wifiNetwork.getMode() == 'sta') {
+			// We might have a channel here, but it will be a uci channel which is
+			// ignored, so better to report nothing if no frequency.
+			return null;
+		} else {
+			// Otherwise, we're aspiring to be on this channel, but due to whatever
+			// is happening we don't have frequency info yet.
+			return wifiNetwork.getChannel();
+		}
+	}
+
 	const freqInfo = `${wifiNetwork.getFrequency()} ${wifiNetwork.getFrequencyUnit()}`;
-	if (!freqInfo) {
-		// We might have a channel here, but it will be uci channel which could
-		// change on connection, so better to report nothing if no frequency.
-		return null;
-	} else if (isHaLow(wifiNetwork)) {
+	if (isHaLow(wifiNetwork)) {
 		const chanbw = wifiNetwork.ubus('dev', 'iwinfo', 'htmode');
 		return `${wifiNetwork.getChannel()} (${freqInfo}; ${chanbw} MHz)`;
 	} else {
@@ -1086,7 +1094,7 @@ function createAssoclistCard(wifiNetwork, wifiDevices, hostHints) {
 				E('dt', _('Device')),
 				E('dd', wifiNetwork.getDevice().getName()),
 				E('dt', _('Channel')),
-				E('dd', getChanInfo(wifiNetwork) ?? wifiNetwork.getChannel()),
+				E('dd', getChanInfo(wifiNetwork)),
 				bitrate && E('dt', _('Speed (avg)')),
 				bitrate && E('dd', `${wifiNetwork.getBitRate()} Mbps`),
 			].filter(e => e)),
