@@ -193,7 +193,11 @@ function apply_custom_config(uci, config) {
 		}
 		remove_initial_config(uci);
 		uci.set("wireless", target.device, "country", config.country);
-		uci.set("wireless", morse_device, "s1g_chzn", config.s1g_chzn);
+		if (config.s1g_chzn) {
+			uci.set("wireless", target.device, "s1g_chzn", config.s1g_chzn);
+		} else {
+			uci.delete("wireless", target.device, "s1g_chzn", config.s1g_chzn);
+		}
 
 		uci.set("wireless", target.iface, "mode", "sta");
 		// Disable powersave since this is only used for Extenders where
@@ -212,8 +216,12 @@ function apply_custom_config(uci, config) {
 		}
 		remove_initial_config(uci);
 		uci.set("wireless", target.device, "country", config.country);
-		uci.set("wireless", morse_device, "s1g_chzn", config.s1g_chzn);
 		uci.set("wireless", target.device, "channel", config.channel);
+		if (config.s1g_chzn) {
+			uci.set("wireless", target.device, "s1g_chzn", config.s1g_chzn);
+		} else {
+			uci.delete("wireless", target.device, "s1g_chzn", config.s1g_chzn);
+		}
 
 		uci.set("wireless", target.iface, "mode", "mesh");
 		uci.set("wireless", target.iface, "mesh_id", config.mesh_id);
@@ -233,10 +241,14 @@ function apply_custom_config(uci, config) {
 		}
 		remove_initial_config(uci);
 		uci.set("wireless", target.device, "country", config.country);
-		uci.set("wireless", morse_device, "s1g_chzn", config.s1g_chzn);
 		// prplmesh shouldn't require a channel, but currently does due to
 		// a bug with bringing up a HaLow AP and STA at the same time.
 		uci.set("wireless", target.device, "channel", config.channel);
+		if (config.s1g_chzn) {
+			uci.set("wireless", target.device, "s1g_chzn", config.s1g_chzn);
+		} else {
+			uci.delete("wireless", target.device, "s1g_chzn", config.s1g_chzn);
+		}
 
 		uci.set("wireless", target.iface, "mode", "ap");
 		uci.set("wireless", target.iface, "ssid", config.ssid);

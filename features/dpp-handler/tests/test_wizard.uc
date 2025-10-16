@@ -13,7 +13,12 @@ const MockUCICursor = {
 			return;
 		}
 
-		if (!value) {
+		// set() API is a little weird; "" removes, and null
+		// lets you construct a new section.
+		if (value === "") {
+			delete this.data[config][section][value];
+		} else if (value === null) {
+			assert(!this.data[config][section]);
 			this.data[config][section] = {
 				".type": option,
 			};
@@ -58,6 +63,7 @@ function mock_ap_uci_data() {
 				type: "morse",
 				country: "AU",
 				channel: "44",
+				s1g_chzn: "80211_2020",
 			},
 			default_radio0: {
 				".type": "wifi-iface",
@@ -159,6 +165,7 @@ return {
 		assert(conf_extra.encryption === "sae");
 		assert(conf_extra.country === "AU");
 		assert(conf_extra.channel === "44");
+		assert(conf_extra.s1g_chzn === "80211_2020");
 	},
 
 	generate_dpp_command_other_standard: function () {
@@ -179,6 +186,7 @@ return {
 		assert(conf_extra.encryption === "sae");
 		assert(conf_extra.country === "AU");
 		assert(conf_extra.channel === "44");
+		assert(conf_extra.s1g_chzn === "80211_2020");
 	},
 
 	generate_dpp_command_prplmesh: function () {
@@ -199,6 +207,7 @@ return {
 		assert(conf_extra.encryption === "sae");
 		assert(conf_extra.country === "AU");
 		assert(conf_extra.channel === "44");
+		assert(conf_extra.s1g_chzn === "80211_2020");
 	},
 
 	generate_dpp_command_mesh11s: function () {
@@ -219,6 +228,7 @@ return {
 		assert(conf_extra.encryption === "sae");
 		assert(conf_extra.country === "AU");
 		assert(conf_extra.channel === "44");
+		assert(conf_extra.s1g_chzn === "80211_2020");
 	},
 
 	generate_dpp_command_unsupported_encryption_returns_null: function () {
@@ -276,6 +286,7 @@ return {
 				encryption: "sae",
 				country: "AU",
 				channel: "44",
+				s1g_chzn: "80211_2020",
 			},
 		};
 		assert(wizard.apply_config(uci, dpp_conf, "default_radio1"));
@@ -286,12 +297,44 @@ return {
 		assert(uci.get("wireless", "default_radio1", "dpp") === null);
 		assert(uci.get("wireless", "default_radio1", "powersave") === "0");
 		assert(uci.get("wireless", "radio1", "country") === "AU");
+		assert(uci.get("wireless", "radio1", "s1g_chzn") === "80211_2020");
+	},
+
+	apply_config_custom_standard_without_s1g_chzn: function () {
+		const uci = MockUCICursor.new(mock_extender_uci_data());
+		uci.set("wireless", "default_radio1", "dpp", "1");
+
+		const dpp_conf = {
+			cred: {
+				akm: "sae",
+				pass: "mockpass",
+			},
+			discovery: {
+				ssid: "mockssid",
+			},
+			"com.morsemicro.wizard": {
+				mode: "standard",
+				ssid: "mockssid",
+				key: "mockpass",
+				encryption: "sae",
+				country: "AU",
+				channel: "43",
+			},
+		};
+		assert(wizard.apply_config(uci, dpp_conf, "default_radio1"));
+
+		assert(uci.get("wireless", "default_radio1", "ssid") === "mockssid");
+		assert(uci.get("wireless", "default_radio1", "key") === "mockpass");
+		assert(uci.get("wireless", "default_radio1", "encryption") === "sae");
+		assert(uci.get("wireless", "default_radio1", "dpp") === null);
+		assert(uci.get("wireless", "default_radio1", "powersave") === "0");
+		assert(uci.get("wireless", "radio1", "country") === "AU");
+		assert(uci.get("wireless", "radio1", "s1g_chzn") === null);
 	},
 
 	apply_config_prplmesh_success: function () {
 		const uci = MockUCICursor.new(mock_extender_uci_data());
 		// Ensure prplmesh namespace exists so uci.load("prplmesh") succeeds
-		uci.set("prplmesh", "config");
 		uci.set("prplmesh", "config", "enable", "0");
 
 		const conf = {
