@@ -45,7 +45,7 @@ show_raw_partition_data()
 }
 
 # This is here so we can iterate over all currently set keys.
-FACTORY_KEYS="device_password default_wifi_key mm_region mm_sku"
+FACTORY_KEYS="device_password default_wifi_key mm_region mm_sku mm_region_unlocked"
 
 show_factory_data()
 {
@@ -64,6 +64,11 @@ show_factory_data()
 				;;
 				mm_region)
 					show_raw_partition_data factory 0x40c0 2
+				;;
+				mm_region_unlocked)
+					if [ "$board_name" = morse,halowlink1 ]; then
+						echo 1
+					fi
 				;;
 				mm_sku)
 					# This is used to select a BCF other than the OTP default.

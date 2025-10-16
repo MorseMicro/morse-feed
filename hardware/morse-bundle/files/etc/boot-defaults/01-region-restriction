@@ -13,19 +13,19 @@ if [ ! -e /etc/fw_sys.config ]; then
 		added=1
 		;;
 	*)
-		echo region-lock: no config to do region select on first boot. > /dev/kmsg
-		exit 1
+		echo region-restriction: no config to do region lock on first boot. > /dev/kmsg
 		;;
 	esac
 fi
 
 mm_region="$(persistent_vars_storage.sh READ mm_region)"
+mm_region_unlocked="$(persistent_vars_storage.sh READ mm_region_unlocked)"
 
 if [ "$added" = 1 ]; then
 	rm /etc/fw_sys.config
 fi
 
-if [ -n "$mm_region" ]; then
+if [ -n "$mm_region" -a "$mm_region_unlocked" != 1 ]; then
 	for fname in $(find /lib/firmware -name "mm_region_${mm_region}_*"); do
 		mv "$fname" "$(echo "$fname" | sed "s/mm_region_${mm_region}_//")"
 	done

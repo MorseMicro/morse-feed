@@ -477,7 +477,8 @@ drv_morse_setup() {
 	json_select ..
 
 	mm_region=$(persistent_vars_storage.sh READ mm_region 2> /dev/null)
-	if [ -n "$mm_region" -a "$mm_region" != "$country" ]; then
+	mm_region_unlocked=$(persistent_vars_storage.sh READ mm_region_unlocked 2> /dev/null)
+	if [ "$mm_region_unlocked" != 1 -a -n "$mm_region" -a "$mm_region" != "$country" ]; then
 		echo "Cannot set country=$country as device is locked to $mm_region" >&2
 		wireless_set_retry 0
 		return 1
