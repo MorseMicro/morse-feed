@@ -31,7 +31,7 @@ define Package/morsecli
   CATEGORY:=Morse Micro
   SUBMENU:=Essentials
   TITLE:=Morse Micro WIFI HaLow driver command line tool
-  DEPENDS:= +kmod-morse +libnl +libusb-1.0
+  DEPENDS:= kmod-morse +libnl +libusb-1.0
   FILES:=\
 	$(PKG_BUILD_DIR)/morse_cli
   PROVIDES:=morsectrl

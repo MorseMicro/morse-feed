@@ -30,7 +30,7 @@ define Package/hostapd_s1g
   CATEGORY:=Morse Micro
   SUBMENU:=Essentials
   TITLE:=Morse Micro HaLow hostapd
-  DEPENDS:= +kmod-morse +kmod-cfg80211 +morsecli +libnl +libopenssl +libubus +libblobmsg-json
+  DEPENDS:= kmod-morse +kmod-cfg80211 +morsecli +libnl +libopenssl +libubus +libblobmsg-json
   USERID:=network=101:network=101
 endef
 
@@ -84,7 +84,7 @@ define Package/wpa_supplicant_s1g
   CATEGORY:=Morse Micro
   SUBMENU:=Essentials
   TITLE:=Morse Micro HaLow wpa_supplicant
-  DEPENDS:= +kmod-morse +kmod-cfg80211 +morsecli +libnl +libopenssl +libubus +MORSE_WPA_SUPPLICANT_S1G_DBUS:dbus +MORSE_WPA_SUPPLICANT_S1G_DBUS:libdbus +libblobmsg-json
+  DEPENDS:= kmod-morse +kmod-cfg80211 +morsecli +libnl +libopenssl +libubus +MORSE_WPA_SUPPLICANT_S1G_DBUS:dbus +MORSE_WPA_SUPPLICANT_S1G_DBUS:libdbus +libblobmsg-json
   USERID:=network=101:network=101
 endef
 
