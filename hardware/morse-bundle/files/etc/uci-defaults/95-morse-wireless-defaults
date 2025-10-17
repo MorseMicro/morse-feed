@@ -90,7 +90,7 @@ _change_device_defaults() {
 		uci set "wireless.default_$config.encryption=psk2"
 
 		# If it's 2.4Ghz radio, choose channel 6 to get highest TX power.
-		[ "$(uci get "wireless.$1.band")" = 2g ] && uci set "wireless.$config.channel=6"
+		[ "$device_band" = 2g ] && uci set "wireless.$config.channel=6"
 	else
 		return
 	fi
