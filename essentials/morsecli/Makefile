@@ -34,7 +34,6 @@ define Package/morsecli
   DEPENDS:= kmod-morse +libnl +libusb-1.0
   FILES:=\
 	$(PKG_BUILD_DIR)/morse_cli
-  PROVIDES:=morsectrl
 endef
 
 MAKE_FLAGS += \
