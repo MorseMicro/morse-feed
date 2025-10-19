@@ -131,7 +131,6 @@ function set_dpp_flash(iface, interval) {
 		// flash.
 		if (led.initial_trigger === "netdev" && led.initial_state.invert === "1") {
 			write_led(led.name, "trigger", "none");
-			write_led(led.name, "brightness", "0");
 		} else {
 			write_led(led.name, "trigger", "timer");
 			write_led(led.name, "delay_off", interval);
@@ -160,12 +159,6 @@ export function restore_dpp_led(iface) {
 				write_led(led.name, key, val);
 			}
 		}
-
-		// Unfortunately, brightness seems to be variable depending on whether
-		// the trigger is currently active, so it's not possible (?) to read
-		// the current brightness state. To reliably restore, we therefore
-		// set the brightness.
-		write_led(led.name, "brightness", "255");
 	}
 
 	delete IFACE_LED_STATE[iface];
