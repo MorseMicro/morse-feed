@@ -107,8 +107,6 @@ morse_override_hostapd_set_bss_options() {
 	fi
 	if [ "$max_inactivity" -gt 0 ]; then
 		append bss_conf "ap_max_inactivity=$max_inactivity" "$N"
-	elif [ "$thin_lmac_optimization" = "1" ]; then
-		append bss_conf "ap_max_inactivity=600" "$N"
 	fi
 
 	[ "$airtime_bss_weight" -gt 0 ] && append bss_conf "airtime_bss_weight=$airtime_bss_weight" "$N"

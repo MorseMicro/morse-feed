@@ -216,30 +216,6 @@ build_mod_params() {
 	MOD_PARAMS=`echo $MOD_PARAMS | xargs`
 }
 
-
-# If thinlmac optimisation is unset, the original settings are not restored unless the device is rebooted.
-# This is because the user could have forced different settings (e.g. via rc.local, or by setting ipv6_disabled=0
-# in UCI on the network device itself), and we do not want to unexpectedly interfere with these when this option
-# is unset. Note also that it's difficult to disable IPv6 via UCI in the normal way because it needs to be done
-# on the L3 device, and this device is not fixed for a particular wifi-iface (i.e. it might be a bridge) so there's
-# no clean way to push the wifi-device option into the right network device.
-apply_thin_lmac_optimization() {
-	# Disable noise from IPv6 incidental traffic
-	sysctl net.ipv6.conf.all.disable_ipv6=1
-	# Reduce ARP garbage collection frequency
-	sysctl -w net.ipv4.neigh.default.gc_thresh1=2048
-	sysctl -w net.ipv4.neigh.default.gc_thresh2=2048
-	sysctl -w net.ipv4.neigh.default.gc_thresh3=2048
-	# Increase ARP table entry timeout
-	sysctl -w net.ipv4.neigh.default.base_reachable_time_ms=3600000
-	# Disable Unnecessary ARP responses
-	sysctl -w net.ipv4.conf.all.arp_ignore=1
-	sysctl -w net.ipv4.conf.all.arp_announce=2
-	# Increase the number of connections supported per second from 470 - see:
-	# https://stackoverflow.com/questions/410616/increasing-the-maximum-number-of-tcp-ip-connections-in-linux
-	sysctl -w net.ipv4.ip_local_port_range="32768 65535"
-}
-
 drv_morse_cleanup() {
 	hostapd_common_cleanup
 }
@@ -263,7 +239,6 @@ drv_morse_init_device_config() {
 	config_add_array channels
 	config_add_boolean vendor_keep_alive_offload
 	config_add_boolean vfem_4v3
-	config_add_boolean thin_lmac_optimization
 	config_add_string firmware_type
 	config_add_string s1g_chzn
 
@@ -469,7 +444,6 @@ drv_morse_setup() {
 		frag rts htmode \
 		ampdu \
 		forced_listen_interval \
-		thin_lmac_optimization \
 		chan_test_mode
 	json_get_vars country s1g_chzn op_class channel \
 		s1g_chanbw s1g_prim_chwidth s1g_prim_1mhz_chan_index
@@ -681,10 +655,6 @@ drv_morse_setup() {
 			json_select ..
 			morse_set_chan_test_freq "$ifname" "$chan_test_freq" "$chan_test_bw" "$chan_test_prim_chwidth" "$chan_test_prim_chan_index"
 		fi
-	fi
-
-	if [ "$thin_lmac_optimization" = "1" ]; then
-		apply_thin_lmac_optimization
 	fi
 
 	wireless_set_up
