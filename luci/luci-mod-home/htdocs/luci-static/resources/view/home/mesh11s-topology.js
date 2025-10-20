@@ -38,7 +38,7 @@ function getHostInfoFromMac(dhcpInfo, macAddress) {
 	if (!entry) return null;
 
 	return {
-		hostname: entry.name || 'unknown',
+		hostname: entry.name || null,
 		ipv4: entry.ipaddrs?.[0],
 		ipv6: entry.ip6addrs?.[0],
 	};
@@ -69,7 +69,10 @@ class Mesh11sTopologyGraph {
 		const addNode = (mac, extraData = {}) => {
 			if (!mac || addedNodes.has(mac)) return;
 
-			const { hostname, ipv4, ipv6 } = getHostInfoFromMac(dhcpInfo, mac) || {};
+			const dhcp = getHostInfoFromMac(dhcpInfo, mac) || {};
+			const hostname = extraData.current ? nodeinfo.hostname || 'Current Node' : dhcp.hostname;
+			const ipv4 = dhcp.ipv4 || null;
+			const ipv6 = dhcp.ipv6 || null;
 			graph.addNode(mac, {
 				hostname,
 				macAddress: mac,
