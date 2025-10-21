@@ -92,6 +92,23 @@
 		</div>
 	</form>
 
+	<form class="content">
+		<details>
+			<summary>How do I configure this device as a HaLow Access Point?</summary>
+			<div style="gap: none;">
+				<p>
+					This device is currently setup as an Extender (shown by a solid aqua Status LED).
+					To switch this device into Access Point mode (shown by a solid green Status LED):
+				<ul>
+        			<li>hold the mode button until the Status LED starts <strong>slowly flashing green</strong>
+					<li>release the button
+        			<li>wait until the LED is <strong>solid green</strong>
+        			<li>find this device at 192.168.12.1
+				</ul>
+			</div>
+		</details>
+	</form>
+
 	<script>
 		document.getElementById('sta_password-show').addEventListener('change', (event) => {
 			document.getElementById('sta_password').type = event.target.checked ? 'text' : 'password';

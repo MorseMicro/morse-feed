@@ -10,6 +10,7 @@ body {
 .content {
 	max-width: 40rem;
 	margin: auto;
+	margin-bottom: 1rem;
 	background: #fff;
 	padding: 1.5rem;
 	border-radius: 10px;
@@ -35,7 +36,7 @@ input, select, button {
 }
 h2 { margin: 0; }
 h3 { margin-bottom: 0; }
-p { margin: 0.1rem; }
+p, ul { margin: 0.1rem; }
 .hint { font-size: .9rem; color: #475569; }
 .row { display:grid; gap:.3rem; }
 
