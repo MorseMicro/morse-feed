@@ -492,14 +492,15 @@ drv_morse_setup() {
 
 	build_mod_params
 
-	local morse_module_config_file="/etc/modules.d/morse-driver"
+	local morse_module_config_file="/etc/modules.d/morse"
 	local dot11ah_module_config_file="/etc/modules.d/dot11ah"
-	# If chan_test_mode is requested, morse_test_driver must be used
-	if [ "$chan_test_mode" == "1" ]; then
+	# If chan_test_mode parameter is available, it means we are using the test mode driver.
+	if [ -f "/sys/module/morse/parameters/chan_test_mode" ]; then
 		morse_module_config_file="/etc/modules.d/morse-test-driver"
-		[ ! -f "$morse_module_config_file" ] && \
-			echo "ERROR: Channel test mode requested but morse-test-driver module config missing." >&2 && \
+		if [ ! -f "$morse_module_config_file" ]; then
+			echo "ERROR: Test mode morse driver requested but morse-test-driver module config missing." >&2
 			return 1
+		fi
 	fi
 
 	local inserted_module=0
