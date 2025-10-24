@@ -463,11 +463,26 @@ return wizard.AbstractWizardView.extend({
 		// This is on morseInterfaceName instead of wizard due to odd luci behaviour.
 		const largeStationCountDepender = `network.${morseInterfaceName}.large_station_count`;
 
+		// A magic button that selects all the recommended defaults
+		const large_station_count_button = page.option(form.Button, 'large_station_count_button', _('Apply Recommended Settings'));
+		large_station_count_button.depends(largeStationCountDepender, '1');
+		large_station_count_button.defaults = [];
+		large_station_count_button.add_default = (option, value) => {
+			large_station_count_button.defaults.push([option, value]);
+		};
+		large_station_count_button.onclick = (e, sectionId) => {
+			for (let i = 0; i < large_station_count_button.defaults.length; i++) {
+				const [option, value] = large_station_count_button.defaults[i];
+				option.getUIElement(sectionId).setValue(value);
+			}
+		};
+
 		option = page.option(form.Flag, 'ipv6', 'Enable IPv6', _('IPv6 can be disabled to reduce traffic'));
 		option.uciconfig = 'network';
 		option.ucisection = 'wizard';
 		option.depends(largeStationCountDepender, '1');
 		option.default = '1';
+		large_station_count_button.add_default(option, '0');
 
 		option = page.option(form.Value, 'neighreachabletime', _('Neighbour cache validity'),
 			_('Time in milliseconds. Can be increased to reduce ARP traffic. Suggestion 1 hour: 3600000'),
@@ -477,6 +492,7 @@ return wizard.AbstractWizardView.extend({
 		option.depends(largeStationCountDepender, '1');
 		option.placeholder = '30000';
 		option.datatype = 'uinteger';
+		large_station_count_button.add_default(option, '3600000');
 
 		option = page.option(form.ListValue, 'arp_announce', _('Configure arp_announce'),
 			_('Setting this to 2 can help reduce ARP traffic in some situations. This setting applies to the entire system.'),
@@ -487,6 +503,7 @@ return wizard.AbstractWizardView.extend({
 		option.optional = true;
 		option.placeholder = _('-- Not set --');
 		option.value('2');
+		large_station_count_button.add_default(option, '2');
 
 		// netifd does not know the boot setting, so cant undo if the user set something here and then undid it.
 		// A reboot will eventually reset the value.
@@ -500,11 +517,13 @@ return wizard.AbstractWizardView.extend({
 		option.depends(largeStationCountDepender, '1');
 		option.placeholder = '128';
 		option.datatype = 'uinteger';
+		large_station_count_button.add_default(option, '2048');
 
 		option = page.option(form.Flag, 'isolate', _('Isolate Clients'), _('Prevent client to client communication.'));
 		option.uciconfig = 'wireless';
 		option.ucisection = morseInterfaceName;
 		option.depends(largeStationCountDepender, '1');
+		large_station_count_button.add_default(option, '1');
 
 		option = page.option(form.Value, 'max_inactivity', _('Station inactivity limit'),
 			_('Increasing this value can reduce traffic. Units: seconds. Suggestion: Use a value larger than the number of clients.'),
@@ -515,6 +534,7 @@ return wizard.AbstractWizardView.extend({
 		option.optional = true;
 		option.placeholder = 300;
 		option.datatype = 'uinteger';
+		large_station_count_button.add_default(option, '600');
 
 		if (L.hasSystemFeature('morsefwtlm')) {
 			option = page.option(form.ListValue, 'firmware_type', _('Firmware Type'),
@@ -527,6 +547,7 @@ return wizard.AbstractWizardView.extend({
 			option.default = '';
 			option.value('', 'SoftMAC (standard mode)');
 			option.value('thin_lmac', 'Thin LMAC (AP only, supporting many stations)');
+			large_station_count_button.add_default(option, 'thin_lmac');
 		}
 
 		/*****************************************************************************/

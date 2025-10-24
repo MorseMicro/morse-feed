@@ -1,7 +1,7 @@
 msgid ""
 msgstr "Content-Type: text/plain; charset=UTF-8"
 
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:488
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:504
 msgid "-- Not set --"
 msgstr ""
 
@@ -27,13 +27,13 @@ msgstr ""
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:578
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:707
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:412
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:575
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:740
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:833
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:596
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:761
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:854
 msgid "<abbr title=\"Service Set Identifier\">SSID</abbr>"
 msgstr ""
 
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:535
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:556
 msgid ""
 "<b>DPP</b> (Device Provisioning Protocol) lets you scan a QR code to "
 "automatically connect to a HaLow access point."
@@ -102,7 +102,7 @@ msgstr ""
 
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:738
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:735
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:861
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:882
 msgid "Almost there..."
 msgstr ""
 
@@ -141,6 +141,10 @@ msgstr ""
 msgid "Apply"
 msgstr ""
 
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:467
+msgid "Apply Recommended Settings"
+msgstr ""
+
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:361
 msgid ""
 "As with any Wi-Fi network, HaLow has <b>Clients</b> (also known as stations) "
@@ -149,7 +153,7 @@ msgid ""
 "interfaces."
 msgstr ""
 
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:550
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:571
 msgid "Authentication method"
 msgstr ""
 
@@ -182,26 +186,26 @@ msgstr ""
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/matterwizard.js:284
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:484
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:631
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:645
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:793
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:666
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:814
 msgid "Bridge"
 msgstr ""
 
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:625
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:787
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:808
 msgid "Bridge/Router"
 msgstr ""
 
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:739
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:736
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:862
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:883
 msgid "Click <b>Apply</b> to persist your configuration."
 msgstr ""
 
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:797
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/matterwizard.js:307
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:785
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:930
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:951
 msgid "Click below to exit the wizard"
 msgstr ""
 
@@ -209,7 +213,7 @@ msgstr ""
 msgid "Client"
 msgstr ""
 
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:481
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:497
 msgid "Configure arp_announce"
 msgstr ""
 
@@ -219,19 +223,19 @@ msgstr ""
 
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:780
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:765
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:913
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:934
 msgid "Connect Ethernet devices to your network."
 msgstr ""
 
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:882
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:903
 msgid "Connect another device via <b>Ethernet</b> to use your new HaLow link."
 msgstr ""
 
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:901
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:922
 msgid "Connect other HaLow-enabled devices to use your new HaLow network."
 msgstr ""
 
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:873
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:894
 msgid ""
 "Connect this device to your HaLow access point by scanning the QR code in "
 "the mobile application, then clicking"
@@ -239,11 +243,11 @@ msgstr ""
 
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:768
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:753
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:896
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:917
 msgid "Connect this device to your existing network via an Ethernet cable."
 msgstr ""
 
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:539
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:560
 msgid "Connect to a HaLow Network"
 msgstr ""
 
@@ -263,7 +267,7 @@ msgstr ""
 msgid "Country"
 msgstr ""
 
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:555
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:576
 msgid "DPP (Device Provisioning Protocol) QR Code"
 msgstr ""
 
@@ -309,29 +313,29 @@ msgstr ""
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:724
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:598
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:723
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:760
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:849
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:781
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:870
 msgid "Encryption"
 msgstr ""
 
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:566
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:543
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:705
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:726
 msgid "Ethernet"
 msgstr ""
 
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:517
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/matterwizard.js:285
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:485
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:646
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:667
 msgid "Extender"
 msgstr ""
 
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:534
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:555
 msgid "Fill in the credentials to connect to a HaLow Access Point."
 msgstr ""
 
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:520
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:540
 msgid "Firmware Type"
 msgstr ""
 
@@ -357,7 +361,7 @@ msgstr ""
 msgid "Hostname is used for many device id purposes, including DNS."
 msgstr ""
 
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:466
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:480
 msgid "IPv6 can be disabled to reduce traffic"
 msgstr ""
 
@@ -369,7 +373,7 @@ msgstr ""
 
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:533
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:501
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:662
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:683
 msgid ""
 "If you use a <b>Wi-Fi</b> upstream, fill in the Wi-Fi AP credentials. The "
 "HaLow connected devices obtain IP addresses from the DHCP server on this "
@@ -384,7 +388,7 @@ msgid ""
 msgstr ""
 
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:499
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:660
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:681
 msgid ""
 "If you use an <b>Ethernet</b> upstream, we recommend choosing <b>Bridge</b>. "
 "This allows HaLow connected devices to obtain IPs from your Ethernet network."
@@ -397,7 +401,7 @@ msgid ""
 msgstr ""
 
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:506
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:667
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:688
 msgid ""
 "In <b>Bridge</b> mode this device and the HaLow connected devices obtain IP "
 "addresses from your current upstream network."
@@ -406,7 +410,7 @@ msgstr ""
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:496
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/matterwizard.js:273
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:462
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:625
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:646
 msgid ""
 "In <b>Bridged</b> traffic mode, non-HaLow devices obtain IPs from your HaLow "
 "link."
@@ -421,7 +425,7 @@ msgstr ""
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:497
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/matterwizard.js:274
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:463
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:626
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:647
 msgid ""
 "In <b>Extender</b> traffic mode, non-HaLow devices obtain IPs from the DHCP "
 "server on this device and this device uses NAT to forward IP traffic."
@@ -429,7 +433,7 @@ msgstr ""
 
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:536
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:504
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:665
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:686
 msgid ""
 "In <b>None</b> mode, your device will have a static IP address and run a "
 "DHCP server on all interfaces, the HaLow and non-HaLow networks will be "
@@ -439,7 +443,7 @@ msgstr ""
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:494
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/matterwizard.js:271
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:460
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:623
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:644
 msgid ""
 "In <b>None</b> traffic mode, non-HaLow and HaLow networks are isolated. This "
 "device will use a static IP address and run a DHCP server on the non-HaLow "
@@ -447,7 +451,7 @@ msgid ""
 msgstr ""
 
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:512
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:673
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:694
 msgid ""
 "In <b>Router with Firewall</b> mode the HaLow connected devices obtain IP "
 "addresses from the DHCP server on this device, and this device uses NAT to "
@@ -457,7 +461,7 @@ msgid ""
 msgstr ""
 
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:508
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:669
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:690
 msgid ""
 "In <b>Router</b> mode the HaLow connected devices obtain IP addresses from "
 "the DHCP server on this device, and this device uses NAT to forward IP "
@@ -466,7 +470,7 @@ msgid ""
 "network."
 msgstr ""
 
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:494
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:511
 msgid ""
 "Increase the ARP garbage collection threshold (number of neighbours) to "
 "reduce ARP traffic. Suggestion: Use a value double the expected number of "
@@ -474,13 +478,13 @@ msgid ""
 "rebooting this device."
 msgstr ""
 
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:510
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:529
 msgid ""
 "Increasing this value can reduce traffic. Units: seconds. Suggestion: Use a "
 "value larger than the number of clients."
 msgstr ""
 
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:504
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:522
 msgid "Isolate Clients"
 msgstr ""
 
@@ -499,7 +503,7 @@ msgstr ""
 msgid "Loading view..."
 msgstr ""
 
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:554
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:575
 msgid "Manual credentials"
 msgstr ""
 
@@ -545,11 +549,11 @@ msgstr ""
 msgid "Mode selection"
 msgstr ""
 
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:493
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:510
 msgid "Neighbour cache garbage collection thresholds"
 msgstr ""
 
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:472
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:487
 msgid "Neighbour cache validity"
 msgstr ""
 
@@ -560,9 +564,9 @@ msgstr ""
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:483
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:541
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:607
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:644
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:703
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:769
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:665
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:724
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:790
 msgid "None"
 msgstr ""
 
@@ -579,7 +583,7 @@ msgstr ""
 
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:628
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:606
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:768
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:789
 msgid "OWE"
 msgstr ""
 
@@ -616,9 +620,9 @@ msgstr ""
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:679
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:716
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:431
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:595
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:771
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:842
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:616
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:792
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:863
 msgid "Passphrase"
 msgstr ""
 
@@ -626,17 +630,17 @@ msgstr ""
 msgid "Password"
 msgstr ""
 
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:504
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:522
 msgid "Prevent client to client communication."
 msgstr ""
 
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:632
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:794
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:815
 msgid "Router"
 msgstr ""
 
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:637
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:799
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:820
 msgid "Router with Firewall"
 msgstr ""
 
@@ -648,7 +652,7 @@ msgstr ""
 msgid "Save error"
 msgstr ""
 
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:482
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:498
 msgid ""
 "Setting this to 2 can help reduce ARP traffic in some situations. This "
 "setting applies to the entire system."
@@ -695,7 +699,7 @@ msgstr ""
 msgid "Standard Wi-Fi HaLow"
 msgstr ""
 
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:509
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:528
 msgid "Station inactivity limit"
 msgstr ""
 
@@ -711,7 +715,7 @@ msgid ""
 "href=\"%s\" target=\"_blank\">regulatory data table</a>."
 msgstr ""
 
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:521
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:541
 msgid ""
 "Thin LMAC firmware is required for MM6108 access points to associate to more "
 "than 200 clients."
@@ -721,7 +725,7 @@ msgstr ""
 msgid "This wizard will guide you through the initial setup of this device."
 msgstr ""
 
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:473
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:488
 msgid ""
 "Time in milliseconds. Can be increased to reduce ARP traffic. Suggestion 1 "
 "hour: 3600000"
@@ -731,33 +735,33 @@ msgstr ""
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/matterwizard.js:262
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:450
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:621
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:610
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:783
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:631
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:804
 msgid "Traffic Mode"
 msgstr ""
 
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:509
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/matterwizard.js:278
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:477
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:638
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:659
 msgid "Traffic mode"
 msgstr ""
 
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:540
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:518
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:679
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:700
 msgid "Upstream Network"
 msgstr ""
 
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:559
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:536
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:698
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:719
 msgid "Upstream network"
 msgstr ""
 
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:627
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:605
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:767
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:788
 msgid "WPA-PSK"
 msgstr ""
 
@@ -765,14 +769,14 @@ msgstr ""
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:725
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:603
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:724
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:765
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:850
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:786
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:871
 msgid "WPA2-PSK"
 msgstr ""
 
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:726
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:725
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:851
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:872
 msgid "WPA2-PSK/WPA3-SAE Mixed Mode"
 msgstr ""
 
@@ -780,12 +784,12 @@ msgstr ""
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:727
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:604
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:726
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:766
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:852
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:787
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:873
 msgid "WPA3-SAE"
 msgstr ""
 
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:611
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:632
 msgid ""
 "We recommend configuring this device as a <b>Bridge</b>. This allows non-"
 "HaLow devices to obtain IPs over your HaLow link. <p>However, if the HaLow "
@@ -838,7 +842,7 @@ msgstr ""
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:796
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/matterwizard.js:306
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:784
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:929
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:950
 msgid "Wizard Complete"
 msgstr ""
 
@@ -866,7 +870,7 @@ msgid ""
 "non-HaLow networks will be connected. <p>"
 msgstr ""
 
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:680
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:701
 msgid ""
 "You are using this HaLow device as an access point, you should configure how "
 "it connects to the internet (or some other network). <p> If you choose "
