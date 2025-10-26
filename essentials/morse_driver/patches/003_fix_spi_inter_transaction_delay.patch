@@ -1,0 +1,23 @@
+diff --git a/spi.c b/spi.c
+index 5863943..05f88ad 100644
+--- a/spi.c
++++ b/spi.c
+@@ -563,7 +563,7 @@ static int morse_spi_cmd53_read(struct morse_spi *mspi, u8 fn, u32 address, u8 *
+ 
+ 	if (!block) {
+ 		/* Scale bytes delay to block */
+-		u32 extra_bytes = (count * mspi->inter_block_delay_bytes) / MMC_SPI_BLOCKSIZE;
++		u32 extra_bytes = max(250, (count * mspi->inter_block_delay_bytes) / MMC_SPI_BLOCKSIZE);
+ 
+ 		/* Allow 4 bytes for CRC and another 10 bytes for start block token & chip delays
+ 		 * (usually comes in 2).
+@@ -692,7 +692,8 @@ static int morse_spi_cmd53_write(struct morse_spi *mspi, u8 fn, u32 address, u8
+ 		cp += sizeof(crc);
+ 
+ 		/* Allow more bytes for status and chip processing (depends on CLK) */
+-		cp += block ? mspi->inter_block_delay_bytes : 4;
++		cp += block ? mspi->inter_block_delay_bytes
++					: max(250,(count * mspi->inter_block_delay_bytes) / MMC_SPI_BLOCKSIZE);
+ 	}
+ 
+ 	if (enable_ext_xtal_init) {
