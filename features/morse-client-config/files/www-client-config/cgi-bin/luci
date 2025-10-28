@@ -11,9 +11,16 @@ import { cursor } from 'uci';
 import { connect } from 'ubus';
 import { stdin, stdout, popen } from 'fs';
 import request from 'luci.http';
+import { load_catalog, change_catalog, translate } from 'luci.core';
 
 const uci = cursor();
 const ubus = connect();
+
+const lang = uci.get("luci", "main", "lang") ?? "en";
+if (load_catalog(lang, '/usr/lib/lua/luci/i18n')) {
+	change_catalog(lang);
+}
+const template_functions = { _: function (s) { return translate(s) ?? s; } };
 
 function set_if_not_null(config, section, option, value) {
 	if (value !== null) {
@@ -52,14 +59,14 @@ case "GET":
 	};
 
 	if (!morse_device) {
-		req.write(render("./config_error.uc", { message: "No Morse device to configure." }));
+		req.write(render("./config_error.uc", { message: "No Morse device to configure.", ...template_functions }));
 		break;
 	}
 
 	if (!mm_region) {
 		const countrylist = morse_device && ubus.call("iwinfo", "countrylist", {"device": morse_device});
 		if (!countrylist|| !countrylist["results"]) {
-			req.write(render("./config_error.uc", { message: "Unable to list available countries for HaLow device." }));
+			req.write(render("./config_error.uc", { message: "Unable to list available countries for HaLow device.", ...template_functions }));
 			break;
 		}
 		data.countries = countrylist["results"];
@@ -74,9 +81,9 @@ case "GET":
 	}
 
 	if (!data.sta.exists) {
-		req.write(render("./config_error.uc", { message: "No HaLow client interface available for configuration." }));
+		req.write(render("./config_error.uc", { message: "No HaLow client interface available for configuration.", ...template_functions }));
 	} else {
-		req.write(render("./config.uc", data));
+		req.write(render("./config.uc", { ...data, ...template_functions }));
 	}
 	break;
 
@@ -116,7 +123,7 @@ case "POST":
 	for (let cf in config_files) {
 		ubus.call("service", "event", { type: "config.change", data: { package: cf } });
 	}
-	req.write(render("./config_result.uc"));
+	req.write(render("./config_result.uc", template_functions));
 
 	break;
 

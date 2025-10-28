@@ -43,6 +43,13 @@ define Package/morse-client-config/install
 
 	$(INSTALL_DIR) $(1)/etc/uci-defaults
 	$(INSTALL_BIN) ./files/etc/uci-defaults/* $(1)/etc/uci-defaults/
+
+	$(INSTALL_DIR) $(1)/usr/lib/lua/luci/i18n
+	for po in ./po/*/*.po; do \
+		lang=$$$$(basename $$$$(dirname "$$$$po")); \
+		base=$$$$(basename "$$$$po" .po); \
+		po2lmo "$$$$po" $(1)/usr/lib/lua/luci/i18n/$$$$base.$$$$lang.lmo; \
+	done
 endef
 
 
