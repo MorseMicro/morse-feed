@@ -17,7 +17,7 @@
 				"file": [ "write", "exec" ],
 				"uci": [ "apply", "commit", "delete"],
 				"luci": [ "setPassword", "setLocaltime" ]
-			}
+			},
 			"uci": [ "system", "luci", "firewall", "dhcp", "network", "wireless", "mesh11sd", "prplmesh", "matter", "smart_manager" ]
 		}
 	}

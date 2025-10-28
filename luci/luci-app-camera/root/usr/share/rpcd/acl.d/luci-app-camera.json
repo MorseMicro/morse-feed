@@ -5,7 +5,7 @@
 			"ubus": {
 				"onvif": [ "probe", "info", "get_stream" ],
 				"mediamtx": [ "get_ports" ],
-				"luci-rpc": [ "callLuciNetworkDevices" ],
+				"luci-rpc": [ "callLuciNetworkDevices" ]
 			},
 			"uci": [ "cameras", "wireless", "aws_kvs" ]
 		},
