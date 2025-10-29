@@ -444,6 +444,7 @@ drv_morse_setup() {
 		frag rts htmode \
 		ampdu \
 		forced_listen_interval \
+		firmware_type \
 		chan_test_mode
 	json_get_vars country s1g_chzn op_class channel \
 		s1g_chanbw s1g_prim_chwidth s1g_prim_1mhz_chan_index
