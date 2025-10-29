@@ -22,7 +22,8 @@ MM_MOD_BOOL="enable_mac80211_connection_monitor mcs10_mode enable_rts_8mhz
 			enable_sched_scan enable_1mhz_probes enable_ext_xtal_init
 			enable_hw_scan enable_mcast_rate_control enable_mm_vendor_ie
 			enable_page_slicing enable_pv1 enable_sched_scan enable_secureboot
-			enable_short_bcn_as_dtim_override enable_hw_leds enable_pre_assoc_ps chan_test_mode"
+			enable_short_bcn_as_dtim_override enable_hw_leds enable_pre_assoc_ps chan_test_mode
+			enable_sgi_rc"
 MM_MOD_STRING="serial country test_mode debug_mask macaddr_octet mcs_mask dhcpc_lease_update_script
 			fw_bin_file sdio_clk_debugfs"
 MM_MOD_UNKNOWN=
@@ -62,21 +63,6 @@ check_cac(){
 	json_select ..
 }
 
-check_sgi(){
-	enable_sgi=1
-	if json_is_a s1g_capab array
-	then
-		json_select s1g_capab
-		idx=1
-		while json_is_a ${idx} string
-		do
-			json_get_var capab $idx
-			[ "${capab}" = "[SHORT-GI-NONE]" ] && enable_sgi=0
-			idx=$(( idx + 1 ))
-		done
-		json_select ..
-	fi
-}
 
 check_usb_powersave(){
 	powersave_val=0
@@ -188,12 +174,6 @@ build_mod_params() {
 			;;
 	esac
 
-	check_sgi
-	if [ $enable_sgi -ne 1 ]; then
-		MOD_PARAMS="$MOD_PARAMS enable_sgi_rc=0"
-	else
-		MOD_PARAMS="$MOD_PARAMS enable_sgi_rc=1"
-	fi
 	json_select ..
 	enable_cac=
 	for_each_interface "ap" check_cac
@@ -591,6 +571,21 @@ drv_morse_setup() {
 		get_matter_config
 		json_select config
 		json_get_vars vendor_keep_alive_offload matter_enable
+
+		enable_sgi=1
+		if json_is_a s1g_capab array
+		then
+			json_select s1g_capab
+			idx=1
+			while json_is_a ${idx} string
+			do
+				json_get_var capab $idx
+				[ "${capab}" = "[SHORT-GI-NONE]" ] && enable_sgi=0
+				idx=$(( idx + 1 ))
+			done
+			json_select ..
+		fi
+
 		json_select ..
 
 		for_each_interface "sta" morse_setup_sta
