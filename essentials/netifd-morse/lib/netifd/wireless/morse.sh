@@ -755,9 +755,7 @@ morse_iface_create() {
 			fi
 
 			[ "$has_chan_info" != 1 ] && return 6
-			morse_iw_interface_add "$phy" "$ifname" __ap || return 1
-			ifconfig "$ifname" hw ether $macaddr
-			ip link set $ifname up
+			morse_iw_interface_add "$phy" "$ifname" "$macaddr" __ap || return 1
 		;;
 
 		sta)
@@ -766,7 +764,8 @@ morse_iface_create() {
 			fi
 			[ -z "$country" ] && return 5
 			[ "$wds" -gt 0 ] && wdsflag="4addr on"
-			morse_iw_interface_add "$phy" "$ifname" managed "$wdsflag" return 1
+			morse_iw_interface_add "$phy" "$ifname" "$macaddr" managed "$wdsflag" || return 1
+
 			if [ "$wds" -gt 0 ]; then
 				iw dev "$ifname" set 4addr on
 			else
@@ -781,8 +780,6 @@ morse_iface_create() {
 			fi
 			[ "$powersave" -gt 0 ] && powersave="on" || powersave="off"
 			iw dev "$ifname" set power_save "$powersave"
-			ifconfig "$ifname" hw ether $macaddr
-			ip link set $ifname up
 		;;
 
 		mesh)
@@ -792,9 +789,8 @@ morse_iface_create() {
 			[ "$has_chan_info" != 1 ] && return 6
 			[ "$auto_channel_only" = 1 ] && return 9
 			[ "$auto_channel" -gt 0 ] && return 4
-			morse_iw_interface_add "$phy" "$ifname" mp || return 1
-			ifconfig "$ifname" hw ether $macaddr
-			ip link set $ifname up
+
+			morse_iw_interface_add "$phy" "$ifname" "$macaddr" mp || return 1
 		;;
 
 		adhoc)
@@ -804,7 +800,8 @@ morse_iface_create() {
 			[ "$has_chan_info" != 1 ] && return 6
 			[ "$auto_channel_only" = 1 ] && return 9
 			[ "$auto_channel" -gt 0 ] && return 4
-			morse_iw_interface_add "$phy" "$ifname" adhoc || return 1
+
+			morse_iw_interface_add "$phy" "$ifname" "$macaddr" adhoc || return 1
 		;;
 
 		monitor)
@@ -812,14 +809,20 @@ morse_iface_create() {
 				return 11
 			fi
 			[ "$has_chan_info" != 1 ] && return 6
-			morse_iw_interface_add "$phy" "$ifname" monitor || return 1
+			morse_iw_interface_add "$phy" "$ifname" "$macaddr" monitor || return 1
+
+			# Unlike other modes, there's no wpa_supplicant/hostapd here, so we are
+			# responsible for bring-up.
 			ip link set "$ifname" up
-			#we need morse0 to dump the packets from.
+			# We need morse0 to dump the packets from.
 			ip link set morse0 up
 		;;
 
 		*)
-			morse_iw_interface_add "$phy" "$ifname" managed || return 1
+			morse_iw_interface_add "$phy" "$ifname" "$macaddr" managed || return 1
+
+			# Unlike other modes, there's no wpa_supplicant/hostapd here, so we are
+			# responsible for bring-up.
 			ip link set $ifname up
 		;;
 	esac
@@ -1413,8 +1416,9 @@ find_phy() {
 morse_iw_interface_add() {
 	local _phy="$1"
 	local _ifname="$2"
-	local _type="$3"
-	local _wdsflag="$4"
+	local _macaddr="$3"
+	local _type="$4"
+	local _wdsflag="$5"
 	local rc
 	local old_ifname
 
@@ -1474,7 +1478,11 @@ morse_iw_interface_add() {
 		rc="$?"
 	fi
 
-	[ "$rc" != 0 ] && echo "Failed to create interface $_ifname"
+	if [ "$rc" != 0 ]; then
+		echo "Failed to create interface $_ifname"
+	else
+		ip link set dev "$_ifname" address "$macaddr"
+	fi
 	return $rc
 }
 
