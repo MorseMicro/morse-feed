@@ -14,9 +14,10 @@
  * Future work might be to integrate this into our quick config page.
  */
 'use strict';
-/* globals configDiagram form morseuci network rpc uci view wizard */
+/* globals configDiagram form halow morseuci network rpc uci view wizard */
 'require view';
 'require network';
+'require halow';
 'require rpc';
 'require uci';
 'require form';
@@ -183,6 +184,10 @@ return view.extend({
 				}
 				break;
 			case 'prplmesh':
+				// Auto channels unsupported for mesh modes.
+				if ([undefined, 'auto'].includes(uci.get('wireless', morseDeviceName, 'channel'))) {
+					wizard.setBestChannel(this.channels, morseDeviceName, uci.get('wireless', morseDeviceName, 's1g_chanbw'));
+				}
 				morseuci.forceBridge('lan', 'br-prpl', this.bridgeMAC);
 
 				uci.set('prplmesh', 'config', 'enable', '1');
@@ -225,6 +230,10 @@ return view.extend({
 
 				break;
 			case 'mesh':
+				// Auto channels unsupported for mesh modes.
+				if ([undefined, 'auto'].includes(uci.get('wireless', morseDeviceName, 'channel'))) {
+					wizard.setBestChannel(this.channels, morseDeviceName, uci.get('wireless', morseDeviceName, 's1g_chanbw'));
+				}
 				morseuci.forceBridge('lan', 'br-lan');
 
 				uci.set('mesh11sd', 'mesh_params', 'mesh_gate_announcements', '1');
@@ -374,10 +383,11 @@ return view.extend({
 	},
 
 	async load() {
-		const [networkDevices, ethernetPorts, morseModeInfo] = await Promise.all([
+		const [networkDevices, ethernetPorts, morseModeInfo, channels] = await Promise.all([
 			network.getDevices(),
 			callGetBuiltinEthernetPorts(),
 			callMorseModeQuery(),
+			halow.loadChannels(),
 			configDiagram.loadTemplate(),
 			uci.load(['network', 'wireless', 'dhcp', 'system', 'firewall', 'prplmesh', 'mesh11sd', 'umdns']),
 		]);
@@ -402,6 +412,8 @@ return view.extend({
 			this.handleSaveApply = null;
 		}
 
+		this.channels = channels;
+
 		return [networkDevices, ethernetPorts];
 	},
 
@@ -412,6 +424,10 @@ return view.extend({
 				E('section', { class: 'message' }, this.errorMessage),
 			];
 		}
+
+		const {
+			morseDeviceName,
+		} = wizard.readSectionInfo();
 
 		this.bridgeMAC = morseuci.getFakeMorseMAC(networkDevices) ?? morseuci.getRandomMAC();
 		this.ethernetPorts = morseuci.getEthernetPorts(builtinEthernetPorts, networkDevices);
@@ -430,20 +446,25 @@ return view.extend({
 
 		this.map = new form.JSONMap(this.data);
 		const s = this.map.section(form.NamedSection, 'wizard');
-		let o = s.option(form.ListValue, 'device_mode', _('HaLow Mode'));
-		o.widget = 'radio';
-		o.orientation = 'vertical';
-		const makeOptionWithInfo = (key, val, info) => {
-			o.value(key, E('span', {}, [
-				E('span', { style: 'width: 12rem; display: inline-block;' }, val),
-				E('em', { style: 'margin-left: 1rem; display: inline-block; width: 14rem; white-space: nowrap;' }, '← ' + info),
-			]));
-		};
-		makeOptionWithInfo('standard', _('Access Point'), _('Fastest mode if <4km range.'));
-		makeOptionWithInfo('prplmesh', _('EasyMesh Controller'), _('Use extra devices for more range.'));
-		makeOptionWithInfo('mesh', _('802.11s Mesh'), _('Use extra devices for more range.'));
-		o.onchange = () => this.saveToUciCache();
-		o.default = 'standard';
+		let o;
+
+		// If you require ACS/DCS, we do not currently support mesh modes.
+		if (!halow.isAutoOnlyCountry(uci.get('wireless', morseDeviceName, 'country'))) {
+			o = s.option(form.ListValue, 'device_mode', _('HaLow Mode'));
+			o.widget = 'radio';
+			o.orientation = 'vertical';
+			const makeOptionWithInfo = (key, val, info) => {
+				o.value(key, E('span', {}, [
+					E('span', { style: 'width: 12rem; display: inline-block;' }, val),
+					E('em', { style: 'margin-left: 1rem; display: inline-block; width: 14rem; white-space: nowrap;' }, '← ' + info),
+				]));
+			};
+			makeOptionWithInfo('standard', _('Access Point'), _('Fastest mode if <4km range.'));
+			makeOptionWithInfo('prplmesh', _('EasyMesh Controller'), _('Use extra devices for more range.'));
+			makeOptionWithInfo('mesh', _('802.11s Mesh'), _('Use extra devices for more range.'));
+			o.onchange = () => this.saveToUciCache();
+			o.default = 'standard';
+		}
 
 		o = s.option(form.ListValue, 'network_mode', _('Network Mode'));
 		o.widget = 'radio';
