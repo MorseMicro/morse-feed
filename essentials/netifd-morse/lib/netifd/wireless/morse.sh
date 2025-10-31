@@ -11,8 +11,9 @@ init_wireless_driver "$@"
 
 MM_MOD_INT="watchdog_interval_secs max_rates max_rate_tries spi_clock_speed max_txq_len virtual_sta_max max_aggregation_count
 			default_cmd_timeout_ms sdio_reset_time tx_max_power_mbm max_mc_frames duty_cycle_mode ocs_type fixed_mcs fixed_bw
-			fixed_ss fixed_guard tx_status_lifetime_ms max_total_vendor_ie_bytes
-			hw_reload_after_stop slow_clock_mode rsn_beacon_mode hw_scan_prim_desconstruct"
+			fixed_ss fixed_guard tx_status_lifetime_ms max_total_vendor_ie_bytes coredump_include coredump_method
+			hw_reload_after_stop slow_clock_mode rsn_beacon_mode hw_scan_prim_deconstruct duty_cycle_probe_retry_threshold
+			spi_inter_block_delay_bytes tx_queued_lifetime_ms"
 MM_MOD_BOOL="enable_mac80211_connection_monitor mcs10_mode enable_rts_8mhz
 			enable_otp_check enable_survey enable_subbands enable_ps enable_trav_pilot enable_watchdog_reset
 			enable_watchdog no_hwcrypt enable_raw enable_arp_offload enable_dynamic_ps_offload
