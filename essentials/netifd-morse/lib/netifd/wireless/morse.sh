@@ -773,7 +773,7 @@ morse_iface_create() {
 			fi
 
 			# Disable powersave for Morse USB mode as a workaround for APP-3745
-			if iwinfo dot11ah path "$phy" | grep -q "usb"; then
+			if iwinfo nl80211 path "$phy" | grep -q "usb"; then
 				set_default powersave 0
 			else
 				set_default powersave 1
