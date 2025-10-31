@@ -55,7 +55,7 @@
 import * as uloop from "uloop";
 import { connect } from  "ubus";
 import { cursor } from "uci";
-import { readfile, writefile } from "fs";
+import * as fs from "fs";
 
 import {
 	apply_config, generate_dpp_command, has_custom_target
@@ -115,6 +115,23 @@ function get_ifname_section(ifname, wireless_status) {
 	}
 
 	return null;
+}
+
+
+/**
+ * Find all morse ifnames.
+ */
+function find_morse_ifnames() {
+	const ifnames = [];
+
+	for (let ifname in fs.lsdir('/sys/class/net')) {
+		const driver = fs.basename(fs.readlink(`/sys/class/net/${ifname}/device/driver`));
+		if (match(driver, /^morse/)) {
+			push(ifnames, ifname);
+		}
+	}
+
+	return ifnames;
 }
 
 
@@ -265,6 +282,7 @@ const DPPPB = {
 
 	restore_leds: function () {
 		for (let ifname in this.ifnames) {
+			debug("Restoring LED for ", this.ifname, "\n");
 			restore_dpp_led(ifname);
 		}
 	},
@@ -325,6 +343,13 @@ const DPPPB = {
 			assert(ifname, `Attempted to target invalid ubus_obj: ${ubus_obj}`);
 			set_dpp_failed_led(ifname);
 		} else {
+			if (length(this.ifnames) === 0) {
+				// Report failure on any morse ifnames we can find.
+				// This happens in early failure when we can't start dpp
+				// pb on any ifnames.
+				this.ifnames = find_morse_ifnames();
+			}
+
 			for (let ifname in this.ifnames) {
 				set_dpp_failed_led(ifname);
 			}
@@ -340,12 +365,12 @@ const DPPPB = {
 				that.restore_leds();
 			}));
 		} else {
-			dpp_pb = null;
 			let temp_timer;
 			temp_timer = uloop.timer(FAIL_SIGNAL_SECS * 1000, () => {
 				// Only set "done" if another interaction hasn't started.
-				if (!dpp_pb) {
+				if (dpp_pb === that) {
 					that.restore_leds();
+					dpp_pb = null;
 				}
 				temp_timer.cancel();
 			});
@@ -532,9 +557,12 @@ function push_button(req) {
 		}
 	}
 
+	dpp_pb = DPPPB.new();
+
 	const wireless_status = ubus.call("network.wireless", "status");
 	if (!wireless_status) {
 		warn("Couldn't call network:wireless.status; aborting DPP-PB: ", ubus.error(), "\n");
+		dpp_pb.failed();
 		return {
 			error: 'Failed to call network:wireless.status',
 			error_code: "ubus_error",
@@ -552,6 +580,15 @@ function push_button(req) {
 	}
 
 	if ((proposed_mode === "sta" || !proposed_mode) && !target_wpad_objs) {
+		if (uci.get("prplmesh", "config", "enable") === "1") {
+			dpp_pb.failed();
+			return {
+				"error": "DPP pairing when EasyMesh is enabled is only supported on the AP side. Reset your device back to a normal Client/Station to redo pairing.",
+				"error_code": "no_available_mode",
+				lockout_remaining_secs,
+			}
+		}
+
 		// Trigger on HaLow STA only if it exists.
 		for (let wpad_obj in values(wpad_objects)) {
 			if (wpad_obj.mode === "Client" && wpad_obj.hwmode === "ah") {
@@ -576,14 +613,13 @@ function push_button(req) {
 	}
 
 	if (!target_wpad_objs && !target_devices) {
+		dpp_pb.failed();
 		return {
-			"error": "Unable to discover an active interface to trigger DPP push button on",
+			"error": "Unable to discover a valid interface to trigger DPP push button on",
 			"error_code": "no_available_mode",
 			lockout_remaining_secs,
 		}
 	}
-
-	dpp_pb = DPPPB.new();
 
 	let some_success = false;
 	for (let wpad_obj in target_wpad_objs) {
@@ -675,6 +711,20 @@ function register_wpad_objects() {
 }
 
 
+/**
+ * Attempt to prevent the LEDs from ending in a bad state.
+ */
+function terminate(signo) {
+	if (dpp_pb) {
+		dpp_pb.restore_leds();
+	}
+
+	// In OpenWrt 23.05.6, calling exit(0) here breaks libucode (GPF), but we really
+	// want to terminate the program.
+	assert(false, "Ignore this exception; it's a workaround for a broken exit() in signal handlers");
+}
+
+
 let ubus_methods = {
 	push_button: {
 		call: push_button,
@@ -726,4 +776,6 @@ ubus.listener("dpp.*", function (type, data) {
 		warn(`Not listening to ${data.ifname}, so ignoring ${type} (internal error).\n`);
 	}
 });
+signal('int', terminate);
+signal('term', terminate);
 uloop.run();

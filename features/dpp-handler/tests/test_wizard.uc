@@ -436,4 +436,10 @@ return {
 		uci.set("wireless", "default_radio1", "mode", "mesh");
 		assert(!wizard.has_custom_target(uci));
 	},
+
+	has_custom_target_false_if_prplmesh: function () {
+		const uci = MockUCICursor.new(mock_extender_uci_data());
+		uci.set("prplmesh", "config", "enable", "1");
+		assert(!wizard.has_custom_target(uci));
+	},
 };

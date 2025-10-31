@@ -111,6 +111,11 @@ function get_custom_target(uci) {
 		return false;
 	}
 
+	if (uci.get("prplmesh", "config", "enable") === "1") {
+		warn(`Refusing to DPP as prplmesh is enabled. Prplmesh is only supported for initial configuration.\n`);
+		return false;
+	}
+
 	return t;
 }
 
