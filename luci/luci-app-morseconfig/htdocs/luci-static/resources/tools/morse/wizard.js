@@ -1,6 +1,7 @@
 'use strict';
-/* globals baseclass configDiagram form morseuci morseui network rpc uci ui view */
+/* globals baseclass configDiagram form halow morseuci morseui network rpc uci ui view */
 'require baseclass';
+'require halow';
 'require view';
 'require form';
 'require uci';
@@ -212,6 +213,44 @@ function whitelistFields(conf, section, whitelist) {
 			uci.unset(conf, section['.name'], field);
 		}
 	}
+}
+
+/* Set best channels given current constraints.
+ */
+function setBestChannel(channels, morseDeviceName, bandwidth) {
+	const country = uci.get('wireless', morseDeviceName, 'country');
+	const currentChannels = Object.values(channels.getMap(country));
+	if (!bandwidth) {
+		bandwidth = Math.max(...currentChannels.map(ch => Number(ch.bw)));
+	}
+
+	// Sort by frequency, since AU channel ordering is not the frequency order (!).
+	const bestChannels = currentChannels
+		.filter(ch => Number(ch.bw) === Number(bandwidth))
+		.toSorted((a, b) => Number(a.centre_freq_mhz) - Number(b.centre_freq_mhz));
+
+	if (bestChannels.length === 0) {
+		console.error('Unable to find any channels in channel list for country', country);
+		return false;
+	}
+
+	// Choose centre channel as least likely to have back-offs
+	// (and least likely to be disabled, since we don't have access
+	// to this as we're not using iwinfo countrylist since the
+	// driver may not have been loaded).
+	const bestChannel = bestChannels[Math.floor(bestChannels.length / 2)];
+
+	console.log(bestChannel);
+
+	if (halow.isAutoOnlyCountry(country)) {
+		uci.set('wireless', morseDeviceName, 'channel', 'auto');
+		uci.set('wireless', morseDeviceName, 's1g_chanbw', bestChannel.bw);
+	} else {
+		uci.set('wireless', morseDeviceName, 'channel', bestChannel.s1g_chan);
+		uci.unset('wireless', morseDeviceName, 's1g_chanbw');
+	}
+
+	return true;
 }
 
 /* Set default firewall rules for a non-local zone (i.e. if you're rejecting
@@ -1216,6 +1255,7 @@ return baseclass.extend({
 	directUciRpc,
 	resetUci,
 	resetUciNetworkTopology,
+	setBestChannel,
 	setupNetworkIface,
 	WizardConfigError,
 });

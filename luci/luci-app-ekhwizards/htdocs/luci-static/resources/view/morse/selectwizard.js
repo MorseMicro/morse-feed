@@ -1,12 +1,11 @@
 /**
  * Wizard selection page.
  */
-/* globals uci view wizard */
+/* globals halow uci view wizard */
+'require halow';
 'require view';
 'require tools.morse.wizard as wizard';
 'require uci';
-
-const S1G_AUTO_ONLY_COUNTRIES = new Set(['EU', 'GB']);
 
 return view.extend({
 	async load() {
@@ -39,7 +38,7 @@ return view.extend({
 
 	render([hasPrplmesh, hasMesh11sd, hasMatter]) {
 		const morseDevice = uci.sections('wireless', 'wifi-device').find(s => s.type === 'morse');
-		const autoOnlyCountry = S1G_AUTO_ONLY_COUNTRIES.has(morseDevice?.country);
+		const autoOnlyCountry = halow.isAutoOnlyCountry(morseDevice?.country);
 
 		const cards = [
 			this.card(
