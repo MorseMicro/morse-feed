@@ -24,7 +24,7 @@
  *  - the automatic creation of bridges if necessary (and no _removal_ of bridges)
  */
 'use strict';
-/* globals configDiagram dom firewall form morseuci morseui network rpc uci ui view widgets */
+/* globals configDiagram dom firewall form halow morseuci morseui network rpc uci ui view widgets */
 'require dom';
 'require view';
 'require rpc';
@@ -33,6 +33,7 @@
 'require form';
 'require network';
 'require firewall';
+'require halow';
 'require tools.morse.uci as morseuci';
 'require tools.morse.morseui as morseui';
 'require tools.widgets as widgets';
@@ -73,6 +74,10 @@ const HALOW_WIFI_MODE_NAMES = {
 	'monitor': _('Monitor'),
 	'none': _('None'), // TODO - APP-2533
 };
+
+function isAllowedMode(country, mode) {
+	return !halow.isAutoOnlyCountry(country) || !['mesh', 'adhoc'].includes(mode);
+}
 
 // These are extracted from LuCI's view/network/wireless.js.
 const ENCRYPTION_OPTIONS = {
@@ -692,8 +697,16 @@ return view.extend({
 			modes for Access Points and Clients (Stations).
 		`).replace(/[\t\n ]+/g, ' ');
 		option = section.option(form.ListValue, 'mode', E('span', { 'class': 'show-info', 'data-tooltip': MODE_TOOLTIP }, _('Mode')));
-		for (const [k, v] of Object.entries(isMorse ? HALOW_WIFI_MODE_NAMES : WIFI_MODE_NAMES)) {
-			option.value(k, v);
+		if (isMorse) {
+			for (const [k, v] of Object.entries(HALOW_WIFI_MODE_NAMES)) {
+				if (isAllowedMode(uci.get('wireless', deviceName, 'country'), k)) {
+					option.value(k, v);
+				}
+			}
+		} else {
+			for (const [k, v] of Object.entries(WIFI_MODE_NAMES)) {
+				option.value(k, v);
+			}
 		}
 		option.readonly = getReadOnly('mode');
 		option.onchange = function (ev, sectionId, value, previousValue) {
