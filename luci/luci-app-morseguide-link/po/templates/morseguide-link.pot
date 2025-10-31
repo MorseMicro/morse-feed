@@ -1,0 +1,7 @@
+msgid ""
+msgstr "Content-Type: text/plain; charset=UTF-8"
+
+#: root/usr/share/luci/menu.d/luci-app-morseguide-link.json:3
+#: root/usr/share/luci/menu.d/luci-app-morseguide.json:3
+msgid "User Guide"
+msgstr ""
