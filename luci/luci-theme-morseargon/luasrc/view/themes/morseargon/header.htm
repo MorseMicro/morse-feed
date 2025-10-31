@@ -68,8 +68,13 @@
 	local languages = {en="English"}
 	local found_other_language = false
 	local uci_languages = uci_cursor:get_all("luci", "languages")
+	local mm_region = luci.sys.process.exec(
+		{"/sbin/persistent_vars_storage.sh", "READ", "mm_region"},
+		true
+	).stdout;
 
-	if uci_languages ~= nil then
+	-- Temporarily work around this by only showing if mm_region unset (TODO: APP-5789)
+	if uci_languages ~= nil and mm_region == "" then
 		for k, v in pairs(uci_languages) do
 			if string.find(k, "^%.") == nil then
 				found_other_language = true

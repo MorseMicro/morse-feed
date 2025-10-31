@@ -1,0 +1,28 @@
+#!/bin/sh
+
+# Auto-detect and set LuCI language based on stored mm_region variable.
+# This needs to run after every luci-i18n-base-XX package is installed to
+# ensure every language can be detected correctly.
+
+mm_region="$(persistent_vars_storage.sh READ mm_region 2>/dev/null | tr 'A-Z' 'a-z' )"
+
+[ -z "$mm_region" ] && exit 0
+
+# Special case: map 'jp' region to 'ja' language code
+if [ "$mm_region" = "jp" ]; then
+    mm_region="ja"
+fi
+
+get_current_language() {
+    uci get luci.main.lang
+}
+
+get_available_languages() {
+    uci show luci.languages | cut -d '.' -f 3 | cut -d '=' -f 1 | tr 'A-Z' 'a-z'
+}
+
+if [ "$mm_region" != "$(get_current_language)" ]; then
+    if [ -n "$(get_available_languages | grep -i -w "$mm_region")" ]; then
+        uci set "luci.main.lang=$mm_region"
+    fi
+fi
