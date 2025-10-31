@@ -1,6 +1,6 @@
 "use strict";
 
-import * as wizard from "../files/usr/lib/dpp-handler/wizard.uc";
+import * as wizard from "../files/usr/share/ucode/dpp/wizard.uc";
 
 
 const MockUCICursor = {

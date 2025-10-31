@@ -31,8 +31,8 @@ endef
 define Package/dpp-handler/install
 	$(INSTALL_DIR) $(1)/usr/sbin
 	$(INSTALL_BIN) ./files/usr/sbin/* $(1)/usr/sbin/.
-	$(INSTALL_DIR) $(1)/usr/lib/dpp-handler
-	$(INSTALL_DATA) ./files/usr/lib/dpp-handler/* $(1)/usr/lib/dpp-handler/.
+	$(INSTALL_DIR) $(1)/usr/share/ucode/dpp
+	$(INSTALL_DATA) ./files/usr/share/ucode/dpp/* $(1)/usr/share/ucode/dpp/.
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_BIN) ./files/etc/init.d/* $(1)/etc/init.d/.
 endef

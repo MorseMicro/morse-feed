@@ -59,10 +59,10 @@ import { readfile, writefile } from "fs";
 
 import {
 	apply_config, generate_dpp_command, has_custom_target
-} from "/usr/lib/dpp-handler/wizard.uc";
+} from "dpp.wizard";
 import {
 	set_dpp_started_led, set_dpp_failed_led, restore_dpp_led, force_ifaces_for_phy
-} from "/usr/lib/dpp-handler/leds.uc";
+} from "dpp.leds";
 
 const ubus = connect();
 
@@ -190,10 +190,25 @@ function start_temp_iface(section) {
 }
 
 
+/**
+ * Find ifname associated with wpad ubus_obj.
+ *
+ * @param ubus_obj - ubus object of interest (e.g. hostapd.wlan0)
+ */
+function find_ifname(ubus_obj) {
+	const ubus_obj_split = split(ubus_obj, ".");
+
+	if (!(ubus_obj_split[0] in ["wpa_supplicant", "hostapd"]) || !ubus_obj_split[1]) {
+		return;
+	}
+	return ubus_obj_split[1];
+}
+
+
 // dpp_pb is the current PB interaction; it will block other interactions.
 let dpp_pb = null;
-// dpp_listeners has all the DPPListener objects, mapped by ifname.
-const dpp_listeners = {};
+// wpad_objects has all the WpadObject objects, mapped by ifname.
+const wpad_objects = {};
 
 
 /**
@@ -207,7 +222,7 @@ const dpp_listeners = {};
  * to report is largely counted as finishing the DPP interaction.
  */
 const DPPPB = {
-	new: function() {
+	new: function () {
 		return proto({
 			timer: null,
 			ifnames: [],
@@ -221,7 +236,7 @@ const DPPPB = {
 		}
 	},
 
-	set_timer: function(timer) {
+	set_timer: function (timer) {
 		if (this.timer) {
 			// If we don't cancel the timer, we'll likely leak memory
 			// if the timer's callback contains a reference to
@@ -233,7 +248,7 @@ const DPPPB = {
 
 	start_temp_iface: function (section) {
 		// This will automatically trigger a PB once the iface exists
-		// (see start_dpp_listener_if_valid).
+		// (see register_wpad_objects()).
 		debug(`Triggering temporary iface start on ${section}.`);
 		if (!start_temp_iface(section)) {
 			return false;
@@ -254,11 +269,11 @@ const DPPPB = {
 		}
 	},
 
-	start: function (target, options) {
-		debug("Starting PB on ", target.ubus_obj);
-		ubus.call(target.ubus_obj, "dpp_push_button", options);
+	start: function (ubus_obj, options) {
+		print("Starting PB on ", ubus_obj, "\n");
+		ubus.call(ubus_obj, "dpp_push_button", options);
 		if (ubus.error()) {
-			warn(`Unable to start DPP PB interaction on ${target.ubus_obj}: ${ubus.error()}\n`);
+			warn(`Unable to start DPP PB interaction on ${ubus_obj}: ${ubus.error()}\n`);
 			return false;
 		}
 
@@ -277,8 +292,10 @@ const DPPPB = {
 			this.waiting_for_temp_iface = false;
 		}
 
-		set_dpp_started_led(target.ifname);
-		push(this.ifnames, target.ifname);
+		const ifname = find_ifname(ubus_obj);
+		assert(ifname, `Attempted to target invalid ubus_obj: ${ubus_obj}`);
+		set_dpp_started_led(ifname);
+		push(this.ifnames, ifname);
 		return true;
 	},
 
@@ -287,13 +304,13 @@ const DPPPB = {
 	 *
 	 * This should disable the lockout.
 	 */
-	failed_config: function (target) {
+	failed_config: function (ubus_obj) {
 		this.set_timer(null);
-		this.failed(target);
+		this.failed(ubus_obj);
 	},
 
 	/**
-     * Fail PB interaction, either on target or if no target for all.
+	 * Fail PB interaction, either on ubus_obj or all (if no ubus_obj)
 	 *
 	 * If timer, consider the interaction properly started, so
 	 * lockout the user for FINISH_AFTER_SECS to avoid overlap.
@@ -302,9 +319,11 @@ const DPPPB = {
 	 * time-out and flash any active LEDs for failure, and extend the
 	 * FINISH_AFTER_SECS timeout based on the last failure.
 	 */
-	failed: function (target) {
-		if (target) {
-			set_dpp_failed_led(target.ifname);
+	failed: function (ubus_obj) {
+		if (ubus_obj) {
+			const ifname = find_ifname(ubus_obj);
+			assert(ifname, `Attempted to target invalid ubus_obj: ${ubus_obj}`);
+			set_dpp_failed_led(ifname);
 		} else {
 			for (let ifname in this.ifnames) {
 				set_dpp_failed_led(ifname);
@@ -353,100 +372,91 @@ const DPPPB = {
 
 
 /**
- * DPPListener prototype (i.e. class).
+ * WpadObject prototype (i.e. class).
  *
- * One DPPListener is created for each iface you want to listen to
- * (via a ubus_obj like wpa_supplicant.wlan0);
+ * One WpadObject is created for each iface you want to react to
+ * (via a ubus_obj like wpa_supplicant.wlan0).
  */
-const DPPListener = {
+const WpadObject = {
 	/**
-	 * Construct a DPPListener.
+	 * Construct a WpadObject.
 	 */
-	new: function (target) {
+	new: function (ubus_obj, ifname, hwmode, mode) {
 		return proto({
-			target,
-			subscriber: null
+			ubus_obj, ifname, hwmode, mode,
 		}, this);
 	},
 
-	is_dpp_pb: function () {
-		return dpp_pb && (this.target.ifname in dpp_pb.ifnames);
-	},
+	create: function (ubus_obj) {
+		const ifname = find_ifname(ubus_obj);
+		if (!ifname) {
+			return null;
+		}
 
-	subscribe: function () {
-		// We only support a single subscription now,
-		// since we're tied to a single iface.
-		assert(!this.subscriber);
+		const iwinfo_info = ubus.call("iwinfo", "info", {device: ifname});
+		if (!iwinfo_info) {
+			warn(`Unable to call iwinfo for ${ifname}; ignoring.\n`);
+			return null;
+		}
 
-		const that = this;
-		this.subscriber = ubus.subscriber(
-			(notify) => that.sub_notify(notify),
-			(id) => that.sub_remove()
-		);
+		const hwmode = iwinfo_info.hwmode;
+		const mode = iwinfo_info.mode;
 
-		if (this.subscriber.subscribe(this.target.ubus_obj)) {
-			return true;
+		if ((hwmode === "ah" && mode in ["Master", "Client"])
+				|| mode === "Master"
+				|| (mode === "Client" && ifname === TEMP_IFNAME)) {
+			return this.new(ubus_obj, ifname, hwmode, mode);
 		} else {
-			warn(`Unable to subscribe to ${this.target.ubus_obj}: ${ubus.error()}\n`);
-			return false;
-		} 
+			warn(`No valid DPP action for ${ifname}; ignoring.\n`);
+			return null;
+		}
 	},
 
-	sub_notify: function (notify) {
-		debug("Received event: ", notify.type, " ", notify.data);
+	is_dpp_pb: function () {
+		return dpp_pb && (this.ifname in dpp_pb.ifnames);
+	},
 
-		switch (notify.type) {
-			case "dpp_conf_failed":
+	notify: function (type, data) {
+		debug("Received event: ", type, " ", data);
+
+		switch (type) {
+			case "dpp.conf_failed":
 				// Sometimes, there's no dpp_pb_result after a conf failure,
 				// so we need to trigger this immediately.
 				// This seems to happen if you try to dpp pb
 				// back to yourself with the same creds.
 				this.failed();
 				break;
-			case "dpp_conf_received":
-				this.conf = notify.data;
+			case "dpp.conf_received":
+				this.conf = data.conf;
 				break;
-			case "dpp_pb_result":
+			case "dpp.result":
 				// Confusingly, this happens for both PBs and QRCode interactions.
-				if (notify.data.status === "success") {
+				if (data.status === "success") {
 					this.success();
 				} else {
 					// Anthing that's _not_ a success is some kind of failure.
-					warn(`DPP failed on ${this.target.ifname} due to ${notify.data.status}\n`);
+					warn(`DPP failed on ${this.ifname} due to ${data.status}\n`);
 					this.failed();
 				}
+				break;
+			default:
+				warn(`Received unknown event: ${type} - ${data}\n`);
 				break;
 		}
 	},
 
-	sub_remove: function () {
-		debug(`Removing listener for object: ${this.target.ifname}`);
-
-		// If we don't remove the subscriber entirely, we'll leak
-		// memory (this is safe since we only ever subscribe
-		// to a subscriber once).
-		// Ideally, we wouldn't need the subscriber to live here,
-		// but unfortunately the notify callback doesn't give us
-		// enough information to easily resolve which object
-		// it's trying to notify on.
-		this.subscriber.remove();
-
-		// This happens if the ubus object disappears.
-		// This is expected for qrcode listening (e.g. if the device is reconfigured),
-		// but if it happens during PB something has gone wrong.
+	cleanup: function () {
 		if (this.is_dpp_pb()) {
-			dpp_pb.failed(this.target);
+			dpp_pb.failed(this.ubus_obj);
 		}
-
-
-		delete dpp_listeners[this.target.ifname];
 	},
 
 	failed: function () {
 		this.conf = null;
 
 		if (this.is_dpp_pb()) {
-			dpp_pb.failed(this.target);
+			dpp_pb.failed(this.ubus_obj);
 		}
 	},
 
@@ -456,7 +466,7 @@ const DPPListener = {
 		let section;
 		const wireless_status = ubus.call("network.wireless", "status");
 		if (wireless_status) {
-			section = get_ifname_section(this.target.ifname, wireless_status);
+			section = get_ifname_section(this.ifname, wireless_status);
 		}
 
 		// apply_config needs section to target the normal conf, but
@@ -467,7 +477,7 @@ const DPPListener = {
 
 	success: function () {
 		let config_success = true;
-		if (this.target.mode === "Client") {
+		if (this.mode === "Client") {
 			config_success = this.apply_client_config();
 		}
 
@@ -475,7 +485,7 @@ const DPPListener = {
 			if (config_success) {
 				dpp_pb.success();
 			} else {
-				dpp_pb.failed_config(this.target);
+				dpp_pb.failed_config(this.ubus_obj);
 			}
 		}
 	},
@@ -503,7 +513,7 @@ function push_button(req) {
 	const proposed_mode = req.args.mode;
 	const uci = cursor();
 
-	let target_ifaces = null;
+	let target_wpad_objs = null;
 	let target_devices = null;
 
 	if (proposed_mode && !(proposed_mode in ["ap", "sta"])) {
@@ -535,17 +545,17 @@ function push_button(req) {
 	// Trigger on all APs if any HaLow AP
 	// (since we use 2.4 to provide HaLow conf only).
 	if (proposed_mode === "ap" || !proposed_mode) {
-		const ap_dpp_listeners = filter(values(dpp_listeners), dppl => dppl.target.mode === "Master");
-		if ("ah" in map(ap_dpp_listeners, dppl => dppl.target.hwmode)) {
-			target_ifaces = map(ap_dpp_listeners, dppl => dppl.target);
+		const ap_wpad_objects = filter(values(wpad_objects), wpad_obj => wpad_obj.mode === "Master");
+		if ("ah" in map(ap_wpad_objects, wpad_obj => wpad_obj.hwmode)) {
+			target_wpad_objs = ap_wpad_objects;
 		}
 	}
 
-	if ((proposed_mode === "sta" || !proposed_mode) && !target_ifaces) {
+	if ((proposed_mode === "sta" || !proposed_mode) && !target_wpad_objs) {
 		// Trigger on HaLow STA only if it exists.
-		for (let dppl in values(dpp_listeners)) {
-			if (dppl.target.mode === "Client" && dppl.target.hwmode === "ah") {
-				target_ifaces = [dppl.target];
+		for (let wpad_obj in values(wpad_objects)) {
+			if (wpad_obj.mode === "Client" && wpad_obj.hwmode === "ah") {
+				target_wpad_objs = [wpad_obj];
 				break;
 			}
 		}
@@ -555,7 +565,7 @@ function push_button(req) {
 		// If we don't check whether we have a sane custom target, we may accidentally
 		// configure a HaLow AP! The 2.4 STA can be temporary only, as it's just used
 		// for transferring the config.
-		if (!target_ifaces && has_custom_target(uci)) {
+		if (!target_wpad_objs && has_custom_target(uci)) {
 			for (let device_name, device in wireless_status) {
 				if (device.config.band === "2g") {
 					target_devices = [device_name];
@@ -565,7 +575,7 @@ function push_button(req) {
 		}
 	}
 
-	if (!target_ifaces && !target_devices) {
+	if (!target_wpad_objs && !target_devices) {
 		return {
 			"error": "Unable to discover an active interface to trigger DPP push button on",
 			"error_code": "no_available_mode",
@@ -576,22 +586,22 @@ function push_button(req) {
 	dpp_pb = DPPPB.new();
 
 	let some_success = false;
-	for (let target in target_ifaces) {
+	for (let wpad_obj in target_wpad_objs) {
 		const options = {};
-		if (target.mode === "Master") {
-			const section = get_ifname_section(target.ifname, wireless_status);
+		if (wpad_obj.mode === "Master") {
+			const section = get_ifname_section(wpad_obj.ifname, wireless_status);
 			if (!section) {
-				warn(`Unable to start DPP PB interaction on ${target.ubus_obj}: no section for ${target.ifname}.\n`);
+				warn(`Unable to start DPP PB interaction on ${wpad_obj.ubus_obj}: no section for ${wpad_obj.ifname}.\n`);
 				continue;
 			}
 			options.command = generate_dpp_command(uci, section);
 			if (!options.command) {
-				warn(`Unable to start DPP PB interaction on ${target.ubus_obj}: failed to generate command.\n`);
+				warn(`Unable to start DPP PB interaction on ${wpad_obj.ubus_obj}: failed to generate command.\n`);
 				continue;
 			}
 		}
 
-		if (dpp_pb.start(target, options)) {
+		if (dpp_pb.start(wpad_obj.ubus_obj, options)) {
 			some_success = true;
 		}
 	}
@@ -618,74 +628,47 @@ function push_button(req) {
 
 
 /**
- * Subscribe to DPP events on a ubus object if appropriate.
- *
- * If we want to listen/subscribe to the ubus object
- * (i.e. it's hostapd.wlan0 or similar), we create a DPPListener
- * and store it in dpp_listeners.
- *
- * @param ubus_obj - ubus object to subscribe to (e.g. hostapd.wlan0)
- */
-function start_dpp_listener_if_valid(ubus_obj) {
-	const ubus_obj_split = split(ubus_obj, ".");
-
-	if (!(ubus_obj_split[0] in ["wpa_supplicant", "hostapd"]) || !ubus_obj_split[1]) {
-		return;
-	}
-
-	const target = {
-		ubus_obj,
-		ifname: ubus_obj_split[1],
-	};
-	const iwinfo_info = ubus.call("iwinfo", "info", {device: target.ifname});
-	if (!iwinfo_info) {
-		warn(`Unable to call iwinfo for ${target.ifname}; ignoring.\n`);
-		return;
-	}
-	target.hwmode = iwinfo_info.hwmode;
-	target.mode = iwinfo_info.mode;
-
-	if (!(
-		(target.hwmode === "ah" && target.mode in ["Master", "Client"])
-		|| target.mode === "Master"
-		|| (target.mode === "Client" && target.ifname === TEMP_IFNAME)
-	)) {
-		debug(`Ignoring interface ${target.ifname} (${target.hwmode}, ${target.mode}); cannot target`);
-		return;  // Ignore if interface is not one we can handle
-	}
-
-	assert(!dpp_listeners[target.ifname], "Trying to add DPPListener when one already exists!");
-
-	const dpp_listener = DPPListener.new(target);
-	if (!dpp_listener.subscribe()) {
-		return;
-	}
-
-	dpp_listeners[target.ifname] = dpp_listener;
-
-	if (target.ifname === TEMP_IFNAME && dpp_pb) {
-		if (!dpp_pb.start(target)) {
-			dpp_pb.failed(target);
-		}
-	}
-}
-
-
-/**
- * Start listening to DPP events.
+ * Keeps track of all wpad_objects for ifaces that can be targeted.
  *
  * This not only finds all current hostapd/wpa_supplicants, but
- * also listens to any future ones that appear
- * (i.e. due to reconfigurations).
+ * also any future ones that appear (i.e. due to reconfigurations).
  */
-function start_dpp_listeners() {
+function register_wpad_objects() {
 	for (let ubus_obj in ubus.list()) {
-		start_dpp_listener_if_valid(ubus_obj);
+		const wpad_object = WpadObject.create(ubus_obj);
+		if (wpad_object) {
+			wpad_objects[wpad_object.ifname] = wpad_object;
+		}
 	}
 
-	ubus.listener("ubus.object.add", (type, data) => {
-		debug(`Saw new object: ${data.path}`);
-		start_dpp_listener_if_valid(data.path);
+	ubus.listener("ubus.object.*", (type, data) => {
+		debug(`${type}: ${data.path}`);
+		const ifname = find_ifname(data.path);
+		if (!ifname) {
+			return;
+		}
+
+		switch (type) {
+		case "ubus.object.add":
+			assert(!wpad_objects[ifname], `Trying to add WpadObject when one already exists: ${ifname}`);
+			const wpad_object = WpadObject.create(data.path);
+			if (wpad_object) {
+				wpad_objects[ifname] = wpad_object;
+				if (ifname === TEMP_IFNAME && dpp_pb) {
+					if (!dpp_pb.start(wpad_object.ubus_obj)) {
+						dpp_pb.failed(wpad_object.ubus_obj);
+					}
+				}
+			}
+			break;
+		case "ubus.object.remove":
+			if (wpad_objects[ifname]) {
+				wpad_objects[ifname].cleanup();
+				delete wpad_objects[ifname];
+			}
+			break;
+		}
+
 		gc();
 		debug(`Object count: ${gc("count")}`);
 	});
@@ -735,5 +718,12 @@ if (DEBUG) {
 
 uloop.init();
 ubus.publish("dpp", ubus_methods);
-start_dpp_listeners();
+register_wpad_objects();
+ubus.listener("dpp.*", function (type, data) {
+	if (wpad_objects[data.ifname]) {
+		wpad_objects[data.ifname].notify(type, data);
+	} else {
+		warn(`Not listening to ${data.ifname}, so ignoring ${type} (internal error).\n`);
+	}
+});
 uloop.run();

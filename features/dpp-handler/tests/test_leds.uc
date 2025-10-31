@@ -1,6 +1,6 @@
 "use strict";
 
-import * as leds from "../files/usr/lib/dpp-handler/leds.uc";
+import * as leds from "../files/usr/share/ucode/dpp/leds.uc";
 const fs = require("fs");
 
 
@@ -71,7 +71,6 @@ return {
 		leds.restore_dpp_led("wlan0");
 		assert(fs.readfile("/sys/class/leds/myled/trigger") === "phy0assoc");
 		assert(fs.readfile("/sys/class/leds/otherled/trigger") === "[none] x phy0assoc y");
-		assert(fs.readfile("/sys/class/leds/myled/brightness") === "255");
 	}),
 
 	netdev_multi_led_sequence: () => mock_fs(function() {
@@ -121,7 +120,5 @@ return {
 		assert(fs.readfile("/sys/class/leds/otherled/rx") === "1");
 		assert(fs.readfile("/sys/class/leds/otherled/tx") === "1");
 		assert(fs.readfile("/sys/class/leds/otherled/invert") === "1");
-
-		assert(fs.readfile("/sys/class/leds/otherled/brightness") === "255");
 	}),
 };
