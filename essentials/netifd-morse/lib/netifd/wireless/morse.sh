@@ -65,7 +65,7 @@ check_cac(){
 }
 
 
-check_usb_powersave(){
+check_powersave(){
 	powersave_val=0
 	json_select interfaces
 	json_get_keys interface_ids
@@ -186,26 +186,24 @@ build_mod_params() {
 
 	MOD_PARAMS="$MOD_PARAMS macaddr_suffix=$ETH0_MAC_SUFFIX"
 
-	local disable_ps=0
-	#APP-4887: Keep powersave disabled by default on USB-based Morse devices to ensure the LED remains functional.
-	if [[ $path  = *usb* ]]; then
-		check_usb_powersave
+	# APP-4887: Keep powersave disabled by default on USB-based Morse devices to ensure the LED remains functional.
+	# APP-5716/SW-17532: Disable power save as a workaround for DPP issues.
+	local bn="$(board_name)"
+	local usb_or_halowlink=0
+	case "$path" in
+		*usb*) usb_or_halowlink=1 ;;
+	esac
+	case "$bn" in
+		morse,halowlink1|morse,halowlink2) usb_or_halowlink=1 ;;
+	esac
+
+	if [ "$usb_or_halowlink" -eq 1 ]; then
+		check_powersave
 		if [ "$powersave_val" -eq 0 ]; then
-			disable_ps=1
+			MOD_PARAMS="$MOD_PARAMS enable_ps=0"
 		fi
 	fi
 
-	# APP-5716/SW-17532 : Disabling power save as a workaround for DPP issues.
-	local board="$(board_name)"
-	case "$board" in
-		morse,halowlink1|morse,halowlink2)
-			disable_ps=1
-		;;
-	esac
-
-	if [ "$disable_ps" -eq 1 ]; then
-		MOD_PARAMS="$MOD_PARAMS enable_ps=0"
-	fi
 
 	MOD_PARAMS=`echo $MOD_PARAMS | xargs`
 }
