@@ -389,6 +389,7 @@ change_module_parameters() {
 
 	local proposed_module="$(mktemp)"
 	cat > "$proposed_module" <<-END
+	$extra_params
 	$module $params
 	END
 
