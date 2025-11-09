@@ -94,7 +94,7 @@ class Mesh11sTopologyGraph {
 			addNode(mac, { current: false, enabled: true });
 
 			if (!graph.hasLink(currentMac, mac)) {
-				graph.addLink(currentMac, mac, { signalStrength: neighbor.signal });
+				graph.addLink(currentMac, mac, { signalStrength: neighbor.signal, hopCount: 1 });
 			}
 		}
 
@@ -119,7 +119,7 @@ class Mesh11sTopologyGraph {
 	renderNode(data) {
 		return `
 			<div
-				class="node ${data.current ? 'node-controller' : 'node-agent'} ${data.enabled ? '' : 'node-disabled'}"
+				class="node ${data.current ? 'node-controller' : 'node-agent'}"
 				style="
 					width: ${this.nodeWidth - 8}px;
 					height: ${this.nodeHeight - 8}px;

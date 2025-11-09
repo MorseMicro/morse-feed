@@ -1100,7 +1100,7 @@ function createAssoclistCard(wifiNetwork, wifiDevices, hostHints) {
 			].filter(e => e)),
 			E('div', { class: 'main-counter' }, [
 				E('button', { class: 'big-number click-to-expand' }, associatedDevices.length),
-				E('button', { class: 'big-text click-to-expand' }, _('Connected Devices')),
+				E('button', { class: 'big-text click-to-expand' }, mode === 'mesh' ? _('Direct Peers') : _('Connected Devices')),
 			]),
 		],
 		maxContents: [
@@ -1321,7 +1321,7 @@ async function createMesh11sTopologyCard() {
 			]),
 			E('div', { class: 'main-counter' }, [
 				E('button', { class: 'big-number click-to-expand' }, meshAgentCount),
-				E('button', { class: 'big-text click-to-expand' }, _('Connected Mesh Nodes')),
+				E('button', { class: 'big-text click-to-expand' }, _('Mesh Nodes')),
 			]),
 		],
 		maxContents: meshAgentCount > 0 && [
