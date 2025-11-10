@@ -600,7 +600,7 @@ return wizard.AbstractWizardView.extend({
 		option.retain = true;
 		option.staOnly = true;
 		option.scanAlerts = true;
-		option.scanEncryptions = ['sae', 'owe'];
+		option.scanEncryptions = ['sae'];
 		option.onchangeWithEncryption = function (ev, sectionId, _value, _encryption) {
 			thisWizardView.onchangeOptionUpdateDiagram(this);
 			this.section.getUIElement(sectionId, 'sta_key').setValue('');
