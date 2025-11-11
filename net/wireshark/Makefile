@@ -87,7 +87,7 @@ CMAKE_OPTIONS += -DENABLE_OPUS=OFF
 CMAKE_OPTIONS += -DENABLE_SMI=OFF
 
 # lemon needs to compiled for the host, not target.
-CMAKE_OPTIONS += -DLEMON_C_COMPILER="$(HOSTCC)"
+CMAKE_OPTIONS += -DLEMON_C_COMPILER="$(HOSTCC_NOCACHE)"
 
 # wireshark tries to compile and run a small app to check vsnprintf. this requires
 # these two exitcodes to be defined. however, some other buildsystems such as void linux
