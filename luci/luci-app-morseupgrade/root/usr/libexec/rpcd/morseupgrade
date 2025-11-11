@@ -111,6 +111,7 @@ search () {
 			break;
 		fi
 		json_select ..
+		i=$(($i + 1))
 	done
 
 	if [ -z "$name" ]; then
