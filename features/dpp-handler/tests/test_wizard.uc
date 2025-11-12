@@ -121,6 +121,7 @@ function mock_extender_uci_data() {
 		},
 		network: {
 			lan: {
+				proto: "static",
 				device: "br-lan",
 			},
 			"br-lan": {
@@ -130,6 +131,19 @@ function mock_extender_uci_data() {
 		},
 		prplmesh: {
 			config: {
+			},
+		},
+		dhcp: {
+			lan: {},
+		},
+		uhttpd: {
+			main: {
+				home:  "/www-client-config",
+			},
+		},
+		luci: {
+			main: {
+				homepage:  "admin/morse/morseaplanding",
 			},
 		},
 	};
@@ -146,6 +160,13 @@ function unpack_dpp_command(command) {
 		result[k_v[0]] = val;
 	}
 	return result;
+}
+
+function assert_initial_config_removed(uci) {
+	assert(uci.get("network", "lan", "proto") === "dhcp");
+	assert(uci.get("dhcp", "lan", "ignore") === "1");
+	assert(uci.get("uhttpd", "main", "home") === "/www");
+	assert(!uci.get("luci", "main", "homepage"));
 }
 
 return {
@@ -265,6 +286,8 @@ return {
 		assert(uci.get("wireless", "default_radio1", "key") === "mockpass");
 		assert(uci.get("wireless", "default_radio1", "encryption") === "sae");
 		assert(uci.get("wireless", "default_radio1", "dpp") === null);
+
+		assert_initial_config_removed(uci);
 	},
 
 	apply_config_custom_standard: function () {
@@ -298,6 +321,8 @@ return {
 		assert(uci.get("wireless", "default_radio1", "powersave") === "0");
 		assert(uci.get("wireless", "radio1", "country") === "AU");
 		assert(uci.get("wireless", "radio1", "s1g_chzn") === "80211_2020");
+
+		assert_initial_config_removed(uci);
 	},
 
 	apply_config_custom_standard_without_s1g_chzn: function () {
@@ -330,6 +355,8 @@ return {
 		assert(uci.get("wireless", "default_radio1", "powersave") === "0");
 		assert(uci.get("wireless", "radio1", "country") === "AU");
 		assert(uci.get("wireless", "radio1", "s1g_chzn") === null);
+
+		assert_initial_config_removed(uci);
 	},
 
 	apply_config_prplmesh_success: function () {
@@ -369,6 +396,8 @@ return {
 		assert(uci.get("network", "lan", "device") === "br-prpl");
 		assert(uci.get("network", "br-lan", "name") === "br-prpl");
 		assert(uci.get("prplmesh", "config", "enable") === "1");
+
+		assert_initial_config_removed(uci);
 	},
 
 	apply_config_mesh11s_success: function () {
@@ -393,6 +422,8 @@ return {
 		assert(uci.get("wireless", "default_radio1", "ssid") === null);
 		assert(uci.get("wireless", "default_radio1", "key") === "mockpass");
 		assert(uci.get("wireless", "default_radio1", "encryption") === "sae");
+
+		assert_initial_config_removed(uci);
 	},
 
 	apply_config_custom_fail_without_section_returns_false: function () {
@@ -412,6 +443,8 @@ return {
 		assert(uci.get("wireless", "default_radio1", "ssid") === "mockssid");
 		assert(uci.get("wireless", "default_radio1", "key") === "mockpass");
 		assert(uci.get("wireless", "default_radio1", "encryption") === "sae");
+
+		assert_initial_config_removed(uci);
 	},
 
 	apply_config_no_conf_returns_false: function () {

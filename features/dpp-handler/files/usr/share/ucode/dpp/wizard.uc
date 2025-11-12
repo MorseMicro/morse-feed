@@ -141,8 +141,8 @@ export function has_custom_target(uci) {
  * a DHCP server on the LAN interface. We should remove this, and force
  * it back to client mode.
  *
- * If morseapwizard was used, it will have added a country select page
- * which we no longer need.
+ * If morseapwizard was used and the device isn't region locked, it will
+ * have added a country select page which we no longer need.
  *
  * @param {object} uci - UCI cursor.
  */
@@ -196,7 +196,6 @@ function apply_custom_config(uci, config) {
 		if (!check_config(config, ["country", "ssid", "key", "encryption"])) {
 			return false;
 		}
-		remove_initial_config(uci);
 		uci.set("wireless", target.device, "country", config.country);
 		if (config.s1g_chzn) {
 			uci.set("wireless", target.device, "s1g_chzn", config.s1g_chzn);
@@ -219,7 +218,6 @@ function apply_custom_config(uci, config) {
 		if (!check_config(config, ["country", "channel", "mesh_id", "key", "encryption"])) {
 			return false;
 		}
-		remove_initial_config(uci);
 		uci.set("wireless", target.device, "country", config.country);
 		uci.set("wireless", target.device, "channel", config.channel);
 		if (config.s1g_chzn) {
@@ -244,7 +242,6 @@ function apply_custom_config(uci, config) {
 			warn("Configurator requests prplmesh but prplmesh is not installed.");
 			return false;
 		}
-		remove_initial_config(uci);
 		uci.set("wireless", target.device, "country", config.country);
 		// prplmesh shouldn't require a channel, but currently does due to
 		// a bug with bringing up a HaLow AP and STA at the same time.
@@ -522,6 +519,7 @@ export function apply_config(uci, conf, section) {
 
 	if (conf[EXTRA_CONF_NAMESPACE]) {
 		if (apply_custom_config(uci, conf[EXTRA_CONF_NAMESPACE])) {
+			remove_initial_config(uci);
 			return true;
 		} else {
 			warn("Cannot apply custom config.\n");
@@ -531,5 +529,10 @@ export function apply_config(uci, conf, section) {
 		}
 	}
 
-	return apply_dpp_config(uci, conf, section);
+	if (apply_dpp_config(uci, conf, section)) {
+		remove_initial_config(uci);
+		return true;
+	}
+
+	return false;
 };
