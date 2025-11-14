@@ -1,192 +1,196 @@
 msgid ""
 msgstr "Content-Type: text/plain; charset=UTF-8"
 
-#: morse_feed_private/luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:636
+#: htdocs/luci-static/resources/view/morse/upgrade.js:694
 msgid "(check browser internet connection)"
 msgstr ""
 
-#: morse_feed_private/luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:649
+#: htdocs/luci-static/resources/view/morse/upgrade.js:707
 msgid "(check device internet connection)"
 msgstr ""
 
-#: morse_feed_private/luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:449
-#: morse_feed_private/luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:488
+#: htdocs/luci-static/resources/view/morse/upgrade.js:507
+#: htdocs/luci-static/resources/view/morse/upgrade.js:546
 msgid "<br> New image is of format:"
 msgstr ""
 
-#: morse_feed_private/luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:690
+#: htdocs/luci-static/resources/view/morse/upgrade.js:751
 msgid "Additional firmware controls can be found on the"
 msgstr ""
 
-#: morse_feed_private/luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:140
+#: htdocs/luci-static/resources/view/morse/upgrade.js:170
 msgid "Already up to date!"
 msgstr ""
 
-#: morse_feed_private/luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:691
+#: htdocs/luci-static/resources/view/morse/upgrade.js:752
 msgid "Backup/Flash Firmware page"
 msgstr ""
 
-#: morse_feed_private/luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:635
+#: htdocs/luci-static/resources/view/morse/upgrade.js:693
 msgid "Browser could not reach upgrade server"
 msgstr ""
 
-#: morse_feed_private/luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:274
+#: htdocs/luci-static/resources/view/morse/upgrade.js:326
 msgid "Cancel"
 msgstr ""
 
-#: morse_feed_private/luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:625
+#: htdocs/luci-static/resources/view/morse/upgrade.js:683
 msgid "Check for automatic upgrade"
 msgstr ""
 
-#: morse_feed_private/luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:507
+#: htdocs/luci-static/resources/view/morse/upgrade.js:565
 msgid "Checking for upgrades"
 msgstr ""
 
-#: morse_feed_private/luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:167
+#: htdocs/luci-static/resources/view/morse/upgrade.js:197
 msgid "Checking image…"
 msgstr ""
 
-#: morse_feed_private/luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:428
+#: htdocs/luci-static/resources/view/morse/upgrade.js:486
 msgid ""
 "Configuration error detected. The upgrade service could not be started due "
 "to a missing or invalid system setting. Please check your device "
 "configuration or perform a factory reset before re-trying."
 msgstr ""
 
-#: morse_feed_private/luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:249
+#: htdocs/luci-static/resources/view/morse/upgrade.js:301
 msgid "Continue"
 msgstr ""
 
-#: morse_feed_private/luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:648
+#: htdocs/luci-static/resources/view/morse/upgrade.js:706
 msgid "Device could not reach upgrade server"
 msgstr ""
 
-#: morse_feed_private/luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:139
+#: htdocs/luci-static/resources/view/morse/upgrade.js:169
 msgid "Download completed successfully!"
 msgstr ""
 
-#: morse_feed_private/luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:137
+#: htdocs/luci-static/resources/view/morse/upgrade.js:167
 msgid "Download started..."
 msgstr ""
 
-#: morse_feed_private/luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:540
+#: htdocs/luci-static/resources/view/morse/upgrade.js:598
 msgid "Downloading firmware to browser: %s bytes"
 msgstr ""
 
-#: morse_feed_private/luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:538
+#: htdocs/luci-static/resources/view/morse/upgrade.js:596
 msgid "Downloading firmware to browser: %s%%"
 msgstr ""
 
-#: morse_feed_private/luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:440
+#: htdocs/luci-static/resources/view/morse/upgrade.js:498
 msgid "Downloading firmware to device:"
 msgstr ""
 
-#: morse_feed_private/luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:214
+#: htdocs/luci-static/resources/view/morse/upgrade.js:266
 msgid "Error details:"
 msgstr ""
 
-#: morse_feed_private/luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:142
+#: htdocs/luci-static/resources/view/morse/upgrade.js:172
 msgid "File available on MorseMicro image server."
 msgstr ""
 
-#: morse_feed_private/luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:286
+#: htdocs/luci-static/resources/view/morse/upgrade.js:338
 msgid "Flash image?"
 msgstr ""
 
-#: morse_feed_private/luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:310
+#: htdocs/luci-static/resources/view/morse/upgrade.js:368
 msgid "Flashing…"
 msgstr ""
 
-#: morse_feed_private/luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:262
+#: htdocs/luci-static/resources/view/morse/upgrade.js:314
 msgid "Force upgrade"
 msgstr ""
 
-#: morse_feed_private/luci/luci-app-morseupgrade/root/usr/share/rpcd/acl.d/luci-app-morseupgrade.json:3
+#: root/usr/share/rpcd/acl.d/luci-app-morseupgrade.json:3
 msgid "Grant access to configuration library and dependencies"
 msgstr ""
 
-#: morse_feed_private/luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:253
+#: htdocs/luci-static/resources/view/morse/upgrade.js:305
 msgid "Image check failed."
 msgstr ""
 
-#: morse_feed_private/luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:242
+#: htdocs/luci-static/resources/view/morse/upgrade.js:294
 msgid ""
 "Include in backup a list of current installed packages at /etc/backup/"
 "installed_packages.txt"
 msgstr ""
 
-#: morse_feed_private/luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:209
+#: htdocs/luci-static/resources/view/morse/upgrade.js:256
 msgid ""
 "It appears that you are trying to flash an image that does not fit into the "
 "flash memory, please verify the image file!"
 msgstr ""
 
-#: morse_feed_private/luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:201
+#: htdocs/luci-static/resources/view/morse/upgrade.js:248
 msgid "Keep settings and retain the current configuration"
 msgstr ""
 
-#: morse_feed_private/luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:668
+#: htdocs/luci-static/resources/view/morse/upgrade.js:726
 msgid "Manually upload firmware file"
 msgstr ""
 
-#: morse_feed_private/luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:688
+#: htdocs/luci-static/resources/view/morse/upgrade.js:749
 msgid "Morse Upgrade"
 msgstr ""
 
-#: morse_feed_private/luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:450
-#: morse_feed_private/luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:489
+#: htdocs/luci-static/resources/view/morse/upgrade.js:508
+#: htdocs/luci-static/resources/view/morse/upgrade.js:547
 msgid "New firmware version available: <a href=\"%s\" target=\"_blank\">%s</a>"
 msgstr ""
 
-#: morse_feed_private/luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:138
+#: htdocs/luci-static/resources/view/morse/upgrade.js:168
 msgid "Previous download in progress..."
 msgstr ""
 
-#: morse_feed_private/luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:495
+#: htdocs/luci-static/resources/view/morse/upgrade.js:553
 msgid "Ready to upgrade!"
 msgstr ""
 
-#: morse_feed_private/luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:673
+#: htdocs/luci-static/resources/view/morse/upgrade.js:731
 msgid "Retry"
 msgstr ""
 
-#: morse_feed_private/luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:197
+#: htdocs/luci-static/resources/view/morse/upgrade.js:244
 msgid "SHA256"
 msgstr ""
 
-#: morse_feed_private/luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:143
+#: htdocs/luci-static/resources/view/morse/upgrade.js:173
 msgid "SHA256 OK."
 msgstr ""
 
-#: morse_feed_private/luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:264
+#: htdocs/luci-static/resources/view/morse/upgrade.js:316
 msgid ""
 "Select 'Force upgrade' to flash the image even if the image format check "
 "fails. Use only if you are sure that the firmware is correct and meant for "
 "your device!"
 msgstr ""
 
-#: morse_feed_private/luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:196
+#: htdocs/luci-static/resources/view/morse/upgrade.js:243
 msgid "Size"
 msgstr ""
 
-#: morse_feed_private/luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:237
+#: htdocs/luci-static/resources/view/morse/upgrade.js:289
 msgid "Skip from backup files that are equal to those in /rom"
 msgstr ""
 
-#: morse_feed_private/luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:194
+#: htdocs/luci-static/resources/view/morse/upgrade.js:198
+msgid "Synchronizing device time with the browser."
+msgstr ""
+
+#: htdocs/luci-static/resources/view/morse/upgrade.js:241
 msgid ""
 "The flash image was uploaded. Below is the checksum and file size listed, "
 "compare them with the original file to ensure data integrity. <br /> Click "
 "'Continue' below to start the flash procedure."
 msgstr ""
 
-#: morse_feed_private/luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:136
+#: htdocs/luci-static/resources/view/morse/upgrade.js:166
 msgid ""
 "The latest version of firmware has not been made available for your device "
 "type."
 msgstr ""
 
-#: morse_feed_private/luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:311
+#: htdocs/luci-static/resources/view/morse/upgrade.js:369
 msgid ""
 "The system is flashing now.<br /> DO NOT POWER OFF THE DEVICE!<br /> Wait a "
 "few minutes before you try to reconnect. It might be necessary to renew the "
@@ -194,69 +198,75 @@ msgid ""
 "settings."
 msgstr ""
 
-#: morse_feed_private/luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:228
+#: htdocs/luci-static/resources/view/morse/upgrade.js:280
 msgid "The uploaded firmware does not allow keeping current configuration."
 msgstr ""
 
-#: morse_feed_private/luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:221
+#: htdocs/luci-static/resources/view/morse/upgrade.js:273
 msgid ""
 "The uploaded image file does not contain a supported format. If you are "
 "using EKH01 make sure that you HAVEN'T decompressed the image before "
 "uploading."
 msgstr ""
 
-#: morse_feed_private/luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:134
+#: htdocs/luci-static/resources/view/morse/upgrade.js:164
 msgid ""
 "This could be due to a network issue or server unavailability. Please ensure "
 "either your browser or Morse Micro device has internet access before "
 "retrying."
 msgstr ""
 
-#: morse_feed_private/luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:131
+#: htdocs/luci-static/resources/view/morse/upgrade.js:161
 msgid ""
 "This is an internal error and may be due to configuration modifications. "
 "Please reset your device to factory defaults and try again or upgrade "
 "manually. If the problem persists, consider contacting Morse Micro support."
 msgstr ""
 
-#: morse_feed_private/luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:133
+#: htdocs/luci-static/resources/view/morse/upgrade.js:163
 msgid ""
 "This issue may occur when your internet connection is unstable or the device "
 "has run out of space. Please reboot your Morse Micro device and ensure it is "
 "connected to stable internet (via the browser or device) before trying again."
 msgstr ""
 
-#: morse_feed_private/luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:132
+#: htdocs/luci-static/resources/view/morse/upgrade.js:162
 msgid ""
 "This may happen if the device is not recognized by the server. Please verify "
 "that your device is supported and try again."
 msgstr ""
 
-#: morse_feed_private/luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:663
-#: morse_feed_private/luci/luci-app-morseupgrade/root/usr/share/luci/menu.d/luci-app-morseupgrade.json:3
+#: htdocs/luci-static/resources/view/morse/upgrade.js:721
+#: root/usr/share/luci/menu.d/luci-app-morseupgrade.json:3
 msgid "Upgrade"
 msgstr ""
 
-#: morse_feed_private/luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:633
+#: htdocs/luci-static/resources/view/morse/upgrade.js:691
 msgid "Upgrade via browser"
 msgstr ""
 
-#: morse_feed_private/luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:646
+#: htdocs/luci-static/resources/view/morse/upgrade.js:704
 msgid "Upgrade via device"
 msgstr ""
 
-#: morse_feed_private/luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:555
+#: htdocs/luci-static/resources/view/morse/upgrade.js:613
 msgid "Uploading firmware to device: %s%%"
 msgstr ""
 
-#: morse_feed_private/luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:168
+#: htdocs/luci-static/resources/view/morse/upgrade.js:211
 msgid "Verifying the uploaded image file."
 msgstr ""
 
-#: morse_feed_private/luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:141
+#: htdocs/luci-static/resources/view/morse/upgrade.js:171
 msgid "Waiting for download..."
 msgstr ""
 
-#: morse_feed_private/luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:135
+#: htdocs/luci-static/resources/view/morse/upgrade.js:261
+msgid ""
+"Your device time was out of sync with the browser and has been automatically "
+"updated."
+msgstr ""
+
+#: htdocs/luci-static/resources/view/morse/upgrade.js:165
 msgid "sha256sum does not match."
 msgstr ""

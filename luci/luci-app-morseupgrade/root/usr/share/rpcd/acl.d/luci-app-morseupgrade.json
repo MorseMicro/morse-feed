@@ -16,7 +16,8 @@
 			"ubus": {
 				"morseupgrade": [ "*" ],
 				"sysupgrade": ["*"],
-				"file": [ "exec", "read", "stat" ]
+				"file": [ "exec", "read", "stat" ],
+				"luci": [ "getLocaltime" ]
 			}
 		},
 		"write": {
@@ -45,7 +46,8 @@
 			"ubus": {
 				"morseupgrade": [ "*" ],
 				"sysupgrade": ["*"],
-				"system": [ "validate_firmware_image" ]
+				"system": [ "validate_firmware_image" ],
+				"luci": [ "setLocaltime" ]
 			}
 		}
 	}
