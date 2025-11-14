@@ -3,3 +3,6 @@
 # This makes ttyd the same as dropbear.
 
 uci del ttyd.@ttyd[0].interface
+
+# Disable by default due to security concerns:
+uci set ttyd.@ttyd[0].enable=0
