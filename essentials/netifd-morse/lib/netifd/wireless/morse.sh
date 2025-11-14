@@ -478,9 +478,7 @@ drv_morse_setup() {
 	fi
 
 	if change_module_parameters morse "$morse_module_config_file" "$MOD_PARAMS" || ! is_module_loaded morse; then
-		# Sleeping here avoids issues with trying to probe a SPI device
-		# immediately after a reset. See: SW-17138
-		is_module_loaded && rmmod morse && sleep 1
+		is_module_loaded && rmmod morse
 		# This needs to be separate to force kmodloader to
 		# read the dot11ah modparams.
 		/sbin/kmodloader $dot11ah_module_config_file
