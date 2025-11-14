@@ -1,0 +1,61 @@
+From 2f58c3858be0486f45fa04c7715d848d7f37f0cf Mon Sep 17 00:00:00 2001
+From: James Haggerty <james.haggerty@morsemicro.com>
+Date: Fri, 14 Nov 2025 16:01:30 +1100
+Subject: [PATCH] APP-5811 APP-5879 Set TWT/CAC after iface up
+
+This caused bring-up failures if the user hadn't set the iface up manually
+before starting wpa_supplicant. wpa_supplicant brings up the interface
+in the driver init (set_iface_flags), so we should not interact
+with the interface before this.
+---
+ wpa_supplicant/wpa_supplicant.c | 27 ++++++++++++++-------------
+ 1 file changed, 14 insertions(+), 13 deletions(-)
+
+diff --git a/wpa_supplicant/wpa_supplicant.c b/wpa_supplicant/wpa_supplicant.c
+index b0427da5b..f9520acd2 100644
+--- a/wpa_supplicant/wpa_supplicant.c
++++ b/wpa_supplicant/wpa_supplicant.c
+@@ -7975,19 +7975,6 @@ static int wpa_supplicant_init_iface(struct wpa_supplicant *wpa_s,
+ 				   wpa_s->confanother);
+ 			return -1;
+ 		}
+-#ifdef CONFIG_S1G_TWT
+-		if (wpa_s->conf->ssid && wpa_s->conf->ssid->twt_conf.enable) {
+-			if (morse_twt_conf(iface->ifname, &wpa_s->conf->ssid->twt_conf) != 0)
+-				return -1;
+-		}
+-#endif /* CONFIG_S1G_TWT */
+-
+-#ifdef CONFIG_IEEE80211AH
+-		if (wpa_s->conf->ssid && wpa_s->conf->ssid->cac) {
+-			if (morse_cac_conf(iface->ifname, true) != 0)
+-				return -1;
+-		}
+-#endif /* CONFIG_IEEE80211AH */
+ 
+ 		/*
+ 		 * Override ctrl_interface and driver_param if set on command
+@@ -8066,6 +8053,20 @@ static int wpa_supplicant_init_iface(struct wpa_supplicant *wpa_s,
+ 	if (wpas_init_driver(wpa_s, iface) < 0)
+ 		return -1;
+ 
++#ifdef CONFIG_S1G_TWT
++	if (wpa_s->conf->ssid && wpa_s->conf->ssid->twt_conf.enable) {
++		if (morse_twt_conf(iface->ifname, &wpa_s->conf->ssid->twt_conf) != 0)
++			return -1;
++	}
++#endif /* CONFIG_S1G_TWT */
++
++#ifdef CONFIG_IEEE80211AH
++	if (wpa_s->conf->ssid && wpa_s->conf->ssid->cac) {
++		if (morse_cac_conf(iface->ifname, true) != 0)
++			return -1;
++	}
++#endif /* CONFIG_IEEE80211AH */
++
+ 	if (wpa_supplicant_init_wpa(wpa_s) < 0)
+ 		return -1;
+ 
+-- 
+2.34.1
+
