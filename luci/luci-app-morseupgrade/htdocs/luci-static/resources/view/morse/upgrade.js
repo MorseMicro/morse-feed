@@ -43,6 +43,19 @@ var callFileStat = rpc.declare({
 	params: ['path'],
 });
 
+var callGetLocaltime = rpc.declare({
+	object: 'luci',
+	method: 'getLocaltime',
+	params: [],
+});
+
+var callSetLocaltime = rpc.declare({
+	object: 'luci',
+	method: 'setLocaltime',
+	params: ['localtime'],
+	expect: { result: 0 },
+});
+
 document.querySelector('head').appendChild(E('link', {
 	rel: 'stylesheet',
 	type: 'text/css',
@@ -97,6 +110,23 @@ function findStorageSize(procmtd, procpart) {
 	});
 
 	return wholesize;
+}
+
+/*
+ * If delta > 5 minutes try to synchronise.
+ * return true if time was changed.
+ */
+function synchroniseDeviceTimeWithBrowser() {
+	return callGetLocaltime()
+		.then((res) => {
+			const deviceTime = res.result;
+			const browserTime = Math.floor(Date.now() / 1000);
+			if (Math.abs(browserTime - deviceTime) > 300) {
+				return callSetLocaltime(browserTime).then(() => true);
+			}
+			return false;
+		})
+		.catch(() => false);
 }
 
 const states = {
@@ -164,12 +194,27 @@ return view.extend({
 	// this, and handleSysupgradeConfirm are practically a direct copy paste from the flash.js.
 	//  some massaging was required to replace the ui.uploadFile which started this function.
 	handleSysupgrade: function (storage_size, has_rootfs_data, file_stat) {
-		ui.showModal(_('Checking image…'), [
-			E('span', { class: 'spinning' }, _('Verifying the uploaded image file.')),
+		var imgCheckModal = ui.showModal(_('Checking image…'), [
+			E('span', { class: 'spinning' }, _('Synchronizing device time with the browser.')),
 		]);
 
-		return callSystemValidateFirmwareImage('/tmp/sysupgrade.bin')
-			.then(function (res) { return [file_stat, res]; })
+		return Promise.resolve([file_stat])
+			.then((reply) => {
+				return synchroniseDeviceTimeWithBrowser()
+					.then(function (res) {
+						reply.push({ skew_fixed: res });
+						return reply;
+					});
+			})
+			.then((reply) => {
+				var imgCheckModalSpanElem = imgCheckModal.querySelector('.spinning');
+				imgCheckModalSpanElem.textContent = _('Verifying the uploaded image file.');
+				return callSystemValidateFirmwareImage('/tmp/sysupgrade.bin')
+					.then(function (res) {
+						reply.push(res);
+						return reply;
+					});
+			})
 			.then((reply) => {
 				return fs.exec('/sbin/sysupgrade', ['--test', '/tmp/sysupgrade.bin'])
 					.then(function (res) {
@@ -185,9 +230,11 @@ return view.extend({
 						skip_orig: [E('input', { type: 'checkbox' }), true, '-u'],
 						backup_pkgs: [E('input', { type: 'checkbox' }), true, '-k'],
 					},
-					is_valid = res[1].valid,
-					is_forceable = res[1].forceable,
-					allow_backup = res[1].allow_backup,
+					skew_fixed = res[1].skew_fixed,
+					is_valid = res[2].valid,
+					is_forceable = res[2].forceable,
+					allow_backup = res[2].allow_backup,
+					sysupgrade_test_result = res[3],
 					is_too_big = (storage_size > 0 && res[0].size > storage_size),
 					body = [];
 
@@ -209,17 +256,22 @@ return view.extend({
 						_('It appears that you are trying to flash an image that does not fit into the flash memory, please verify the image file!'),
 					]));
 
+				if (skew_fixed)
+					body.push(E('p', { class: 'alert-message' }, [
+						_('Your device time was out of sync with the browser and has been automatically updated.'),
+					]));
+
 				var error_detail = E('p', { class: 'alert-message' }, [
 					E('br'),
 					_('Error details:'),
 					E('br'),
-					E('pre', res[2].stderr),
+					E('pre', sysupgrade_test_result.stderr),
 				]);
 
 				if (!is_valid)
 					body.push(E('p', { class: 'alert-message' }, [
 						E('b', _('The uploaded image file does not contain a supported format. If you are using EKH01 make sure that you HAVEN\'T decompressed the image before uploading.')),
-						res[2].stderr ? error_detail : '',
+						sysupgrade_test_result.stderr ? error_detail : '',
 					]));
 
 				if (!allow_backup) {
@@ -248,16 +300,16 @@ return view.extend({
 					click: ui.createHandlerFn(this, 'handleSysupgradeConfirm', opts),
 				}, [_('Continue')]);
 
-				if (res[2].code != 0) {
+				if (sysupgrade_test_result.code != 0) {
 					body.push(E('p', { class: 'alert-message danger' }, E('label', {}, [
 						_('Image check failed.'),
 						!is_valid ? ' ' : E('br'),
 						!is_valid ? ' ' : E('br'),
-						!is_valid ? ' ' : res[2].stderr,
+						!is_valid ? ' ' : sysupgrade_test_result.stderr,
 					])));
 				}
 
-				if ((!is_valid || is_too_big || res[2].code != 0) && is_forceable) {
+				if ((!is_valid || is_too_big || sysupgrade_test_result.code != 0) && is_forceable) {
 					body.push(E('p', {}, E('label', { class: 'btn alert-message danger' }, [
 						opts.force[0], ' ', _('Force upgrade'),
 						E('br'), E('br'),
