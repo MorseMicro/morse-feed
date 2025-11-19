@@ -185,7 +185,7 @@ function start_temp_iface(section) {
 
 	force_ifaces_for_phy(phyname);
 
-	writefile(TEMP_WPA_SUPPLICANT_CONF, 'dpp_config_processing=0\n');
+	fs.writefile(TEMP_WPA_SUPPLICANT_CONF, 'dpp_config_processing=0\n');
 
 	// Remove any existing ifaces, as they may interfere with DPP.
 	ubus.call("hostapd", "config_set", { phy: phyname });
