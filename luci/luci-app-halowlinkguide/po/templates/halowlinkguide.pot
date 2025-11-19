@@ -1,0 +1,16 @@
+msgid ""
+msgstr "Content-Type: text/plain; charset=UTF-8"
+
+#: luci-app-halowlinkguide/htdocs/luci-static/resources/view/morseguide/morseguide.js:20
+msgid ""
+"Open this <a %s>offline guide</a> in a new tab or view the uncompressed <a "
+"%s>online guide</a> (requires internet connection)."
+msgstr ""
+
+#: luci-app-halowlinkguide/htdocs/luci-static/resources/view/morseguide/morseguide.js:19
+msgid "The offline user guide is compressed and some images may appear blurry."
+msgstr ""
+
+#: luci-app-halowlinkguide/root/usr/share/luci/menu.d/luci-app-halowlinkguide.json:3
+msgid "User Guide"
+msgstr ""
