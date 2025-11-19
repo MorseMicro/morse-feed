@@ -16,12 +16,12 @@ return view.extend({
 		var body = E([]);
 
 		var offlineBanner = ui.addNotification(null, [
-			'The offline user guide is compressed and some images may appear blurry.',
-			' Open this',
-			E('a', { href: OFFLINE_USER_GUIDE_URL, target: '_blank' }, ' offline guide'),
-			' in a new tab or view the uncompressed ',
-			E('a', { href: S3_BUCKET_USER_GUIDE_URL, target: '_blank' }, 'online guide'),
-			' (requires internet connection).',
+			_('The offline user guide is compressed and some images may appear blurry.'),
+			E('p', _(`
+				Open this <a %s>offline guide</a>
+				in a new tab or view the uncompressed <a %s>online guide</a>
+				(requires internet connection).
+			`).format(`target="_blank" href="${OFFLINE_USER_GUIDE_URL}"`, `target="_blank" href="${S3_BUCKET_USER_GUIDE_URL}"`)),
 		], 'warning');
 		offlineBanner.style.zIndex = 100;
 
