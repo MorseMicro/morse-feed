@@ -5,13 +5,39 @@
 	local disp = require "luci.dispatcher"
 	local posix = require "nixio.fs"
 
+	local SHORT_MODE_NAMES = {
+		-- EasyMesh wizard modes
+		["ap-easymesh"]   = _("Mesh Controller"),
+		["sta-easymesh"]  = _("Mesh Agent"),
+
+		-- 11s Mesh wizard modes
+		["mesh-router"]   = _("11s Mesh"),
+		["mesh-extender"] = _("11s Mesh"),
+		["mesh-gate"]     = _("11s Mesh Gate"),
+
+		-- Standard wizard modes
+		["ap-router"]     = _("Access Point"),
+		["sta-extender"]  = _("Extender"),
+
+		-- Matter wizard mode
+		["sta-matter"]    = _("Matter"),
+
+		-- Interface modes
+		["sta"]           = _("Client"),
+		["ap"]            = _("Access Point"),
+		["mesh"]          = _("11s Mesh"),
+		["adhoc"]         = _("Ad-Hoc"),
+		["monitor"]       = _("Monitor"),
+		["none"]          = _("None"),
+	}
+
 	local boardinfo = util.ubus("system", "board")
 	local desc = boardinfo and boardinfo.release and boardinfo.release.description and (boardinfo.release.description):match("Morse%-(%S+)")
 	local morse_version = desc and "Version "..desc or null
-	local morse_mode_short_display = "Unknown"
+	local morse_mode_short_display = _("Unknown")
 	local modeinfo = util.ubus("morse-mode", "query")
-	if modeinfo then
-		morse_mode_short_display = modeinfo.morse_mode_short_display
+	if modeinfo and SHORT_MODE_NAMES[modeinfo.morse_mode] then
+		morse_mode_short_display = SHORT_MODE_NAMES[modeinfo.morse_mode]
 	end
 
 	local node = disp.context.dispatched

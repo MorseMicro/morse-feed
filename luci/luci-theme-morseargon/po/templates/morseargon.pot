@@ -1,29 +1,56 @@
 msgid ""
 msgstr "Content-Type: text/plain; charset=UTF-8"
 
+#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:14
+#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:15
+#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:28
+msgid "11s Mesh"
+msgstr ""
+
+#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:16
+msgid "11s Mesh Gate"
+msgstr ""
+
+#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:19
+#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:27
+msgid "Access Point"
+msgstr ""
+
+#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:29
+msgid "Ad-Hoc"
+msgstr ""
+
 #: luci/luci-theme-morseargon/htdocs/luci-static/resources/menu-morseargon.js:248
 msgid "Advanced Config"
 msgstr ""
 
-#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:254
+#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:274
 msgid "BCF may not be appropriate!"
 msgstr ""
 
-#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:221
+#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:26
+msgid "Client"
+msgstr ""
+
+#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:241
 msgid "Country not set!"
 msgstr ""
 
-#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:244
+#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:20
+msgid "Extender"
+msgstr ""
+
+#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:264
 msgid "Go to password configuration..."
 msgstr ""
 
-#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:223
-#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:230
-#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:237
+#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:243
+#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:250
+#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:257
 msgid "Go to wireless configuration..."
 msgstr ""
 
-#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:260
+#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:280
 msgid "HaLow Wi-Fi Driver Running in Test Mode."
 msgstr ""
 
@@ -31,7 +58,7 @@ msgstr ""
 msgid "Invalid username and/or password! Please try again."
 msgstr ""
 
-#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:279
+#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:299
 msgid "JavaScript required!"
 msgstr ""
 
@@ -39,60 +66,84 @@ msgstr ""
 msgid "Log in"
 msgstr ""
 
-#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:235
+#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:23
+msgid "Matter"
+msgstr ""
+
+#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:11
+msgid "Mesh Agent"
+msgstr ""
+
+#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:10
+msgid "Mesh Controller"
+msgstr ""
+
+#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:30
+msgid "Monitor"
+msgstr ""
+
+#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:255
 msgid ""
 "Morse device using FullMAC firmware - only Client/Station mode will work!"
 msgstr ""
 
-#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:228
+#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:248
 msgid "Morse device using Thin LMAC firmware - only AP mode will work!"
 msgstr ""
 
-#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:242
+#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:262
 msgid "No password set!"
 msgstr ""
 
-#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:255
+#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:31
+msgid "None"
+msgstr ""
+
+#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:275
 msgid ""
 "The BCF file on this device must be specified via UCI as the board type "
 "isn't set in the OTP bits. Currently, your HaLow device is using the non-"
 "functional failsafe BCF."
 msgstr ""
 
-#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:261
+#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:281
 msgid ""
 "The HaLow Wi-Fi driver being used is the test mode version. Perform a "
 "factory reset to restore the normal production driver."
 msgstr ""
 
-#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:243
+#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:263
 msgid ""
 "There is no password set on this router. Please configure a root password to "
 "protect the web interface."
 msgstr ""
 
-#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:270
+#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:290
 msgid ""
 "This device is a virtual wire kit. Saving any configuration will disable "
 "virtual wire mode. A factory reset will restore virtual wire mode."
 msgstr ""
 
-#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:267
+#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:37
+msgid "Unknown"
+msgstr ""
+
+#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:287
 msgid "Virtual Wire Device"
 msgstr ""
 
-#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:280
+#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:300
 msgid ""
 "You must enable JavaScript in your browser or LuCI will not work properly."
 msgstr ""
 
-#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:222
+#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:242
 msgid ""
 "Your Morse HaLow device requires a country. Please set your country on the "
 "Network -> Wireless page."
 msgstr ""
 
-#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:236
+#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:256
 msgid ""
 "Your Morse device is using FullMAC firmware, which is an optimisation for "
 "client/station mode where processing is offloading to the Morse chip. This "
@@ -100,7 +151,7 @@ msgid ""
 "maintained when the host processor is off."
 msgstr ""
 
-#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:229
+#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:249
 msgid ""
 "Your Morse device is using Thin LMAC firmware, which is an optimisation for "
 "AP mode to support large numbers of clients/stations."
