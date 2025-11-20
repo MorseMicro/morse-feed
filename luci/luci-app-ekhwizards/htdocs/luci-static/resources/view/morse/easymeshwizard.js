@@ -644,17 +644,20 @@ return wizard.AbstractWizardView.extend({
 
 		// Dynamic WiFi AP info text generation
 		const getWiFiApInfo = (band, disabled) => {
-			var wifiApInfo = _(`This HaLow device is also capable of ${band} Wi-Fi.
-				If you enable this ${band} <b>Access Point</b>, you will be able to
-				connect non-HaLow Wi-Fi clients to this device.`);
+			var wifiApInfo = _(`
+				This HaLow device is also capable of %s Wi-Fi.
+				If you enable a %s Wi-Fi <b>Access Point</b>, you will be able to
+				connect %s Wi-Fi clients to this device.
+			`).format(band, band, band);
 
 			if (disabled)
 				return wifiApInfo;
 
 			var easyMeshManagedAP = _(`<p>This Wi-Fi AP is managed by <b>EasyMesh</b>.</p>`);
-			var nonEasyMeshManagedAP = _('<br><strong>This AP cannot Be Managed by EasyMesh.</strong> '
-				+	'The current network settings prevent it from being managed by EasyMesh.<br>'
-				+	'Choose a different <strong>Upstream Network</strong> or <strong>Traffic Mode</strong> to allow EasyMesh management.');
+			var nonEasyMeshManagedAP = _(`<br><strong>This AP cannot Be Managed by EasyMesh.</strong>
+				The current network settings prevent it from being managed by EasyMesh.<br>
+				Choose a different <strong>Upstream Network</strong> or <strong>Traffic Mode</strong> to allow EasyMesh management.
+			`);
 			var isBridged = (uci.get('prplmesh', 'config', 'master') === 0)
 				? uci.get('network', 'wizard', 'device_mode_meshagent') === 'bridge'
 				: uci.get('network', 'wizard', 'uplink') !== 'none';
@@ -664,7 +667,7 @@ return wizard.AbstractWizardView.extend({
 		for (const wifiDevice of wifiDevices) {
 			page = this.page(
 				wifiApInterfaceSections[wifiDevice.name],
-				`${wifiDevice.getBandName()} Wi-Fi Access Point`,
+				_(`%s Wi-Fi Access Point`).format(wifiDevice.getBandName()),
 				getWiFiApInfo(wifiDevice.getBandName(), true));
 			page.enableDiagram({
 				extras: ['STA_WIFI_INT_SELECT', 'STA_WIFI_INT_SELECT_FILL', 'AP_WIFI_INT_SELECT', 'AP_WIFI_INT_SELECT_FILL'],
@@ -746,8 +749,8 @@ return wizard.AbstractWizardView.extend({
 
 		for (const wifiDevice of wifiDevices) {
 			option = page.step(_(`
-				Connect another device via <b>${wifiDevice.getBandName()} Wi-Fi</b> to use your new HaLow link.
-			`));
+				Connect another device via <b>%s Wi-Fi</b> to use your new HaLow link.
+			`).format(wifiDevice.getBandName()));
 			option.depends({ mode: 'sta', [`wireless.${wifiDevice.apSectionName}.disabled`]: '0' });
 		}
 
@@ -771,9 +774,9 @@ return wizard.AbstractWizardView.extend({
 		option.depends('network.wizard.uplink', /^ethernet/);
 
 		for (const wifiDevice of wifiDevices) {
-			option = page.step(`
-				Connect ${wifiDevice.getBandName()} devices to your network.
-			`);
+			option = page.step(_(`
+				Connect %s devices to your network.
+			`).format(wifiDevice.getBandName()));
 			option.depends({ mode: 'ap', [`wireless.${wifiDevice.apSectionName}.disabled`]: '0' });
 		}
 

@@ -687,10 +687,10 @@ return wizard.AbstractWizardView.extend({
 
 		for (const wifiDevice of wifiDevices) {
 			page = this.page(wifiApInterfaceSections[wifiDevice.name],
-				`${wifiDevice.getBandName()} Wi-Fi Access Point`,
-				`This HaLow device is also capable of ${wifiDevice.getBandName()} Wi-Fi.
-				If you enable a ${wifiDevice.getBandName()} Wi-Fi <b>Access Point</b>, you will be able to
-				connect ${wifiDevice.getBandName()} Wi-Fi clients to this device.`);
+				_(`%s Wi-Fi Access Point`).format(wifiDevice.getBandName()),
+				_(`This HaLow device is also capable of %s Wi-Fi.
+				If you enable a %s Wi-Fi <b>Access Point</b>, you will be able to
+				connect %s Wi-Fi clients to this device.`).format(wifiDevice.getBandName(), wifiDevice.getBandName(), wifiDevice.getBandName()));
 			page.enableDiagram({
 				extras: ['GATE_WIFI_INT_SELECT', 'GATE_WIFI_INT_SELECT_FILL',
 				         'POINT_WIFI_INT_SELECT', 'POINT_WIFI_INT_SELECT_FILL'],
@@ -742,9 +742,9 @@ return wizard.AbstractWizardView.extend({
 		option = page.html(() => this.renderIPChangeAlert());
 
 		for (const wifiDevice of wifiDevices) {
-			option = page.step(`
-				Connect another device via <b>${wifiDevice.getBandName()} Wi-Fi</b> to use your new HaLow link.
-			`);
+			option = page.step(_(`
+				Connect another device via <b>%s Wi-Fi</b> to use your new HaLow link.
+			`).format(wifiDevice.getBandName()));
 			option.depends({ mode: 'sta', [`wireless.${wifiDevice.apSectionName}.disabled`]: '0' });
 		}
 
@@ -757,8 +757,8 @@ return wizard.AbstractWizardView.extend({
 
 		for (const wifiDevice of wifiDevices) {
 			option = page.step(_(`
-				Connect ${wifiDevice.getBandName()} devices to your network.
-			`));
+				Connect %s devices to your network.
+			`).format(wifiDevice.getBandName()));
 			option.depends({ mode: 'ap', [`wireless.${wifiDevice.apSectionName}.disabled`]: '0' });
 		}
 
@@ -786,12 +786,5 @@ return wizard.AbstractWizardView.extend({
 		]));
 
 		return map.render();
-	},
-
-	updateChannelOptions(country, bandwidth) {
-		this.channelOption.clear();
-		for (const channel of this.countryChannels[country][bandwidth]) {
-			this.channelOption.value(channel.s1g_chan, `${channel.s1g_chan} (${channel.centre_freq_mhz} MHz)`);
-		}
 	},
 });
