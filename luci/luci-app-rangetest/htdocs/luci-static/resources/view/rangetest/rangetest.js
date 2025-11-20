@@ -489,8 +489,8 @@ async function runRangetest(cancelPromise, configuration, testProgressBar, updat
 	const maxSubtestIncrements = iperf3TestTime / iperf3PollInterval;
 	const percentPerIncrement = 100 / (maxSubtestIncrements * nSubtests);
 	testProgressBar.show();
-	testProgressBar.reset('Beginning...');
-	testResults.status = 'Beginning...';
+	testProgressBar.reset(_('Beginning...'));
+	testResults.status = _('Beginning...');
 	updateResultsSummaryRow(testResults);
 
 	try {
@@ -500,7 +500,7 @@ async function runRangetest(cancelPromise, configuration, testProgressBar, updat
 		for (const protocol of protocols) {
 			for (const direction of directions) {
 				testProgressBar.text = `${protocol.toUpperCase()} ${direction}`;
-				testResults.status = `In Progress (${protocol.toUpperCase()} ${direction})`;
+				testResults.status = _(`In Progress (%s)`).format(`${protocol.toUpperCase()} ${direction}`);
 				updateResultsSummaryRow(testResults);
 
 				const iperf3LocalResponse = await backgroundIperf3Client(remoteIp, (protocol === 'udp'), (direction === 'receive'), iperf3TestTime, iperf3OmitTime);
@@ -513,26 +513,26 @@ async function runRangetest(cancelPromise, configuration, testProgressBar, updat
 
 		await collectStatistics(testResults, remoteRangetestDevice);
 
-		testProgressBar.complete('Test Complete');
-		testResults.status = 'Completed';
+		testProgressBar.complete(_('Test Complete'));
+		testResults.status = _('Completed');
 	} catch (error) {
 		console.error(error);
 		if (error.cause === 'cancellation') {
 			displayMessageToUser(MESSAGE_TYPES.INFO, _('User Action'), error.message, { timeout: 10000 });
-			testProgressBar.reset('Cancelled');
-			testResults.status = 'Cancelled';
+			testProgressBar.reset(_('Cancelled'));
+			testResults.status = _('Cancelled');
 		} else if (error.cause === 'auth') {
 			displayMessageToUser(MESSAGE_TYPES.ERROR, _('Authentication Failure'), error.message, { modal: true });
-			testProgressBar.reset('Authentication Failure');
-			testResults.status = 'Failed (Authentication)';
+			testProgressBar.reset(_('Authentication Failure'));
+			testResults.status = _('Failed (Authentication)');
 		} else if (error.cause === 'offline') {
 			displayMessageToUser(MESSAGE_TYPES.ERROR, _('Remote Device Unreachable'), error.message, { modal: true });
-			testProgressBar.reset('Remote Device Unreachable');
-			testResults.status = 'Failed (Remote Device Unreachable)';
+			testProgressBar.reset(_('Remote Device Unreachable'));
+			testResults.status = _('Failed (Remote Device Unreachable)');
 		} else {
 			displayMessageToUser(MESSAGE_TYPES.ERROR, _('Rangetest Error'), error.message);
-			testProgressBar.reset('Rangetest Error');
-			testResults.status = 'Failed';
+			testProgressBar.reset(_('Rangetest Error'));
+			testResults.status = _('Failed');
 		}
 	} finally {
 		inProgressTestId = null;
@@ -706,14 +706,14 @@ async function waitForIperf3Results(iperf3ClientId, duration, pollInterval, rema
 	while (!completed) {
 		if (Date.now() - startTime > timeout) {
 			let testString = testProgressBar.text;
-			testProgressBar.setErrorState(`${testString} (Test taking longer than expected)`);
+			testProgressBar.setErrorState(_(`%s (Test taking longer than expected)`).format(testString));
 			if (!testDelayWarningShown) {
 				testDelayWarningElement = displayMessageToUser(
 					MESSAGE_TYPES.WARNING,
-					`${testString} Test Delay`,
-					`The ${testString} test is taking slightly longer than expected.`
+					_(`%s Test Delay`).format(testString),
+					_(`The %s test is taking slightly longer than expected.`
 					+ ` This behaviour is normal when network conditions are constrained.`
-					+ ` If the test appears completely unresponsive, you can manually cancel it.`,
+					+ ` If the test appears completely unresponsive, you can manually cancel it.`).format(testString),
 				);
 				testDelayWarningShown = true;
 			}
@@ -755,12 +755,12 @@ function getTestLocationGeoJson(data) {
 	const [latitude, longitude] = localCoordinates.split(',').map(Number);
 	let localDeviceGeoJson = JSON.parse(JSON.stringify(deviceLocationGeoJsonTemplate));
 	localDeviceGeoJson.geometry.coordinates = [longitude, latitude];
-	localDeviceGeoJson.properties.name = 'Local Device';
+	localDeviceGeoJson.properties.name = _('Local Device');
 
 	const [remoteLatitude, remoteLongitude] = remoteCoordinates.split(',').map(Number);
 	let remoteDeviceGeoJson = JSON.parse(JSON.stringify(deviceLocationGeoJsonTemplate));
 	remoteDeviceGeoJson.geometry.coordinates = [remoteLongitude, remoteLatitude];
-	remoteDeviceGeoJson.properties.name = 'Remote Device';
+	remoteDeviceGeoJson.properties.name = _('Remote Device');
 
 	return JSON.stringify([localDeviceGeoJson, remoteDeviceGeoJson]);
 }
@@ -958,21 +958,21 @@ return view.extend({
 						if (window.location.protocol !== 'https:') {
 							const secureUrl = `https://${window.location.host}${window.location.pathname}`;
 							ui.showModal(_('Secure Connection (HTTPS) Required for Browser Geolocation'), [
-								E('p', {},
+								E('p', {}, _(
 									'<strong>Important:</strong> This feature retrieves the coordinates of the device you are using to access this page '
 									+ '(e.g., your laptop or phone, <strong>not the HaLow device under test</strong>). '
 									+ 'Ensure this device is near your selected HaLow target before collecting its position.',
-								),
-								E('p', {},
+								)),
+								E('p', {}, _(
 									'<strong>Security Notice:</strong> To enable location access, you must reload this page with HTTPS. '
-									+ `You will be redirected to <a href=${secureUrl} target='_blank'>${secureUrl}</a>. `
+									+ `You will be redirected to <a href='%s' target='_blank'>%s</a>. `
 									+ 'On the first reload, your browser may show a security warning due to self-signed SSL certificates. '
 									+ 'This is expected and can be bypassed. You will also need to log in again and grant location access when prompted. '
 									+ 'After these steps, clicking the button will autofill your coordinates.',
-								),
-								E('p', {},
+								).format(secureUrl, secureUrl)),
+								E('p', {}, _(
 									'<em>Note:</em> Location accuracy is significantly higher on mobile devices, as they use GPS and Wi-Fi for better positioning.',
-								),
+								)),
 								E('div', { class: 'right' }, [
 									E('button', {
 										class: 'cbi-button cbi-button-positive',
@@ -1376,7 +1376,7 @@ return view.extend({
 					const filenameDatetimeString = formatFilenameDatetime(new Date());
 					const allTests = await getLocalTests();
 					if (allTests.length === 0) {
-						displayMessageToUser(MESSAGE_TYPES.INFO, _('No Test Data Available'), 'No test data available to export.', { modal: true });
+						displayMessageToUser(MESSAGE_TYPES.INFO, _('No Test Data Available'), _('No test data available to export.'), { modal: true });
 						return;
 					}
 
@@ -1385,7 +1385,7 @@ return view.extend({
 				E('button', { class: 'cbi-button cbi-button-negative', click: ui.createHandlerFn(this, async () => {
 					const allTests = await getLocalTests();
 					if (allTests.length === 0) {
-						displayMessageToUser(MESSAGE_TYPES.INFO, _('No Test Data Available'), 'No test data available to delete.', { modal: true });
+						displayMessageToUser(MESSAGE_TYPES.INFO, _('No Test Data Available'), _('No test data available to delete.'), { modal: true });
 						return;
 					}
 					ui.showModal(_('Confirm Deletion'), [

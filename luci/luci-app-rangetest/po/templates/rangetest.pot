@@ -1,0 +1,468 @@
+msgid ""
+msgstr "Content-Type: text/plain; charset=UTF-8"
+
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:709
+msgid "%s (Test taking longer than expected)"
+msgstr ""
+
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:713
+msgid "%s Test Delay"
+msgstr ""
+
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1158
+msgid "(offline)"
+msgstr ""
+
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:881
+msgid "(⚠️ offline)"
+msgstr ""
+
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:880
+msgid "(🚫 incompatible)"
+msgstr ""
+
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1056
+msgid "500"
+msgstr ""
+
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:974
+msgid ""
+"<em>Note:</em> Location accuracy is significantly higher on mobile devices, "
+"as they use GPS and Wi-Fi for better positioning."
+msgstr ""
+
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:962
+msgid ""
+"<strong>Important:</strong> This feature retrieves the coordinates of the "
+"device you are using to access this page (e.g., your laptop or phone, "
+"<strong>not the HaLow device under test</strong>). Ensure this device is "
+"near your selected HaLow target before collecting its position."
+msgstr ""
+
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:967
+msgid ""
+"<strong>Security Notice:</strong> To enable location access, you must reload "
+"this page with HTTPS. You will be redirected to <a href='%s' "
+"target='_blank'>%s</a>. On the first reload, your browser may show a "
+"security warning due to self-signed SSL certificates. This is expected and "
+"can be bypassed. You will also need to log in again and grant location "
+"access when prompted. After these steps, clicking the button will autofill "
+"your coordinates."
+msgstr ""
+
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1213
+msgid "Advanced Configuration"
+msgstr ""
+
+#: luci-app-rangetest/root/usr/share/rpcd/acl.d/luci-app-rangetest.json:37
+msgid "Allow unauthenticated users to check the status of the range test app"
+msgstr ""
+
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1235
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1392
+msgid "Are you sure?"
+msgstr ""
+
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1348
+msgid ""
+"Associate this device with another remote device which you want to test "
+"against."
+msgstr ""
+
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:525
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:526
+msgid "Authentication Failure"
+msgstr ""
+
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1293
+msgid "Bandwidth (MHz)"
+msgstr ""
+
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:492
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:493
+msgid "Beginning..."
+msgstr ""
+
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:612
+msgid "CSV Export Error"
+msgstr ""
+
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:987
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1250
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1411
+msgid "Cancel"
+msgstr ""
+
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:522
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:523
+msgid "Cancelled"
+msgstr ""
+
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1297
+msgid "Channel"
+msgstr ""
+
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1349
+msgid ""
+"Choose that remote device from the dropdown list and select your desired "
+"test settings."
+msgstr ""
+
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1350
+msgid "Click 'Start Test' to begin."
+msgstr ""
+
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:517
+msgid "Completed"
+msgstr ""
+
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1234
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1391
+msgid "Confirm Deletion"
+msgstr ""
+
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1180
+msgid "Data Direction"
+msgstr ""
+
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1245
+msgid "Delete"
+msgstr ""
+
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1406
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1414
+msgid "Delete All"
+msgstr ""
+
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1039
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1267
+msgid "Description"
+msgstr ""
+
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:652
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:669
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1106
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1216
+msgid "Dismiss"
+msgstr ""
+
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1270
+msgid "Distance (m)"
+msgstr ""
+
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1320
+msgid "Download"
+msgstr ""
+
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1384
+msgid "Download Results Summary (CSV)"
+msgstr ""
+
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:354
+msgid "Expecting: 'latitude, longitude' format."
+msgstr ""
+
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:360
+msgid "Expecting: Coordinates must be numeric values."
+msgstr ""
+
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:364
+msgid "Expecting: Latitude must be between -90 and 90."
+msgstr ""
+
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:368
+msgid "Expecting: Longitude must be between -180 and 180."
+msgstr ""
+
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:535
+msgid "Failed"
+msgstr ""
+
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:527
+msgid "Failed (Authentication)"
+msgstr ""
+
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:531
+msgid "Failed (Remote Device Unreachable)"
+msgstr ""
+
+#: luci-app-rangetest/root/usr/share/rpcd/acl.d/luci-app-rangetest.json:3
+msgid "Grant access to the LuCI range test app"
+msgstr ""
+
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1345
+msgid "How to use:"
+msgstr ""
+
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:503
+msgid "In Progress (%s)"
+msgstr ""
+
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:887
+msgid "Incompatible rangetest version. Please upgrade."
+msgstr ""
+
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:854
+msgid "Invalid Test Configuration"
+msgstr ""
+
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:758
+msgid "Local Device"
+msgstr ""
+
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1044
+msgid "Local device coordinates"
+msgstr ""
+
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1274
+msgid "Location"
+msgstr ""
+
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1012
+msgid "Location Retrieval Error"
+msgstr ""
+
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:998
+msgid "Low Location Accuracy"
+msgstr ""
+
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1100
+msgid "Map View"
+msgstr ""
+
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1379
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1388
+msgid "No Test Data Available"
+msgstr ""
+
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:299
+msgid ""
+"No compatible remote devices found! Please ensure that all devices you "
+"intend to test with are running compatible versions. Upgrade them to "
+"matching versions and try again. If your device is still not appearing, you "
+"can manually enter an IPv4 address into the Remote Device dropdown."
+msgstr ""
+
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:258
+msgid ""
+"No remote devices found! Please associate this device with a remote device "
+"you want to test against, then try again. If your device is still not "
+"appearing, you can manually enter an IPv4 address into the Remote Device "
+"dropdown."
+msgstr ""
+
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1388
+msgid "No test data available to delete."
+msgstr ""
+
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1379
+msgid "No test data available to export."
+msgstr ""
+
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1044
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1049
+msgid ""
+"Optional: Must be provided in Decimal Degrees (DD) format, used by Google "
+"Maps"
+msgstr ""
+
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1039
+msgid "Optional: short description of the test conditions"
+msgstr ""
+
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1034
+msgid "Password"
+msgstr ""
+
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1174
+msgid "Protocol"
+msgstr ""
+
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1186
+msgid "Quick Tests"
+msgstr ""
+
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1054
+msgid "Range (m)"
+msgstr ""
+
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1339
+#: luci-app-rangetest/root/usr/share/luci/menu.d/luci-app-rangetest.json:3
+msgid "Range Test"
+msgstr ""
+
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:533
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:534
+msgid "Rangetest Error"
+msgstr ""
+
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1305
+msgid "Raw Data (JSON)"
+msgstr ""
+
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1182
+msgid "Receive"
+msgstr ""
+
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:982
+msgid "Reload with HTTPS"
+msgstr ""
+
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:763
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1029
+msgid "Remote Device"
+msgstr ""
+
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:256
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:297
+msgid "Remote Device Discovery"
+msgstr ""
+
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:529
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:530
+msgid "Remote Device Unreachable"
+msgstr ""
+
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1263
+msgid "Remote Host"
+msgstr ""
+
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1049
+msgid "Remote device coordinates"
+msgstr ""
+
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1034
+msgid "Remote device password"
+msgstr ""
+
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1372
+msgid "Results Summary"
+msgstr ""
+
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:955
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:956
+msgid "Retrieve the current location of your phone/laptop via the browser"
+msgstr ""
+
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1186
+msgid ""
+"Run 10s subtests with the first 2s omitted. Standard tests run for 70s with "
+"the first 10s omitted and generally yield more accurate results."
+msgstr ""
+
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1217
+msgid "Save"
+msgstr ""
+
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:936
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:937
+msgid "Scan for remote devices"
+msgstr ""
+
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:960
+msgid "Secure Connection (HTTPS) Required for Browser Geolocation"
+msgstr ""
+
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1029
+msgid "Select the remote device to test against"
+msgstr ""
+
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1181
+msgid "Send"
+msgstr ""
+
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1301
+msgid "Signal Strength (dBm)"
+msgstr ""
+
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1366
+msgid "Start Test"
+msgstr ""
+
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1255
+msgid "Status"
+msgstr ""
+
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1366
+msgid "Stop"
+msgstr ""
+
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1176
+msgid "TCP"
+msgstr ""
+
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1289
+msgid "TCP Receive Throughput (Mbps)"
+msgstr ""
+
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1285
+msgid "TCP Send Throughput (Mbps)"
+msgstr ""
+
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:516
+msgid "Test Complete"
+msgstr ""
+
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1357
+msgid "Test Configuration"
+msgstr ""
+
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:714
+msgid ""
+"The %s test is taking slightly longer than expected. This behaviour is "
+"normal when network conditions are constrained. If the test appears "
+"completely unresponsive, you can manually cancel it."
+msgstr ""
+
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1054
+msgid "The distance between devices under test"
+msgstr ""
+
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:999
+msgid ""
+"The location provided by your browser has low accuracy (> 5m). This may "
+"affect the test results."
+msgstr ""
+
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1164
+msgid ""
+"The map feature is currently unavailable. This may be due to a lack of "
+"internet connectivity or the required resources not being loaded. Please "
+"check your connection and try again."
+msgstr ""
+
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1343
+msgid "This is a network utility to perform static range tests."
+msgstr ""
+
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1259
+msgid "Time"
+msgstr ""
+
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1175
+msgid "UDP"
+msgstr ""
+
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1281
+msgid "UDP Receive Throughput (Mbps)"
+msgstr ""
+
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1277
+msgid "UDP Send Throughput (Mbps)"
+msgstr ""
+
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:612
+msgid "Unexpected data type in CSV export."
+msgstr ""
+
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:521
+msgid "User Action"
+msgstr ""
+
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1041
+msgid "line of sight, low noise environment..."
+msgstr ""
+
+#: luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1153
+msgid "unknown"
+msgstr ""
