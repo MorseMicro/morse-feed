@@ -545,8 +545,8 @@ return wizard.AbstractWizardView.extend({
 			option.depends(largeStationCountDepender, '1');
 			option.optional = true;
 			option.default = '';
-			option.value('', 'SoftMAC (standard mode)');
-			option.value('thin_lmac', 'Thin LMAC (AP only, supporting many stations)');
+			option.value('', _('SoftMAC (standard mode)'));
+			option.value('thin_lmac', _('Thin LMAC (AP only, supporting many stations)'));
 			large_station_count_button.add_default(option, 'thin_lmac');
 		}
 
@@ -834,10 +834,10 @@ return wizard.AbstractWizardView.extend({
 
 		for (const wifiDevice of wifiDevices) {
 			page = this.page(wifiApInterfaceSections[wifiDevice.name],
-				`${wifiDevice.getBandName()} Wi-Fi Access Point`,
-				`This HaLow device is also capable of ${wifiDevice.getBandName()} Wi-Fi.
-				If you enable a ${wifiDevice.getBandName()} Wi-Fi <b>Access Point</b>, you will be able to
-				connect ${wifiDevice.getBandName()} Wi-Fi clients to this device.`);
+				_(`%s Wi-Fi Access Point`).format(wifiDevice.getBandName()),
+				_(`This HaLow device is also capable of %s Wi-Fi.
+				If you enable a %s Wi-Fi <b>Access Point</b>, you will be able to
+				connect %s Wi-Fi clients to this device.`).format(wifiDevice.getBandName(), wifiDevice.getBandName(), wifiDevice.getBandName()));
 			page.enableDiagram({
 				extras: ['STA_WIFI_INT_SELECT', 'STA_WIFI_INT_SELECT_FILL', 'AP_WIFI_INT_SELECT', 'AP_WIFI_INT_SELECT_FILL'],
 				blacklist: ['MESH_HALOW'],
@@ -906,9 +906,9 @@ return wizard.AbstractWizardView.extend({
 		option.depends('mode', 'sta');
 
 		for (const wifiDevice of wifiDevices) {
-			option = page.step(`
-				Connect another device via <b>${wifiDevice.getBandName()} Wi-Fi</b> to use your new HaLow link.
-			`);
+			option = page.step(_(`
+				Connect another device via <b>%s Wi-Fi</b> to use your new HaLow link.
+			`).format(wifiDevice.getBandName()));
 			option.depends({ mode: 'sta', [`wireless.${wifiDevice.apSectionName}.disabled`]: '0' });
 		}
 
@@ -925,9 +925,9 @@ return wizard.AbstractWizardView.extend({
 		option.depends('mode', 'ap');
 
 		for (const wifiDevice of wifiDevices) {
-			option = page.step(`
-				Connect ${wifiDevice.getBandName()} devices to your network.
-			`);
+			option = page.step(_(`
+				Connect %s devices to your network.
+			`).format(wifiDevice.getBandName()));
 			option.depends({ mode: 'ap', [`wireless.${wifiDevice.apSectionName}.disabled`]: '0' });
 		}
 

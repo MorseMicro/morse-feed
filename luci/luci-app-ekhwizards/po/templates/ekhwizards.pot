@@ -1,6 +1,12 @@
 msgid ""
 msgstr "Content-Type: text/plain; charset=UTF-8"
 
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:670
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:690
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:837
+msgid "%s Wi-Fi Access Point"
+msgstr ""
+
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:504
 msgid "-- Not set --"
 msgstr ""
@@ -13,7 +19,7 @@ msgstr ""
 msgid "4 wire"
 msgstr ""
 
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/selectwizard.js:55
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/selectwizard.js:54
 msgid "802.11s Mesh"
 msgstr ""
 
@@ -23,7 +29,7 @@ msgstr ""
 
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:451
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:600
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:704
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:707
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:578
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:707
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:412
@@ -39,15 +45,15 @@ msgid ""
 "automatically connect to a HaLow access point."
 msgstr ""
 
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:655
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:657
 msgid ""
 "<br><strong>This AP cannot Be Managed by EasyMesh.</strong> The current "
-"network settings prevent it from being managed by EasyMesh.<br>Choose a "
+"network settings prevent it from being managed by EasyMesh.<br> Choose a "
 "different <strong>Upstream Network</strong> or <strong>Traffic Mode</strong> "
 "to allow EasyMesh management."
 msgstr ""
 
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:654
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:656
 msgid "<p>This Wi-Fi AP is managed by <b>EasyMesh</b>.</p>"
 msgstr ""
 
@@ -100,7 +106,7 @@ msgid ""
 "arbitrary string that identifies the mesh similar to an SSID."
 msgstr ""
 
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:738
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:741
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:735
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:882
 msgid "Almost there..."
@@ -133,11 +139,11 @@ msgid ""
 "weak clients to maintain a healthy network."
 msgstr ""
 
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/landing.js:137
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/landing.js:135
 msgid "An error occurred while saving the form:"
 msgstr ""
 
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/landing.js:255
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/landing.js:235
 msgid "Apply"
 msgstr ""
 
@@ -196,13 +202,13 @@ msgstr ""
 msgid "Bridge/Router"
 msgstr ""
 
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:739
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:742
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:736
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:883
 msgid "Click <b>Apply</b> to persist your configuration."
 msgstr ""
 
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:797
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:800
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/matterwizard.js:307
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:785
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:951
@@ -217,14 +223,26 @@ msgstr ""
 msgid "Configure arp_announce"
 msgstr ""
 
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/landing.js:213
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/landing.js:193
 msgid "Confirmation"
 msgstr ""
 
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:780
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:777
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:759
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:928
+msgid "Connect %s devices to your network."
+msgstr ""
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:783
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:765
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:934
 msgid "Connect Ethernet devices to your network."
+msgstr ""
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:751
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:745
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:909
+msgid "Connect another device via <b>%s Wi-Fi</b> to use your new HaLow link."
 msgstr ""
 
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:903
@@ -241,7 +259,7 @@ msgid ""
 "the mobile application, then clicking"
 msgstr ""
 
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:768
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:771
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:753
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:917
 msgid "Connect this device to your existing network via an Ethernet cable."
@@ -251,19 +269,19 @@ msgstr ""
 msgid "Connect to a HaLow Network"
 msgstr ""
 
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:759
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:762
 msgid ""
 "Connect your device to EasyMesh Agents by pressing wps button from the "
 "Status page"
 msgstr ""
 
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:754
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:757
 msgid ""
 "Connect your device to an EasyMesh Controller by pressing wps_client from "
 "the Status page"
 msgstr ""
 
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/landing.js:164
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/landing.js:162
 msgid "Country"
 msgstr ""
 
@@ -275,11 +293,11 @@ msgstr ""
 msgid "Discriminator"
 msgstr ""
 
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/landing.js:140
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/landing.js:138
 msgid "Dismiss"
 msgstr ""
 
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/selectwizard.js:64
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/selectwizard.js:63
 msgid "EasyMesh"
 msgstr ""
 
@@ -310,7 +328,7 @@ msgid ""
 msgstr ""
 
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:620
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:724
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:727
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:598
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:723
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:781
@@ -345,7 +363,7 @@ msgid ""
 "page once you exit the wizard"
 msgstr ""
 
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/landing.js:161
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/landing.js:159
 msgid "HaLow Configuration"
 msgstr ""
 
@@ -353,11 +371,11 @@ msgstr ""
 msgid "HaLow Wi-Fi Access Point"
 msgstr ""
 
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/landing.js:201
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/landing.js:181
 msgid "Hostname"
 msgstr ""
 
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/landing.js:201
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/landing.js:181
 msgid "Hostname is used for many device id purposes, including DNS."
 msgstr ""
 
@@ -507,7 +525,7 @@ msgstr ""
 msgid "Manual credentials"
 msgstr ""
 
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/selectwizard.js:73
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/selectwizard.js:72
 msgid "Matter"
 msgstr ""
 
@@ -615,7 +633,7 @@ msgstr ""
 
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:465
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:631
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:715
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:718
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:609
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:679
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:716
@@ -626,7 +644,7 @@ msgstr ""
 msgid "Passphrase"
 msgstr ""
 
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/landing.js:209
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/landing.js:189
 msgid "Password"
 msgstr ""
 
@@ -648,7 +666,7 @@ msgstr ""
 msgid "SSID"
 msgstr ""
 
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/landing.js:136
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/landing.js:134
 msgid "Save error"
 msgstr ""
 
@@ -670,32 +688,36 @@ msgstr ""
 msgid "Setup Mesh Network"
 msgstr ""
 
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/selectwizard.js:48
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/selectwizard.js:47
 msgid "Setup your device as a normal Access Point (AP) or Client (Station)."
 msgstr ""
 
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/selectwizard.js:65
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/selectwizard.js:64
 msgid ""
 "Setup your device as part of EasyMesh (either as a Mesh Controller or a Mesh "
 "Agent)."
 msgstr ""
 
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/selectwizard.js:74
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/selectwizard.js:73
 msgid ""
 "Setup your device as part of Matter. (Matter not certified for this product)"
 msgstr ""
 
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/selectwizard.js:56
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/selectwizard.js:55
 msgid ""
 "Setup your device as part of an 802.11s Mesh (either as a Mesh Point or a "
 "Mesh Gate)."
+msgstr ""
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:548
+msgid "SoftMAC (standard mode)"
 msgstr ""
 
 #: luci/luci-app-ekhwizards/root/usr/share/rpcd/acl.d/luci-app-ekhwizards.json:3
 msgid "Some perms the wizards require mostly copied from luci-app-morseconfig"
 msgstr ""
 
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/selectwizard.js:47
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/selectwizard.js:46
 msgid "Standard Wi-Fi HaLow"
 msgstr ""
 
@@ -703,16 +725,20 @@ msgstr ""
 msgid "Station inactivity limit"
 msgstr ""
 
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/landing.js:198
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/landing.js:178
 msgid "System Configuration"
 msgstr ""
 
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/landing.js:165
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/landing.js:163
 msgid ""
 "The country determines the capabilities of your HaLow network. "
 "<strong>Warning:</strong> If you are currently using HaLow, modifying this "
 "value may cause you to lose access to this device. For details, see the <a "
 "href=\"%s\" target=\"_blank\">regulatory data table</a>."
+msgstr ""
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:549
+msgid "Thin LMAC (AP only, supporting many stations)"
 msgstr ""
 
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:541
@@ -721,7 +747,16 @@ msgid ""
 "than 200 clients."
 msgstr ""
 
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/landing.js:228
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:647
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:691
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:838
+msgid ""
+"This HaLow device is also capable of %s Wi-Fi. If you enable a %s Wi-Fi "
+"<b>Access Point</b>, you will be able to connect %s Wi-Fi clients to this "
+"device."
+msgstr ""
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/landing.js:208
 msgid "This wizard will guide you through the initial setup of this device."
 msgstr ""
 
@@ -766,7 +801,7 @@ msgid "WPA-PSK"
 msgstr ""
 
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:625
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:725
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:728
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:603
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:724
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:786
@@ -774,14 +809,14 @@ msgstr ""
 msgid "WPA2-PSK"
 msgstr ""
 
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:726
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:729
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:725
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:872
 msgid "WPA2-PSK/WPA3-SAE Mixed Mode"
 msgstr ""
 
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:626
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:727
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:730
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:604
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:726
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:787
@@ -825,13 +860,13 @@ msgid ""
 "after factory reset."
 msgstr ""
 
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/landing.js:210
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/landing.js:190
 msgid ""
 "We recommend setting a password. This will protect both the web interface "
 "and ssh access."
 msgstr ""
 
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/landing.js:227
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/landing.js:207
 msgid "Welcome!"
 msgstr ""
 
@@ -839,7 +874,7 @@ msgstr ""
 msgid "Wi-Fi HaLow Wizard"
 msgstr ""
 
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:796
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:799
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/matterwizard.js:306
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:784
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:950
@@ -904,11 +939,11 @@ msgid ""
 "settings"
 msgstr ""
 
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/landing.js:229
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/landing.js:209
 msgid "You can exit now if you'd prefer to configure manually."
 msgstr ""
 
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:764
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:767
 msgid "You can view the EasyMesh topology from the Status page"
 msgstr ""
 
