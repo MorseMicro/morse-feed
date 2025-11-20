@@ -68,7 +68,7 @@ var MorseStats = view.extend({
 		]);
 
 		rows.push([
-			'Application Core Stats',
+			_('Application Core Stats'),
 			E('div', [
 				E('button', { class: 'btn cbi-button-action', click: ui.createHandlerFn(this, 'logAction', iface, 'read', 'app') }, _('Read')),
 				E('button', { class: 'btn cbi-button-action', click: ui.createHandlerFn(this, 'logAction', iface, 'reset', 'app') }, _('Reset')),
@@ -76,7 +76,7 @@ var MorseStats = view.extend({
 		]);
 
 		rows.push([
-			'MAC Core Stats',
+			_('MAC Core Stats'),
 			E('div', [
 				E('button', { class: 'btn cbi-button-action', click: ui.createHandlerFn(this, 'logAction', iface, 'read', 'mac') }, _('Read')),
 				E('button', { class: 'btn cbi-button-action', click: ui.createHandlerFn(this, 'logAction', iface, 'reset', 'mac') }, _('Reset')),
@@ -84,7 +84,7 @@ var MorseStats = view.extend({
 		]);
 
 		rows.push([
-			'UPhy Core Stats',
+			_('UPhy Core Stats'),
 			E('div', [
 				E('button', { class: 'btn cbi-button-action', click: ui.createHandlerFn(this, 'logAction', iface, 'read', 'uphy') }, _('Read')),
 				E('button', { class: 'btn cbi-button-action', click: ui.createHandlerFn(this, 'logAction', iface, 'reset', 'uphy') }, _('Reset')),
