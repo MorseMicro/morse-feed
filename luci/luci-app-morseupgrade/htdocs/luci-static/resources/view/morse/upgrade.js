@@ -1,10 +1,11 @@
 'use strict';
-/* globals fs rpc ui view request upgradesearch */
+/* globals fs rpc ui view request upgradesearch uci */
 'require view';
 'require rpc';
 'require ui';
 'require fs';
 'require request';
+'require uci';
 'require tools.morse.morseupgrade.upgradesearch as upgradesearch';
 
 // this is a standard list propagated around LuCI to poll the device
@@ -173,6 +174,155 @@ const defaultMessages = {
 	VerifyOK: _('SHA256 OK.'),
 };
 
+function checkResultTemplate(title, statusClass = null, summary = null, details = null) {
+	return E('p', { class: `alert-message ${statusClass ?? ''}` }, [
+		E('span', { style: 'font-weight: bold' }, title),
+
+		(summary && E('span', [
+			E('br'), E('br'),
+			E('span', { style: 'font-weight: normal' }, summary),
+		])),
+
+		(details && E('span', [
+			E('br'), E('br'),
+			E('details', [
+				E('summary', { style: 'cursor: pointer; user-select: none' }, _('Details')),
+				E('br'),
+				E('pre', { style: 'white-space: pre-wrap' }, details),
+			]),
+		])),
+	].filter(e => e));
+}
+
+const compatibilityFailureCases = [
+	{
+		test: log => log.includes('Image metadata not present'),
+		title: _('Compatibility check failed: image metadata not present.'),
+		summary: _('The uploaded image file does not contain the required metadata to \
+			perform device compatibility checks. Please verify that you have selected the correct \
+			image file for your device model.'),
+	},
+	{
+		test: log => log.includes('Invalid image metadata'),
+		title: _('Compatibility check failed: invalid image metadata.'),
+		summary: _('The uploaded image file contains invalid or corrupted metadata. \
+			Please verify that you have selected the correct image file for your device model.'),
+	},
+	{
+		test: log => /Device .* not supported by this image/mi.test(log),
+		title: _('Compatibility check failed: device mismatch.'),
+		summary: (log) => {
+			const currentDeviceMatch = log.match(/Device (.+?) not supported by this image/mi);
+			const supportedDevicesMatch = log.match(/Supported devices: (.+)/mi);
+			if (currentDeviceMatch && currentDeviceMatch.length > 1 && supportedDevicesMatch && supportedDevicesMatch.length > 1) {
+				return _('The uploaded image file is not compatible with this device model (%s). Supported devices for this image are: %s.').format(currentDeviceMatch[1], supportedDevicesMatch[1]);
+			}
+			return _('The uploaded image file is not compatible with this device model. \
+				Please verify that you have selected the correct image file for your device model.');
+		},
+	},
+	{
+		test: log => log.includes('The device is supported, but this image is incompatible for sysupgrade based on the image version'),
+		title: _('Compatibility check failed: incompatible image version.'),
+		summary: _('The uploaded image file is compatible with this device model, \
+			but the image version is not suitable for sysupgrade. Please select a different image file.'),
+	},
+	{
+		test: log => log.includes('The device is supported, but the config is incompatible to the new image'),
+		title: _('Compatibility check failed: incompatible configuration.'),
+		summary: _('The uploaded image file is compatible with this device model, \
+			but the current configuration cannot be preserved. Please uncheck \'Keep settings\' \
+			and try again, or select a different image file.'),
+	},
+];
+
+const signatureFailureCases = [
+	{
+		test: log => log.includes('Image signature not present'),
+		title: _('Morse Micro signature authentication failed: signature not present.'),
+		summary: _('The uploaded image file does not include the required firmware \
+			signature for this device. Please download an official Morse Micro firmware \
+			image and try again.'),
+	},
+	{
+		test: log => /Cannot open file '\/etc\/opkg\/keys\//.test(log),
+		title: _('Morse Micro signature authentication failed: signing keys missing.'),
+		summary: _('The device cannot access the required firmware signing keys  \
+			to authenticate this image. If this is a custom or locally built development \
+			image you may force the upgrade but do so at your own risk.'),
+	},
+	{
+		test: log => /Cannot open file '\/tmp\/sysupgrade\.ucert'/.test(log) || /Unable to load certificate file/i.test(log),
+		title: _('Morse Micro signature authentication failed: signature metadata missing.'),
+		summary: _('The firmware certificate embedded in the image cannot be read \
+			by the device. The download may be incomplete or corrupted; please re-download \
+			the firmware and try again.'),
+	},
+	{
+		test: log => /certificate expired/i.test(log),
+		title: _('Morse Micro signature authentication failed: certificate expired.'),
+		summary: _('The signing certificate bundled with this firmware has expired. \
+			Please download an updated firmware image that is signed with a valid \
+			Morse Micro certificate.'),
+	},
+	{
+		test: log => /key .* has been revoked/i.test(log),
+		title: _('Morse Micro signature authentication failed: key revoked.'),
+		summary: _('The signing key for this firmware has been revoked on this device. \
+			Please download a more recent firmware release that is signed with a \
+			current Morse Micro key.'),
+	},
+	{
+		test: log => /missing mandatory ucert attributes/i.test(log) || /no ucert in signed payload/i.test(log) || /cannot parse (payload|cert)/i.test(log),
+		title: _('Morse Micro signature authentication failed: invalid payload.'),
+		summary: _('The firmware signature payload is malformed or incomplete. Please \
+			download the firmware image again from the Morse Micro server.'),
+	},
+	{
+		test: log => /wrong certificate type/i.test(log),
+		title: _('Morse Micro signature authentication failed: unsupported certificate type.'),
+		summary: _('The firmware contains a certificate that cannot authorize upgrades. \
+			Please use an official Morse Micro firmware image.'),
+	},
+	{
+		test: log => /cannot get fingerprint for chained key/i.test(log),
+		title: _('Morse Micro signature authentication failed: signature chain error.'),
+		summary: _('The device could not build the certificate chain for the firmware \
+			signature. Please re-download the firmware or contact Morse Micro support.'),
+	},
+	{
+		test: log => /stray trailing signature/i.test(log) || /missing signature to verify message/i.test(log),
+		title: _('Morse Micro signature authentication failed: signature structure invalid.'),
+		summary: _('The firmware signature blob is incomplete or contains unexpected \
+			data. The download might be truncated or tampered with.'),
+	},
+	{
+		test: log => /Failed to decode (signature|public key)/i.test(log) || /Premature end of file/i.test(log),
+		title: _('Morse Micro signature authentication failed: decode failed.'),
+		summary: _('The device failed to decode the signature or public key embedded \
+			in the firmware. Please download the firmware again.'),
+	},
+	{
+		test: log => /signature verification failed/i.test(log) || /verification failed/i.test(log) || /Failed to verify .*\.cert/i.test(log),
+		title: _('Morse Micro signature authentication failed: verification failed.'),
+		summary: _('The firmware signature could not be verified with the trusted \
+			Morse Micro keys. The file may be corrupt or tampered with. Please download \
+			it again or contact Morse Micro support.'),
+	},
+];
+
+function parseSysupgradeTestFailureReason(log, testCases, defaultTitle, defaultSummary) {
+	const failureReason = { title: defaultTitle, summary: defaultSummary };
+	for (const testCase of testCases) {
+		if (testCase.test(log)) {
+			failureReason.title = typeof testCase.title === 'function' ? testCase.title(log) : testCase.title;
+			failureReason.summary = typeof testCase.summary === 'function' ? testCase.summary(log) : testCase.summary;
+			break;
+		}
+	}
+	return failureReason;
+}
+
 return view.extend({
 	handleSaveApply: null,
 	handleSave: null,
@@ -231,12 +381,17 @@ return view.extend({
 						backup_pkgs: [E('input', { type: 'checkbox' }), true, '-k'],
 					},
 					skew_fixed = res[1].skew_fixed,
+					image_tests = res[2].tests,
+					is_signature_valid = image_tests.fwtool_signature,
+					is_device_supported = image_tests.fwtool_device_match,
 					is_valid = res[2].valid,
 					is_forceable = res[2].forceable,
 					allow_backup = res[2].allow_backup,
 					sysupgrade_test_result = res[3],
 					is_too_big = (storage_size > 0 && res[0].size > storage_size),
 					body = [];
+
+				sysupgrade_test_result.stderr = sysupgrade_test_result.stderr || '';
 
 				body.push(E('p', _('The flash image was uploaded. Below is the checksum and file size listed, compare them with the original file to ensure data integrity. <br /> Click \'Continue\' below to start the flash procedure.')));
 				body.push(E('ul', {}, [
@@ -248,40 +403,7 @@ return view.extend({
 					opts.keep[0], ' ', _('Keep settings and retain the current configuration'),
 				])));
 
-				if (!is_valid || is_too_big)
-					body.push(E('hr'));
-
-				if (is_too_big)
-					body.push(E('p', { class: 'alert-message' }, [
-						_('It appears that you are trying to flash an image that does not fit into the flash memory, please verify the image file!'),
-					]));
-
-				if (skew_fixed)
-					body.push(E('p', { class: 'alert-message' }, [
-						_('Your device time was out of sync with the browser and has been automatically updated.'),
-					]));
-
-				var error_detail = E('p', { class: 'alert-message' }, [
-					E('br'),
-					_('Error details:'),
-					E('br'),
-					E('pre', sysupgrade_test_result.stderr),
-				]);
-
-				if (!is_valid)
-					body.push(E('p', { class: 'alert-message' }, [
-						E('b', _('The uploaded image file does not contain a supported format. If you are using EKH01 make sure that you HAVEN\'T decompressed the image before uploading.')),
-						sysupgrade_test_result.stderr ? error_detail : '',
-					]));
-
-				if (!allow_backup) {
-					if (is_valid) {
-						body.push(E('p', { class: 'alert-message' }, [
-							_('The uploaded firmware does not allow keeping current configuration.'),
-						]));
-					}
-					opts.keep[0].disabled = true;
-				} else {
+				if (allow_backup) {
 					opts.keep[0].checked = true;
 
 					if (has_rootfs_data) {
@@ -295,26 +417,116 @@ return view.extend({
 					])));
 				}
 
+				/* visually separate the upgrade configuration (above) from the validation feedback (below) */
+				body.push(E('hr'));
+
+				if (skew_fixed)
+					body.push(checkResultTemplate(
+						_('Device time updated.'),
+						'notice',
+						_('Your device time was out of sync with the browser and has been automatically updated.'),
+					));
+
+				if (!allow_backup) {
+					if (is_valid) {
+						body.push(checkResultTemplate(
+							_('Configuration backup not supported.'),
+							'notice',
+							_('The uploaded firmware does not allow keeping current configuration.'),
+						));
+					}
+					opts.keep[0].disabled = true;
+				}
+
+				/* disk space check */
+				if (is_too_big) {
+					body.push(checkResultTemplate(
+						_('Disk space check failed: image too large.'),
+						'warning',
+						_('It appears that you are trying to flash an image that does not fit into the flash memory, please verify the image file!'),
+						_('Image size: %1024.2mB, Storage size: %1024.2mB').format(res[0].size, storage_size),
+					));
+				} else {
+					body.push(checkResultTemplate(_('Disk space check succeeded.'), 'success'));
+				}
+
+				/* compatibility check */
+				if (is_device_supported) {
+					body.push(checkResultTemplate(_('Compatibility check succeeded.'), 'success'));
+				} else {
+					const {
+						'title': compatibility_failure_title,
+						'summary': compatibility_failure_summary,
+					} = parseSysupgradeTestFailureReason(
+						sysupgrade_test_result.stderr,
+						compatibilityFailureCases,
+						_('Compatibility check failed.'),
+						_('The uploaded image failed the device compatibility check. \
+						Please verify that you have selected the correct image file for your device model. \
+						See details for more information.'),
+					);
+					body.push(checkResultTemplate(compatibility_failure_title, 'warning', compatibility_failure_summary, sysupgrade_test_result.stderr));
+				}
+
+				/* platform specific validation (rare, only show error case) */
+				const platform_check_image_failures = Object.entries(image_tests).filter(([k, v]) => {
+					const default_tests = ['fwtool_signature', 'fwtool_device_match'];
+					return !default_tests.includes(k) && v === false;
+				});
+				if (!is_valid && platform_check_image_failures.length > 0) {
+					body.push(checkResultTemplate(
+						_('Platform checks failed.'),
+						'warning',
+						_('The uploaded image file did not pass all platform specific validation checks. \
+							Please verify that you have selected the correct image file for your device model. \
+							See details for more information.'),
+						sysupgrade_test_result.stderr,
+					));
+				}
+
+				/* signature validation */
+				if (uci.get_first('system', null, 'enforce_fw_sign') == '0') {
+					body.push(checkResultTemplate(_('Morse Micro signature authentication not enforced.'), 'notice'));
+				} else if (is_signature_valid) {
+					body.push(checkResultTemplate(_('Morse Micro signature authentication succeeded.'), 'success'));
+				} else {
+					const {
+						'title': signature_failure_title,
+						'summary': signature_failure_summary,
+					} = parseSysupgradeTestFailureReason(
+						sysupgrade_test_result.stderr,
+						signatureFailureCases,
+						_('Morse Micro signature authentication failed.'),
+						_('The uploaded image file is not properly signed. \
+							Flashing unsigned images may compromise device security and is not recommended.'),
+					);
+					body.push(checkResultTemplate(signature_failure_title, 'warning', signature_failure_summary, sysupgrade_test_result.stderr));
+				}
+
+				/* visually separate the validation feedback (above) from the action buttons (below) */
+				body.push(E('hr'));
+
 				var cntbtn = E('button', {
 					class: 'btn cbi-button-action important',
 					click: ui.createHandlerFn(this, 'handleSysupgradeConfirm', opts),
 				}, [_('Continue')]);
 
-				if (sysupgrade_test_result.code != 0) {
-					body.push(E('p', { class: 'alert-message danger' }, E('label', {}, [
-						_('Image check failed.'),
-						!is_valid ? ' ' : E('br'),
-						!is_valid ? ' ' : E('br'),
-						!is_valid ? ' ' : sysupgrade_test_result.stderr,
-					])));
-				}
-
 				if ((!is_valid || is_too_big || sysupgrade_test_result.code != 0) && is_forceable) {
-					body.push(E('p', {}, E('label', { class: 'btn alert-message danger' }, [
-						opts.force[0], ' ', _('Force upgrade'),
-						E('br'), E('br'),
-						_('Select \'Force upgrade\' to flash the image even if the image format check fails. Use only if you are sure that the firmware is correct and meant for your device!'),
-					])));
+					body.push(
+						E('details', [
+							E('summary', { style: 'font-weight: bold; cursor: pointer; user-select: none' }, _('Do you still want to flash this image?')),
+							E('p', {}, E('label', { class: 'btn alert-message', style: 'margin: 0' }, [
+								opts.force[0], ' ', E('span', { class: 'show-warning' }, _('Force upgrade')),
+								E('br'), E('br'),
+								E('span', { style: 'font-weight: normal' },
+									_('Select \'Force upgrade\' to flash the image even \
+										if checks fail. Use only if you are sure that \
+										the firmware is correct and meant for your device!'),
+								),
+							])),
+						]),
+						E('hr'),
+					);
 					cntbtn.disabled = true;
 				}
 
@@ -662,6 +874,7 @@ return view.extend({
 			fs.trimmed('/proc/partitions'),
 			fs.trimmed('/proc/mounts'),
 			upgradesearch.load(),
+			uci.load('system'),
 		];
 
 		return Promise.all(tasks);
