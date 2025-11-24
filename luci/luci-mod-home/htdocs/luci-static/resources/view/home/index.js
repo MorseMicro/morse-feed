@@ -673,7 +673,7 @@ async function createUplinkCard(netIface, wifiDevices, wifiNetworks, hasQRCode) 
 			// otherwise the reported noise value is confusing.
 			signalInfo = renderSignalBadge(wifiNetwork.getSignalPercent(), wifiNetwork.getSignal(), wifiNetwork.getNoise(), mode);
 		}
-		if (wifiNetwork?.assoclist?.length === 1) {
+		if (mode === 'sta' && wifiNetwork?.assoclist?.length === 1) {
 			assocInfo = wifiNetwork.assoclist[0];
 		}
 	} else {
@@ -681,9 +681,15 @@ async function createUplinkCard(netIface, wifiDevices, wifiNetworks, hasQRCode) 
 		speed = device.getSpeed();
 	}
 
-	const isUp = netIface.isUp() && device.isUp() && device.getCarrier();
+	let isUp = netIface.isUp() && device.isUp() && device.getCarrier();
 	const ips = [netIface.getIPAddr(), netIface.getIP6Addr()].filter(e => e);
 	const qrcodeDppMode = hasQRCode && wifiNetwork && isHaLow(wifiNetwork) && wifiNetwork.get('dpp') === '1';
+
+	if (wifiNetwork?.assoclist && wifiNetwork.assoclist.length === 0) {
+		// AP/Mesh Point/IBSS can be 'up' without any associations. Treat this as down
+		// for the purposes of an uplink.
+		isUp = false;
+	}
 
 	let connectMethods;
 	if (wifiNetwork && wifiNetwork.getMode() === 'sta') {
