@@ -1,8 +1,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
-"Last-Translator: Automatically generated\n"
+"Project-Id-Version: morse-feed\n"
+"PO-Revision-Date: 2025-11-23 22:03+0000\n"
+"Last-Translator: LLM\n"
 "Language-Team: none\n"
 "Language: ja\n"
 "MIME-Version: 1.0\n"

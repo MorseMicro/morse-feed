@@ -3,8 +3,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: morse-feed\n"
 "POT-Creation-Date: 2024-08-20 00:00+0000\n"
-"PO-Revision-Date: 2025-10-02 04:27+0000\n"
-"Last-Translator: Automatically generated\n"
+"PO-Revision-Date: 2025-11-23 22:03+0000\n"
+"Last-Translator: LLM\n"
 "Language-Team: Japanese\n"
 "Language: ja\n"
 "MIME-Version: 1.0\n"
@@ -14,7 +14,7 @@ msgstr ""
 
 #: luci/luci-app-morseapwizard/htdocs/luci-static/resources/view/morse/morseapwizard.js:475
 msgid "(Recommended)"
-msgstr ""
+msgstr "（推奨）"
 
 #: luci/luci-app-morseapwizard/htdocs/luci-static/resources/view/morse/morseapwizard.js:464
 msgid "802.11s Mesh"
@@ -22,7 +22,7 @@ msgstr "802.11sメッシュ"
 
 #: luci/luci-app-morseapwizard/htdocs/luci-static/resources/view/morse/morseapwizard.js:355
 msgid "802.11s Mesh is currently in beta for this product."
-msgstr ""
+msgstr "この製品の802.11sメッシュは現在ベータ版です。"
 
 #: luci/luci-app-morseapwizard/htdocs/luci-static/resources/view/morse/morseapwizard.js:58
 msgid ""
@@ -126,6 +126,10 @@ msgid ""
 "automatically applied to all extenders. <br><br><i>Note: The extender's QR "
 "code for Wi-Fi connection will no longer be valid."
 msgstr ""
+"Easy Mesh Controllerの設定により、WiFiネットワークの認証情報を一元管理できま"
+"す。HaLowゲートウェイのネットワーク認証情報がすべてのエクステンダーに自動的に"
+"適用されます。<br><br><i>注意: エクステンダーのWi-Fi接続用QRコードは無効になり"
+"ます。"
 
 #: luci/luci-app-morseapwizard/htdocs/luci-static/resources/view/morse/morseapwizard.js:463
 msgid "EasyMesh Controller"
@@ -197,14 +201,16 @@ msgid ""
 "Wi-Fi HaLow devices will get an IP on this device's local network and use "
 "2.4 GHz Wi-Fi for an uplink (not an Ethernet cable)."
 msgstr ""
+"Wi-Fi HaLowデバイスはこのデバイスのローカルネットワークでIPを取得し、アップリ"
+"ンクには（イーサネットケーブルではなく）2.4GHz Wi-Fiを使用します。"
 
 #: luci/luci-app-morseapwizard/htdocs/luci-static/resources/view/morse/morseapwizard.js:472
 msgid "Wi-Fi HaLow devices will get an IP on this device's local network."
-msgstr ""
+msgstr "Wi-Fi HaLowデバイスはこのデバイスのローカルネットワークでIPを取得します。"
 
 #: luci/luci-app-morseapwizard/htdocs/luci-static/resources/view/morse/morseapwizard.js:474
 msgid "Wi-Fi HaLow devices will get an IP on your existing router's network."
-msgstr ""
+msgstr "Wi-Fi HaLowデバイスは既存のルーターのネットワークでIPを取得します。"
 
 #: luci/luci-app-morseapwizard/htdocs/luci-static/resources/view/morse/morseapwizard.js:423
 #: luci/luci-app-morseapwizard/htdocs/luci-static/resources/view/morse/morseapwizard.js:494

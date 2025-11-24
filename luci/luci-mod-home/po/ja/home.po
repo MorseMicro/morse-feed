@@ -3,8 +3,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: morse-feed\n"
 "POT-Creation-Date: 2024-08-20 00:00+0000\n"
-"PO-Revision-Date: 2025-10-02 04:31+0000\n"
-"Last-Translator: Automatically generated\n"
+"PO-Revision-Date: 2025-11-23 22:03+0000\n"
+"Last-Translator: LLM\n"
 "Language-Team: Japanese\n"
 "Language: ja\n"
 "MIME-Version: 1.0\n"
@@ -134,7 +134,7 @@ msgstr "デバイス"
 
 #: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1103
 msgid "Direct Peers"
-msgstr ""
+msgstr "直接ピア"
 
 #: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:702
 msgid "Disconnected"
@@ -325,7 +325,7 @@ msgstr "メッシュ ID"
 
 #: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1324
 msgid "Mesh Nodes"
-msgstr ""
+msgstr "メッシュノード"
 
 #: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:135
 msgid "Mesh Point"

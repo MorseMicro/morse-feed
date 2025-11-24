@@ -3,8 +3,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: morse-feed\n"
 "POT-Creation-Date: 2024-08-20 00:00+0000\n"
-"PO-Revision-Date: 2025-10-02 04:30+0000\n"
-"Last-Translator: Automatically generated\n"
+"PO-Revision-Date: 2025-11-23 22:03+0000\n"
+"Last-Translator: LLM\n"
 "Language-Team: Japanese\n"
 "Language: ja\n"
 "MIME-Version: 1.0\n"
@@ -16,11 +16,11 @@ msgstr ""
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:690
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:837
 msgid "%s Wi-Fi Access Point"
-msgstr ""
+msgstr "%s Wi-Fiアクセスポイント"
 
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:504
 msgid "-- Not set --"
-msgstr ""
+msgstr "-- 未設定 --"
 
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/matterwizard.js:243
 msgid "3 wire"
@@ -65,6 +65,10 @@ msgid ""
 "different <strong>Upstream Network</strong> or <strong>Traffic Mode</strong> "
 "to allow EasyMesh management."
 msgstr ""
+"<br><strong>このAPはEasyMeshで管理できません。</strong> 現在のネットワーク設定"
+"がEasyMeshでの管理を妨げています。<br> EasyMeshで管理するには、別の<strong>上流"
+"ネットワーク</strong>または<strong>トラフィックモード</strong>を選択してくださ"
+"い。"
 
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:656
 msgid "<p>This Wi-Fi AP is managed by <b>EasyMesh</b>.</p>"
@@ -113,7 +117,7 @@ msgstr "アクセスポイント"
 
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:454
 msgid "Advanced settings"
-msgstr ""
+msgstr "詳細設定"
 
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:441
 msgid ""
@@ -189,7 +193,7 @@ msgstr "適用"
 
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:467
 msgid "Apply Recommended Settings"
-msgstr ""
+msgstr "推奨設定を適用"
 
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:361
 msgid ""
@@ -269,7 +273,7 @@ msgstr "クライアント"
 
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:497
 msgid "Configure arp_announce"
-msgstr ""
+msgstr "arp_announceを設定"
 
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/landing.js:193
 msgid "Confirmation"
@@ -279,7 +283,7 @@ msgstr "確認"
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:759
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:928
 msgid "Connect %s devices to your network."
-msgstr ""
+msgstr "ネットワークに%sデバイスを接続します。"
 
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:783
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:765
@@ -291,7 +295,7 @@ msgstr "Ethernet デバイスをネットワークに接続します。"
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:745
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:909
 msgid "Connect another device via <b>%s Wi-Fi</b> to use your new HaLow link."
-msgstr ""
+msgstr "新しいHaLowリンクを使うには、<b>%s Wi-Fi</b>経由で別のデバイスを接続してください。"
 
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:903
 msgid "Connect another device via <b>Ethernet</b> to use your new HaLow link."
@@ -416,7 +420,7 @@ msgstr "HaLow アクセスポイントに接続するための認証情報を入
 
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:540
 msgid "Firmware Type"
-msgstr ""
+msgstr "ファームウェアタイプ"
 
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:771
 msgid ""
@@ -444,13 +448,15 @@ msgstr "ホスト名は DNS を含むさまざまなデバイス ID の用途に
 
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:480
 msgid "IPv6 can be disabled to reduce traffic"
-msgstr ""
+msgstr "トラフィックを減らすためにIPv6を無効化できます"
 
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:458
 msgid ""
 "If you are connecting many stations to this AP (>20), these settings may "
 "improve performance."
 msgstr ""
+"多数（20台超）のステーションをこのAPに接続する場合、これらの設定でパフォーマ"
+"ンスが向上する可能性があります。"
 
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:533
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:501
@@ -593,20 +599,25 @@ msgid ""
 "clients. This setting applies to the entire system and can only be unset by "
 "rebooting this device."
 msgstr ""
+"ARPトラフィックを減らすために、ARPガーベジコレクション閾値（ネイバー数）を増"
+"やしてください。推奨: 予想されるクライアント数の2倍の値を使用します。この設定"
+"はシステム全体に適用され、このデバイスを再起動しないと解除できません。"
 
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:529
 msgid ""
 "Increasing this value can reduce traffic. Units: seconds. Suggestion: Use a "
 "value larger than the number of clients."
 msgstr ""
+"値を大きくするとトラフィックを減らせます。単位: 秒。推奨: クライアント数より"
+"大きな値を使用します。"
 
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:522
 msgid "Isolate Clients"
-msgstr ""
+msgstr "クライアントを分離"
 
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:457
 msgid "Large Station Count Optimisations"
-msgstr ""
+msgstr "多数ステーション向け最適化"
 
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/matterwizard.js:207
 msgid ""
@@ -670,11 +681,11 @@ msgstr "モード選択"
 
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:510
 msgid "Neighbour cache garbage collection thresholds"
-msgstr ""
+msgstr "ネイバーキャッシュのガーベジコレクション閾値"
 
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:487
 msgid "Neighbour cache validity"
-msgstr ""
+msgstr "ネイバーキャッシュの有効期間"
 
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:515
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:564
@@ -758,7 +769,7 @@ msgstr "パスワード"
 
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:522
 msgid "Prevent client to client communication."
-msgstr ""
+msgstr "クライアント間通信を禁止します。"
 
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:632
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:815
@@ -783,6 +794,8 @@ msgid ""
 "Setting this to 2 can help reduce ARP traffic in some situations. This "
 "setting applies to the entire system."
 msgstr ""
+"これを2に設定すると、状況によってはARPトラフィックを減らすのに役立ちます。こ"
+"の設定はシステム全体に適用されます。"
 
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:440
 msgid "Setup EasyMesh Network"
@@ -827,7 +840,7 @@ msgstr ""
 
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:548
 msgid "SoftMAC (standard mode)"
-msgstr ""
+msgstr "SoftMAC（標準モード）"
 
 #: luci/luci-app-ekhwizards/root/usr/share/rpcd/acl.d/luci-app-ekhwizards.json:3
 msgid "Some perms the wizards require mostly copied from luci-app-morseconfig"
@@ -841,7 +854,7 @@ msgstr "標準 Wi-Fi HaLow"
 
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:528
 msgid "Station inactivity limit"
-msgstr ""
+msgstr "ステーション非アクティブ制限"
 
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/landing.js:178
 msgid "System Configuration"
@@ -861,13 +874,15 @@ msgstr ""
 
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:549
 msgid "Thin LMAC (AP only, supporting many stations)"
-msgstr ""
+msgstr "Thin LMAC（AP専用、多数のステーション対応）"
 
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:541
 msgid ""
 "Thin LMAC firmware is required for MM6108 access points to associate to more "
 "than 200 clients."
 msgstr ""
+"MM6108アクセスポイントが200台を超えるクライアントと接続するにはThin LMACファー"
+"ムウェアが必要です。"
 
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:647
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:691
@@ -877,6 +892,8 @@ msgid ""
 "<b>Access Point</b>, you will be able to connect %s Wi-Fi clients to this "
 "device."
 msgstr ""
+"このHaLowデバイスは%s Wi-Fiにも対応しています。%s Wi-Fi<b>アクセスポイント</b>"
+"を有効にすると、%s Wi-Fiクライアントをこのデバイスに接続できます。"
 
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/landing.js:208
 msgid "This wizard will guide you through the initial setup of this device."
@@ -887,6 +904,8 @@ msgid ""
 "Time in milliseconds. Can be increased to reduce ARP traffic. Suggestion 1 "
 "hour: 3600000"
 msgstr ""
+"単位はミリ秒です。ARPトラフィックを減らすために増やすことができます。推奨（1"
+"時間）: 3600000"
 
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:486
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/matterwizard.js:262

@@ -3,8 +3,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: morse-feed\n"
 "POT-Creation-Date: 2024-08-20 00:00+0000\n"
-"PO-Revision-Date: 2025-10-01 23:07+0000\n"
-"Last-Translator: Automatically generated\n"
+"PO-Revision-Date: 2025-11-23 22:03+0000\n"
+"Last-Translator: LLM\n"
 "Language-Team: Japanese\n"
 "Language: ja\n"
 "MIME-Version: 1.0\n"
@@ -16,20 +16,20 @@ msgstr ""
 #: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:15
 #: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:28
 msgid "11s Mesh"
-msgstr ""
+msgstr "11sメッシュ"
 
 #: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:16
 msgid "11s Mesh Gate"
-msgstr ""
+msgstr "11sメッシュゲート"
 
 #: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:19
 #: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:27
 msgid "Access Point"
-msgstr ""
+msgstr "アクセスポイント"
 
 #: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:29
 msgid "Ad-Hoc"
-msgstr ""
+msgstr "アドホック"
 
 #: luci/luci-theme-morseargon/htdocs/luci-static/resources/menu-morseargon.js:248
 msgid "Advanced Config"
@@ -41,7 +41,7 @@ msgstr "BCFが適切ではない可能性があります！"
 
 #: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:26
 msgid "Client"
-msgstr ""
+msgstr "クライアント"
 
 #: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:241
 msgid "Country not set!"
@@ -49,7 +49,7 @@ msgstr "国が設定されていません！"
 
 #: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:20
 msgid "Extender"
-msgstr ""
+msgstr "エクステンダー"
 
 #: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:264
 msgid "Go to password configuration..."
@@ -63,7 +63,7 @@ msgstr "無線設定に移動…"
 
 #: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:280
 msgid "HaLow Wi-Fi Driver Running in Test Mode."
-msgstr ""
+msgstr "HaLow Wi-Fiドライバーがテストモードで実行されています。"
 
 #: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/sysauth.htm:41
 msgid "Invalid username and/or password! Please try again."
@@ -81,19 +81,19 @@ msgstr "ログイン"
 
 #: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:23
 msgid "Matter"
-msgstr ""
+msgstr "Matter"
 
 #: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:11
 msgid "Mesh Agent"
-msgstr ""
+msgstr "メッシュエージェント"
 
 #: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:10
 msgid "Mesh Controller"
-msgstr ""
+msgstr "メッシュコントローラ"
 
 #: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:30
 msgid "Monitor"
-msgstr ""
+msgstr "モニター"
 
 #: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:255
 msgid ""
@@ -114,7 +114,7 @@ msgstr "パスワードが設定されていません!"
 
 #: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:31
 msgid "None"
-msgstr ""
+msgstr "なし"
 
 #: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:275
 msgid ""
@@ -131,6 +131,8 @@ msgid ""
 "The HaLow Wi-Fi driver being used is the test mode version. Perform a "
 "factory reset to restore the normal production driver."
 msgstr ""
+"使用中のHaLow Wi-Fiドライバーはテストモード版です。通常の製品版ドライバーに戻"
+"すには、工場出荷時リセットを実行してください。"
 
 #: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:263
 msgid ""
@@ -151,7 +153,7 @@ msgstr ""
 
 #: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:37
 msgid "Unknown"
-msgstr ""
+msgstr "不明"
 
 #: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:287
 msgid "Virtual Wire Device"
