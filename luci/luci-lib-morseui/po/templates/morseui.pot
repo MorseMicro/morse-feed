@@ -1,39 +1,35 @@
 msgid ""
 msgstr "Content-Type: text/plain; charset=UTF-8"
 
-#: luci/luci-lib-morseui/htdocs/luci-static/resources/tools/morse/morseui.js:518
+#: luci/luci-lib-morseui/htdocs/luci-static/resources/tools/morse/morseui.js:485
 msgid ""
 "Applying configuration changes %ds. The page will reload on successful "
 "reconnect"
 msgstr ""
 
-#: luci/luci-lib-morseui/htdocs/luci-static/resources/tools/morse/morseui.js:524
+#: luci/luci-lib-morseui/htdocs/luci-static/resources/tools/morse/morseui.js:491
 msgid ""
 "Couldn't reconnect to device. If you've set your device to DHCP Client, or "
 "changed the device subnet, you may need to reconnect manually."
 msgstr ""
 
-#: luci/luci-lib-morseui/htdocs/luci-static/resources/tools/morse/morseui.js:729
+#: luci/luci-lib-morseui/htdocs/luci-static/resources/tools/morse/morseui.js:706
 msgid "No Access Points found."
 msgstr ""
 
-#: luci/luci-lib-morseui/htdocs/luci-static/resources/tools/morse/morseui.js:517
+#: luci/luci-lib-morseui/htdocs/luci-static/resources/tools/morse/morseui.js:484
 msgid "Saving"
 msgstr ""
 
-#: luci/luci-lib-morseui/htdocs/luci-static/resources/tools/morse/morseui.js:735
-#: luci/luci-lib-morseui/htdocs/luci-static/resources/tools/morse/morseui.js:736
+#: luci/luci-lib-morseui/htdocs/luci-static/resources/tools/morse/morseui.js:712
+#: luci/luci-lib-morseui/htdocs/luci-static/resources/tools/morse/morseui.js:713
 msgid "Scan for wifi networks"
 msgstr ""
 
-#: luci/luci-lib-morseui/htdocs/luci-static/resources/tools/morse/morseui.js:44
-msgid "Start"
-msgstr ""
-
-#: luci/luci-lib-morseui/htdocs/luci-static/resources/tools/morse/morseui.js:21
+#: luci/luci-lib-morseui/htdocs/luci-static/resources/tools/morse/morseui.js:20
 msgid "The input doesn't seem to be a valid IPv4 address!"
 msgstr ""
 
-#: luci/luci-lib-morseui/htdocs/luci-static/resources/tools/morse/morseui.js:523
+#: luci/luci-lib-morseui/htdocs/luci-static/resources/tools/morse/morseui.js:490
 msgid "Unable to reconnect"
 msgstr ""

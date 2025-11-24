@@ -9,82 +9,83 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: files/www-client-config/cgi-bin/config.uc:41
-#: files/www-client-config/cgi-bin/config.uc:71
+#: features/morse-client-config/files/www-client-config/cgi-bin/config.uc:41
+#: features/morse-client-config/files/www-client-config/cgi-bin/config.uc:71
 msgid "1–32 printable ASCII characters. No leading or trailing spaces."
 msgstr "1～32文字の印字可能なASCII文字。先頭または末尾に空白は使用できません。"
 
-#: files/www-client-config/cgi-bin/config.uc:49
-#: files/www-client-config/cgi-bin/config.uc:79
+#: features/morse-client-config/files/www-client-config/cgi-bin/config.uc:49
+#: features/morse-client-config/files/www-client-config/cgi-bin/config.uc:79
 msgid "8–63 printable ASCII characters. No leading or trailing spaces."
 msgstr "8～63文字の印字可能なASCII文字。先頭または末尾に空白は使用できません。"
 
-#: files/www-client-config/cgi-bin/config.uc:25
+#: features/morse-client-config/files/www-client-config/cgi-bin/config.uc:25
 msgid "Choose country"
 msgstr "国を選択"
 
-#: files/www-client-config/cgi-bin/config.uc:35
+#: features/morse-client-config/files/www-client-config/cgi-bin/config.uc:35
 msgid "Client (HaLow)"
 msgstr "クライアント（HaLow）"
 
-#: files/www-client-config/cgi-bin/config.uc:23
+#: features/morse-client-config/files/www-client-config/cgi-bin/config.uc:23
 msgid "Country"
 msgstr "国"
 
-#: files/www-client-config/cgi-bin/config_error.uc:15
+#: features/morse-client-config/files/www-client-config/cgi-bin/config_error.uc:15
 msgid "Error"
 msgstr "エラー"
 
-#: files/www-client-config/cgi-bin/config.uc:5
-#: files/www-client-config/cgi-bin/config.uc:12
+#: features/morse-client-config/files/www-client-config/cgi-bin/config.uc:5
+#: features/morse-client-config/files/www-client-config/cgi-bin/config.uc:12
 msgid "HaLow Extender Configuration"
 msgstr "HaLowエクステンダーの設定"
 
-#: files/www-client-config/cgi-bin/config_result.uc:5
-#: files/www-client-config/cgi-bin/config_result.uc:12
+#: features/morse-client-config/files/www-client-config/cgi-bin/config_result.uc:5
+#: features/morse-client-config/files/www-client-config/cgi-bin/config_result.uc:12
 msgid "HaLow Extender Configuration Complete"
 msgstr "HaLowエクステンダーの設定が完了しました"
 
-#: files/www-client-config/cgi-bin/config_error.uc:5
-#: files/www-client-config/cgi-bin/config_error.uc:12
+#: features/morse-client-config/files/www-client-config/cgi-bin/config_error.uc:5
+#: features/morse-client-config/files/www-client-config/cgi-bin/config_error.uc:12
 msgid "HaLow Extender Configuration Error"
 msgstr "HaLowエクステンダーの設定エラー"
 
-#: files/www-client-config/cgi-bin/config.uc:97
+#: features/morse-client-config/files/www-client-config/cgi-bin/config.uc:97
 msgid "How do I configure this device as a HaLow Access Point?"
 msgstr "このデバイスをHaLowアクセスポイントとして設定するには？"
 
-#: files/www-client-config/cgi-bin/config_result.uc:24
+#: features/morse-client-config/files/www-client-config/cgi-bin/config_result.uc:24
 msgid ""
 "If your HaLow light does not come on, reset your device, reload this page, "
 "and sure you have entered the correct credentials."
-msgstr "HaLowのランプが点灯しない場合は、デバイスをリセットし、このページを再読み込"
-"みして、正しいSSID/パスワードを入力したことを確認してください。"
+msgstr ""
+"HaLowのランプが点灯しない場合は、デバイスをリセットし、このページを再読み込み"
+"して、正しいSSID/パスワードを入力したことを確認してください。"
 
-#: files/www-client-config/cgi-bin/config.uc:59
+#: features/morse-client-config/files/www-client-config/cgi-bin/config.uc:59
 msgid "Modify Access Point (2.4 GHz)"
 msgstr "アクセスポイント（2.4GHz）を変更"
 
-#: files/www-client-config/cgi-bin/config.uc:46
-#: files/www-client-config/cgi-bin/config.uc:76
+#: features/morse-client-config/files/www-client-config/cgi-bin/config.uc:46
+#: features/morse-client-config/files/www-client-config/cgi-bin/config.uc:76
 msgid "Password"
 msgstr "パスワード"
 
-#: files/www-client-config/cgi-bin/config.uc:38
-#: files/www-client-config/cgi-bin/config.uc:68
+#: features/morse-client-config/files/www-client-config/cgi-bin/config.uc:38
+#: features/morse-client-config/files/www-client-config/cgi-bin/config.uc:68
 msgid "SSID"
 msgstr "SSID"
 
-#: files/www-client-config/cgi-bin/config.uc:91
+#: features/morse-client-config/files/www-client-config/cgi-bin/config.uc:91
 msgid "Save"
 msgstr "保存"
 
-#: files/www-client-config/cgi-bin/config.uc:53
-#: files/www-client-config/cgi-bin/config.uc:83
+#: features/morse-client-config/files/www-client-config/cgi-bin/config.uc:53
+#: features/morse-client-config/files/www-client-config/cgi-bin/config.uc:83
 msgid "Show password"
 msgstr "パスワードを表示"
 
-#: files/www-client-config/cgi-bin/config.uc:100
+#: features/morse-client-config/files/www-client-config/cgi-bin/config.uc:100
 msgid ""
 "This device is currently setup as an Extender (shown by a solid aqua Status "
 "LED). To switch this device into Access Point mode (shown by a solid green "
@@ -94,26 +95,26 @@ msgstr ""
 "点灯）。このデバイスをアクセスポイントモード（ステータスLEDが緑色で点灯）に切"
 "り替えるには"
 
-#: files/www-client-config/cgi-bin/config_error.uc:18
+#: features/morse-client-config/files/www-client-config/cgi-bin/config_error.uc:18
 msgid "Try resetting your device. If this error persists, contact support."
 msgstr ""
 "デバイスをリセットしてみてください。エラーが続く場合はサポートに連絡してくだ"
 "さい。"
 
-#: files/www-client-config/cgi-bin/config.uc:64
+#: features/morse-client-config/files/www-client-config/cgi-bin/config.uc:64
 msgid "Use client SSID/password"
 msgstr "クライアントのSSID/パスワードを使用"
 
-#: files/www-client-config/cgi-bin/config.uc:15
-#: files/www-client-config/cgi-bin/config_result.uc:18
+#: features/morse-client-config/files/www-client-config/cgi-bin/config.uc:15
+#: features/morse-client-config/files/www-client-config/cgi-bin/config_result.uc:18
 msgid "WARNING"
 msgstr "警告"
 
-#: files/www-client-config/cgi-bin/config_result.uc:15
+#: features/morse-client-config/files/www-client-config/cgi-bin/config_result.uc:15
 msgid "You have now configured the SSID/password for this device."
 msgstr "このデバイスのSSID/パスワードを設定しました。"
 
-#: files/www-client-config/cgi-bin/config.uc:15
+#: features/morse-client-config/files/www-client-config/cgi-bin/config.uc:15
 msgid ""
 "after saving, your device will connect to the SSID specified and no longer "
 "have a static IP. You will lose access to this device at its current "
@@ -124,35 +125,36 @@ msgstr ""
 "スでこのデバイスにアクセスできなくなります！HaLowランプが点灯しない場合は、デ"
 "バイスをリセットし、SSID/パスワードを確認してください。"
 
-#: files/www-client-config/cgi-bin/config.uc:106
+#: features/morse-client-config/files/www-client-config/cgi-bin/config.uc:106
 msgid "find this device at 192.168.12.1"
 msgstr "このデバイスは 192.168.12.1 で見つかります"
 
-#: files/www-client-config/cgi-bin/config.uc:103
+#: features/morse-client-config/files/www-client-config/cgi-bin/config.uc:103
 msgid "hold the mode button until the Status LED starts"
 msgstr "ステータスLEDが点滅し始めるまでモードボタンを押し続けてください"
 
-#: files/www-client-config/cgi-bin/config.uc:104
+#: features/morse-client-config/files/www-client-config/cgi-bin/config.uc:104
 msgid "release the button"
 msgstr "ボタンを離します"
 
-#: files/www-client-config/cgi-bin/config.uc:103
+#: features/morse-client-config/files/www-client-config/cgi-bin/config.uc:103
 msgid "slowly flashing green"
 msgstr "緑色でゆっくり点滅"
 
-#: files/www-client-config/cgi-bin/config.uc:105
+#: features/morse-client-config/files/www-client-config/cgi-bin/config.uc:105
 msgid "solid green"
 msgstr "緑色で点灯"
 
-#: files/www-client-config/cgi-bin/config.uc:105
+#: features/morse-client-config/files/www-client-config/cgi-bin/config.uc:105
 msgid "wait until the LED is"
 msgstr "LEDが〜になるまで待ちます"
 
-#: files/www-client-config/cgi-bin/config_result.uc:18
+#: features/morse-client-config/files/www-client-config/cgi-bin/config_result.uc:18
 msgid ""
 "your device will no longer have a static IP, and it will attempt to connect "
 "to the SSID/password you have specified. You may need to disconnect and "
 "reconnect your laptop/mobile to acquire a new IP."
-msgstr "デバイスは固定IPではなくなり、指定したSSID/パスワードへの接続を試みます。新"
-"しいIPを取得するために、ノートPC/モバイルの接続を一度切断して再接続する必要が"
-"ある場合があります。"
+msgstr ""
+"デバイスは固定IPではなくなり、指定したSSID/パスワードへの接続を試みます。新し"
+"いIPを取得するために、ノートPC/モバイルの接続を一度切断して再接続する必要があ"
+"る場合があります。"

@@ -12,40 +12,42 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: luci/luci-lib-morseui/htdocs/luci-static/resources/tools/morse/morseui.js:518
+#: luci/luci-lib-morseui/htdocs/luci-static/resources/tools/morse/morseui.js:485
 msgid ""
 "Applying configuration changes %ds. The page will reload on successful "
 "reconnect"
-msgstr "設定の変更%dsを適用しています。再接続が成功するとページがリロードされます"
+msgstr ""
+"設定の変更%dsを適用しています。再接続が成功するとページがリロードされます"
 
-#: luci/luci-lib-morseui/htdocs/luci-static/resources/tools/morse/morseui.js:524
+#: luci/luci-lib-morseui/htdocs/luci-static/resources/tools/morse/morseui.js:491
 msgid ""
 "Couldn't reconnect to device. If you've set your device to DHCP Client, or "
 "changed the device subnet, you may need to reconnect manually."
 msgstr ""
-"デバイスに再接続できませんでした。デバイスをDHCPクライアントに設定した場合、またはデバイスのサブネットを変更した場合は、手動で再接続する必要がある場合があります。"
+"デバイスに再接続できませんでした。デバイスをDHCPクライアントに設定した場合、"
+"またはデバイスのサブネットを変更した場合は、手動で再接続する必要がある場合が"
+"あります。"
 
-#: luci/luci-lib-morseui/htdocs/luci-static/resources/tools/morse/morseui.js:729
+#: luci/luci-lib-morseui/htdocs/luci-static/resources/tools/morse/morseui.js:706
 msgid "No Access Points found."
 msgstr "アクセスポイントが見つかりません。"
 
-#: luci/luci-lib-morseui/htdocs/luci-static/resources/tools/morse/morseui.js:517
+#: luci/luci-lib-morseui/htdocs/luci-static/resources/tools/morse/morseui.js:484
 msgid "Saving"
 msgstr "保存しています"
 
-#: luci/luci-lib-morseui/htdocs/luci-static/resources/tools/morse/morseui.js:735
-#: luci/luci-lib-morseui/htdocs/luci-static/resources/tools/morse/morseui.js:736
+#: luci/luci-lib-morseui/htdocs/luci-static/resources/tools/morse/morseui.js:712
+#: luci/luci-lib-morseui/htdocs/luci-static/resources/tools/morse/morseui.js:713
 msgid "Scan for wifi networks"
 msgstr "Wi-Fiネットワークをスキャン"
 
-#: luci/luci-lib-morseui/htdocs/luci-static/resources/tools/morse/morseui.js:44
-msgid "Start"
-msgstr "開始"
-
-#: luci/luci-lib-morseui/htdocs/luci-static/resources/tools/morse/morseui.js:21
+#: luci/luci-lib-morseui/htdocs/luci-static/resources/tools/morse/morseui.js:20
 msgid "The input doesn't seem to be a valid IPv4 address!"
 msgstr "入力したアドレスは有効なIPv4アドレスではないようです!"
 
-#: luci/luci-lib-morseui/htdocs/luci-static/resources/tools/morse/morseui.js:523
+#: luci/luci-lib-morseui/htdocs/luci-static/resources/tools/morse/morseui.js:490
 msgid "Unable to reconnect"
 msgstr "再接続できません"
+
+#~ msgid "Start"
+#~ msgstr "開始"

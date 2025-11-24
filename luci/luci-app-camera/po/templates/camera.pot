@@ -5,7 +5,7 @@ msgstr "Content-Type: text/plain; charset=UTF-8"
 msgid "AWS Access Key"
 msgstr ""
 
-#: luci/luci-app-camera/htdocs/luci-static/resources/view/cameras/cameras.js:1437
+#: luci/luci-app-camera/htdocs/luci-static/resources/view/cameras/cameras.js:1436
 msgid "AWS KVS"
 msgstr ""
 
@@ -41,18 +41,18 @@ msgstr ""
 msgid "Bitrate (kbps)"
 msgstr ""
 
-#: luci/luci-app-camera/htdocs/luci-static/resources/view/cameras/cameras.js:1367
+#: luci/luci-app-camera/htdocs/luci-static/resources/view/cameras/cameras.js:1365
 msgid ""
 "Camera viewing is currently not supported via https. <a href=\"%s\">Connect "
 "via http</a>."
 msgstr ""
 
-#: luci/luci-app-camera/htdocs/luci-static/resources/view/cameras/cameras.js:1426
+#: luci/luci-app-camera/htdocs/luci-static/resources/view/cameras/cameras.js:1421
 #: luci/luci-app-camera/root/usr/share/luci/menu.d/luci-app-camera.json:3
 msgid "Cameras"
 msgstr ""
 
-#: luci/luci-app-camera/htdocs/luci-static/resources/view/cameras/cameras.js:1415
+#: luci/luci-app-camera/htdocs/luci-static/resources/view/cameras/cameras.js:1413
 msgid "Cameras page is intended for Access Points"
 msgstr ""
 
@@ -60,7 +60,7 @@ msgstr ""
 msgid "Clear cache and redo discovery"
 msgstr ""
 
-#: luci/luci-app-camera/htdocs/luci-static/resources/view/cameras/cameras.js:1435
+#: luci/luci-app-camera/htdocs/luci-static/resources/view/cameras/cameras.js:1434
 msgid "Config"
 msgstr ""
 
@@ -72,7 +72,7 @@ msgstr ""
 msgid "Discover"
 msgstr ""
 
-#: luci/luci-app-camera/htdocs/luci-static/resources/view/cameras/cameras.js:1377
+#: luci/luci-app-camera/htdocs/luci-static/resources/view/cameras/cameras.js:1375
 msgid "Discovering cameras..."
 msgstr ""
 
@@ -110,11 +110,11 @@ msgstr ""
 msgid "Error: unsupported source"
 msgstr ""
 
-#: luci/luci-app-camera/htdocs/luci-static/resources/view/cameras/cameras.js:1434
+#: luci/luci-app-camera/htdocs/luci-static/resources/view/cameras/cameras.js:1433
 msgid "Firmware"
 msgstr ""
 
-#: luci/luci-app-camera/htdocs/luci-static/resources/view/cameras/cameras.js:1358
+#: luci/luci-app-camera/htdocs/luci-static/resources/view/cameras/cameras.js:1356
 msgid "Force Configs to Default"
 msgstr ""
 
@@ -122,7 +122,7 @@ msgstr ""
 msgid "Framerate (fps)"
 msgstr ""
 
-#: luci/luci-app-camera/htdocs/luci-static/resources/view/cameras/cameras.js:1391
+#: luci/luci-app-camera/htdocs/luci-static/resources/view/cameras/cameras.js:1389
 msgid "Fullscreen"
 msgstr ""
 
@@ -138,7 +138,7 @@ msgstr ""
 msgid "HLS"
 msgstr ""
 
-#: luci/luci-app-camera/htdocs/luci-static/resources/view/cameras/cameras.js:1432
+#: luci/luci-app-camera/htdocs/luci-static/resources/view/cameras/cameras.js:1431
 msgid "Hostname"
 msgstr ""
 
@@ -152,7 +152,7 @@ msgid_plural "Last seen %s minutes ago"
 msgstr[0] ""
 msgstr[1] ""
 
-#: luci/luci-app-camera/htdocs/luci-static/resources/view/cameras/cameras.js:1438
+#: luci/luci-app-camera/htdocs/luci-static/resources/view/cameras/cameras.js:1437
 #: luci/luci-app-camera/htdocs/luci-static/resources/view/cameras/cameras.js:1444
 msgid "Live view"
 msgstr ""
@@ -165,11 +165,11 @@ msgstr ""
 msgid "MediaMTX port failure:"
 msgstr ""
 
-#: luci/luci-app-camera/htdocs/luci-static/resources/view/cameras/cameras.js:1433
+#: luci/luci-app-camera/htdocs/luci-static/resources/view/cameras/cameras.js:1432
 msgid "Model"
 msgstr ""
 
-#: luci/luci-app-camera/htdocs/luci-static/resources/view/cameras/cameras.js:1378
+#: luci/luci-app-camera/htdocs/luci-static/resources/view/cameras/cameras.js:1376
 msgid "No ONVIF-compatible cameras found."
 msgstr ""
 
@@ -209,7 +209,7 @@ msgstr ""
 msgid "Reload all"
 msgstr ""
 
-#: luci/luci-app-camera/htdocs/luci-static/resources/view/cameras/cameras.js:1348
+#: luci/luci-app-camera/htdocs/luci-static/resources/view/cameras/cameras.js:1346
 msgid "Reset all devices to %sx%s@%skbps"
 msgstr ""
 
@@ -230,7 +230,7 @@ msgstr ""
 msgid "Save as Default"
 msgstr ""
 
-#: luci/luci-app-camera/htdocs/luci-static/resources/view/cameras/cameras.js:1436
+#: luci/luci-app-camera/htdocs/luci-static/resources/view/cameras/cameras.js:1435
 msgid "Streams"
 msgstr ""
 
@@ -242,7 +242,7 @@ msgstr ""
 msgid "WebRTC"
 msgstr ""
 
-#: luci/luci-app-camera/htdocs/luci-static/resources/view/cameras/cameras.js:1416
+#: luci/luci-app-camera/htdocs/luci-static/resources/view/cameras/cameras.js:1414
 msgid ""
 "Your device currently operates as a HaLow client. Because the Cameras page "
 "is intended to view all cameras on your network and proxies streams via the "
