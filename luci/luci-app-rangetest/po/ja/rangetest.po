@@ -1,32 +1,47 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: morse-feed\n"
+"POT-Creation-Date: 2024-08-20 00:00+0000\n"
+"PO-Revision-Date: 2025-11-23 22:03+0000\n"
+"Last-Translator: LLM\n"
+"Language-Team: Japanese\n"
+"Language: ja\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:709
 msgid "%s (Test taking longer than expected)"
-msgstr ""
+msgstr "%s（テストが想定より長くかかっています）"
 
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:713
 msgid "%s Test Delay"
-msgstr ""
+msgstr "%s テストの遅延"
 
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1158
 msgid "(offline)"
-msgstr ""
+msgstr "(オフライン)"
 
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:881
-msgid "( offline)"
-msgstr ""
+msgid "(⚠️ offline)"
+msgstr "（⚠️ オフライン）"
 
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:880
-msgid "( incompatible)"
-msgstr ""
+msgid "(🚫 incompatible)"
+msgstr "（🚫 非互換）"
 
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1056
 msgid "500"
-msgstr ""
+msgstr "500"
 
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:974
 msgid ""
 "<em>Note:</em> Location accuracy is significantly higher on mobile devices, "
 "as they use GPS and Wi-Fi for better positioning."
 msgstr ""
+"<em>注:</em> モバイルデバイスは GPS と Wi-Fi を利用して位置を特定するため、位"
+"置情報の精度が大幅に向上します。"
 
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:962
 msgid ""
@@ -35,6 +50,10 @@ msgid ""
 "<strong>not the HaLow device under test</strong>). Ensure this device is "
 "near your selected HaLow target before collecting its position."
 msgstr ""
+"<strong>重要:</strong> この機能は、このページにアクセスしているデバイス（例: "
+"ノート PC やスマートフォンであり、<strong>テスト中の HaLow デバイスではありま"
+"せん</strong>）の座標を取得します。位置情報を取得する前に、このデバイスが選択"
+"した HaLow ターゲットの近くにあることを確認してください。"
 
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:967
 msgid ""
@@ -46,191 +65,202 @@ msgid ""
 "access when prompted. After these steps, clicking the button will autofill "
 "your coordinates."
 msgstr ""
+"<strong>セキュリティ通知:</strong> 位置情報へのアクセスを有効にするには、この"
+"ページを HTTPS で再読み込みする必要があります。<a href='%s' "
+"target='_blank'>%s</a> にリダイレクトされます。最初の再読み込みでは、自己署"
+"名 SSL 証明書によってブラウザーがセキュリティ警告を表示する場合があります。こ"
+"れは想定された挙動であり、無視できます。再度ログインして、求められたら位置情"
+"報へのアクセスを許可してください。これらの手順後にボタンをクリックすると、座"
+"標が自動入力されます。"
 
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1213
 msgid "Advanced Configuration"
-msgstr ""
+msgstr "高度な設定"
 
 #: luci/luci-app-rangetest/root/usr/share/rpcd/acl.d/luci-app-rangetest.json:37
 msgid "Allow unauthenticated users to check the status of the range test app"
-msgstr ""
+msgstr "未認証ユーザーによるレンジテストアプリの状態確認を許可"
 
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1235
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1392
 msgid "Are you sure?"
-msgstr ""
+msgstr "本当に実行しますか？"
 
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1348
 msgid ""
 "Associate this device with another remote device which you want to test "
 "against."
 msgstr ""
+"このデバイスを、テスト対象とする別のリモートデバイスに関連付けてください。"
 
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:525
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:526
 msgid "Authentication Failure"
-msgstr ""
+msgstr "認証に失敗しました"
 
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1293
 msgid "Bandwidth (MHz)"
-msgstr ""
+msgstr "帯域幅 (MHz)"
 
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:492
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:493
 msgid "Beginning..."
-msgstr ""
+msgstr "開始しています…"
 
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:612
 msgid "CSV Export Error"
-msgstr ""
+msgstr "CSV エクスポートエラー"
 
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:987
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1250
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1411
 msgid "Cancel"
-msgstr ""
+msgstr "キャンセル"
 
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:522
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:523
 msgid "Cancelled"
-msgstr ""
+msgstr "キャンセルされました"
 
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1297
 msgid "Channel"
-msgstr ""
+msgstr "チャネル"
 
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1349
 msgid ""
 "Choose that remote device from the dropdown list and select your desired "
 "test settings."
 msgstr ""
+"リモートデバイスをドロップダウンから選び、希望するテスト設定を選択してくださ"
+"い。"
 
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1350
 msgid "Click 'Start Test' to begin."
-msgstr ""
+msgstr "「テスト開始」をクリックすると開始します。"
 
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:517
 msgid "Completed"
-msgstr ""
+msgstr "完了"
 
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1234
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1391
 msgid "Confirm Deletion"
-msgstr ""
+msgstr "削除を確認"
 
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1180
 msgid "Data Direction"
-msgstr ""
+msgstr "データ方向"
 
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1245
 msgid "Delete"
-msgstr ""
+msgstr "削除"
 
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1406
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1414
 msgid "Delete All"
-msgstr ""
+msgstr "すべて削除"
 
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1039
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1267
 msgid "Description"
-msgstr ""
+msgstr "説明"
 
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:652
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:669
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1106
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1216
 msgid "Dismiss"
-msgstr ""
+msgstr "閉じる"
 
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1270
 msgid "Distance (m)"
-msgstr ""
+msgstr "距離 (m)"
 
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1320
 msgid "Download"
-msgstr ""
+msgstr "ダウンロード"
 
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1384
 msgid "Download Results Summary (CSV)"
-msgstr ""
+msgstr "結果の概要をダウンロード (CSV)"
 
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:354
 msgid "Expecting: 'latitude, longitude' format."
-msgstr ""
+msgstr "「緯度, 経度」形式で入力してください。"
 
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:360
 msgid "Expecting: Coordinates must be numeric values."
-msgstr ""
+msgstr "座標は数値で指定してください。"
 
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:364
 msgid "Expecting: Latitude must be between -90 and 90."
-msgstr ""
+msgstr "緯度は -90 以上 90 以下である必要があります。"
 
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:368
 msgid "Expecting: Longitude must be between -180 and 180."
-msgstr ""
+msgstr "経度は -180 以上 180 以下である必要があります。"
 
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:535
 msgid "Failed"
-msgstr ""
+msgstr "失敗"
 
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:527
 msgid "Failed (Authentication)"
-msgstr ""
+msgstr "失敗（認証）"
 
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:531
 msgid "Failed (Remote Device Unreachable)"
-msgstr ""
+msgstr "失敗（リモートデバイスに到達できません）"
 
 #: luci/luci-app-rangetest/root/usr/share/rpcd/acl.d/luci-app-rangetest.json:3
 msgid "Grant access to the LuCI range test app"
-msgstr ""
+msgstr "LuCI レンジテストアプリへのアクセスを許可"
 
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1345
 msgid "How to use:"
-msgstr ""
+msgstr "使用方法:"
 
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:503
 msgid "In Progress (%s)"
-msgstr ""
+msgstr "進行中 (%s)"
 
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:887
 msgid "Incompatible rangetest version. Please upgrade."
 msgstr ""
+"レンジテストのバージョンが互換性ありません。アップグレードしてください。"
 
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:854
 msgid "Invalid Test Configuration"
-msgstr ""
+msgstr "テスト構成が無効です"
 
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:758
 msgid "Local Device"
-msgstr ""
+msgstr "ローカルデバイス"
 
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1044
 msgid "Local device coordinates"
-msgstr ""
+msgstr "ローカルデバイスの座標"
 
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1274
 msgid "Location"
-msgstr ""
+msgstr "位置情報"
 
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1012
 msgid "Location Retrieval Error"
-msgstr ""
+msgstr "位置情報の取得エラー"
 
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:998
 msgid "Low Location Accuracy"
-msgstr ""
+msgstr "位置情報の精度が低い"
 
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1100
 msgid "Map View"
-msgstr ""
+msgstr "地図表示"
 
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1379
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1388
 msgid "No Test Data Available"
-msgstr ""
+msgstr "利用可能なテストデータがありません"
 
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:299
 msgid ""
@@ -239,6 +269,10 @@ msgid ""
 "matching versions and try again. If your device is still not appearing, you "
 "can manually enter an IPv4 address into the Remote Device dropdown."
 msgstr ""
+"互換性のあるリモートデバイスが見つかりません。テストに使用するすべてのデバイ"
+"スが互換バージョンで動作していることを確認し、必要に応じて同じバージョンに"
+"アップグレードしてから再試行してください。それでもデバイスが表示されない場合"
+"は、リモートデバイスのドロップダウンに IPv4 アドレスを手動で入力できます。"
 
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:258
 msgid ""
@@ -247,162 +281,167 @@ msgid ""
 "appearing, you can manually enter an IPv4 address into the Remote Device "
 "dropdown."
 msgstr ""
+"リモートデバイスが見つかりません。このデバイスをテスト対象のリモートデバイス"
+"に関連付けてから再試行してください。それでも表示されない場合は、リモートデバ"
+"イスのドロップダウンに IPv4 アドレスを手動で入力できます。"
 
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1388
 msgid "No test data available to delete."
-msgstr ""
+msgstr "削除できるテストデータがありません。"
 
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1379
 msgid "No test data available to export."
-msgstr ""
+msgstr "エクスポートできるテストデータがありません。"
 
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1044
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1049
 msgid ""
 "Optional: Must be provided in Decimal Degrees (DD) format, used by Google "
 "Maps"
-msgstr ""
+msgstr "任意: Google マップで使用される小数（DD）形式で入力する必要があります"
 
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1039
 msgid "Optional: short description of the test conditions"
-msgstr ""
+msgstr "任意: テスト条件の簡単な説明"
 
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1034
 msgid "Password"
-msgstr ""
+msgstr "パスワード"
 
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1174
 msgid "Protocol"
-msgstr ""
+msgstr "プロトコル"
 
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1186
 msgid "Quick Tests"
-msgstr ""
+msgstr "クイックテスト"
 
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1054
 msgid "Range (m)"
-msgstr ""
+msgstr "範囲 (m)"
 
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1339
 #: luci/luci-app-rangetest/root/usr/share/luci/menu.d/luci-app-rangetest.json:3
 msgid "Range Test"
-msgstr ""
+msgstr "レンジテスト"
 
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:533
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:534
 msgid "Rangetest Error"
-msgstr ""
+msgstr "レンジテストエラー"
 
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1305
 msgid "Raw Data (JSON)"
-msgstr ""
+msgstr "生データ (JSON)"
 
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1182
 msgid "Receive"
-msgstr ""
+msgstr "受信"
 
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:982
 msgid "Reload with HTTPS"
-msgstr ""
+msgstr "HTTPS で再読み込み"
 
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:763
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1029
 msgid "Remote Device"
-msgstr ""
+msgstr "リモートデバイス"
 
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:256
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:297
 msgid "Remote Device Discovery"
-msgstr ""
+msgstr "リモートデバイスの検出"
 
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:529
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:530
 msgid "Remote Device Unreachable"
-msgstr ""
+msgstr "リモートデバイスに到達できません"
 
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1263
 msgid "Remote Host"
-msgstr ""
+msgstr "リモートホスト"
 
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1049
 msgid "Remote device coordinates"
-msgstr ""
+msgstr "リモートデバイスの座標"
 
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1034
 msgid "Remote device password"
-msgstr ""
+msgstr "リモートデバイスのパスワード"
 
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1372
 msgid "Results Summary"
-msgstr ""
+msgstr "結果の概要"
 
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:955
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:956
 msgid "Retrieve the current location of your phone/laptop via the browser"
-msgstr ""
+msgstr "ブラウザー経由でスマホ/PC の現在位置を取得"
 
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1186
 msgid ""
 "Run 10s subtests with the first 2s omitted. Standard tests run for 70s with "
 "the first 10s omitted and generally yield more accurate results."
 msgstr ""
+"最初の 2 秒を除外した 10 秒のサブテストを実行します。標準テストは 70 秒間で最"
+"初の 10 秒を除外し、より正確な結果が得られる傾向があります。"
 
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1217
 msgid "Save"
-msgstr ""
+msgstr "保存"
 
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:936
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:937
 msgid "Scan for remote devices"
-msgstr ""
+msgstr "リモートデバイスをスキャン"
 
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:960
 msgid "Secure Connection (HTTPS) Required for Browser Geolocation"
-msgstr ""
+msgstr "ブラウザーの位置情報には HTTPS 接続が必要です"
 
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1029
 msgid "Select the remote device to test against"
-msgstr ""
+msgstr "テスト対象のリモートデバイスを選択してください"
 
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1181
 msgid "Send"
-msgstr ""
+msgstr "送信"
 
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1301
 msgid "Signal Strength (dBm)"
-msgstr ""
+msgstr "信号強度 (dBm)"
 
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1366
 msgid "Start Test"
-msgstr ""
+msgstr "テスト開始"
 
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1255
 msgid "Status"
-msgstr ""
+msgstr "ステータス"
 
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1366
 msgid "Stop"
-msgstr ""
+msgstr "停止"
 
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1176
 msgid "TCP"
-msgstr ""
+msgstr "TCP"
 
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1289
 msgid "TCP Receive Throughput (Mbps)"
-msgstr ""
+msgstr "TCP 受信スループット (Mbps)"
 
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1285
 msgid "TCP Send Throughput (Mbps)"
-msgstr ""
+msgstr "TCP 送信スループット (Mbps)"
 
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:516
 msgid "Test Complete"
-msgstr ""
+msgstr "テスト完了"
 
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1357
 msgid "Test Configuration"
-msgstr ""
+msgstr "テスト構成"
 
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:714
 msgid ""
@@ -410,16 +449,21 @@ msgid ""
 "normal when network conditions are constrained. If the test appears "
 "completely unresponsive, you can manually cancel it."
 msgstr ""
+"%s テストは想定より少し長くかかっています。ネットワーク条件が制限されている場"
+"合の通常の挙動です。全く応答しないように見える場合は手動でキャンセルできま"
+"す。"
 
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1054
 msgid "The distance between devices under test"
-msgstr ""
+msgstr "テスト対象デバイス間の距離"
 
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:999
 msgid ""
 "The location provided by your browser has low accuracy (> 5m). This may "
 "affect the test results."
 msgstr ""
+"ブラウザーが提供した位置情報の精度が低い（> 5m）ため、テスト結果に影響する可"
+"能性があります。"
 
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1164
 msgid ""
@@ -427,39 +471,48 @@ msgid ""
 "internet connectivity or the required resources not being loaded. Please "
 "check your connection and try again."
 msgstr ""
+"現在、地図機能は利用できません。インターネット接続の不足や必要なリソースが読"
+"み込まれていないことが原因の可能性があります。接続を確認して再試行してくださ"
+"い。"
 
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1343
 msgid "This is a network utility to perform static range tests."
-msgstr ""
+msgstr "これは静的レンジテストを実行するためのネットワークユーティリティです。"
 
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1259
 msgid "Time"
-msgstr ""
+msgstr "時間"
 
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1175
 msgid "UDP"
-msgstr ""
+msgstr "UDP"
 
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1281
 msgid "UDP Receive Throughput (Mbps)"
-msgstr ""
+msgstr "UDP 受信スループット (Mbps)"
 
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1277
 msgid "UDP Send Throughput (Mbps)"
-msgstr ""
+msgstr "UDP 送信スループット (Mbps)"
 
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:612
 msgid "Unexpected data type in CSV export."
-msgstr ""
+msgstr "CSV エクスポートで想定外のデータ型が見つかりました。"
 
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:521
 msgid "User Action"
-msgstr ""
+msgstr "ユーザー操作"
 
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1041
 msgid "line of sight, low noise environment..."
-msgstr ""
+msgstr "見通し良好・低ノイズの環境など"
 
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1153
 msgid "unknown"
-msgstr ""
+msgstr "不明"
+
+#~ msgid "( offline)"
+#~ msgstr "( オフライン)"
+
+#~ msgid "( incompatible)"
+#~ msgstr "( 非互換)"
