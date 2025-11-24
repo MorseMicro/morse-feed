@@ -1,105 +1,105 @@
 msgid ""
 msgstr "Content-Type: text/plain; charset=UTF-8"
 
-#: files/www-client-config/cgi-bin/config.uc:41
-#: files/www-client-config/cgi-bin/config.uc:71
+#: features/morse-client-config/files/www-client-config/cgi-bin/config.uc:41
+#: features/morse-client-config/files/www-client-config/cgi-bin/config.uc:71
 msgid "1–32 printable ASCII characters. No leading or trailing spaces."
 msgstr ""
 
-#: files/www-client-config/cgi-bin/config.uc:49
-#: files/www-client-config/cgi-bin/config.uc:79
+#: features/morse-client-config/files/www-client-config/cgi-bin/config.uc:49
+#: features/morse-client-config/files/www-client-config/cgi-bin/config.uc:79
 msgid "8–63 printable ASCII characters. No leading or trailing spaces."
 msgstr ""
 
-#: files/www-client-config/cgi-bin/config.uc:25
+#: features/morse-client-config/files/www-client-config/cgi-bin/config.uc:25
 msgid "Choose country"
 msgstr ""
 
-#: files/www-client-config/cgi-bin/config.uc:35
+#: features/morse-client-config/files/www-client-config/cgi-bin/config.uc:35
 msgid "Client (HaLow)"
 msgstr ""
 
-#: files/www-client-config/cgi-bin/config.uc:23
+#: features/morse-client-config/files/www-client-config/cgi-bin/config.uc:23
 msgid "Country"
 msgstr ""
 
-#: files/www-client-config/cgi-bin/config_error.uc:15
+#: features/morse-client-config/files/www-client-config/cgi-bin/config_error.uc:15
 msgid "Error"
 msgstr ""
 
-#: files/www-client-config/cgi-bin/config.uc:5
-#: files/www-client-config/cgi-bin/config.uc:12
+#: features/morse-client-config/files/www-client-config/cgi-bin/config.uc:5
+#: features/morse-client-config/files/www-client-config/cgi-bin/config.uc:12
 msgid "HaLow Extender Configuration"
 msgstr ""
 
-#: files/www-client-config/cgi-bin/config_result.uc:5
-#: files/www-client-config/cgi-bin/config_result.uc:12
+#: features/morse-client-config/files/www-client-config/cgi-bin/config_result.uc:5
+#: features/morse-client-config/files/www-client-config/cgi-bin/config_result.uc:12
 msgid "HaLow Extender Configuration Complete"
 msgstr ""
 
-#: files/www-client-config/cgi-bin/config_error.uc:5
-#: files/www-client-config/cgi-bin/config_error.uc:12
+#: features/morse-client-config/files/www-client-config/cgi-bin/config_error.uc:5
+#: features/morse-client-config/files/www-client-config/cgi-bin/config_error.uc:12
 msgid "HaLow Extender Configuration Error"
 msgstr ""
 
-#: files/www-client-config/cgi-bin/config.uc:97
+#: features/morse-client-config/files/www-client-config/cgi-bin/config.uc:97
 msgid "How do I configure this device as a HaLow Access Point?"
 msgstr ""
 
-#: files/www-client-config/cgi-bin/config_result.uc:24
+#: features/morse-client-config/files/www-client-config/cgi-bin/config_result.uc:24
 msgid ""
 "If your HaLow light does not come on, reset your device, reload this page, "
 "and sure you have entered the correct credentials."
 msgstr ""
 
-#: files/www-client-config/cgi-bin/config.uc:59
+#: features/morse-client-config/files/www-client-config/cgi-bin/config.uc:59
 msgid "Modify Access Point (2.4 GHz)"
 msgstr ""
 
-#: files/www-client-config/cgi-bin/config.uc:46
-#: files/www-client-config/cgi-bin/config.uc:76
+#: features/morse-client-config/files/www-client-config/cgi-bin/config.uc:46
+#: features/morse-client-config/files/www-client-config/cgi-bin/config.uc:76
 msgid "Password"
 msgstr ""
 
-#: files/www-client-config/cgi-bin/config.uc:38
-#: files/www-client-config/cgi-bin/config.uc:68
+#: features/morse-client-config/files/www-client-config/cgi-bin/config.uc:38
+#: features/morse-client-config/files/www-client-config/cgi-bin/config.uc:68
 msgid "SSID"
 msgstr ""
 
-#: files/www-client-config/cgi-bin/config.uc:91
+#: features/morse-client-config/files/www-client-config/cgi-bin/config.uc:91
 msgid "Save"
 msgstr ""
 
-#: files/www-client-config/cgi-bin/config.uc:53
-#: files/www-client-config/cgi-bin/config.uc:83
+#: features/morse-client-config/files/www-client-config/cgi-bin/config.uc:53
+#: features/morse-client-config/files/www-client-config/cgi-bin/config.uc:83
 msgid "Show password"
 msgstr ""
 
-#: files/www-client-config/cgi-bin/config.uc:100
+#: features/morse-client-config/files/www-client-config/cgi-bin/config.uc:100
 msgid ""
 "This device is currently setup as an Extender (shown by a solid aqua Status "
 "LED). To switch this device into Access Point mode (shown by a solid green "
 "Status LED)"
 msgstr ""
 
-#: files/www-client-config/cgi-bin/config_error.uc:18
+#: features/morse-client-config/files/www-client-config/cgi-bin/config_error.uc:18
 msgid "Try resetting your device. If this error persists, contact support."
 msgstr ""
 
-#: files/www-client-config/cgi-bin/config.uc:64
+#: features/morse-client-config/files/www-client-config/cgi-bin/config.uc:64
 msgid "Use client SSID/password"
 msgstr ""
 
-#: files/www-client-config/cgi-bin/config.uc:15
-#: files/www-client-config/cgi-bin/config_result.uc:18
+#: features/morse-client-config/files/www-client-config/cgi-bin/config.uc:15
+#: features/morse-client-config/files/www-client-config/cgi-bin/config_result.uc:18
 msgid "WARNING"
 msgstr ""
 
-#: files/www-client-config/cgi-bin/config_result.uc:15
+#: features/morse-client-config/files/www-client-config/cgi-bin/config_result.uc:15
 msgid "You have now configured the SSID/password for this device."
 msgstr ""
 
-#: files/www-client-config/cgi-bin/config.uc:15
+#: features/morse-client-config/files/www-client-config/cgi-bin/config.uc:15
 msgid ""
 "after saving, your device will connect to the SSID specified and no longer "
 "have a static IP. You will lose access to this device at its current "
@@ -107,31 +107,31 @@ msgid ""
 "the SSID/password."
 msgstr ""
 
-#: files/www-client-config/cgi-bin/config.uc:106
+#: features/morse-client-config/files/www-client-config/cgi-bin/config.uc:106
 msgid "find this device at 192.168.12.1"
 msgstr ""
 
-#: files/www-client-config/cgi-bin/config.uc:103
+#: features/morse-client-config/files/www-client-config/cgi-bin/config.uc:103
 msgid "hold the mode button until the Status LED starts"
 msgstr ""
 
-#: files/www-client-config/cgi-bin/config.uc:104
+#: features/morse-client-config/files/www-client-config/cgi-bin/config.uc:104
 msgid "release the button"
 msgstr ""
 
-#: files/www-client-config/cgi-bin/config.uc:103
+#: features/morse-client-config/files/www-client-config/cgi-bin/config.uc:103
 msgid "slowly flashing green"
 msgstr ""
 
-#: files/www-client-config/cgi-bin/config.uc:105
+#: features/morse-client-config/files/www-client-config/cgi-bin/config.uc:105
 msgid "solid green"
 msgstr ""
 
-#: files/www-client-config/cgi-bin/config.uc:105
+#: features/morse-client-config/files/www-client-config/cgi-bin/config.uc:105
 msgid "wait until the LED is"
 msgstr ""
 
-#: files/www-client-config/cgi-bin/config_result.uc:18
+#: features/morse-client-config/files/www-client-config/cgi-bin/config_result.uc:18
 msgid ""
 "your device will no longer have a static IP, and it will attempt to connect "
 "to the SSID/password you have specified. You may need to disconnect and "

@@ -12,33 +12,66 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
+#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:14
+#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:15
+#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:28
+msgid "11s Mesh"
+msgstr ""
+
+#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:16
+msgid "11s Mesh Gate"
+msgstr ""
+
+#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:19
+#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:27
+msgid "Access Point"
+msgstr ""
+
+#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:29
+msgid "Ad-Hoc"
+msgstr ""
+
 #: luci/luci-theme-morseargon/htdocs/luci-static/resources/menu-morseargon.js:248
 msgid "Advanced Config"
 msgstr "高度な設定"
 
-#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:239
+#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:274
 msgid "BCF may not be appropriate!"
 msgstr "BCFが適切ではない可能性があります！"
 
-#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:206
+#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:26
+msgid "Client"
+msgstr ""
+
+#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:241
 msgid "Country not set!"
 msgstr "国が設定されていません！"
 
-#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:229
+#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:20
+msgid "Extender"
+msgstr ""
+
+#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:264
 msgid "Go to password configuration..."
 msgstr "パスワード設定に移動…"
 
-#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:208
-#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:215
-#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:222
+#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:243
+#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:250
+#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:257
 msgid "Go to wireless configuration..."
 msgstr "無線設定に移動…"
 
+#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:280
+msgid "HaLow Wi-Fi Driver Running in Test Mode."
+msgstr ""
+
 #: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/sysauth.htm:41
 msgid "Invalid username and/or password! Please try again."
-msgstr "ユーザー名またはパスワード、またはその両方が無効です。もう一度お試しください。"
+msgstr ""
+"ユーザー名またはパスワード、またはその両方が無効です。もう一度お試しくださ"
+"い。"
 
-#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:258
+#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:299
 msgid "JavaScript required!"
 msgstr "JavaScriptが必要です!"
 
@@ -46,67 +79,114 @@ msgstr "JavaScriptが必要です!"
 msgid "Log in"
 msgstr "ログイン"
 
-#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:220
+#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:23
+msgid "Matter"
+msgstr ""
+
+#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:11
+msgid "Mesh Agent"
+msgstr ""
+
+#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:10
+msgid "Mesh Controller"
+msgstr ""
+
+#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:30
+msgid "Monitor"
+msgstr ""
+
+#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:255
 msgid ""
 "Morse device using FullMAC firmware - only Client/Station mode will work!"
-msgstr "MorseデバイスはFullMACファームウェアを使用しています。クライアント/ステーションモードのみが動作します！"
+msgstr ""
+"MorseデバイスはFullMACファームウェアを使用しています。クライアント/ステーショ"
+"ンモードのみが動作します！"
 
-#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:213
+#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:248
 msgid "Morse device using Thin LMAC firmware - only AP mode will work!"
-msgstr "MorseデバイスはThin LMACファームウェアを使用しています。APモードのみが動作します！"
+msgstr ""
+"MorseデバイスはThin LMACファームウェアを使用しています。APモードのみが動作し"
+"ます！"
 
-#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:227
+#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:262
 msgid "No password set!"
 msgstr "パスワードが設定されていません!"
 
-#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:240
+#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:31
+msgid "None"
+msgstr ""
+
+#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:275
 msgid ""
 "The BCF file on this device must be specified via UCI as the board type "
 "isn't set in the OTP bits. Currently, your HaLow device is using the non-"
 "functional failsafe BCF."
 msgstr ""
-"このデバイスのボードタイプがOTPビットに設定されていないため、BCFファイルはUCIで指定する必要があります。現在、HaLowデバイスは機能しないフェイルセーフBCFを使用しています。"
+"このデバイスのボードタイプがOTPビットに設定されていないため、BCFファイルはUCI"
+"で指定する必要があります。現在、HaLowデバイスは機能しないフェイルセーフBCFを"
+"使用しています。"
 
-#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:228
+#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:281
 msgid ""
-"There is no password set on this router. Please configure a root password to"
-" protect the web interface."
-msgstr "このルーターにはパスワードが設定されていません。Webインターフェースを保護するには、rootパスワードを設定してください。"
+"The HaLow Wi-Fi driver being used is the test mode version. Perform a "
+"factory reset to restore the normal production driver."
+msgstr ""
 
-#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:249
+#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:263
+msgid ""
+"There is no password set on this router. Please configure a root password to "
+"protect the web interface."
+msgstr ""
+"このルーターにはパスワードが設定されていません。Webインターフェースを保護する"
+"には、rootパスワードを設定してください。"
+
+#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:290
 msgid ""
 "This device is a virtual wire kit. Saving any configuration will disable "
 "virtual wire mode. A factory reset will restore virtual wire mode."
 msgstr ""
-"このデバイスはバーチャルワイヤキットです。設定を保存するとバーチャルワイヤモードは無効になります。工場出荷時リセットでバーチャルワイヤモードが復元されます。"
+"このデバイスはバーチャルワイヤキットです。設定を保存するとバーチャルワイヤ"
+"モードは無効になります。工場出荷時リセットでバーチャルワイヤモードが復元され"
+"ます。"
 
-#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:246
+#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:37
+msgid "Unknown"
+msgstr ""
+
+#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:287
 msgid "Virtual Wire Device"
 msgstr "バーチャルワイヤデバイス"
 
-#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:259
+#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:300
 msgid ""
 "You must enable JavaScript in your browser or LuCI will not work properly."
-msgstr "ブラウザでJavaScriptを有効にする必要があります。有効にしないと、LuCIが正しく動作しません。"
+msgstr ""
+"ブラウザでJavaScriptを有効にする必要があります。有効にしないと、LuCIが正しく"
+"動作しません。"
 
-#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:207
+#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:242
 msgid ""
 "Your Morse HaLow device requires a country. Please set your country on the "
 "Network -> Wireless page."
-msgstr "Morse HaLowデバイスには国の設定が必要です。Network -> Wireless ページで国を設定してください。"
+msgstr ""
+"Morse HaLowデバイスには国の設定が必要です。Network -> Wireless ページで国を設"
+"定してください。"
 
-#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:221
+#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:256
 msgid ""
 "Your Morse device is using FullMAC firmware, which is an optimisation for "
 "client/station mode where processing is offloading to the Morse chip. This "
-"is useful in highly power constrained situations or if association should be"
-" maintained when the host processor is off."
+"is useful in highly power constrained situations or if association should be "
+"maintained when the host processor is off."
 msgstr ""
-"MorseデバイスはFullMACファームウェアを使用しており、処理をMorseチップにオフロードすることでクライアント/ステーションモードを最適化しています。電力制約が厳しい場合やホストプロセッサを停止しても接続を維持したい場合に便利です。"
+"MorseデバイスはFullMACファームウェアを使用しており、処理をMorseチップにオフ"
+"ロードすることでクライアント/ステーションモードを最適化しています。電力制約が"
+"厳しい場合やホストプロセッサを停止しても接続を維持したい場合に便利です。"
 
-#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:214
+#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:249
 msgid ""
 "Your Morse device is using Thin LMAC firmware, which is an optimisation for "
 "AP mode to support large numbers of clients/stations."
 msgstr ""
-"MorseデバイスはThin LMACファームウェアを使用しており、APモードで多数のクライアント/ステーションをサポートするために最適化されています。"
+"MorseデバイスはThin LMACファームウェアを使用しており、APモードで多数のクライ"
+"アント/ステーションをサポートするために最適化されています。"

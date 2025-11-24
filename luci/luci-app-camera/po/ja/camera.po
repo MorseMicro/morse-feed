@@ -16,7 +16,7 @@ msgstr ""
 msgid "AWS Access Key"
 msgstr "AWSアクセスキー"
 
-#: luci/luci-app-camera/htdocs/luci-static/resources/view/cameras/cameras.js:1437
+#: luci/luci-app-camera/htdocs/luci-static/resources/view/cameras/cameras.js:1436
 msgid "AWS KVS"
 msgstr "AWS KVS"
 
@@ -52,18 +52,20 @@ msgstr "AWSビデオストリームの設定:"
 msgid "Bitrate (kbps)"
 msgstr "ビットレート(kbps）"
 
-#: luci/luci-app-camera/htdocs/luci-static/resources/view/cameras/cameras.js:1367
+#: luci/luci-app-camera/htdocs/luci-static/resources/view/cameras/cameras.js:1365
 msgid ""
 "Camera viewing is currently not supported via https. <a href=\"%s\">Connect "
 "via http</a>."
-msgstr "現在、https経由でのカメラ表示はサポートされていません。<a href=\"%s\">http経由で接続します</a>。"
+msgstr ""
+"現在、https経由でのカメラ表示はサポートされていません。<a href=\"%s\">http経"
+"由で接続します</a>。"
 
-#: luci/luci-app-camera/htdocs/luci-static/resources/view/cameras/cameras.js:1426
+#: luci/luci-app-camera/htdocs/luci-static/resources/view/cameras/cameras.js:1421
 #: luci/luci-app-camera/root/usr/share/luci/menu.d/luci-app-camera.json:3
 msgid "Cameras"
 msgstr "カメラ"
 
-#: luci/luci-app-camera/htdocs/luci-static/resources/view/cameras/cameras.js:1415
+#: luci/luci-app-camera/htdocs/luci-static/resources/view/cameras/cameras.js:1413
 msgid "Cameras page is intended for Access Points"
 msgstr "カメラページはアクセスポイントを対象としています"
 
@@ -71,20 +73,21 @@ msgstr "カメラページはアクセスポイントを対象としています
 msgid "Clear cache and redo discovery"
 msgstr "キャッシュをクリアして検出をやり直す"
 
-#: luci/luci-app-camera/htdocs/luci-static/resources/view/cameras/cameras.js:1435
+#: luci/luci-app-camera/htdocs/luci-static/resources/view/cameras/cameras.js:1434
 msgid "Config"
 msgstr "設定"
 
 #: luci/luci-app-camera/htdocs/luci-static/resources/view/cameras/cameras.js:924
-msgid ""
-"Disconnected bad stream. Consider decreasing bitrate before restarting."
-msgstr "品質の悪いストリームが切断されました。再起動する前にビットレートを下げることを検討してください。"
+msgid "Disconnected bad stream. Consider decreasing bitrate before restarting."
+msgstr ""
+"品質の悪いストリームが切断されました。再起動する前にビットレートを下げること"
+"を検討してください。"
 
 #: luci/luci-app-camera/htdocs/luci-static/resources/view/cameras/cameras.js:1253
 msgid "Discover"
 msgstr "発見"
 
-#: luci/luci-app-camera/htdocs/luci-static/resources/view/cameras/cameras.js:1377
+#: luci/luci-app-camera/htdocs/luci-static/resources/view/cameras/cameras.js:1375
 msgid "Discovering cameras..."
 msgstr "カメラを発見しています..."
 
@@ -122,11 +125,11 @@ msgstr "エラー: 再生は中止されました"
 msgid "Error: unsupported source"
 msgstr "エラー: サポートされていないソース"
 
-#: luci/luci-app-camera/htdocs/luci-static/resources/view/cameras/cameras.js:1434
+#: luci/luci-app-camera/htdocs/luci-static/resources/view/cameras/cameras.js:1433
 msgid "Firmware"
 msgstr "ファームウェア"
 
-#: luci/luci-app-camera/htdocs/luci-static/resources/view/cameras/cameras.js:1358
+#: luci/luci-app-camera/htdocs/luci-static/resources/view/cameras/cameras.js:1356
 msgid "Force Configs to Default"
 msgstr "設定を強制的にデフォルトに戻す"
 
@@ -134,7 +137,7 @@ msgstr "設定を強制的にデフォルトに戻す"
 msgid "Framerate (fps)"
 msgstr "フレームレート（fps）"
 
-#: luci/luci-app-camera/htdocs/luci-static/resources/view/cameras/cameras.js:1391
+#: luci/luci-app-camera/htdocs/luci-static/resources/view/cameras/cameras.js:1389
 msgid "Fullscreen"
 msgstr "全画面表示"
 
@@ -150,7 +153,7 @@ msgstr "rpcd-mod-onvifプロキシへのアクセスを許可"
 msgid "HLS"
 msgstr "HLS"
 
-#: luci/luci-app-camera/htdocs/luci-static/resources/view/cameras/cameras.js:1432
+#: luci/luci-app-camera/htdocs/luci-static/resources/view/cameras/cameras.js:1431
 msgid "Hostname"
 msgstr "ホスト名"
 
@@ -163,7 +166,7 @@ msgid "Last seen 1 minute ago"
 msgid_plural "Last seen %s minutes ago"
 msgstr[0] "最後の確認: %s分前"
 
-#: luci/luci-app-camera/htdocs/luci-static/resources/view/cameras/cameras.js:1438
+#: luci/luci-app-camera/htdocs/luci-static/resources/view/cameras/cameras.js:1437
 #: luci/luci-app-camera/htdocs/luci-static/resources/view/cameras/cameras.js:1444
 msgid "Live view"
 msgstr "ライブビュー"
@@ -176,11 +179,11 @@ msgstr "読み込み中..."
 msgid "MediaMTX port failure:"
 msgstr "MediaMTXポートの障害:"
 
-#: luci/luci-app-camera/htdocs/luci-static/resources/view/cameras/cameras.js:1433
+#: luci/luci-app-camera/htdocs/luci-static/resources/view/cameras/cameras.js:1432
 msgid "Model"
 msgstr "モデル"
 
-#: luci/luci-app-camera/htdocs/luci-static/resources/view/cameras/cameras.js:1378
+#: luci/luci-app-camera/htdocs/luci-static/resources/view/cameras/cameras.js:1376
 msgid "No ONVIF-compatible cameras found."
 msgstr "ONVIF互換のカメラが見つかりません。"
 
@@ -220,7 +223,7 @@ msgstr "推奨ストレージサイズは64MBです"
 msgid "Reload all"
 msgstr "すべて再読み込み"
 
-#: luci/luci-app-camera/htdocs/luci-static/resources/view/cameras/cameras.js:1348
+#: luci/luci-app-camera/htdocs/luci-static/resources/view/cameras/cameras.js:1346
 msgid "Reset all devices to %sx%s@%skbps"
 msgstr "すべてのデバイスを%sx%s@%skbpsにリセット"
 
@@ -241,7 +244,7 @@ msgstr "保存"
 msgid "Save as Default"
 msgstr "デフォルトとして保存"
 
-#: luci/luci-app-camera/htdocs/luci-static/resources/view/cameras/cameras.js:1436
+#: luci/luci-app-camera/htdocs/luci-static/resources/view/cameras/cameras.js:1435
 msgid "Streams"
 msgstr "ストリーム"
 
@@ -253,11 +256,14 @@ msgstr "利用不可"
 msgid "WebRTC"
 msgstr "WebRTC"
 
-#: luci/luci-app-camera/htdocs/luci-static/resources/view/cameras/cameras.js:1416
+#: luci/luci-app-camera/htdocs/luci-static/resources/view/cameras/cameras.js:1414
 msgid ""
 "Your device currently operates as a HaLow client. Because the Cameras page "
 "is intended to view all cameras on your network and proxies streams via the "
 "device you're using, for the best performance you should only use this page "
 "on your HaLow Access Point."
 msgstr ""
-"お使いのデバイスは現在、HaLowクライアントとして動作しています。カメラページは、ネットワーク上のすべてのカメラと、使用しているデバイスを介したプロキシストリームを表示することを目的としているため、最高のパフォーマンスを実現するには、このページはHaLowアクセスポイントでのみご使用ください。"
+"お使いのデバイスは現在、HaLowクライアントとして動作しています。カメラページ"
+"は、ネットワーク上のすべてのカメラと、使用しているデバイスを介したプロキシス"
+"トリームを表示することを目的としているため、最高のパフォーマンスを実現するに"
+"は、このページはHaLowアクセスポイントでのみご使用ください。"

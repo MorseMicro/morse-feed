@@ -1,6 +1,3 @@
-msgid ""
-msgstr "Content-Type: text/plain; charset=UTF-8"
-
 #: luci/luci-app-morseguide/htdocs/luci-static/resources/view/morseguide/morseguide.js:20
 msgid ""
 "Open this <a %s>offline guide</a> in a new tab or view the uncompressed <a "

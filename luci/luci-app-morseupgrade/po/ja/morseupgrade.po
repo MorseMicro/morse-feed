@@ -13,84 +13,85 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0;\n"
 "X-Generator: Poedit 3.4.1\n"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:907
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:907
 msgid "(check browser internet connection)"
 msgstr "（ブラウザーのインターネット接続を確認してください）"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:920
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:920
 msgid "(check device internet connection)"
 msgstr "（デバイスのインターネット接続を確認してください）"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:719
-#: htdocs/luci-static/resources/view/morse/upgrade.js:758
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:719
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:758
 msgid "<br> New image is of format:"
 msgstr "<br>新しいイメージの形式は次のとおりです:"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:964
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:964
 msgid "Additional firmware controls can be found on the"
 msgstr "追加のファームウェア操作は"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:171
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:171
 msgid "Already up to date!"
 msgstr "すでに最新です"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:965
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:965
 msgid "Backup/Flash Firmware page"
 msgstr "「バックアップ/ファームウェア更新」ページで利用できます"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:906
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:906
 msgid "Browser could not reach upgrade server"
 msgstr "ブラウザーがアップグレードサーバーに接続できませんでした"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:538
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:538
 msgid "Cancel"
 msgstr "キャンセル"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:896
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:896
 msgid "Check for automatic upgrade"
 msgstr "自動アップグレードを確認"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:777
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:777
 msgid "Checking for upgrades"
 msgstr "アップデートを確認しています"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:347
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:347
 msgid "Checking image…"
 msgstr "イメージを確認しています…"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:463
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:463
 msgid "Compatibility check failed."
 msgstr "互換性チェックに失敗しました。"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:213
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:213
 msgid "Compatibility check failed: device mismatch."
 msgstr "互換性チェックに失敗しました: デバイスが一致しません。"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:200
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:200
 msgid "Compatibility check failed: image metadata not present."
 msgstr "互換性チェックに失敗しました: イメージのメタデータが存在しません。"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:232
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:232
 msgid "Compatibility check failed: incompatible configuration."
 msgstr "互換性チェックに失敗しました: 構成が互換性にありません。"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:226
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:226
 msgid "Compatibility check failed: incompatible image version."
-msgstr "互換性チェックに失敗しました: イメージのバージョンに互換性がありません。"
+msgstr ""
+"互換性チェックに失敗しました: イメージのバージョンに互換性がありません。"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:207
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:207
 msgid "Compatibility check failed: invalid image metadata."
 msgstr "互換性チェックに失敗しました: イメージのメタデータが無効です。"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:455
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:455
 msgid "Compatibility check succeeded."
 msgstr "互換性チェックに成功しました。"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:433
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:433
 msgid "Configuration backup not supported."
 msgstr "設定のバックアップはサポートされていません。"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:698
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:698
 msgid ""
 "Configuration error detected. The upgrade service could not be started due "
 "to a missing or invalid system setting. Please check your device "
@@ -100,79 +101,79 @@ msgstr ""
 "ドサービスを開始できませんでした。デバイスの設定を確認するか、再試行前に工場"
 "出荷時の設定にリセットしてください。"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:512
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:512
 msgid "Continue"
 msgstr "続行"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:189
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:189
 msgid "Details"
 msgstr "詳細"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:919
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:919
 msgid "Device could not reach upgrade server"
 msgstr "デバイスがアップグレードサーバーに接続できませんでした"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:425
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:425
 msgid "Device time updated."
 msgstr "デバイスの時刻を更新しました。"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:444
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:444
 msgid "Disk space check failed: image too large."
 msgstr "ディスク容量の確認に失敗しました: イメージが大きすぎます。"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:450
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:450
 msgid "Disk space check succeeded."
 msgstr "ディスク容量の確認に成功しました。"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:517
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:517
 msgid "Do you still want to flash this image?"
 msgstr "それでもこのイメージを書き込みますか？"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:170
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:170
 msgid "Download completed successfully!"
 msgstr "ダウンロードが正常に完了しました"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:168
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:168
 msgid "Download started..."
 msgstr "ダウンロードが開始されました"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:810
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:810
 msgid "Downloading firmware to browser: %s bytes"
 msgstr "ファームウェアをブラウザーにダウンロード中: %s バイト"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:808
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:808
 msgid "Downloading firmware to browser: %s%%"
 msgstr "ファームウェアをブラウザーにダウンロード中: %s%%"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:710
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:710
 msgid "Downloading firmware to device:"
 msgstr "ファームウェアをデバイスにダウンロード中:"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:173
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:173
 msgid "File available on MorseMicro image server."
 msgstr "MorseMicro イメージサーバーで利用できます。"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:550
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:550
 msgid "Flash image?"
 msgstr "イメージをフラッシュしますか？"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:580
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:580
 msgid "Flashing…"
 msgstr "フラッシュ中…"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:519
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:519
 msgid "Force upgrade"
 msgstr "強制アップグレード"
 
-#: root/usr/share/rpcd/acl.d/luci-app-morseupgrade.json:3
+#: luci/luci-app-morseupgrade/root/usr/share/rpcd/acl.d/luci-app-morseupgrade.json:3
 msgid "Grant access to configuration library and dependencies"
 msgstr "設定ライブラリと依存関係へのアクセスを許可する"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:447
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:447
 msgid "Image size: %1024.2mB, Storage size: %1024.2mB"
 msgstr "イメージサイズ: %1024.2mB、ストレージ容量: %1024.2mB"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:416
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:416
 msgid ""
 "Include in backup a list of current installed packages at /etc/backup/"
 "installed_packages.txt"
@@ -180,7 +181,7 @@ msgstr ""
 "バックアップに現在インストールされているパッケージ一覧（/etc/backup/"
 "installed_packages.txt）を含める"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:446
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:446
 msgid ""
 "It appears that you are trying to flash an image that does not fit into the "
 "flash memory, please verify the image file!"
@@ -188,112 +189,110 @@ msgstr ""
 "フラッシュメモリに収まらないイメージファイルをフラッシュしようとしているよう"
 "です。イメージファイルを確認してください。"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:403
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:403
 msgid "Keep settings and retain the current configuration"
 msgstr "設定を保持して現在の構成を維持する"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:939
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:939
 msgid "Manually upload firmware file"
 msgstr "ファームウェアファイルを手動でアップロード"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:499
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:499
 msgid "Morse Micro signature authentication failed."
 msgstr "Morse Micro 署名の認証に失敗しました。"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:263
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:263
 msgid "Morse Micro signature authentication failed: certificate expired."
 msgstr "Morse Micro 署名の認証に失敗しました: 証明書の有効期限が切れています。"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:301
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:301
 msgid "Morse Micro signature authentication failed: decode failed."
 msgstr "Morse Micro 署名の認証に失敗しました: デコードに失敗しました。"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:277
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:277
 msgid "Morse Micro signature authentication failed: invalid payload."
 msgstr "Morse Micro 署名の認証に失敗しました: ペイロードが無効です。"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:270
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:270
 msgid "Morse Micro signature authentication failed: key revoked."
 msgstr "Morse Micro 署名の認証に失敗しました: 鍵が失効しています。"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:289
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:289
 msgid "Morse Micro signature authentication failed: signature chain error."
 msgstr "Morse Micro 署名の認証に失敗しました: 署名チェーンのエラーです。"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:256
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:256
 msgid ""
 "Morse Micro signature authentication failed: signature metadata missing."
-msgstr ""
-"Morse Micro 署名の認証に失敗しました: 署名メタデータが見つかりません。"
+msgstr "Morse Micro 署名の認証に失敗しました: 署名メタデータが見つかりません。"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:242
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:242
 msgid "Morse Micro signature authentication failed: signature not present."
 msgstr "Morse Micro 署名の認証に失敗しました: 署名が存在しません。"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:295
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:295
 msgid ""
 "Morse Micro signature authentication failed: signature structure invalid."
-msgstr ""
-"Morse Micro 署名の認証に失敗しました: 署名構造が無効です。"
+msgstr "Morse Micro 署名の認証に失敗しました: 署名構造が無効です。"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:249
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:249
 msgid "Morse Micro signature authentication failed: signing keys missing."
 msgstr "Morse Micro 署名の認証に失敗しました: 署名鍵が見つかりません。"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:283
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:283
 msgid ""
 "Morse Micro signature authentication failed: unsupported certificate type."
 msgstr ""
 "Morse Micro 署名の認証に失敗しました: サポートされていない証明書タイプです。"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:307
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:307
 msgid "Morse Micro signature authentication failed: verification failed."
 msgstr "Morse Micro 署名の認証に失敗しました: 検証に失敗しました。"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:489
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:489
 msgid "Morse Micro signature authentication not enforced."
 msgstr "Morse Micro 署名の認証は強制されていません。"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:491
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:491
 msgid "Morse Micro signature authentication succeeded."
 msgstr "Morse Micro 署名の認証に成功しました。"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:962
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:962
 msgid "Morse Upgrade"
 msgstr "Morse のアップグレード"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:720
-#: htdocs/luci-static/resources/view/morse/upgrade.js:759
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:720
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:759
 msgid "New firmware version available: <a href=\"%s\" target=\"_blank\">%s</a>"
 msgstr ""
 "新しいファームウェアバージョンが利用可能です: <a href=\"%s\" "
 "target=\"_blank\">%s</a>"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:478
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:478
 msgid "Platform checks failed."
 msgstr "プラットフォームチェックに失敗しました。"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:169
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:169
 msgid "Previous download in progress..."
 msgstr "前回のダウンロードが進行中です…"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:765
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:765
 msgid "Ready to upgrade!"
 msgstr "アップグレードの準備ができました!"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:944
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:944
 msgid "Retry"
 msgstr "再試行"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:399
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:399
 msgid "SHA256"
 msgstr "SHA256"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:174
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:174
 msgid "SHA256 OK."
 msgstr "SHA256 は正常です。"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:522
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:522
 msgid ""
 "Select 'Force upgrade' to flash the image even if checks fail. Use only if "
 "you are sure that the firmware is correct and meant for your device!"
@@ -302,19 +301,19 @@ msgstr ""
 "ださい。ファームウェアが正しく、お使いのデバイス向けであると確信できる場合の"
 "み使用してください。"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:398
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:398
 msgid "Size"
 msgstr "サイズ"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:411
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:411
 msgid "Skip from backup files that are equal to those in /rom"
 msgstr "バックアップから /rom と同一のファイルを除外する"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:348
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:348
 msgid "Synchronizing device time with the browser."
 msgstr "ブラウザーとデバイスの時刻を同期しています。"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:250
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:250
 msgid ""
 "The device cannot access the required firmware signing keys to authenticate "
 "this image. If this is a custom or locally built development image you may "
@@ -324,7 +323,7 @@ msgstr ""
 "きません。これがカスタムまたはローカルでビルドした開発イメージであればアップ"
 "グレードを強制できますが、自己責任で実行してください。"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:290
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:290
 msgid ""
 "The device could not build the certificate chain for the firmware signature. "
 "Please re-download the firmware or contact Morse Micro support."
@@ -332,7 +331,7 @@ msgstr ""
 "デバイスがファームウェア署名の証明書チェーンを構築できませんでした。ファーム"
 "ウェアを再ダウンロードするか、Morse Micro サポートにお問い合わせください。"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:302
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:302
 msgid ""
 "The device failed to decode the signature or public key embedded in the "
 "firmware. Please download the firmware again."
@@ -340,17 +339,17 @@ msgstr ""
 "デバイスがファームウェアに埋め込まれている署名または公開鍵のデコードに失敗し"
 "ました。ファームウェアを再度ダウンロードしてください。"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:257
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:257
 msgid ""
 "The firmware certificate embedded in the image cannot be read by the device. "
 "The download may be incomplete or corrupted; please re-download the firmware "
 "and try again."
 msgstr ""
 "イメージに埋め込まれているファームウェア証明書をデバイスが読み取れません。ダ"
-"ウンロードが不完全か破損している可能性があります。ファームウェアを再ダウンロ"
-"ードしてやり直してください。"
+"ウンロードが不完全か破損している可能性があります。ファームウェアを再ダウン"
+"ロードしてやり直してください。"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:284
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:284
 msgid ""
 "The firmware contains a certificate that cannot authorize upgrades. Please "
 "use an official Morse Micro firmware image."
@@ -358,7 +357,7 @@ msgstr ""
 "ファームウェアにアップグレードを許可できない証明書が含まれています。公式の "
 "Morse Micro ファームウェアイメージを使用してください。"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:296
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:296
 msgid ""
 "The firmware signature blob is incomplete or contains unexpected data. The "
 "download might be truncated or tampered with."
@@ -366,17 +365,17 @@ msgstr ""
 "ファームウェアの署名ブロブが不完全、または予期しないデータを含んでいます。ダ"
 "ウンロードが途中で切れているか、改ざんされている可能性があります。"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:308
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:308
 msgid ""
 "The firmware signature could not be verified with the trusted Morse Micro "
 "keys. The file may be corrupt or tampered with. Please download it again or "
 "contact Morse Micro support."
 msgstr ""
-"信頼できる Morse Micro 鍵でファームウェア署名を検証できませんでした。ファイ"
-"ルが破損しているか改ざんされている可能性があります。再度ダウンロードするか "
+"信頼できる Morse Micro 鍵でファームウェア署名を検証できませんでした。ファイル"
+"が破損しているか改ざんされている可能性があります。再度ダウンロードするか "
 "Morse Micro サポートにお問い合わせください。"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:278
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:278
 msgid ""
 "The firmware signature payload is malformed or incomplete. Please download "
 "the firmware image again from the Morse Micro server."
@@ -384,7 +383,7 @@ msgstr ""
 "ファームウェア署名のペイロードが不正または不完全です。Morse Micro サーバーか"
 "らファームウェアイメージを再度ダウンロードしてください。"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:396
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:396
 msgid ""
 "The flash image was uploaded. Below is the checksum and file size listed, "
 "compare them with the original file to ensure data integrity. <br /> Click "
@@ -394,7 +393,7 @@ msgstr ""
 "ズを表示します。元のファイルと比較してデータの整合性を確認してください。<br /"
 ">フラッシュ手順を開始するには、下の「続行」をクリックしてください。"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:167
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:167
 msgid ""
 "The latest version of firmware has not been made available for your device "
 "type."
@@ -402,7 +401,7 @@ msgstr ""
 "最新バージョンのファームウェアはお使いのデバイスタイプには提供されていませ"
 "ん。"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:264
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:264
 msgid ""
 "The signing certificate bundled with this firmware has expired. Please "
 "download an updated firmware image that is signed with a valid Morse Micro "
@@ -412,7 +411,7 @@ msgstr ""
 "Morse Micro 証明書で署名された最新版のファームウェアイメージをダウンロードし"
 "てください。"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:271
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:271
 msgid ""
 "The signing key for this firmware has been revoked on this device. Please "
 "download a more recent firmware release that is signed with a current Morse "
@@ -421,7 +420,7 @@ msgstr ""
 "このファームウェアの署名鍵は本デバイスで失効済みです。最新の Morse Micro 鍵で"
 "署名された、より新しいファームウェアリリースをダウンロードしてください。"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:581
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:581
 msgid ""
 "The system is flashing now.<br /> DO NOT POWER OFF THE DEVICE!<br /> Wait a "
 "few minutes before you try to reconnect. It might be necessary to renew the "
@@ -432,11 +431,11 @@ msgstr ""
 "い。<br />数分待ってから再接続してください。設定によっては、デバイスに再度ア"
 "クセスするためにコンピューターのアドレスを更新する必要がある場合があります。"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:435
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:435
 msgid "The uploaded firmware does not allow keeping current configuration."
 msgstr "アップロードされたファームウェアでは、現在の設定を維持できません。"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:464
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:464
 msgid ""
 "The uploaded image failed the device compatibility check. Please verify that "
 "you have selected the correct image file for your device model. See details "
@@ -446,7 +445,7 @@ msgstr ""
 "使いのデバイスモデルに適したイメージファイルを選択したか確認してください。詳"
 "細情報を参照してください。"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:208
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:208
 msgid ""
 "The uploaded image file contains invalid or corrupted metadata. Please "
 "verify that you have selected the correct image file for your device model."
@@ -455,7 +454,7 @@ msgstr ""
 "います。お使いのデバイスモデルに合った正しいイメージファイルを選択したか確認"
 "してください。"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:480
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:480
 msgid ""
 "The uploaded image file did not pass all platform specific validation "
 "checks. Please verify that you have selected the correct image file for your "
@@ -465,17 +464,17 @@ msgstr ""
 "て通過しませんでした。お使いのデバイスモデルに適したイメージファイルを選択し"
 "たか確認してください。詳細をご参照ください。"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:201
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:201
 msgid ""
 "The uploaded image file does not contain the required metadata to perform "
 "device compatibility checks. Please verify that you have selected the "
 "correct image file for your device model."
 msgstr ""
-"アップロードされたイメージファイルにはデバイスの互換性チェックに必要なメタデ"
-"ータが含まれていません。お使いのデバイスモデルに適したイメージファイルを選択"
-"したか確認してください。"
+"アップロードされたイメージファイルにはデバイスの互換性チェックに必要なメタ"
+"データが含まれていません。お使いのデバイスモデルに適したイメージファイルを選"
+"択したか確認してください。"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:243
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:243
 msgid ""
 "The uploaded image file does not include the required firmware signature for "
 "this device. Please download an official Morse Micro firmware image and try "
@@ -485,7 +484,7 @@ msgstr ""
 "が含まれていません。公式の Morse Micro ファームウェアイメージをダウンロードし"
 "て再度お試しください。"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:233
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:233
 msgid ""
 "The uploaded image file is compatible with this device model, but the "
 "current configuration cannot be preserved. Please uncheck 'Keep settings' "
@@ -495,7 +494,7 @@ msgstr ""
 "現在の設定は保持できません。「設定を保持」のチェックを外して再試行するか、別"
 "のイメージファイルを選択してください。"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:227
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:227
 msgid ""
 "The uploaded image file is compatible with this device model, but the image "
 "version is not suitable for sysupgrade. Please select a different image file."
@@ -504,7 +503,7 @@ msgstr ""
 "そのバージョンは sysupgrade に適していません。別のイメージファイルを選択して"
 "ください。"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:218
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:218
 msgid ""
 "The uploaded image file is not compatible with this device model (%s). "
 "Supported devices for this image are: %s."
@@ -512,7 +511,7 @@ msgstr ""
 "アップロードされたイメージファイルはこのデバイスモデル (%s) と互換性がありま"
 "せん。このイメージでサポートされているデバイスは %s です。"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:220
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:220
 msgid ""
 "The uploaded image file is not compatible with this device model. Please "
 "verify that you have selected the correct image file for your device model."
@@ -521,7 +520,7 @@ msgstr ""
 "お使いのデバイスモデルに適した正しいイメージファイルを選択したか確認してくだ"
 "さい。"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:500
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:500
 msgid ""
 "The uploaded image file is not properly signed. Flashing unsigned images may "
 "compromise device security and is not recommended."
@@ -530,7 +529,7 @@ msgstr ""
 "いイメージを書き込むとデバイスのセキュリティが損なわれる可能性があるため推奨"
 "されません。"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:165
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:165
 msgid ""
 "This could be due to a network issue or server unavailability. Please ensure "
 "either your browser or Morse Micro device has internet access before "
@@ -540,7 +539,7 @@ msgstr ""
 "る前に、ブラウザーまたは Morse Micro デバイスのいずれかがインターネットに接続"
 "されていることを確認してください。"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:162
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:162
 msgid ""
 "This is an internal error and may be due to configuration modifications. "
 "Please reset your device to factory defaults and try again or upgrade "
@@ -550,7 +549,7 @@ msgstr ""
 "荷時設定にリセットしてから再度お試しいただくか、手動でアップグレードしてくだ"
 "さい。問題が解決しない場合は Morse Micro サポートへお問い合わせください。"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:164
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:164
 msgid ""
 "This issue may occur when your internet connection is unstable or the device "
 "has run out of space. Please reboot your Morse Micro device and ensure it is "
@@ -561,7 +560,7 @@ msgstr ""
 "ザーまたはデバイス経由で）安定したインターネットに接続されていることを確認し"
 "てください。"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:163
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:163
 msgid ""
 "This may happen if the device is not recognized by the server. Please verify "
 "that your device is supported and try again."
@@ -569,39 +568,39 @@ msgstr ""
 "デバイスがサーバーに認識されていない場合に発生することがあります。デバイスが"
 "サポート対象であることを確認し、再度お試しください。"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:934
-#: root/usr/share/luci/menu.d/luci-app-morseupgrade.json:3
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:934
+#: luci/luci-app-morseupgrade/root/usr/share/luci/menu.d/luci-app-morseupgrade.json:3
 msgid "Upgrade"
 msgstr "アップグレード"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:904
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:904
 msgid "Upgrade via browser"
 msgstr "ブラウザー経由でアップグレード"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:917
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:917
 msgid "Upgrade via device"
 msgstr "デバイス経由でアップグレード"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:825
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:825
 msgid "Uploading firmware to device: %s%%"
 msgstr "ファームウェアをデバイスにアップロード中: %s%%"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:361
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:361
 msgid "Verifying the uploaded image file."
 msgstr "アップロードされたイメージファイルを検証しています。"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:172
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:172
 msgid "Waiting for download..."
 msgstr "ダウンロードを待機しています…"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:427
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:427
 msgid ""
 "Your device time was out of sync with the browser and has been automatically "
 "updated."
 msgstr ""
 "デバイスの時刻がブラウザーと同期していなかったため、自動的に更新されました。"
 
-#: htdocs/luci-static/resources/view/morse/upgrade.js:166
+#: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:166
 msgid "sha256sum does not match."
 msgstr "sha256sum が一致しません。"
 
