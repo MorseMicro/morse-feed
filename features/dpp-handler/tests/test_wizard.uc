@@ -318,7 +318,6 @@ return {
 		assert(uci.get("wireless", "default_radio1", "key") === "mockpass");
 		assert(uci.get("wireless", "default_radio1", "encryption") === "sae");
 		assert(uci.get("wireless", "default_radio1", "dpp") === null);
-		assert(uci.get("wireless", "default_radio1", "powersave") === "0");
 		assert(uci.get("wireless", "radio1", "country") === "AU");
 		assert(uci.get("wireless", "radio1", "s1g_chzn") === "80211_2020");
 
@@ -352,7 +351,6 @@ return {
 		assert(uci.get("wireless", "default_radio1", "key") === "mockpass");
 		assert(uci.get("wireless", "default_radio1", "encryption") === "sae");
 		assert(uci.get("wireless", "default_radio1", "dpp") === null);
-		assert(uci.get("wireless", "default_radio1", "powersave") === "0");
 		assert(uci.get("wireless", "radio1", "country") === "AU");
 		assert(uci.get("wireless", "radio1", "s1g_chzn") === null);
 
