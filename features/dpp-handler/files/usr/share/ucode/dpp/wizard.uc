@@ -204,9 +204,6 @@ function apply_custom_config(uci, config) {
 		}
 
 		uci.set("wireless", target.iface, "mode", "sta");
-		// Disable powersave since this is only used for Extenders where
-		// power is not a concern (powersave causes higher latency).
-		uci.set("wireless", target.iface, "powersave", "0");
 		uci.set("wireless", target.iface, "ssid", config.ssid);
 		uci.delete("wireless", target.iface, "mesh_id");
 		uci.set("wireless", target.iface, "key", config.key);
@@ -269,9 +266,6 @@ function apply_custom_config(uci, config) {
 		uci.set("wireless", backhaul_sta, "device", target.device);
 		uci.set("wireless", backhaul_sta, "network", DEFAULT_NETWORK);
 		uci.set("wireless", backhaul_sta, "mode", "sta");
-		// Disable powersave since this is only used for Extenders where
-		// power is not a concern (powersave causes higher latency).
-		uci.set("wireless", backhaul_sta, "powersave", "0");
 		uci.set("wireless", backhaul_sta, "ssid", config.ssid);
 		uci.set("wireless", backhaul_sta, "key", config.key);
 		uci.set("wireless", backhaul_sta, "multi_ap", "1");
