@@ -147,13 +147,26 @@ return view.extend({
 			wizard.setBestChannel(channels, sectionId);
 		};
 
-		return wirelessMap.render().then(wirelessHtml => E('div', { class: 'wizard-contents' }, [
-			E('div', { class: 'cbi-section' }, [
-				E('h1', _('Welcome!')),
-				E('p', _('Before you can use your HaLow device, you must set the country appropriately.')),
-			]),
-			wirelessHtml,
-		]));
+		const languageMap = new form.Map('luci');
+		section = languageMap.section(form.NamedSection, 'main', 'core', _('System Configuration'));
+		option = section.option(form.ListValue, 'lang', _('System Language'), ' ');
+		option.value('auto', _('auto'));
+		const languages = Object.assign({ en: 'English' }, uci.get('luci', 'languages'));
+		for (const [code, language] of Object.entries(languages)) {
+			if (!code.startsWith('.')) {
+				option.value(code, language);
+			}
+		}
+
+		return Promise.all([wirelessMap.render(), languageMap.render()])
+			.then(([wirelessHtml, languageHtml]) => E('div', { class: 'wizard-contents' }, [
+				E('div', { class: 'cbi-section' }, [
+					E('h1', _('Welcome!')),
+					E('p', _('Before you can use your HaLow device, you must set the country appropriately.')),
+				]),
+				wirelessHtml,
+				languageHtml,
+			]));
 	},
 
 	/**
