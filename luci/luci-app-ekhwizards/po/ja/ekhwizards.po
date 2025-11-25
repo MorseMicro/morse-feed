@@ -65,10 +65,10 @@ msgid ""
 "different <strong>Upstream Network</strong> or <strong>Traffic Mode</strong> "
 "to allow EasyMesh management."
 msgstr ""
-"<br><strong>このAPはEasyMeshで管理できません。</strong> 現在のネットワーク設定"
-"がEasyMeshでの管理を妨げています。<br> EasyMeshで管理するには、別の<strong>上流"
-"ネットワーク</strong>または<strong>トラフィックモード</strong>を選択してくださ"
-"い。"
+"<br><strong>このAPはEasyMeshで管理できません。</strong> 現在のネットワーク設"
+"定がEasyMeshでの管理を妨げています。<br> EasyMeshで管理するには、別の<strong>"
+"上流ネットワーク</strong>または<strong>トラフィックモード</strong>を選択して"
+"ください。"
 
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:656
 msgid "<p>This Wi-Fi AP is managed by <b>EasyMesh</b>.</p>"
@@ -187,7 +187,7 @@ msgstr ""
 msgid "An error occurred while saving the form:"
 msgstr "次のフォームの保存中にエラーが発生しました:"
 
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/landing.js:235
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/landing.js:246
 msgid "Apply"
 msgstr "適用"
 
@@ -295,7 +295,9 @@ msgstr "Ethernet デバイスをネットワークに接続します。"
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:745
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:909
 msgid "Connect another device via <b>%s Wi-Fi</b> to use your new HaLow link."
-msgstr "新しいHaLowリンクを使うには、<b>%s Wi-Fi</b>経由で別のデバイスを接続してください。"
+msgstr ""
+"新しいHaLowリンクを使うには、<b>%s Wi-Fi</b>経由で別のデバイスを接続してくだ"
+"さい。"
 
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/wizard.js:903
 msgid "Connect another device via <b>Ethernet</b> to use your new HaLow link."
@@ -860,6 +862,10 @@ msgstr "ステーション非アクティブ制限"
 msgid "System Configuration"
 msgstr "システム設定"
 
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/landing.js:206
+msgid "System Language"
+msgstr "システム言語"
+
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/landing.js:163
 msgid ""
 "The country determines the capabilities of your HaLow network. "
@@ -881,8 +887,8 @@ msgid ""
 "Thin LMAC firmware is required for MM6108 access points to associate to more "
 "than 200 clients."
 msgstr ""
-"MM6108アクセスポイントが200台を超えるクライアントと接続するにはThin LMACファー"
-"ムウェアが必要です。"
+"MM6108アクセスポイントが200台を超えるクライアントと接続するにはThin LMAC"
+"ファームウェアが必要です。"
 
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:647
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/meshwizard.js:691
@@ -892,10 +898,10 @@ msgid ""
 "<b>Access Point</b>, you will be able to connect %s Wi-Fi clients to this "
 "device."
 msgstr ""
-"このHaLowデバイスは%s Wi-Fiにも対応しています。%s Wi-Fi<b>アクセスポイント</b>"
-"を有効にすると、%s Wi-Fiクライアントをこのデバイスに接続できます。"
+"このHaLowデバイスは%s Wi-Fiにも対応しています。%s Wi-Fi<b>アクセスポイント</"
+"b>を有効にすると、%s Wi-Fiクライアントをこのデバイスに接続できます。"
 
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/landing.js:208
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/landing.js:218
 msgid "This wizard will guide you through the initial setup of this device."
 msgstr "このウィザードは、本機の初期セットアップを案内します。"
 
@@ -1032,7 +1038,7 @@ msgstr ""
 "パスワードの設定を推奨します。これにより Web インターフェースと SSH アクセス"
 "の両方が保護されます。"
 
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/landing.js:207
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/landing.js:217
 msgid "Welcome!"
 msgstr "ようこそ！"
 
@@ -1130,13 +1136,17 @@ msgstr ""
 "高度な 802.11s メッシュ設定から、802.11s メッシュ用の B.A.T.M.A.N を有効にで"
 "きます"
 
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/landing.js:209
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/landing.js:219
 msgid "You can exit now if you'd prefer to configure manually."
 msgstr "手動で設定する場合は、ここで終了できます。"
 
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:767
 msgid "You can view the EasyMesh topology from the Status page"
 msgstr "ステータスページで EasyMesh のトポロジーを確認できます"
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/landing.js:207
+msgid "auto"
+msgstr "自動"
 
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/matterwizard.js:241
 msgid "bcm"

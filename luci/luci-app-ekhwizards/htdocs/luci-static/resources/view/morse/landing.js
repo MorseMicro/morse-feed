@@ -201,8 +201,19 @@ return view.extend({
 			};
 		}
 
-		return Promise.all([wirelessMap.render(), systemMap.render(), passwordMap.render()])
-			.then(([wirelessHtml, systemHtml, passwordHtml]) => E('div', { class: 'wizard-contents' }, [
+		const languageMap = new form.Map('luci');
+		section = languageMap.section(form.NamedSection, 'main', 'core');
+		option = section.option(form.ListValue, 'lang', _('System Language'), ' ');
+		option.value('auto', _('auto'));
+		const languages = Object.assign({ en: 'English' }, uci.get('luci', 'languages'));
+		for (const [code, language] of Object.entries(languages)) {
+			if (!code.startsWith('.')) {
+				option.value(code, language);
+			}
+		}
+
+		return Promise.all([wirelessMap.render(), systemMap.render(), passwordMap.render(), languageMap.render()])
+			.then(([wirelessHtml, systemHtml, passwordHtml, languageHtml]) => E('div', { class: 'wizard-contents' }, [
 				E('div', { class: 'cbi-section' }, [
 					E('h1', _('Welcome!')),
 					E('p', _(`This wizard will guide you through the initial setup of this device.`)),
@@ -212,6 +223,7 @@ return view.extend({
 				E('div', { class: 'cbi-section' }, [
 					systemHtml,
 					passwordHtml,
+					languageHtml,
 				]),
 			]));
 	},

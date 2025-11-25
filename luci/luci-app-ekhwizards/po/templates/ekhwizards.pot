@@ -143,7 +143,7 @@ msgstr ""
 msgid "An error occurred while saving the form:"
 msgstr ""
 
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/landing.js:235
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/landing.js:246
 msgid "Apply"
 msgstr ""
 
@@ -729,6 +729,10 @@ msgstr ""
 msgid "System Configuration"
 msgstr ""
 
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/landing.js:206
+msgid "System Language"
+msgstr ""
+
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/landing.js:163
 msgid ""
 "The country determines the capabilities of your HaLow network. "
@@ -756,7 +760,7 @@ msgid ""
 "device."
 msgstr ""
 
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/landing.js:208
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/landing.js:218
 msgid "This wizard will guide you through the initial setup of this device."
 msgstr ""
 
@@ -866,7 +870,7 @@ msgid ""
 "and ssh access."
 msgstr ""
 
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/landing.js:207
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/landing.js:217
 msgid "Welcome!"
 msgstr ""
 
@@ -939,12 +943,16 @@ msgid ""
 "settings"
 msgstr ""
 
-#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/landing.js:209
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/landing.js:219
 msgid "You can exit now if you'd prefer to configure manually."
 msgstr ""
 
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/easymeshwizard.js:767
 msgid "You can view the EasyMesh topology from the Status page"
+msgstr ""
+
+#: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/landing.js:207
+msgid "auto"
 msgstr ""
 
 #: luci/luci-app-ekhwizards/htdocs/luci-static/resources/view/morse/matterwizard.js:241
