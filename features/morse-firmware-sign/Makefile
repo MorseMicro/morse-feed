@@ -19,7 +19,7 @@ define Package/morse-firmware-sign
   CATEGORY:=Morse Micro
   SUBMENU:=Features
   TITLE:=Morse Firmware Signing Support
-  DEPENDS:=+fwtool +ucert-full +usign
+  DEPENDS:=+fwtool +ucert-full +usign +openssl-util
 endef
 
 define Package/morse-firmware-sign/description
@@ -28,6 +28,7 @@ and ensures required signing tools are available on both host and target.
 endef
 
 define Build/Compile
+	cat ./morse_certs/* > $(PKG_BUILD_DIR)/morse_ca.pem
 endef
 
 
@@ -36,6 +37,10 @@ define Package/morse-firmware-sign/install
 	$(INSTALL_DATA) ./files/usr/share/keys/* $(1)/usr/share/keys/
 	$(INSTALL_DIR) $(1)/etc/uci-defaults
 	$(INSTALL_BIN) ./files/etc/uci-defaults/* $(1)/etc/uci-defaults/
+	$(INSTALL_DIR) $(1)/etc/morse-firmware-sign/certs
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/morse_ca.pem $(1)/etc/morse-firmware-sign/certs/morse_ca.pem
+	$(INSTALL_DIR) $(1)/lib/upgrade
+	$(INSTALL_BIN) ./files/lib/upgrade/* $(1)/lib/upgrade
 endef
 
 define Package/morse-firmware-sign/postinst
