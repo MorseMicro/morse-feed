@@ -11,7 +11,7 @@
 // this is a standard list propagated around LuCI to poll the device
 // after an action which would have lost connection. Used by the handleSysupgrade
 // 10.42.0.1/192.168.12.1 added by morse to attempt to reach out to our default configuration
-const hrefs = [window.location.host, '10.42.0.1', '192.168.12.1', '192.168.1.1', 'openwrt.lan'];
+const hrefs = [window.location.host, '10.42.0.1', '192.168.12.1', '192.168.8.1', '192.168.1.1', 'openwrt.lan'];
 
 var callUpgradeStat = rpc.declare({
 	object: 'morseupgrade',
