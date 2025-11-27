@@ -1,11 +1,5 @@
 #!/bin/sh
 # Copyright 2024 Morse Micro
 
-# Add the repo config if it is missing.
-if uci get upgrade.@upgrade[-1].repo 2>/dev/null; then
-    exit 0
-fi
-uci -q batch << "EOF"
-    set upgrade.@upgrade[-1].repo=https://repo.apps.morsemicro.com/openwrt/releases/latest/targets
-    commit upgrade
-EOF
+# set the repo config regardless
+uci set upgrade.@upgrade[-1].repo=https://repo.apps.morsemicro.com/openwrt/releases-openssl-signed/latest/targets
