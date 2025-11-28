@@ -1,6 +1,6 @@
 # When this file is copied into /lib/upgrade, it will override fwtool_check_signature
 # function from this script. (Because the content of /lib/upgrade are included in
-# the validate_firmware_image file on an alphabetical order. And the Z_ is to make
+# the validate_firmware_image file on an alphabetical order. And the z_ is to make
 # sure it's gonna come after fwtool.sh.)
 fwtool_check_signature() {
 	[ $# -gt 1 ] && return 1
@@ -30,7 +30,7 @@ fwtool_check_signature() {
 		return 0
 	fi
 
-	MORSE_CA_CERTS=/etc/morse-firmware-sign/certs/morse_ca.pem
+	MORSE_CA_CERTS=/etc/morse-firmware-sign/certs/Morse_Micro_Root_Signing_CA_2025-11-19.pem
 	#TODO: enable cert revokation by adding -crl_check -crl_check_all after we get the crl file.
 	openssl cms -verify \
 				-in "$IMG_S" \
@@ -40,6 +40,8 @@ fwtool_check_signature() {
 				-CAfile "$MORSE_CA_CERTS" \
 				-purpose any \
 				-out /dev/null
-
-	return $?
+	local retval=$?
+	# Put the signature back for later re-checks.
+	fwtool -S $IMG_S "$1"
+	return $retval
 }
