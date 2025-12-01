@@ -456,7 +456,7 @@ function createSystemCard(boardinfo, upgradeVersion) {
 				E('dd', {}, boardinfo.release.version),
 			]),
 			E('div', { class: 'main-counter' }, [
-				E('div', { class: 'medium-number' }, morseVersion),
+				E('div', { 'class': 'medium-number', 'data-tooltip': boardinfo.release.description }, morseVersion),
 				E('div', { class: 'big-text' }, _('Version')),
 			]),
 		],

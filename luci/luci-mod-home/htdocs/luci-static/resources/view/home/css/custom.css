@@ -181,11 +181,19 @@
 	.big-number {
 		font-weight: bold;
 		font-size: 4rem;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		text-wrap: nowrap;
+		width: 95%;
 	}
 
 	.medium-number {
 		font-weight: bold;
 		font-size: 3rem;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		text-wrap: nowrap;
+		width: 95%;
 	}
 
 	.big-text {
