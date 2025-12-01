@@ -567,7 +567,6 @@ return view.extend({
 			await fs.remove('/tmp/sysupgrade.status');
 		} catch (e) {
 			console.error('Could not remove /tmp/sysupgrade.status:', e);
-			L.error('ERROR', 'Failed to clear previous download attempt. Please reboot your device.');
 		}
 
 		// redirect the user back to the automatic upgrade search view
