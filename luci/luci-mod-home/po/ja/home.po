@@ -39,7 +39,7 @@ msgstr "エージェントの状態"
 
 #: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1125
 msgid "Associated devices"
-msgstr "関連付けられたデバイス"
+msgstr "接続中のデバイス"
 
 #: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:800
 msgid "Change mode via wizard"
@@ -382,7 +382,7 @@ msgstr "有効なリースはありません"
 
 #: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:351
 msgid "No client associated"
-msgstr "関連付けられたクライアントがありません"
+msgstr "接続中のクライアントはありません"
 
 #: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:342
 #: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:366
@@ -503,11 +503,11 @@ msgstr "速度（平均）"
 #: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:599
 #: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:1062
 msgid "Start DPP push button"
-msgstr "DPP プッシュボタンを開始"
+msgstr "DPP を開始"
 
 #: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:585
 msgid "Start DPP push button on the Access Point, then"
-msgstr "アクセスポイントで DPP プッシュボタンを開始し、その後"
+msgstr "アクセスポイントで DPP を開始し、その後"
 
 #: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:445
 msgid "System"

@@ -85,16 +85,16 @@ msgstr ""
 
 #: luci/luci-app-camera/htdocs/luci-static/resources/view/cameras/cameras.js:1253
 msgid "Discover"
-msgstr "発見"
+msgstr "検出"
 
 #: luci/luci-app-camera/htdocs/luci-static/resources/view/cameras/cameras.js:1375
 msgid "Discovering cameras..."
-msgstr "カメラを発見しています..."
+msgstr "カメラを検出しています..."
 
 #: luci/luci-app-camera/htdocs/luci-static/resources/view/cameras/cameras.js:426
 #: luci/luci-app-camera/htdocs/luci-static/resources/view/cameras/cameras.js:485
 msgid "Dismiss"
-msgstr "却下"
+msgstr "閉じる"
 
 #: luci/luci-app-camera/htdocs/luci-static/resources/view/cameras/cameras.js:356
 msgid "Encoder configuration:"
@@ -159,12 +159,12 @@ msgstr "ホスト名"
 
 #: luci/luci-app-camera/htdocs/luci-static/resources/view/cameras/cameras.js:926
 msgid "Interrupted stream. Consider decreasing bitrate."
-msgstr "中断されたストリーム。ビットレートを下げることを検討してください。"
+msgstr "ストリームが中断されました。ビットレートを下げることを検討してください。"
 
 #: luci/luci-app-camera/htdocs/luci-static/resources/view/cameras/cameras.js:1147
 msgid "Last seen 1 minute ago"
 msgid_plural "Last seen %s minutes ago"
-msgstr[0] "最後の確認: %s分前"
+msgstr[0] "最終アクセス: %s分前"
 
 #: luci/luci-app-camera/htdocs/luci-static/resources/view/cameras/cameras.js:1437
 #: luci/luci-app-camera/htdocs/luci-static/resources/view/cameras/cameras.js:1444
@@ -197,7 +197,7 @@ msgstr "ONVIFエラー"
 
 #: luci/luci-app-camera/htdocs/luci-static/resources/view/cameras/cameras.js:388
 msgid "Profile"
-msgstr "プロフィール"
+msgstr "プロファイル"
 
 #: luci/luci-app-camera/htdocs/luci-static/resources/view/cameras/cameras.js:516
 msgid "Proxy RTSP"
@@ -229,7 +229,7 @@ msgstr "すべてのデバイスを%sx%s@%skbpsにリセット"
 
 #: luci/luci-app-camera/htdocs/luci-static/resources/view/cameras/cameras.js:370
 msgid "Resolution"
-msgstr "解決"
+msgstr "解像度"
 
 #: luci/luci-app-camera/htdocs/luci-static/resources/view/cameras/cameras.js:1148
 msgid "Retry"

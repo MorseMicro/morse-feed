@@ -298,7 +298,7 @@ msgstr "エクスポートできるテストデータがありません。"
 msgid ""
 "Optional: Must be provided in Decimal Degrees (DD) format, used by Google "
 "Maps"
-msgstr "任意: Google マップで使用される小数（DD）形式で入力する必要があります"
+msgstr "任意: Google マップで使用される十進角（Decimal degrees）形式で入力する必要があります"
 
 #: luci/luci-app-rangetest/htdocs/luci-static/resources/view/rangetest/rangetest.js:1039
 msgid "Optional: short description of the test conditions"

@@ -13,12 +13,12 @@ msgstr ""
 #: features/morse-client-config/files/www-client-config/cgi-bin/config.uc:41
 #: features/morse-client-config/files/www-client-config/cgi-bin/config.uc:71
 msgid "1–32 printable ASCII characters. No leading or trailing spaces."
-msgstr "1～32文字の印字可能なASCII文字。先頭または末尾に空白は使用できません。"
+msgstr "1～32文字の表示可能なASCII文字。先頭または末尾に空白は使用できません。"
 
 #: features/morse-client-config/files/www-client-config/cgi-bin/config.uc:49
 #: features/morse-client-config/files/www-client-config/cgi-bin/config.uc:79
 msgid "8–63 printable ASCII characters. No leading or trailing spaces."
-msgstr "8～63文字の印字可能なASCII文字。先頭または末尾に空白は使用できません。"
+msgstr "8～63文字の表示可能なASCII文字。先頭または末尾に空白は使用できません。"
 
 #: features/morse-client-config/files/www-client-config/cgi-bin/config.uc:25
 msgid "Choose country"
@@ -60,7 +60,7 @@ msgid ""
 "If your HaLow light does not come on, reset your device, reload this page, "
 "and sure you have entered the correct credentials."
 msgstr ""
-"HaLowのランプが点灯しない場合は、デバイスをリセットし、このページを再読み込み"
+"HaLowのLEDが点灯しない場合は、デバイスをリセットし、このページを再読み込み"
 "して、正しいSSID/パスワードを入力したことを確認してください。"
 
 #: features/morse-client-config/files/www-client-config/cgi-bin/config.uc:59
@@ -123,12 +123,12 @@ msgid ""
 "the SSID/password."
 msgstr ""
 "保存後、デバイスは指定したSSIDに接続し、固定IPではなくなります。現在のアドレ"
-"スでこのデバイスにアクセスできなくなります！HaLowランプが点灯しない場合は、デ"
+"スでこのデバイスにアクセスできなくなります！HaLowのLEDが点灯しない場合は、デ"
 "バイスをリセットし、SSID/パスワードを確認してください。"
 
 #: features/morse-client-config/files/www-client-config/cgi-bin/config.uc:106
 msgid "find this device at 192.168.12.1"
-msgstr "このデバイスは 192.168.12.1 で見つかります"
+msgstr "このデバイスは 192.168.12.1 でアクセスできます"
 
 #: features/morse-client-config/files/www-client-config/cgi-bin/config.uc:103
 msgid "hold the mode button until the Status LED starts"
@@ -136,7 +136,7 @@ msgstr "ステータスLEDが点滅し始めるまでモードボタンを押し
 
 #: features/morse-client-config/files/www-client-config/cgi-bin/config.uc:104
 msgid "release the button"
-msgstr "ボタンを離します"
+msgstr "ボタンを離してくださ"
 
 #: features/morse-client-config/files/www-client-config/cgi-bin/config.uc:103
 msgid "slowly flashing green"
@@ -148,7 +148,7 @@ msgstr "緑色で点灯"
 
 #: features/morse-client-config/files/www-client-config/cgi-bin/config.uc:105
 msgid "wait until the LED is"
-msgstr "LEDが〜になるまで待ちます"
+msgstr "LEDが次の状態になるまで待ちます："
 
 #: features/morse-client-config/files/www-client-config/cgi-bin/config_result.uc:18
 msgid ""
