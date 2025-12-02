@@ -171,7 +171,7 @@ msgid ""
 "Your Morse HaLow device requires a country. Please set your country on the "
 "Network -> Wireless page."
 msgstr ""
-"Morse HaLowデバイスには国の設定が必要です。Network -> Wireless ページで国を設"
+"Morse HaLowデバイスには国の設定が必要です。ネットワーク -> 無線 ページで国を設"
 "定してください。"
 
 #: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:256

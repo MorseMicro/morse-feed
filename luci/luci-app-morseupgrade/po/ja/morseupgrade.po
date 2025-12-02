@@ -28,7 +28,7 @@ msgstr "<br>新しいイメージの形式は次のとおりです:"
 
 #: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:964
 msgid "Additional firmware controls can be found on the"
-msgstr "追加のファームウェア操作は"
+msgstr "このほかのファームウェアに関する操作は"
 
 #: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:171
 msgid "Already up to date!"
@@ -36,7 +36,7 @@ msgstr "すでに最新です"
 
 #: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:965
 msgid "Backup/Flash Firmware page"
-msgstr "「バックアップ/ファームウェア更新」ページで利用できます"
+msgstr "「バックアップ/フラッシュ」ページにて利用できます"
 
 #: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:906
 msgid "Browser could not reach upgrade server"
@@ -259,7 +259,7 @@ msgstr "Morse Micro 署名の認証に成功しました。"
 
 #: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:962
 msgid "Morse Upgrade"
-msgstr "Morse のアップグレード"
+msgstr "ファームウェアのアップグレード"
 
 #: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:720
 #: luci/luci-app-morseupgrade/htdocs/luci-static/resources/view/morse/upgrade.js:759

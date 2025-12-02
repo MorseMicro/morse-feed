@@ -94,8 +94,8 @@ msgid ""
 "to the correct network on the Home page. Find the Uplink card, click on the "
 "\"Disconnected\" cross, then set the SSID and password."
 msgstr ""
-"2.4 GHz Wi-Fi アップリンクの設定を保存した後は、ホームページで正しいネット"
-"ワークに接続する必要があります。Uplink カードを探し、「Disconnected」のバツ印"
+"2.4 GHz Wi-Fi アップリンクの設定を保存した後は、ホームメニューから正しいネット"
+"ワークに接続する必要があります。Uplink カードを探し、「未接続」のバツ印"
 "をクリックしてから SSID とパスワードを設定してください。"
 
 #: htdocs/luci-static/resources/view/morse/morseaplanding.js:101

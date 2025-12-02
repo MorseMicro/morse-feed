@@ -176,7 +176,7 @@ msgstr ""
 #: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/morseregulatoryinfo.js:10
 msgctxt "Wi-Fi radio channel index"
 msgid "Channel Center Frequency Index"
-msgstr "チャネル中心周波数指数"
+msgstr "チャネル"
 
 #: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/wpsbuttonelement.js:113
 msgid ""
@@ -277,7 +277,7 @@ msgstr "デバイス"
 #: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:954
 #: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:985
 msgid "Dismiss"
-msgstr "却下"
+msgstr "閉じる"
 
 #: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:129
 msgid "Do I need to set a gateway?"
@@ -550,7 +550,7 @@ msgstr "ネットワーク"
 
 #: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:614
 msgid "Network -> Wireless page"
-msgstr "「Network -> Wireless」ページ"
+msgstr "「ネットワーク -> 無線」ページ"
 
 #: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:934
 msgid "Network Interface"
