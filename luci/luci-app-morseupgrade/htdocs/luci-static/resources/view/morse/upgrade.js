@@ -263,7 +263,9 @@ const signatureFailureCases = [
 		title: _('Morse Micro signature authentication failed: certificate expired.'),
 		summary: _('The signing certificate bundled with this firmware has expired. \
 			Please download an updated firmware image that is signed with a valid \
-			Morse Micro certificate.'),
+			Morse Micro certificate. This error may also be caused by an incorrect \
+			browser time. Please ensure that your browser\'s date and time are set \
+			accurately before trying again.'),
 	},
 	{
 		test: log => /key .* has been revoked/i.test(log),
