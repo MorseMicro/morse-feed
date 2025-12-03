@@ -17,76 +17,63 @@
 # This logic lives in netifd-morse because it's effectively part of our morse.sh
 # setup, even though it technically applies to all Wi-Fi interfaces.
 #
-# For brcmfmac (Broadcom FullMAC), the firmware creates a managed-mode
-# wlan interface automatically, but this happens asynchronously and can take
-# some time after the kernel driver is bound. Since we can't prevent its creation
-# and we also cannot delete it, we rename it to avoid conflict. This is done only when
-# the driver is "brcmfmac" and ACTION is "add". For all other drivers, we simply delete
-# any automatically created wlan? interface immediately, as they typically appear synchronously
-# and can be cleanly removed.
+# This is more complex than 'just delete the wlan interface because':
+#  - some drivers (e.g. brcmfmac) don't allow deletions (so we rename instead)
+#  - some drivers (e.g. brcmfmac) take some time for wlan0 to appear
+#    after the driver is bound (hence 5 sec timeout)
 
-wait_for_iface() {
-	local timeout_ms=5000  # total wait time in ms
-	local interval_ms=100
-	local elapsed=0
+if [ "$ACTION" != "add" ]; then
+	exit 0
+fi
 
-	while [ "$elapsed" -lt "$timeout_ms" ]; do
-		for f in /sys$DEVPATH/device/net/wlan*; do
-			[ -e "$f" ] && return 0  # Interface appeared
-		done
-		sleep 1
-		elapsed=$((elapsed + interval_ms))
-	done
-	return 1  # Timed out
+log() {
+	local lev=$1
+	shift
+	logger -p "user.$lev" -t remove-auto-vif "$DEVICENAME: $*"
 }
 
-# Check driver name
-driver_path="/sys$DEVPATH/device/driver"
-driver_name=$(basename "$(readlink -f "$driver_path" 2>/dev/null)")
+generate_iface_name() {
+	local suffix
+	local iface=$1
+	local mac=$(cat "/sys/class/net/$iface/address" 2>/dev/null)
 
-if [ "$driver_name" = "brcmfmac" ]; then
-	# For brcmfmac, wait for firmware-created interface if ACTION is "add"
-	if [ "$ACTION" = "add" ]; then
-		if ! wait_for_iface; then
-			logger -t remove-auto-vif "Timeout waiting for brcmfmac interface"
-		fi
+	if [ -z "$mac" ] || [ "$mac" = "00:00:00:00:00:00" ]; then
+		# Generate random suffix
+		hex1=$(printf "%02x" $((RANDOM % 256)))
+		hex2=$(printf "%02x" $((RANDOM % 256)))
+		suffix="$hex1-$hex2"
+		log info "MAC not available for $iface, using random suffix: $suffix"
+	else
+		suffix=$(echo "$mac" | awk -F: '{print $(NF-1) "-" $NF}')
 	fi
 
-	# Only rename interfaces, do not delete
-	for device in /sys$DEVPATH/device/net/wlan*; do
-		[ -e "$device" ] || continue
+	echo "wlan-$suffix"
+}
 
-		iface="$(basename "$device")"
-		logger -t remove-auto-vif "brcmfmac: Renaming iface: $iface"
-
-		# Get MAC address
-		mac=$(cat "/sys/class/net/$iface/address" 2>/dev/null)
-		if [ -z "$mac" ] || [ "$mac" = "00:00:00:00:00:00" ]; then
-			# Generate random suffix
-			hex1=$(printf "%02x" $((RANDOM % 256)))
-			hex2=$(printf "%02x" $((RANDOM % 256)))
-			suffix="$hex1-$hex2"
-			logger -t remove-auto-vif "MAC not available for $iface, using random suffix: $suffix"
-		else
-			suffix=$(echo "$mac" | awk -F: '{print $(NF-1) "-" $NF}')
-		fi
-
-		newname="wlan-$suffix"
-
-		ip link set "$iface" down
-		if ! ip link set "$iface" name "$newname"; then
-			logger -t remove-auto-vif "Failed to rename $iface to $newname"
+timeout_secs=5
+while [ "$timeout_secs" -gt 0 ]; do
+	for f in /sys$DEVPATH/device/net/wlan*; do
+		if [ -e "$f" ]; then
+			iface="$(basename "$f")"
+			if iw dev "$iface" del; then
+				log notice "Removed $iface"
+			else
+				log info "Failed to delete $iface, so falling back to renaming"
+				newname="$(generate_iface_name "$iface")"
+				ip link set "$iface" down
+				if ip link set "$iface" name "$newname"; then
+					log info "Renamed $iface to $newname"
+				else
+					log err "Failed to rename $iface to $newname"
+				fi
+			fi
+			exit 0
 		fi
 	done
 
-else
-	# For non-brcmfmac devices: just delete interfaces, no renaming
-	for device in /sys$DEVPATH/device/net/wlan*; do
-		[ -e "$device" ] || continue
+	log info "Waiting for wlan* to exist before removal..."
+	sleep 1
+	timeout_secs=$((timeout_secs - 1))
+done
 
-		iface="$(basename "$device")"
-		if ! iw dev "$iface" del; then
-			logger -t remove-auto-vif "Failed to delete interface: $iface"
-		fi
-	done
-fi
+log err "Timeout waiting for automatic wlan creation of $DEVPATH"
