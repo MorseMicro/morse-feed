@@ -1079,8 +1079,13 @@ function createAssoclistCard(wifiNetwork, wifiDevices, hostHints) {
 			_('Time connected'), _('Signal / Noise'), _('RX Rate / TX Rate'),
 		].filter(t => t)));
 
+		const convertAddressesToHtml = addresses => addresses.map(addr => (
+			`<a target="_blank" href="https://${addr.includes('::') ? `[${addr}]` : addr}/">${addr}</a>`
+		)).join('<br>');
+
 		cbi_update_table(table, associatedDevices.map(d => [
-			d.mac, d.addresses.map(addr => `<a target="_blank" href="https://${addr.includes('::') ? `[${addr}]` : addr}/">${addr}</a>`).join('<br>'),
+			// Must have non-false string to avoid .filter removing column.
+			d.mac, hasAddress && (convertAddressesToHtml(d.addresses) || ' '),
 			d.connected_time + '&nbsp;' + _('min(s)'),
 			renderSignalBadge(Math.min((d.signal + 110) / 70 * 100, 100), d.signal, d.noise, 'ap'),
 			`${formatWifiRate(d.rx)}<br>${formatWifiRate(d.tx)}`,
