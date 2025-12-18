@@ -1,0 +1,36 @@
+Index: libcamera-v0.1.0/utils/ipu3/ipu3-pack.c
+===================================================================
+--- libcamera-v0.1.0.orig/utils/ipu3/ipu3-pack.c
++++ libcamera-v0.1.0/utils/ipu3/ipu3-pack.c
+@@ -14,11 +14,13 @@
+ #include <sys/stat.h>
+ #include <sys/types.h>
+ #include <unistd.h>
++#include <libgen.h>
++
+ 
+ static void usage(const char *argv0)
+ {
+ 
+-	printf("Usage: %s input-file output-file\n", basename(argv0));
++	printf("Usage: %s input-file output-file\n", basename((char*)argv0));
+ 	printf("Convert unpacked RAW10 Bayer data to the IPU3 packed Bayer formats\n");
+ 	printf("If the output-file '-', output data will be written to standard output\n");
+ }
+Index: libcamera-v0.1.0/utils/ipu3/ipu3-unpack.c
+===================================================================
+--- libcamera-v0.1.0.orig/utils/ipu3/ipu3-unpack.c
++++ libcamera-v0.1.0/utils/ipu3/ipu3-unpack.c
+@@ -14,10 +14,11 @@
+ #include <sys/stat.h>
+ #include <sys/types.h>
+ #include <unistd.h>
++#include <libgen.h>
+ 
+ static void usage(const char *argv0)
+ {
+-	printf("Usage: %s input-file output-file\n", basename(argv0));
++	printf("Usage: %s input-file output-file\n", basename((char*)argv0));
+ 	printf("Unpack the IPU3 raw Bayer format to 16-bit Bayer\n");
+ }
+ 
