@@ -185,6 +185,7 @@
 		text-overflow: ellipsis;
 		text-wrap: nowrap;
 		width: 95%;
+		text-align: center;
 	}
 
 	.medium-number {
@@ -194,10 +195,12 @@
 		text-overflow: ellipsis;
 		text-wrap: nowrap;
 		width: 95%;
+		text-align: center;
 	}
 
 	.big-text {
 		font-size: 1.3rem;
+		text-align: center;
 	}
 }
 

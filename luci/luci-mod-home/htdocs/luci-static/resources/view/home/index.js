@@ -87,6 +87,11 @@ const callDPPGetLockoutSecs = rpc.declare({
 	expect: { lockout_remaining_secs: 0 },
 });
 
+const callPrplMgrAgentState = rpc.declare({
+	object: 'prpl-mgr',
+	method: 'get_agent_state',
+});
+
 // Sadly, we add our own call to apply, because:
 //  - the ui.changes.apply call (see ui.js) tries to do a bunch of vaguely annoying
 //    things to the user interface
@@ -646,6 +651,7 @@ async function updateUplinkWifiConnectMethods(hasQRCode, connectMethods, isUp) {
 	if (isHaLow(wifiNetwork) && hasQRCode) {
 		const dppQRCodeSlider = dom.findClassInstance(connectMethods.querySelector('.dpp-qrcode .cbi-checkbox'));
 		const dppQRCodeImage = connectMethods.querySelector('.dpp-qrcode img');
+
 		if (dppQRCodeSlider.getValue() === '1') {
 			dppQRCodeImage.removeAttribute('hidden');
 		} else {
@@ -1195,15 +1201,26 @@ async function createPrplmeshControllerCard() {
 	// we do the load here.
 	await callSessionAccess('access-group', 'luci-mod-home-index-prplmesh', 'read');
 	let prplmeshData;
-	try {
-		prplmeshData = await prplmeshTopology.load();
-	} catch (e) {
-		console.error(e);
+	let agentState;
+
+	const [prplmeshResult, agentStateResult] = await Promise.allSettled([
+		prplmeshTopology.load(),
+		callPrplMgrAgentState(),
+	]);
+
+	if (prplmeshResult.status === 'fulfilled') {
+		prplmeshData = prplmeshResult.value;
+	} else {
+		console.error(prplmeshResult.reason);
 	}
 
-	// Ideally we would call fs.exec('/opt/prplmesh/bin/beerocks_cli', ['-c', 'bml_get_agent_status']),
-	// but this is horrifically slow.
-	const agentOperational = uci.get('prplmesh', 'config', 'operational') === '1';
+	if (agentStateResult.status === 'fulfilled') {
+		agentState = agentStateResult.value;
+	} else {
+		console.error(agentStateResult.reason);
+	}
+
+	const agentOperational = !!agentState?.state && agentState.state.startsWith('OPERATIONAL');
 
 	const colorStyle = `color: ${agentOperational ? 'green' : 'red'}`;
 
@@ -1240,11 +1257,14 @@ async function createPrplmeshControllerCard() {
 	});
 }
 
-function createPrplmeshAgentCard() {
-	// On the agent (i.e. not Controller/Agent), there's no easy way to get the
-	// operational state. This odd UCI config is actually set by the prplmesh
-	// init script currently for other reasons.
-	const operational = uci.get('prplmesh', 'config', 'operational') === '1';
+async function createPrplmeshAgentCard() {
+	let agentState;
+	try {
+		agentState = await callPrplMgrAgentState();
+	} catch (e) {
+		console.error('Failed to load prplmesh agent state:', e);
+	}
+	const operational = !!agentState?.state && agentState.state.startsWith('OPERATIONAL');
 
 	return new Card('prplmesh-agent', {
 		heading: 'EasyMesh Agent',
@@ -1604,10 +1624,10 @@ return view.extend({
 		}
 
 		if (uci.get('prplmesh', 'config', 'enable') === '1') {
-			cards.push(
-				uci.get('prplmesh', 'config', 'management_mode') === 'Multi-AP-Controller-and-Agent'
-					? await createPrplmeshControllerCard()
-					: createPrplmeshAgentCard());
+			const prplmeshCard = uci.get('prplmesh', 'config', 'management_mode') === 'Multi-AP-Controller-and-Agent'
+				? await createPrplmeshControllerCard()
+				: await createPrplmeshAgentCard();
+			cards.push(prplmeshCard);
 		}
 
 		const localNetworks = [];

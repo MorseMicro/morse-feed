@@ -55,7 +55,8 @@
 				"/usr/sbin/hostapd_cli_s1g wps_get_status": [ "exec" ]
 			},
 			"ubus": {
-				"Device.WiFi.DataElements": [ "_get" ]
+				"Device.WiFi.DataElements": [ "_get" ],
+				"prpl-mgr": [ "get_agent_state" ]
 			}
 		}
 	},
