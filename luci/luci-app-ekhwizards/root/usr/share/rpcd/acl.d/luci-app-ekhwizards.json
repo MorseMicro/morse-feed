@@ -8,7 +8,7 @@
 				"iwinfo": ["scan", "assoclist", "info"],
 				"luci": [ "getTimezones" ]
 			},
-			"uci": [ "system", "luci", "firewall", "dhcp", "network", "wireless", "mesh11sd", "prplmesh", "matter", "smart_manager" ]
+			"uci": [ "system", "luci", "firewall", "dhcp", "network", "wireless", "mesh11sd", "prplmesh", "matter", "smart_manager", "umdns", "camera-onvif-server" ]
 		},
 		"write": {
 			"file": {
@@ -18,7 +18,7 @@
 				"uci": [ "apply", "commit", "delete"],
 				"luci": [ "setPassword", "setLocaltime" ]
 			},
-			"uci": [ "system", "luci", "firewall", "dhcp", "network", "wireless", "mesh11sd", "prplmesh", "matter", "smart_manager" ]
+			"uci": [ "system", "luci", "firewall", "dhcp", "network", "wireless", "mesh11sd", "prplmesh", "matter", "smart_manager", "umdns", "camera-onvif-server" ]
 		}
 	}
 }

@@ -6,14 +6,15 @@
 				"file": [ "read" ],
 				"luci-rpc": ["getBuiltinEthernetPorts"],
 				"luci": [ "getTimezones" ]
-			}
+			},
+			"uci": [ "dhcp", "firewall", "network", "wireless", "system", "prplmesh", "mesh11sd", "umdns", "camera-onvif-server" ]
 		},
 		"write": {
 			"ubus": {
 				"file": [ "write", "exec" ],
 				"luci": [ "setLocaltime" ]
 			},
-			"uci": [ "dhcp", "firewall", "network", "wireless", "system", "prplmesh", "mesh11sd" ]
+			"uci": [ "dhcp", "firewall", "network", "wireless", "system", "prplmesh", "mesh11sd", "umdns", "camera-onvif-server" ]
 		}
 	}
 }
