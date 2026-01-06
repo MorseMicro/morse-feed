@@ -525,7 +525,7 @@ async function renderUplinkWifiConnectMethods(id, hasQRCode, wifiNetwork, isUp) 
 
 	async function updateAfterUciChange() {
 		try {
-			await updateUplinkWifiConnectMethods(hasQRCode, element);
+			await updateUplinkWifiConnectMethods(element);
 			await uci.save();
 			await applyUciChangesImmediately();
 			await map.load();
@@ -599,7 +599,7 @@ async function renderUplinkWifiConnectMethods(id, hasQRCode, wifiNetwork, isUp) 
 								await new Promise(resolveFn => window.setTimeout(resolveFn, 3 * 1000));
 							}
 							await startDPP('sta');
-							await updateUplinkWifiConnectMethods(hasQRCode, element);
+							await updateUplinkWifiConnectMethods(element);
 						}),
 					}, _('Start DPP push button')),
 					_(' here.'),
@@ -615,7 +615,7 @@ async function renderUplinkWifiConnectMethods(id, hasQRCode, wifiNetwork, isUp) 
 		const dppQRCodeSlider = dom.findClassInstance(event.target);
 		wifiNetwork.set('dpp', dppQRCodeSlider.getValue() === '1' ? '1' : null);
 		try {
-			await updateUplinkWifiConnectMethods(hasQRCode, element);
+			await updateUplinkWifiConnectMethods(element);
 			await uci.save();
 			await applyUciChangesImmediately();
 		} catch (e) {
@@ -632,7 +632,7 @@ async function renderUplinkWifiConnectMethods(id, hasQRCode, wifiNetwork, isUp) 
 // This is the 'messily update the existing JS to obey the current state'.
 // TODO: I have seen wifiNetwork be in a bad state where it hasn't loaded
 // data properly, and netIface is empty. Hence the guards. Bug in network.js?
-async function updateUplinkWifiConnectMethods(hasQRCode, connectMethods, isUp) {
+async function updateUplinkWifiConnectMethods(connectMethods, isUp) {
 	const wifiNetwork = await network.getWifiNetwork(connectMethods.dataset.wifinetworkname);
 	const netIface = wifiNetwork.getNetwork();
 	if (netIface) {
@@ -648,9 +648,11 @@ async function updateUplinkWifiConnectMethods(hasQRCode, connectMethods, isUp) {
 		connectMethods.dataset.isup = isUp;
 	}
 
-	if (isHaLow(wifiNetwork) && hasQRCode) {
-		const dppQRCodeSlider = dom.findClassInstance(connectMethods.querySelector('.dpp-qrcode .cbi-checkbox'));
-		const dppQRCodeImage = connectMethods.querySelector('.dpp-qrcode img');
+	const dppQRCodeElem = connectMethods.querySelector('.dpp-qrcode');
+	if (dppQRCodeElem) {
+		const dppQRCodeSliderElem = dppQRCodeElem.querySelector('.cbi-checkbox');
+		const dppQRCodeImage = dppQRCodeElem.querySelector('img');
+		const dppQRCodeSlider = dom.findClassInstance(dppQRCodeSliderElem);
 
 		if (dppQRCodeSlider.getValue() === '1') {
 			dppQRCodeImage.removeAttribute('hidden');
@@ -706,7 +708,7 @@ async function createUplinkCard(netIface, wifiDevices, wifiNetworks, hasQRCode) 
 		// - whether we've revealed the password
 		const id = `client-connect-methods-${wifiNetwork.getDevice().getName()}`;
 		connectMethods = document.getElementById(id) || await renderUplinkWifiConnectMethods(id, hasQRCode, wifiNetwork, isUp);
-		updateUplinkWifiConnectMethods(hasQRCode, connectMethods, isUp);
+		updateUplinkWifiConnectMethods(connectMethods, isUp);
 	}
 
 	let connStatus = '✘';
