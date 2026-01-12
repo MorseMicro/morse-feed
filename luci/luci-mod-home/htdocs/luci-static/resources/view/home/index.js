@@ -327,17 +327,17 @@ function renderSignalBadge(signalPercent, signalValue, noiseValue, mode) {
 	var icon, title, value;
 
 	if (signalPercent < 0)
-		icon = L.resource('icons/signal-none.png');
+		icon = L.resource('icons/signal-none.svg');
 	else if (signalPercent == 0)
-		icon = L.resource('icons/signal-0.png');
+		icon = L.resource('icons/signal-000-000.svg');
 	else if (signalPercent < 25)
-		icon = L.resource('icons/signal-0-25.png');
+		icon = L.resource('icons/signal-000-025.svg');
 	else if (signalPercent < 50)
-		icon = L.resource('icons/signal-25-50.png');
+		icon = L.resource('icons/signal-025-050.svg');
 	else if (signalPercent < 75)
-		icon = L.resource('icons/signal-50-75.png');
+		icon = L.resource('icons/signal-050-075.svg');
 	else
-		icon = L.resource('icons/signal-75-100.png');
+		icon = L.resource('icons/signal-075-100.svg');
 
 	if (signalValue != null && signalValue != 0) {
 		if (noiseValue != null && noiseValue != 0) {
@@ -884,7 +884,7 @@ function createNetworkInterfacesCard(networks, wifiDevices) {
 			E('div', { class: 'ifacebox-head' }, d.getName()),
 			E('div', { class: 'ifacebox-body' }, [
 				// From render_iface in luci-mod-network
-				E('img', { src: L.resource('icons/%s%s.png').format(d.getType() || 'ethernet', d.getCarrier() ? '' : '_disabled') }),
+				E('img', { src: L.resource('icons/%s%s.svg').format(d.getType() || 'ethernet', d.getCarrier() ? '' : '_disabled') }),
 			]),
 		])));
 	}
