@@ -800,7 +800,7 @@ async function createUplinkCard(netIface, wifiDevices, wifiNetworks, hasQRCode) 
 }
 
 function createModeCard(morseModeQuery, ethernetPorts) {
-	const morseMode = MORSE_MODES[morseModeQuery['morse_mode']] || _('Unknown');
+	const morseMode = MORSE_MODES[morseModeQuery['morse_mode']] || _('Custom');
 	const diagramMini = E('morse-config-diagram');
 	diagramMini.updateFrom(uci, ethernetPorts);
 	const diagramMax = E('morse-config-diagram');

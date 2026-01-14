@@ -363,6 +363,15 @@ function isEasyMeshManagedIface(sectionId, deviceName) {
 	return false;
 }
 
+// Counts wifi-iface sections on this device that are NOT EasyMesh-managed.
+function countNonEasyMeshManagedIfaces(deviceName) {
+	const uciWifiIfaces = uci.sections('wireless', 'wifi-iface').filter(s =>
+		s.device === deviceName
+		&& !isEasyMeshManagedIface(s['.name'], deviceName));
+
+	return uciWifiIfaces.length;
+}
+
 // returns true if easy mesh enabled
 function isEasyMeshEnabled() {
 	return uci.get('prplmesh', 'config', 'enable') === '1';
@@ -578,6 +587,16 @@ return view.extend({
 
 				// Display the title only for easy mesh managed device.
 				const nonEasyMeshManagedTitle = isMeshManaged ? _(`Non-EasyMesh Managed Interfaces`) : null;
+
+				// Remove Add/Remove button for the easymesh managed morse device.
+				// Show non easymesh manage interface it already exists.
+				if (isMeshManaged && device.type === 'morse') {
+					if (countNonEasyMeshManagedIfaces(device['.name'])) {
+						ifaceOptions.addRemove = false;
+					} else {
+						continue;
+					}
+				}
 
 				// Render non easy mesh managed interfaces. This will also help in creating new non-mesh managed interface
 				this.renderWifiInterfaces(wirelessMap, device['.name'], filterNonEasyMeshManagedAps, nonEasyMeshManagedTitle, ifaceOptions);

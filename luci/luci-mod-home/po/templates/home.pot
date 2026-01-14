@@ -84,6 +84,10 @@ msgstr ""
 msgid "Current Device’s View of the Mesh Network"
 msgstr ""
 
+#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:803
+msgid "Custom"
+msgstr ""
+
 #: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:972
 msgid "DHCP Leases"
 msgstr ""
@@ -514,10 +518,6 @@ msgstr ""
 #: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:425
 msgid ""
 "Unable to start DPP (internal error). Check system logs or reset device."
-msgstr ""
-
-#: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:803
-msgid "Unknown"
 msgstr ""
 
 #: luci/luci-mod-home/htdocs/luci-static/resources/view/home/index.js:481

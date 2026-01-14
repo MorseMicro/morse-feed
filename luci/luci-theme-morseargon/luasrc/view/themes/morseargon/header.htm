@@ -34,7 +34,7 @@
 	local boardinfo = util.ubus("system", "board")
 	local desc = boardinfo and boardinfo.release and boardinfo.release.description and (boardinfo.release.description):match("Morse%-(%S+)")
 	local morse_version = desc and "Version "..desc or null
-	local morse_mode_short_display = _("Unknown")
+	local morse_mode_short_display = _("Custom")
 	local modeinfo = util.ubus("morse-mode", "query")
 	if modeinfo and SHORT_MODE_NAMES[modeinfo.morse_mode] then
 		morse_mode_short_display = SHORT_MODE_NAMES[modeinfo.morse_mode]

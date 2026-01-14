@@ -36,6 +36,10 @@ msgstr ""
 msgid "Country not set!"
 msgstr ""
 
+#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:37
+msgid "Custom"
+msgstr ""
+
 #: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:20
 msgid "Extender"
 msgstr ""
@@ -122,10 +126,6 @@ msgstr ""
 msgid ""
 "This device is a virtual wire kit. Saving any configuration will disable "
 "virtual wire mode. A factory reset will restore virtual wire mode."
-msgstr ""
-
-#: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:37
-msgid "Unknown"
 msgstr ""
 
 #: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:287

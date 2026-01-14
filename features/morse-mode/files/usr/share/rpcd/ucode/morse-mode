@@ -148,15 +148,39 @@ function get_morse_device() {
 	return filter(values(uci.get_all('wireless')),
 		s => s['.type'] === 'wifi-device' && s.type === 'morse' && s.disabled !== '1')[0];
 }
-     
 
 function get_ifaces(device_name) {
 	return filter(values(uci.get_all('wireless')),
 		s => s['.type'] === 'wifi-iface' && s.device === device_name && s.disabled !== '1' && s.mode !== 'none');
 }
 
+function get_iface_by_name(device_name, ifname) {
+	return filter(get_ifaces(device_name),
+		s => s.ifname === ifname
+	);
+}
+
+function get_best_em_halow_iface(device) {
+
+	const is_controller =
+		uci.get('prplmesh', 'config', 'management_mode') === 'Multi-AP-Controller-and-Agent';
+
+	const best_iface_opt = is_controller ? 'hostap_iface' : 'sta_iface';
+	const ifname = uci.get('prplmesh', device['.name'], best_iface_opt);
+
+	if (!ifname)
+		return null;
+
+	const best_emifaces = get_iface_by_name(device['.name'], ifname);
+	return (best_emifaces && length(best_emifaces)) ? best_emifaces[0] : null;
+}
 
 function get_best_halow_iface(device) {
+	// Prplmesh enabled special case
+	if (uci.get('prplmesh', 'config', 'enable') === '1') {
+		return get_best_em_halow_iface(device);
+	}
+
 	const ifaces = get_ifaces(device['.name']);
 	if (length(ifaces) === 0) {
 		return null;
