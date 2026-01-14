@@ -94,7 +94,7 @@ get_vfem_4v3_bcf() {
 
 	boost_bcf="${bcf/.bin/_4v3.bin}"
 
-	if ! gpiofind MM_BOOST > /dev/null; then
+	if ! gpioinfo -s --by-name MM_BOOST > /dev/null 2>&1; then
 		echo "WARNING: Unable to set 4.3v vfem as no MM_BOOST gpio configured" >&2
 	elif [ -z "$bcf" ]; then
 		echo "WARNING: Unable to set 4.3v vfem if no explicit BCF" >&2

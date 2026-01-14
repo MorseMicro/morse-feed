@@ -12,21 +12,23 @@ remove_driver() {
 }
 
 reset_chip() {
-    # Timing is from reset.c in morse-ctrl
-    gpioset -m time -u 50000 $1=0
+    line_name="$1"
+    # Note:
+    # GPIO line names are not guaranteed to be unique across all gpiochips.
+    # The '-s' option ensures uniqueness by scanning all chips and aborts if duplicates are found.
+    # The '--by-name' option treats the input as a line name, even if it looks like a numeric offset.
+    if ! gpioinfo -s --by-name "$line_name" > /dev/null 2>&1; then
+         2>&1 echo "morsechipreset: unable to reset as $line_name is not in gpio-line-names or is duplicated in device tree"
+        exit 1
+    fi
+
+    #Timing is from reset.c in morse-ctrl
+    gpioset -s -p 50000us -t0 --by-name $line_name=0
     # Force pin back to in.
-    gpioget $1 > /dev/null
+    gpioget -s --by-name $line_name > /dev/null
     ucode -e 'sleep(50)'
 }
 
-# Find first MM_RESET pin
-# (gpio-line-names are not guaranteed unique, but chances of more than one are low...)
-reset_gpio="$(gpiofind MM_RESET | head -1)"
-
-if [ -z "$reset_gpio" ]; then
-    2>&1 echo 'morsechipreset: unable to reset as MM_RESET not in gpio-line-names in device tree'
-    exit 1
-fi
 
 # This finds something like:
 #    /sys/devices/platform/10130000.mmc/mmc_host
@@ -55,7 +57,7 @@ if [ -n "$sdio_device_path" ]; then
     echo -n "$sdio_device" > "$sdio_driver_path/unbind"
 fi
 
-reset_chip "$reset_gpio"
+reset_chip "MM_RESET"
 
 if [ -n "$sdio_device_path" ]; then
     echo -n "$sdio_device" > "$sdio_driver_path/bind"
