@@ -18,7 +18,8 @@ define Package/morse-bundle
   CATEGORY:=Morse Micro
   SUBMENU:=Hardware
   TITLE:=Morse Micro HaLow Bundle
-  DEPENDS:= +morse-boot-prints \
+  DEPENDS:= +PACKAGE_kmod-morse:morse-boot-prints \
+			+PACKAGE_kmod-morse-test-driver:morse-boot-prints \
             +gpiod-tools \
             +@BUSYBOX_CONFIG_PATCH \
             +ucode
