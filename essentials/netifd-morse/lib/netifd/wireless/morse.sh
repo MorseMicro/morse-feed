@@ -482,7 +482,7 @@ drv_morse_setup() {
 		# it may try to bring up the wifi iface again.
 		# This also gives enough time for the phy to appear
 		# (see find_phy below).
-		sleep 1
+		sleep 5
 		inserted_module=1
 	fi
 	# don't do iw reg set as in mac80211; set via modparam
