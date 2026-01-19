@@ -13,6 +13,15 @@ function getBandName(band) {
 	return bandNames[band] || 'Unknown Band';
 }
 
+function isMac80211HaLowDevice(device) {
+	return device?.type === 'mac80211' && device?.band === 's1g';
+}
+
+function findHaLowDevice(config) {
+	const devices = config.sections('wireless', 'wifi-device');
+	return devices.find(s => s.type === 'morse') || devices.find(isMac80211HaLowDevice);
+}
+
 const DEVICE = {
 	STA: Symbol('STA'),
 	AP: Symbol('AP'),
@@ -341,11 +350,11 @@ class MorseConfigDiagram extends HTMLElement {
 		// The slots are all the text boxes that can be filled.
 		let groups, slots;
 
-		const morseDevice = config.sections('wireless', 'wifi-device').find(s => s.type === 'morse');
-		const morseInterfaces = config.sections('wireless', 'wifi-iface').filter(s => s.device && s.device === morseDevice?.['.name']);
+		const halowDevice = findHaLowDevice(config);
+		const halowInterfaces = config.sections('wireless', 'wifi-iface').filter(s => s.device && s.device === halowDevice?.['.name']);
 		const isMatterDevice = config.sections('matter').find(s => s.enable === '1');
 
-		if (morseInterfaces.find(s => s.mode == 'mesh' && s.disabled !== '1')) {
+		if (halowInterfaces.find(s => s.mode == 'mesh' && s.disabled !== '1')) {
 			this.setCurrentTemplate(TEMPLATE_MESH11S);
 			[groups, slots] = this.getMesh11sData(config, ethernetPorts);
 		} else if (isMatterDevice) {
@@ -386,25 +395,26 @@ class MorseConfigDiagram extends HTMLElement {
 		const groups = new Set();
 		const slots = defaultObject();
 
-		const morseDevice = config.sections('wireless', 'wifi-device').find(s => s.type === 'morse');
-		const wifiDevices = config.sections('wireless', 'wifi-device').filter(s => s.type === 'mac80211');
-		const morseDeviceName = morseDevice?.['.name'];
-		const wifiDeviceNames = wifiDevices.map(s => s['.name']);
+		const halowDevice = findHaLowDevice(config);
+		const nonHaLowMac80211Devices = config.sections('wireless', 'wifi-device')
+			.filter(s => (s.type === 'mac80211' && s.band !== 's1g'));
+		const halowDeviceName = halowDevice?.['.name'];
+		const wifiDeviceNames = nonHaLowMac80211Devices.map(s => s['.name']);
 
 		const wifiApInterfaces = config.sections('wireless', 'wifi-iface').filter(s => s.device && wifiDeviceNames.includes(s.device) && s.mode === 'ap');
 		const enabledApWifiDeviceNames = wifiApInterfaces.filter(s => s.disabled !== '1').map(s => s.device);
-		const enabledApWifiBands = [...new Set(wifiDevices.filter(s => enabledApWifiDeviceNames.includes(s['.name'])).map(s => getBandName(s.band)))];
+		const enabledApWifiBands = [...new Set(nonHaLowMac80211Devices.filter(s => enabledApWifiDeviceNames.includes(s['.name'])).map(s => getBandName(s.band)))];
 		const uniqueApWifiSSIDs = [...new Set(wifiApInterfaces.filter(s => s.disabled !== '1').map(s => s.ssid))];
 		const wifiStaInterfaces = config.sections('wireless', 'wifi-iface').filter(s => s.device && wifiDeviceNames.includes(s.device) && s.mode === 'sta');
 		const enabledStaWifiInterface = wifiStaInterfaces.find(s => s.disabled !== '1');
-		const morseInterfaces = config.sections('wireless', 'wifi-iface').filter(s => s.device && s.device === morseDeviceName);
+		const halowInterfaces = config.sections('wireless', 'wifi-iface').filter(s => s.device && s.device === halowDeviceName);
 
 		// Find 'best' interfaces - one that exists, and ideally is enabled...
 		const wifiApInfo = this.getWifiInterfaceInfo(config, wifiApInterfaces);
 		const wifiStaInfo = this.getWifiInterfaceInfo(config, wifiStaInterfaces);
-		const morseInfo = this.getWifiInterfaceInfo(config, morseInterfaces);
-		const morseApInfo = this.getWifiInterfaceInfo(config, morseInterfaces.filter(s => s.mode == 'ap'));
-		const morseStaInfo = this.getWifiInterfaceInfo(config, morseInterfaces.filter(s => s.mode == 'sta'));
+		const halowInfo = this.getWifiInterfaceInfo(config, halowInterfaces);
+		const halowApInfo = this.getWifiInterfaceInfo(config, halowInterfaces.filter(s => s.mode == 'ap'));
+		const halowStaInfo = this.getWifiInterfaceInfo(config, halowInterfaces.filter(s => s.mode == 'sta'));
 
 		let ethLanInfo = this.getEthernetInterfaceInfo(config, ethernetPorts.filter(p => p.role === 'lan'));
 		let ethWanInfo = this.getEthernetInterfaceInfo(config, ethernetPorts.filter(p => p.role === 'wan'));
@@ -417,7 +427,7 @@ class MorseConfigDiagram extends HTMLElement {
 			slots['STA_WIFI_LINK'] = apWifiSlot;
 		}
 		if (enabledStaWifiInterface) {
-			const enabledStaWifiDevice = wifiDevices.find(s => s['.name'] === enabledStaWifiInterface.device);
+			const enabledStaWifiDevice = nonHaLowMac80211Devices.find(s => s['.name'] === enabledStaWifiInterface.device);
 			slots['AP_UPLINK_WIFI_LINK'] = `${getBandName(enabledStaWifiDevice.band)} Wi-Fi`;
 		}
 
@@ -480,16 +490,16 @@ class MorseConfigDiagram extends HTMLElement {
 			slots['STA_WIFI_LINK'] = apWifiSlot;
 		}
 		if (enabledStaWifiInterface) {
-			const enabledStaWifiDevice = wifiDevices.find(s => s['.name'] === enabledStaWifiInterface.device);
+			const enabledStaWifiDevice = nonHaLowMac80211Devices.find(s => s['.name'] === enabledStaWifiInterface.device);
 			slots['AP_UPLINK_WIFI_LINK'] = `${getBandName(enabledStaWifiDevice.band)} Wi-Fi`;
 		}
 
 		// Determine which side of the diagram we're using and how to name them.
 		// DEVICE.AP is the default (LHS).
 		let selectedDevice = DEVICE.AP; // This is the diagram selected device.
-		if (!morseInfo.wifi) {
+		if (!halowInfo.wifi) {
 			slots['AP_DESC'] = _('Device');
-		} else if (morseInfo.wifi.disabled === '1') {
+		} else if (halowInfo.wifi.disabled === '1') {
 			slots['AP_DESC'] = _('HaLow <br>Device');
 		} else if (config.get('prplmesh', 'config', 'enable') === '1') { // Handle all prplmesh cases here
 			groups.add('MESH_HALOW');
@@ -501,14 +511,14 @@ class MorseConfigDiagram extends HTMLElement {
 			if (config.get('prplmesh', 'config', 'management_mode') === 'Multi-AP-Agent') {
 				selectedDevice = DEVICE.STA;
 
-				setDiagramInterfaceText('STA_HALOW_INT', morseStaInfo, ['STA', 'STA_HALOW', 'AP_HALOW'], 'AP_HALOW_INT');
-				setDiagramInterfaceText('MESH_HALOW_INT', morseApInfo, ['MESH_HALOW']);
+				setDiagramInterfaceText('STA_HALOW_INT', halowStaInfo, ['STA', 'STA_HALOW', 'AP_HALOW'], 'AP_HALOW_INT');
+				setDiagramInterfaceText('MESH_HALOW_INT', halowApInfo, ['MESH_HALOW']);
 				slots['MESH_HALOW_CL1'] = _('HaLow Client');
 				slots['MESH_HALOW_CL2'] = _('HaLow Client');
 
-				if (morseStaInfo.wifi && morseApInfo.wifi
-					&& morseStaInfo.network && morseApInfo.network
-					&& morseStaInfo.network.proto === 'dhcp' && morseStaInfo.network['.name'] === morseApInfo.network['.name']) {
+				if (halowStaInfo.wifi && halowApInfo.wifi
+					&& halowStaInfo.network && halowApInfo.network
+					&& halowStaInfo.network.proto === 'dhcp' && halowStaInfo.network['.name'] === halowApInfo.network['.name']) {
 					slots['MESH_HALOW_INT']['IPMethod'] = _('Bridged');
 					/* The SSID is going to come from the prplmesh agent, and if we report it here it may be the old SSID
 					* from a previous configuration (confusing for user if they're on the config page).
@@ -522,15 +532,15 @@ class MorseConfigDiagram extends HTMLElement {
 				slots['MESH_HALOW_CL1'] = _('HaLow Client');
 				slots['MESH_HALOW_CL2'] = _('HaLow Client');
 			}
-		} else if (morseInfo.wifi.mode === 'ap') {
+		} else if (halowInfo.wifi.mode === 'ap') {
 			slots['AP_DESC'] = _('HaLow <br>Access <br>Point');
 			slots['STA_DESC'] = _('HaLow Client');
-		} else if (morseInfo.wifi.mode === 'adhoc') {
+		} else if (halowInfo.wifi.mode === 'adhoc') {
 			slots['AP_DESC'] = _('Ad-Hoc <br>HaLow <br>Device');
 			slots['STA_DESC'] = _('Ad-Hoc HaLow Device');
 			slots['AP_HALOW_CL1'] = _('Ad-Hoc Device');
 			slots['AP_HALOW_CL2'] = _('Ad-Hoc Device');
-		} else if (morseInfo.wifi.mode === 'sta') {
+		} else if (halowInfo.wifi.mode === 'sta') {
 			slots['AP_DESC'] = _('HaLow <br>Access <br>Point');
 			slots['STA_DESC'] = _('HaLow Client');
 			selectedDevice = DEVICE.STA;
@@ -545,7 +555,7 @@ class MorseConfigDiagram extends HTMLElement {
 				groups.add('AP_SELECT');
 				slots['DEVICE_AP'] = hostname;
 
-				setDiagramInterfaceText('AP_HALOW_INT', morseInfo, ['AP_HALOW', 'STA', 'STA_HALOW'], 'STA_HALOW_INT');
+				setDiagramInterfaceText('AP_HALOW_INT', halowInfo, ['AP_HALOW', 'STA', 'STA_HALOW'], 'STA_HALOW_INT');
 				setDiagramInterfaceText('AP_UPLINK_WIFI_INT', wifiStaInfo, ['AP_UPLINK', 'AP_UPLINK_WIFI'], 'AP_UPLINK_XIP');
 
 				if (ethWanInfo.network && !(wifiStaInfo.wifi && wifiStaInfo.wifi.disabled !== '1')) {
@@ -557,7 +567,7 @@ class MorseConfigDiagram extends HTMLElement {
 					}
 					setDiagramInterfaceText('AP_UPLINK_ETH_INT', ethWanInfo, ['AP_UPLINK', 'AP_UPLINK_ETH'], 'AP_UPLINK_XIP');
 					// We try to put the DHCP client info on the more likely interface if eth/halow are bridged.
-					if (morseInfo.network && morseInfo.wifi && ethWanInfo.network['.name'] === morseInfo.network['.name'] && morseInfo.wifi.disabled !== '1') {
+					if (halowInfo.network && halowInfo.wifi && ethWanInfo.network['.name'] === halowInfo.network['.name'] && halowInfo.wifi.disabled !== '1') {
 						slots['AP_HALOW_INT']['IPMethod'] = _('Bridged');
 					}
 				}
@@ -590,19 +600,19 @@ class MorseConfigDiagram extends HTMLElement {
 				// We only have space for one ethernet thing here. Prefer LAN (it's a STA!) unless
 				// LAN doesn't exist.
 				var ethInfo = ethLanInfo.network ? ethLanInfo : ethWanInfo;
-				setDiagramInterfaceText('STA_HALOW_INT', morseInfo, ['STA', 'STA_HALOW', 'AP_HALOW'], 'AP_HALOW_INT');
+				setDiagramInterfaceText('STA_HALOW_INT', halowInfo, ['STA', 'STA_HALOW', 'AP_HALOW'], 'AP_HALOW_INT');
 				setDiagramInterfaceText('STA_MGMT_ETH_INT', ethInfo, ['STA_MGMT_ETH'], 'STA_MGMT_ETH_XIP');
 				setDiagramInterfaceText('STA_WIFI_INT', wifiApInfo, ['STA_WIFI'], 'STA_WIFI_XIP');
 				// As above, we try to put the DHCP client info on the more likely interface if eth/halow are bridged
 				// (whereas if we have a static IP, we just put that IP on both interfaces).
 				if (ethInfo.network?.proto === 'dhcp') {
-					if (morseInfo && ethInfo.network['.name'] === morseInfo.network['.name'] && morseInfo.wifi.disabled !== '1') {
+					if (halowInfo && ethInfo.network['.name'] === halowInfo.network['.name'] && halowInfo.wifi.disabled !== '1') {
 						slots['STA_MGMT_ETH_INT']['IPMethod'] = _('Bridged');
 					}
 					if (wifiApInfo.wifi && wifiApInfo.wifi.disabled !== '1') {
 						if (ethInfo.network['.name'] === wifiApInfo.network['.name'] && wifiApInfo.wifi.disabled !== '1') {
 							slots['STA_WIFI_INT']['IPMethod'] = _('Bridged');
-						} else if (morseInfo.wifi && morseInfo.network['.name'] === wifiApInfo.network['.name'] && morseInfo.wifi.disabled !== '1') {
+						} else if (halowInfo.wifi && halowInfo.network['.name'] === wifiApInfo.network['.name'] && halowInfo.wifi.disabled !== '1') {
 							slots['STA_MGMT_ETH_INT']['IPMethod'] = _('Bridged');
 						}
 					}
@@ -622,24 +632,25 @@ class MorseConfigDiagram extends HTMLElement {
 		const groups = new Set();
 		const slots = defaultObject();
 
-		const morseDevice = config.sections('wireless', 'wifi-device').find(s => s.type === 'morse');
-		const wifiDevices = config.sections('wireless', 'wifi-device').filter(s => s.type === 'mac80211');
-		const morseDeviceName = morseDevice?.['.name'];
-		const wifiDeviceNames = wifiDevices.map(s => s['.name']);
+		const halowDevice = findHaLowDevice(config);
+		const nonHaLowMac80211Devices = config.sections('wireless', 'wifi-device')
+			.filter(s => (s.type === 'mac80211' && s.band !== 's1g'));
+		const halowDeviceName = halowDevice?.['.name'];
+		const wifiDeviceNames = nonHaLowMac80211Devices.map(s => s['.name']);
 
 		const wifiApInterfaces = config.sections('wireless', 'wifi-iface').filter(s => s.device && wifiDeviceNames.includes(s.device) && s.mode === 'ap');
 		const enabledApWifiDeviceNames = wifiApInterfaces.filter(s => s.disabled !== '1').map(s => s.device);
-		const enabledApWifiBands = [...new Set(wifiDevices.filter(s => enabledApWifiDeviceNames.includes(s['.name'])).map(s => getBandName(s.band)))];
+		const enabledApWifiBands = [...new Set(nonHaLowMac80211Devices.filter(s => enabledApWifiDeviceNames.includes(s['.name'])).map(s => getBandName(s.band)))];
 		const uniqueApWifiSSIDs = [...new Set(wifiApInterfaces.filter(s => s.disabled !== '1').map(s => s.ssid))];
 		const wifiStaInterfaces = config.sections('wireless', 'wifi-iface').filter(s => s.device && wifiDeviceNames.includes(s.device) && s.mode === 'sta');
 		const enabledStaWifiInterface = wifiStaInterfaces.find(s => s.disabled !== '1');
-		const morseInterfaces = config.sections('wireless', 'wifi-iface').filter(s => s.device && s.device === morseDeviceName);
+		const halowInterfaces = config.sections('wireless', 'wifi-iface').filter(s => s.device && s.device === halowDeviceName);
 
 		// Find 'best' interfaces - one that exists, and ideally is enabled...
 		const wifiApInfo = this.getWifiInterfaceInfo(config, wifiApInterfaces);
 		const wifiStaInfo = this.getWifiInterfaceInfo(config, wifiStaInterfaces);
-		const morseApInfo = this.getWifiInterfaceInfo(config, morseInterfaces.filter(s => s.mode == 'ap'));
-		const morseMeshInfo = this.getWifiInterfaceInfo(config, morseInterfaces.filter(s => s.mode == 'mesh'));
+		const halowApInfo = this.getWifiInterfaceInfo(config, halowInterfaces.filter(s => s.mode == 'ap'));
+		const halowMeshInfo = this.getWifiInterfaceInfo(config, halowInterfaces.filter(s => s.mode == 'mesh'));
 
 		let ethLanInfo = this.getEthernetInterfaceInfo(config, ethernetPorts.filter(p => p.role === 'lan'));
 		let ethWanInfo = this.getEthernetInterfaceInfo(config, ethernetPorts.filter(p => p.role === 'wan'));
@@ -700,7 +711,7 @@ class MorseConfigDiagram extends HTMLElement {
 			slots['GATE_WIFI_LINK'] = apWifiSlot;
 		}
 		if (enabledStaWifiInterface) {
-			const enabledStaWifiDevice = wifiDevices.find(s => s['.name'] === enabledStaWifiInterface.device);
+			const enabledStaWifiDevice = nonHaLowMac80211Devices.find(s => s['.name'] === enabledStaWifiInterface.device);
 			slots['GATE_UPLINK_WIFI_LINK'] = `${getBandName(enabledStaWifiDevice.band)} Wi-Fi`;
 		}
 
@@ -709,18 +720,18 @@ class MorseConfigDiagram extends HTMLElement {
 			slots['GATE_DESC'] = _('Mesh Gate');
 			slots['DEVICE_GATE'] = hostname;
 
-			setDiagramInterfaceText('GATE_HALOW_MESH_INT', morseMeshInfo, ['GATE_HALOW_MESH', 'OTHER_POINT', 'POINT', 'POINT_HALOW'], 'POINT_HALOW_INT');
+			setDiagramInterfaceText('GATE_HALOW_MESH_INT', halowMeshInfo, ['GATE_HALOW_MESH', 'OTHER_POINT', 'POINT', 'POINT_HALOW'], 'POINT_HALOW_INT');
 			setDiagramInterfaceText('GATE_UPLINK_WIFI_INT', wifiStaInfo, ['GATE_UPLINK', 'GATE_UPLINK_WIFI'], 'GATE_UPLINK_XIP');
 			setDiagramInterfaceText('GATE_WIFI_INT', wifiApInfo, ['GATE_WIFI'], 'GATE_WIFI_XIP');
-			setDiagramInterfaceText('GATE_HALOW_AP_INT', morseApInfo, ['GATE_HALOW_AP']);
+			setDiagramInterfaceText('GATE_HALOW_AP_INT', halowApInfo, ['GATE_HALOW_AP']);
 
 			// We try to put the DHCP client info on the more likely interface if eth/halow are bridged.
-			if (morseMeshInfo.network && morseMeshInfo.network.proto === 'dhcp') {
-				if (morseApInfo.network && morseMeshInfo.network['.name'] === morseApInfo.network['.name']) {
+			if (halowMeshInfo.network && halowMeshInfo.network.proto === 'dhcp') {
+				if (halowApInfo.network && halowMeshInfo.network['.name'] === halowApInfo.network['.name']) {
 					slots['GATE_HALOW_AP_INT']['IPMethod'] = _('Bridged');
 				}
 
-				if (wifiApInfo.network && morseMeshInfo.network['.name'] === wifiApInfo.network['.name']) {
+				if (wifiApInfo.network && halowMeshInfo.network['.name'] === wifiApInfo.network['.name']) {
 					slots['GATE_WIFI_INT']['IPMethod'] = _('Bridged');
 				}
 			}
@@ -734,7 +745,7 @@ class MorseConfigDiagram extends HTMLElement {
 					slots['GATE_UPLINK_ETH_LINK'] += ` (${lanEthernetDevices.join('/')})`;
 				}
 				setDiagramInterfaceText('GATE_UPLINK_ETH_INT', ethWanInfo, ['GATE_UPLINK', 'GATE_UPLINK_ETH'], 'GATE_UPLINK_XIP');
-				if (morseMeshInfo.network && morseMeshInfo.wifi && ethWanInfo.network['.name'] === morseMeshInfo.network['.name'] && morseMeshInfo.wifi.disabled !== '1') {
+				if (halowMeshInfo.network && halowMeshInfo.wifi && ethWanInfo.network['.name'] === halowMeshInfo.network['.name'] && halowMeshInfo.wifi.disabled !== '1') {
 					slots['GATE_HALOW_MESH_INT']['IPMethod'] = _('Bridged');
 				}
 			}
@@ -767,21 +778,21 @@ class MorseConfigDiagram extends HTMLElement {
 			// We only have space for one ethernet thing here. Prefer LAN (it's a STA!) unless
 			// LAN doesn't exist.
 			var ethInfo = ethLanInfo.network ? ethLanInfo : ethWanInfo;
-			setDiagramInterfaceText('POINT_HALOW_INT', morseMeshInfo, ['POINT_HALOW', 'OTHER_POINT', 'GATE_HALOW_MESH'], 'GATE_HALOW_MESH_INT');
+			setDiagramInterfaceText('POINT_HALOW_INT', halowMeshInfo, ['POINT_HALOW', 'OTHER_POINT', 'GATE_HALOW_MESH'], 'GATE_HALOW_MESH_INT');
 			setDiagramInterfaceText('POINT_MGMT_ETH_INT', ethInfo, ['POINT_MGMT_ETH'], 'POINT_MGMT_ETH_XIP');
 			setDiagramInterfaceText('POINT_WIFI_INT', wifiApInfo, ['POINT_WIFI'], 'POINT_WIFI_XIP');
-			setDiagramInterfaceText('POINT_HALOW_AP_INT', morseApInfo, ['POINT_HALOW_AP']);
+			setDiagramInterfaceText('POINT_HALOW_AP_INT', halowApInfo, ['POINT_HALOW_AP']);
 
-			if (morseMeshInfo.network && morseMeshInfo.network.proto === 'dhcp') {
-				if (ethInfo.network && morseMeshInfo.network['.name'] === ethInfo.network['.name']) {
+			if (halowMeshInfo.network && halowMeshInfo.network.proto === 'dhcp') {
+				if (ethInfo.network && halowMeshInfo.network['.name'] === ethInfo.network['.name']) {
 					slots['POINT_MGMT_ETH_INT']['IPMethod'] = _('Bridged');
 				}
 
-				if (wifiApInfo.network && morseMeshInfo.network['.name'] === wifiApInfo.network['.name']) {
+				if (wifiApInfo.network && halowMeshInfo.network['.name'] === wifiApInfo.network['.name']) {
 					slots['POINT_WIFI_INT']['IPMethod'] = _('Bridged');
 				}
 
-				if (morseApInfo.network && morseMeshInfo.network['.name'] === morseApInfo.network['.name']) {
+				if (halowApInfo.network && halowMeshInfo.network['.name'] === halowApInfo.network['.name']) {
 					slots['POINT_HALOW_AP_INT']['IPMethod'] = _('Bridged');
 				}
 			}
