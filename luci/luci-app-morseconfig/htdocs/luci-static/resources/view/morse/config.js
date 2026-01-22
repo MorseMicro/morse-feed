@@ -24,12 +24,13 @@
  *  - the automatic creation of bridges if necessary (and no _removal_ of bridges)
  */
 'use strict';
-/* globals configDiagram dom firewall form halow morseuci morseui network rpc uci ui view widgets */
+/* globals configDiagram dom firewall form halow morseuci morseui network rpc uci ui poll view widgets */
 'require dom';
 'require view';
 'require rpc';
 'require uci';
 'require ui';
+'require poll';
 'require form';
 'require network';
 'require firewall';
@@ -52,6 +53,19 @@ const callGetBuiltinEthernetPorts = rpc.declare({
 	method: 'getBuiltinEthernetPorts',
 	expect: { result: [] },
 });
+
+const callSwitchWifiDriverSwitch = rpc.declare({
+	object: 'switch_wifi_driver',
+	method: 'switch',
+	params: ['driver'],
+});
+
+const callSwitchWifiDriverStatus = rpc.declare({
+	object: 'switch_wifi_driver',
+	method: 'status',
+});
+
+const SUPPORTED_MAC80211_HALOW_COUNTRIES = ['AU', 'CA', 'US'];
 
 // These are from LuCI's resources/network.js, but unfortunately they're buried
 // in a switch statement there.
@@ -137,6 +151,23 @@ const GATEWAY_DESCRIPTION = `
 ${_('Traffic will be forwarded to the gateway when there is no available route.')}<br>
 ${_('When configured as a DHCP Server, the address is sent to DHCP clients.')}<br>
 ${_('If this interface is not the connection to external subnets, you don\'t need to set a gateway. Leave it blank.')}<br>
+`;
+
+const MAC80211_HALOW_DEVICE_TYPE_DESCRIPTION = `
+	<strong>mac80211 (${_('beta')})</strong>
+	${_('uses the standard Linux kernel MM8108 Wi-Fi HaLow support with limited features.')}
+	${_('Best for native Linux support evaluation.')}
+`;
+
+const MORSE_HALOW_DEVICE_TYPE_DESCRIPTION = `
+	<strong>morse (${_('default')})</strong>
+	${_('uses the Morse Micro driver package with advanced features and controls.')}
+	${_('Best for feature evaluation.')}
+`;
+
+const HALOW_DEVICE_TYPE_SWITCH_WARNING = `
+	${_('Changing the HaLow device type will reset all HaLow wireless configurations to defaults.')}
+	${_('You may temporarily lose connectivity during this process.')}
 `;
 
 const NETWORK_WITHOUT_DEVICES_INFO = _('This network interface is unused because it has no Wireless interfaces or Ethernet ports. You can add Ethernet ports using the Ethernet column, or add Wireless interfaces by configuring them in the section below.');
@@ -493,6 +524,7 @@ return view.extend({
 		return Promise.all([
 			fetch(DPP_QRCODE_PATH, { method: 'HEAD' }).then(r => r.ok).catch(_e => false),
 			callGetBuiltinEthernetPorts(),
+			callSwitchWifiDriverStatus().catch(() => null),
 			configDiagram.loadTemplate(),
 			uci.load(['network', 'firewall', 'dhcp', 'system']),
 			uci.load('prplmesh').catch(() => null),
@@ -503,8 +535,13 @@ return view.extend({
 		]);
 	},
 
-	async render([hasQRCode, builtinEthernetPorts]) {
+	async render([hasQRCode, builtinEthernetPorts, switchWifiDriverStatus]) {
 		this.hasQRCode = hasQRCode;
+		this.switchWifiDriverStatus = switchWifiDriverStatus || {};
+		if (this.switchWifiDriverStatus.can_switch === false) {
+			console.warn('switch_wifi_driver status: can_switch=false', this.switchWifiDriverStatus.reason);
+		}
+
 		// The actual load is performed by 'flushCache' above; these don't cause network requests.
 		// Note that if we did them in parallel, we would duplicate requests (due to what IMO
 		// is a bug in the initNetworkState caching layer).
@@ -546,10 +583,17 @@ return view.extend({
 			const uciWifiDevices = uci.sections('wireless', 'wifi-device').filter(s => s.band === 's1g');
 			uciWifiDevices.push(...uci.sections('wireless', 'wifi-device').filter(s => s.band !== 's1g'));
 			for (const device of uciWifiDevices) {
-				this.renderWifiDevice(wirelessMap, device);
 				if (device.disabled === '1') {
+					// APP-6166 hack: we want our one (assumption) s1g device to show after the driver
+					// has switched even though it is disabled so we can hint at how to configure it.
+					// Since switchWifiDriverStatus fails if the PHY is not present checking it here
+					// will stop us from showing USB devices which aren't plugged in.
+					if (device.band === 's1g' && this.switchWifiDriverStatus?.can_switch === true) {
+						this.renderWifiDevice(wirelessMap, device);
+					}
 					continue;
 				}
+				this.renderWifiDevice(wirelessMap, device);
 
 				const ifaceOptions = {};
 				if (device.type === 'morse' && !device.country) {
@@ -655,14 +699,61 @@ return view.extend({
 		}
 
 		const section = map.section(form.NamedSection, device['.name'], 'wifi-device', displayName);
+		const isHaLow = device.band === 's1g';
+		const canSwitchWifiDriver = this.switchWifiDriverStatus?.can_switch !== false;
 		let option;
 
-		if (device.type === 'morse' && !device.country) {
+		if (isHaLow && !device.country) {
 			option = section.option(form.DummyValue, '_nocountry');
 			option.cfgvalue = () => E('div', {}, [_('Your Morse HaLow device requires a country. Please set your country on the '), E('a', { href: L.url('admin', 'network', 'wireless') }, _('Network -> Wireless page'))]);
-		} else {
-			section.option(widgets.WifiFrequencyValue, '_freq', _('Preferred frequency'));
+			return;
 		}
+
+		if (isHaLow && L.hasSystemFeature('native_s1g') && SUPPORTED_MAC80211_HALOW_COUNTRIES.includes(device.country) && canSwitchWifiDriver) {
+			const alternateType = device.type === 'morse' ? 'mac80211' : 'morse';
+
+			section.option(form.HiddenValue, 'type');
+			option = section.option(form.DummyValue, '_switch_driver', _('HaLow device type'));
+			option.cfgvalue = (_sectionId) => {
+				return E('div', [
+					E('span', { style: 'padding: 0.5rem;' }, device.type),
+					E('button', {
+						class: 'cbi-button cbi-button-primary',
+						click: () => ui.showModal(`${_('Switch device type to')} ${alternateType}?`, [
+							E('p', device.type === 'morse' ? MAC80211_HALOW_DEVICE_TYPE_DESCRIPTION : MORSE_HALOW_DEVICE_TYPE_DESCRIPTION),
+							E('p', HALOW_DEVICE_TYPE_SWITCH_WARNING),
+							E('div', { class: 'right' }, [
+								E('button', { class: 'btn cbi-button', click: ui.hideModal }, _('Dismiss')),
+								E('button', {
+									class: 'btn cbi-button cbi-button-apply',
+									click: ui.createHandlerFn(this, () => {
+										ui.hideModal();
+										const newDriver = alternateType === 'morse' ? 'morse' : 'mm81x';
+										ui.changes.displayStatus('notice spinning', E('p', _('Changing HaLow device type…')));
+										callSwitchWifiDriverSwitch(newDriver).catch(() => {});
+										window.setTimeout(() => {
+											poll.add(() => {
+												ui.pingDevice(window.location.protocol.replace(':', ''), window.location.host)
+													.then(() => {
+														poll.stop();
+														window.location = window.location.href.split('#')[0];
+													})
+													.catch(() => {});
+											}, 1.0);
+										}, 10000);
+									}),
+								}, _('Continue')),
+							]),
+						]),
+					}, `${_('switch to')} ${alternateType}`),
+				]);
+			};
+			option.description = device.type === 'morse' ? MORSE_HALOW_DEVICE_TYPE_DESCRIPTION : MAC80211_HALOW_DEVICE_TYPE_DESCRIPTION;
+			option.depends({ type: 'morse' });
+			option.depends({ type: 'mac80211' });
+		}
+
+		section.option(widgets.WifiFrequencyValue, '_freq', _('Preferred frequency'));
 	},
 
 	renderWifiInterfaces(map, deviceName, filterIface, title, options = {}) {

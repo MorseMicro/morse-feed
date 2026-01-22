@@ -33,7 +33,8 @@
 			},
 			"ubus": {
 				"file": [ "write", "exec" ],
-				"uci": [ "apply", "commit", "delete"]
+				"uci": [ "apply", "commit", "delete" ],
+				"switch_wifi_driver": [ "switch", "status" ]
 			},
 			"uci": [ "system", "luci", "firewall", "dhcp", "network", "wireless", "mesh11sd", "prplmesh", "matter", "smart_manager" ]
 		}
