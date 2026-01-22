@@ -546,10 +546,10 @@ return view.extend({
 			const uciWifiDevices = uci.sections('wireless', 'wifi-device').filter(s => s.band === 's1g');
 			uciWifiDevices.push(...uci.sections('wireless', 'wifi-device').filter(s => s.band !== 's1g'));
 			for (const device of uciWifiDevices) {
+				this.renderWifiDevice(wirelessMap, device);
 				if (device.disabled === '1') {
 					continue;
 				}
-				this.renderWifiDevice(wirelessMap, device);
 
 				const ifaceOptions = {};
 				if (device.type === 'morse' && !device.country) {
@@ -636,6 +636,24 @@ return view.extend({
 	renderWifiDevice(map, device) {
 		const deviceInfo = this.wifiDevices[device['.name']];
 		const displayName = deviceInfo.getI18n().replace(' Wireless Controller', '');
+
+		// APP-6166: Disabled HaLow devices should show a notice about enabling post driver switch
+		if (device.disabled === '1') {
+			if (device.band !== 's1g') return;
+
+			let disabledSection = map.section(form.NamedSection, device['.name'], 'wifi-device', displayName);
+			let disabledOption;
+
+			if (device.type === 'morse') {
+				disabledOption = disabledSection.option(form.DummyValue, '_disabled_notice_morse');
+				disabledOption.cfgvalue = () => E('div', {}, [_('This device has not been configured. To use HaLow Wi-Fi, configure it via the '), E('a', { href: L.url('admin', 'selectwizard') }, _('Wizard'))]);
+			} else {
+				disabledOption = disabledSection.option(form.DummyValue, '_disabled_notice_other');
+				disabledOption.cfgvalue = () => E('div', {}, [_('This device has not been configured. To use HaLow Wi-Fi, please enable it and set a country via the '), E('a', { href: L.url('admin', 'network', 'wireless') }, _('Network -> Wireless page'))]);
+			}
+			return;
+		}
+
 		const section = map.section(form.NamedSection, device['.name'], 'wifi-device', displayName);
 		let option;
 

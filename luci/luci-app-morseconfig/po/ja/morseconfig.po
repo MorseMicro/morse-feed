@@ -18,15 +18,15 @@ msgctxt "Percentage unit"
 msgid "%"
 msgstr "%"
 
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:1068
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:1121
 msgid "%s (%s) on %s"
 msgstr "%s上の%s（%s）"
 
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:1127
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:1180
 msgid "%s exists in networks %s and %s"
 msgstr "%sはネットワーク%sと%sに存在"
 
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:1070
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:1123
 msgid "%s on %s"
 msgstr "%s上の%s"
 
@@ -73,21 +73,21 @@ msgstr "アクション"
 msgid "Ad-Hoc"
 msgstr "アドホック"
 
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:529
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:539
 msgid "Ad-Hoc <br>HaLow <br>Device"
 msgstr "アドホック<br>HaLow<br>デバイス"
 
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:531
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:532
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:541
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:542
 msgid "Ad-Hoc Device"
 msgstr "アドホックデバイス"
 
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:530
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:540
 msgid "Ad-Hoc HaLow Device"
 msgstr "アドホックHaLowデバイス"
 
 #: luci/luci-app-morseconfig/htdocs/luci-static/resources/tools/morse/wizard.js:1179
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:413
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:422
 msgid "An error occurred while saving the form:"
 msgstr "次のフォームの保存中にエラーが発生しました:"
 
@@ -108,7 +108,7 @@ msgstr "適用"
 msgid "Applying configuration changes…"
 msgstr "設定の変更を適用しています…"
 
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:454
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:463
 msgid ""
 "Automatic channel selection (ACS) can only be used with a single interface "
 "with a Morse device."
@@ -116,7 +116,7 @@ msgstr ""
 "自動チャネル選択 (ACS) は、Morseデバイスで有効なインターフェースが一つの場合"
 "にのみ使用できます。"
 
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:456
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:465
 msgid ""
 "Automatic channel selection (ACS) does not support Mesh Point or Ad-Hoc "
 "interfaces."
@@ -134,19 +134,19 @@ msgctxt "Radio frequency bandwidth"
 msgid "Bandwidth"
 msgstr "帯域幅"
 
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:512
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:561
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:573
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:600
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:604
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:606
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:720
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:724
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:738
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:748
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:777
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:781
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:785
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:522
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:571
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:583
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:610
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:614
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:616
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:731
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:735
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:749
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:759
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:788
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:792
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:796
 msgid "Bridged"
 msgstr "ブリッジ済み"
 
@@ -154,7 +154,7 @@ msgstr "ブリッジ済み"
 msgid "Cancel"
 msgstr "キャンセル"
 
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:983
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:1036
 msgid "Cannot remove interface"
 msgstr "インターフェースを削除できません"
 
@@ -163,7 +163,7 @@ msgctxt "Wi-Fi radio frequency"
 msgid "Center Frequency"
 msgstr "中心周波数"
 
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:695
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:748
 msgid ""
 "Change the mode of your Wi-Fi interface. To enable HaLow Wi-Fi extenders, "
 "you should select WDS (Wireless Distribution System) modes for Access Points "
@@ -253,29 +253,33 @@ msgstr "国コード"
 msgid "Create Archive"
 msgstr "アーカイブを作成"
 
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:319
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:1202
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:328
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:1255
 msgid "DHCP Client"
 msgstr "DHCPクライアント"
 
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:311
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:1135
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:320
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:1188
 msgid "DHCP Server"
 msgstr "DHCPサーバー"
 
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:796
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:849
 msgid "DPP"
 msgstr "DPP"
 
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:491
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:687
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:501
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:740
 msgid "Device"
 msgstr "デバイス"
 
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:647
+msgid "Disabled"
+msgstr "無効化"
+
 #: luci/luci-app-morseconfig/htdocs/luci-static/resources/tools/morse/wizard.js:1142
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:416
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:954
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:985
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:425
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:1007
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:1038
 msgid "Dismiss"
 msgstr "閉じる"
 
@@ -287,15 +291,15 @@ msgstr "ゲートウェイを設定する必要がありますか?"
 msgid "Download"
 msgstr "ダウンロード"
 
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:556
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:565
 msgid "EasyMesh Alert Message"
 msgstr "EasyMesh警告メッセージ"
 
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:565
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:574
 msgid "EasyMesh Managed Interfaces"
 msgstr "EasyMesh管理インターフェース"
 
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:553
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:562
 msgid ""
 "EasyMesh Managed interfaces are read-only in agent mode. To make changes, "
 "use the HaLow Gateway GUI. The Extender's QR code for connecting to the Wi-"
@@ -305,11 +309,11 @@ msgstr ""
 "変更するにはHaLow GatewayGUIを使用してください。Wi-Fiネットワークに接続するた"
 "めのエクステンダーのQRコードは無効になりました。"
 
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:681
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:734
 msgid "Enabled"
 msgstr "有効化"
 
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:847
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:900
 msgid "Encryption"
 msgstr "暗号化"
 
@@ -317,18 +321,18 @@ msgstr "暗号化"
 msgid "Encryption \"%s\" requires a key"
 msgstr "暗号化方式「%s」にはキーが必要です"
 
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:462
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:464
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:466
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:679
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:682
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:688
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:1084
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:472
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:474
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:476
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:690
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:693
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:699
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:1137
 msgid "Ethernet"
 msgstr "イーサネット"
 
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:461
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:678
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:471
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:689
 msgid "Existing router"
 msgstr "既存ルーター"
 
@@ -340,13 +344,17 @@ msgstr "スナップショットをエクスポート"
 msgid "Failed to gather snapshot"
 msgstr "スナップショットの収集に失敗しました"
 
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:1027
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:1080
 msgid "Forward"
 msgstr "転送"
 
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:1300
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:1353
 msgid "Gateway"
 msgstr "ゲートウェイ"
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:644
+msgid "Generic mac80211 Wi-Fi HaLow Device"
+msgstr "汎用mac80211 Wi-Fi HaLowデバイス"
 
 #: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/support.js:20
 msgid "Getting snapshot..."
@@ -360,39 +368,39 @@ msgstr "グローバルオペレーティングクラス（802.11表E-4）"
 msgid "Grant access to Morse Single File configuration and supporting tools"
 msgstr "Morse Single Fileの設定とサポートツールへのアクセスを許可します"
 
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:526
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:534
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:536
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:544
 msgid "HaLow <br>Access <br>Point"
 msgstr "HaLow<br>アクセス<br>ポイント"
 
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:493
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:538
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:503
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:548
 msgid "HaLow <br>Device"
 msgstr "HaLow<br>デバイス"
 
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:496
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:506
 msgid "HaLow <br>Mesh <br>Controller"
 msgstr "HaLow<br>メッシュ<br>コントローラー"
 
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:456
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:457
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:506
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:507
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:522
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:523
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:527
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:535
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:675
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:676
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:677
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:466
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:467
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:516
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:517
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:532
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:533
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:537
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:545
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:686
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:687
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:688
 msgid "HaLow Client"
 msgstr "HaLowクライアント"
 
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:539
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:549
 msgid "HaLow Device"
 msgstr "HaLowデバイス"
 
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:497
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:507
 msgid "HaLow Mesh Agent"
 msgstr "HaLowメッシュエージェント"
 
@@ -400,7 +408,7 @@ msgstr "HaLowメッシュエージェント"
 msgid "Help"
 msgstr "ヘルプ"
 
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:1264
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:1317
 msgid "IPv4 address %s is in networks %s and %s"
 msgstr "IPv4アドレス%sはネットワーク%sと%sにあります"
 
@@ -420,23 +428,23 @@ msgstr ""
 "アクセスできなくなった場合は、リセット手順について<a target=\"_blank\" "
 "href=\"%s\">ユーザーガイド</a>を参照してください。"
 
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:460
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:680
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:470
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:691
 msgid "Internet"
 msgstr "インターネット"
 
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:895
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:948
 msgid "Key/Security"
 msgstr "キー/セキュリティ"
 
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:463
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:465
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:467
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:468
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:681
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:683
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:687
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:689
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:473
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:475
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:477
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:478
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:692
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:694
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:698
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:700
 msgid "Laptop/Device"
 msgstr "ノートパソコン/デバイス"
 
@@ -480,23 +488,23 @@ msgstr "MHz"
 msgid "Maximum transmit time"
 msgstr "最大送信時間"
 
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:709
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:720
 msgid "Mesh Gate"
 msgstr "メッシュゲート"
 
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:60
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:69
 msgid "Mesh ID"
 msgstr "メッシュID"
 
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:90
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:99
 msgid "Mesh Id: %s"
 msgstr "メッシュID: %s"
 
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:458
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:459
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:692
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:693
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:761
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:468
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:469
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:703
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:704
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:772
 #: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:61
 #: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:72
 msgid "Mesh Point"
@@ -507,7 +515,7 @@ msgstr "メッシュポイント"
 msgid "Missing critical configuration file"
 msgstr "重要な設定ファイルが欠落しています"
 
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:699
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:752
 msgid "Mode"
 msgstr "モード"
 
@@ -520,15 +528,19 @@ msgstr "モニター"
 msgid "Morse"
 msgstr "Morse"
 
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:641
+msgid "Morse Micro Wi-Fi HaLow Device"
+msgstr "Morse Micro Wi-Fi HaLowデバイス"
+
 #: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/morsestats.js:97
 msgid "Morse Statistics"
 msgstr "Morse統計"
 
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:462
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:471
 msgid "Morse devices can currently have at most two enabled interfaces."
 msgstr "現在、Morseデバイスで有効にできるインターフェースは最大2つです。"
 
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:466
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:475
 msgid ""
 "Morse devices with multiple interfaces can only support AP+AP, AP+Mesh or "
 "AP+Client."
@@ -536,35 +548,36 @@ msgstr ""
 "複数のインターフェースを持つMorseデバイスがサポートできる構成は、AP+AP、"
 "AP+Mesh、AP+Clientのみです。"
 
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:1010
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:1063
 msgid "Name"
 msgstr "名前"
 
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:1272
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:1325
 msgid "Netmask"
 msgstr "ネットマスク"
 
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:692
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:745
 msgid "Network"
 msgstr "ネットワーク"
 
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:614
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:657
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:667
 msgid "Network -> Wireless page"
 msgstr "「ネットワーク -> 無線」ページ"
 
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:934
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:987
 msgid "Network Interface"
 msgstr "ネットワークインターフェース"
 
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:508
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:517
 msgid "Network Interfaces"
 msgstr "ネットワークインターフェース"
 
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:952
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:1005
 msgid "Network with that name already exists"
 msgstr "その名前のネットワークは既に存在します"
 
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:1004
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:1057
 msgid "New network name to add"
 msgstr "追加する新しいネットワーク名"
 
@@ -577,32 +590,32 @@ msgstr "次へ"
 msgid "No HaLow radio found"
 msgstr "HaLow無線が見つかりません。"
 
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:580
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:589
 msgid "Non-EasyMesh Managed Interfaces"
 msgstr "非EasyMesh管理インターフェース"
 
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:469
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:470
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:471
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:684
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:686
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:690
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:479
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:480
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:481
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:695
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:697
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:701
 msgid "Non-HaLow Wi-Fi"
 msgstr "非HaLow Wi-Fi"
 
 #: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:75
 #: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:206
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:1085
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:1138
 msgid "None"
 msgstr "なし"
 
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:953
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:1006
 msgid ""
 "Not adding network since a network of that name exists. Choose another name."
 msgstr ""
 "同名のネットワークが存在するため追加しません。別の名前を選択してください。"
 
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:984
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:1037
 msgid ""
 "Not removing due to attached ethernet/wireless devices. Remove these before "
 "removing interface."
@@ -622,7 +635,7 @@ msgstr "送信後に一時停止"
 msgid "Pause length after transmit"
 msgstr "送信後の一時停止の長さ"
 
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:616
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:669
 msgid "Preferred frequency"
 msgstr "優先周波数"
 
@@ -630,7 +643,7 @@ msgstr "優先周波数"
 msgid "Proceed"
 msgstr "続行"
 
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:1201
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:1254
 msgid "Protocol"
 msgstr "プロトコル"
 
@@ -667,15 +680,15 @@ msgstr "リセット"
 msgid "S1G Operating Class (802.11 Table E-5)"
 msgstr "S1Gオペレーティングクラス（802.11 表E-5）"
 
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:56
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:65
 msgid "SSID"
 msgstr "SSID"
 
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:801
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:854
 msgid "SSID/Mesh ID"
 msgstr "SSID/メッシュID"
 
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:86
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:95
 msgid "SSID: %s"
 msgstr "SSID: %s"
 
@@ -684,7 +697,7 @@ msgid "STA Duty Cycle Per Hour"
 msgstr "1時間あたりのSTAデューティサイクル"
 
 #: luci/luci-app-morseconfig/htdocs/luci-static/resources/tools/morse/wizard.js:1178
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:412
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:421
 msgid "Save error"
 msgstr "保存エラー"
 
@@ -700,7 +713,7 @@ msgstr "スナップショットが正常に収集されました。"
 msgid "Snapshots"
 msgstr "スナップショット"
 
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:551
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:560
 msgid ""
 "Some options in the EasyMesh Managed interfaces are read-only to prevent "
 "misconfiguration. To make changes, please use the <a target='_blank' "
@@ -722,7 +735,7 @@ msgstr "WPSを開始"
 msgid "Start WPS (client)"
 msgstr "WPS（クライアント）を開始"
 
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:1203
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:1256
 msgid "Static IP"
 msgstr "静的IP"
 
@@ -781,10 +794,10 @@ msgstr ""
 msgid "The system is gathering required information."
 msgstr "システムは必要な情報を収集しています。"
 
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:472
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:473
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:685
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:691
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:482
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:483
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:696
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:702
 msgid "This Device"
 msgstr "このデバイス"
 
@@ -798,7 +811,22 @@ msgstr ""
 "由でこの管理インターフェースにアクセスするには、切断してから再接続し、新しい"
 "IPにアクセスする必要がある場合があります。"
 
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:795
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:654
+msgid ""
+"This device has not been configured. To use HaLow Wi-Fi, configure it via the"
+msgstr ""
+"このデバイスは設定されていません。HaLow Wi-Fiを使用するには、次のウィザードで"
+"設定してください:"
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:657
+msgid ""
+"This device has not been configured. To use HaLow Wi-Fi, please enable it "
+"and set a country via the"
+msgstr ""
+"このデバイスは設定されていません。HaLow Wi-Fiを使用するには、次のページで有効"
+"化し国を設定してください:"
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:848
 msgid ""
 "This enables DPP via QRCode for clients (access points automatically support "
 "DPP)."
@@ -854,7 +882,7 @@ msgstr "現在のWPSステータスを読み取ることができません。"
 msgid "Unknown"
 msgstr "不明"
 
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:596
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:615
 msgid ""
 "Use this page to quickly change individual settings. For major changes, we "
 "recommend using a Wizard (see menu)."
@@ -883,15 +911,19 @@ msgstr ""
 "DHCPサーバーとして設定されている場合、アドレスはDHCPクライアントに送信されま"
 "す。"
 
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:1057
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:1110
 msgid "Wireless"
 msgstr "無線"
+
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:654
+msgid "Wizard"
+msgstr "ウィザード"
 
 #: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/wpsbuttonelement.js:139
 msgid "You must save the current mesh setting before starting WPS."
 msgstr "WPSを開始する前に、現在のメッシュ設定を保存する必要があります。"
 
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:614
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/view/morse/config.js:667
 msgid ""
 "Your Morse HaLow device requires a country. Please set your country on the"
 msgstr ""
@@ -905,14 +937,14 @@ msgctxt "Millisecond time unit"
 msgid "ms"
 msgstr "ms"
 
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:578
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:612
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:753
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:790
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:588
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:622
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:764
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:801
 msgid "multiple"
 msgstr "複数"
 
-#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:297
+#: luci/luci-app-morseconfig/htdocs/luci-static/resources/custom-elements/morse-config-diagram.js:306
 msgid "via DPP"
 msgstr "DPP経由"
 
