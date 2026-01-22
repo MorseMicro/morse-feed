@@ -75,6 +75,9 @@ const HALOW_WIFI_MODE_NAMES = {
 	'none': _('None'), // TODO - APP-2533
 };
 
+// For now, only a subset of HaLow modes are supported natively in Linux.
+const SUPPORTED_MAC80211_HALOW_MODES = ['ap-wds', 'ap', 'sta-wds', 'sta', 'none'];
+
 function isAllowedMode(country, mode) {
 	return !halow.isAutoOnlyCountry(country) || !['mesh', 'adhoc'].includes(mode);
 }
@@ -112,6 +115,10 @@ const ENCRYPTION_OPTIONS_FOR_MODE = {
 		easymesh: ['psk2', 'sae-mixed', 'sae'],
 		adhoc: ['psk2', 'none'],
 		monitor: ['none'],
+		none: ['none'],
+	},
+	mac80211_s1g: {
+		default: ['sae', 'none'],
 		none: ['none'],
 	},
 	morse: {
@@ -270,7 +277,11 @@ const WifiEncryptionList = form.ListValue.extend({
 		const deviceName = uci.get('wireless', sectionId, 'device');
 		const mode = isEasyMeshManagedIface(sectionId, deviceName) ? 'easymesh' : this.section.formvalue(sectionId, 'mode');
 
-		const deviceType = Object.keys(ENCRYPTION_OPTIONS_FOR_MODE).includes(this.deviceType) ? this.deviceType : 'default';
+		let deviceType = Object.keys(ENCRYPTION_OPTIONS_FOR_MODE).includes(this.deviceType) ? this.deviceType : 'default';
+
+		// APP-6166: hack to only show valid native S1G encryption options
+		if (deviceType === 'mac80211' && this.deviceBand === 's1g') deviceType = 'mac80211_s1g';
+
 		let encryptionOptions = ENCRYPTION_OPTIONS_FOR_MODE[deviceType][mode];
 		if (!encryptionOptions) {
 			// If no specific encryption options for the mode, use the defaults
@@ -532,8 +543,8 @@ return view.extend({
 		if (wirelessMap) {
 			const isPrplMeshAgent = (isEasyMeshEnabled() && (uci.get('prplmesh', 'config', 'management_mode') === 'Multi-AP-Agent'));
 			// Put HaLow devices first
-			const uciWifiDevices = uci.sections('wireless', 'wifi-device').filter(s => s.type === 'morse');
-			uciWifiDevices.push(...uci.sections('wireless', 'wifi-device').filter(s => s.type !== 'morse'));
+			const uciWifiDevices = uci.sections('wireless', 'wifi-device').filter(s => s.band === 's1g');
+			uciWifiDevices.push(...uci.sections('wireless', 'wifi-device').filter(s => s.band !== 's1g'));
 			for (const device of uciWifiDevices) {
 				if (device.disabled === '1') {
 					continue;
@@ -638,7 +649,11 @@ return view.extend({
 
 	renderWifiInterfaces(map, deviceName, filterIface, title, options = {}) {
 		const deviceType = uci.get('wireless', deviceName, 'type');
+		const deviceBand = uci.get('wireless', deviceName, 'band');
+		const isHaLow = deviceBand === 's1g';
 		const isMorse = deviceType === 'morse';
+		const isMac80211HaLow = isHaLow && deviceType === 'mac80211';
+
 		const section = map.section(form.TableSection, 'wifi-iface', title);
 		section.filter = sectionId => (deviceName === uci.get('wireless', sectionId, 'device') && filterIface(sectionId, deviceName));
 		section.addremove = options.addRemove ?? true;
@@ -716,9 +731,12 @@ return view.extend({
 			modes for Access Points and Clients (Stations).
 		`).replace(/[\t\n ]+/g, ' ');
 		option = section.option(form.ListValue, 'mode', E('span', { 'class': 'show-info', 'data-tooltip': MODE_TOOLTIP }, _('Mode')));
-		if (isMorse) {
+		if (isHaLow) {
+			const country = uci.get('wireless', deviceName, 'country');
 			for (const [k, v] of Object.entries(HALOW_WIFI_MODE_NAMES)) {
-				if (isAllowedMode(uci.get('wireless', deviceName, 'country'), k)) {
+				if (!isAllowedMode(country, k)) continue;
+
+				if (isMorse || (isMac80211HaLow && SUPPORTED_MAC80211_HALOW_MODES.includes(k))) {
 					option.value(k, v);
 				}
 			}
@@ -879,6 +897,7 @@ return view.extend({
 			}
 		}
 		option.deviceType = deviceType;
+		option.deviceBand = deviceBand;
 		option.default = 'none';
 		option.onchange = function (ev, sectionId, _value, previousValue) {
 			const mode = this.section.formvalue(sectionId, 'mode');
