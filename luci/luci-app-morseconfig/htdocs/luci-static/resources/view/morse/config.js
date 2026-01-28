@@ -709,7 +709,7 @@ return view.extend({
 			return;
 		}
 
-		if (isHaLow && L.hasSystemFeature('native_s1g') && SUPPORTED_MAC80211_HALOW_COUNTRIES.includes(device.country) && canSwitchWifiDriver) {
+		if (isHaLow && L.hasSystemFeature('morse_native_s1g') && SUPPORTED_MAC80211_HALOW_COUNTRIES.includes(device.country) && canSwitchWifiDriver) {
 			const alternateType = device.type === 'morse' ? 'mac80211' : 'morse';
 
 			section.option(form.HiddenValue, 'type');
