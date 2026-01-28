@@ -1,6 +1,13 @@
 #!/bin/sh
-# Force firmware signature enforcement on first boot
 
-uci set system.@system[0].enforce_fw_sign='1'
+# Default to enforcing firmware signing.
+# If this is unset, unsigned images will be allowed without
+# error (NB: signed images will still fail!).
+# Note that this config option is a new one introduced by
+# this package, and is not supported by the standard OpenWrt
+# signature check.
+if ! uci -q get system.@system[0].enforce_fw_sign; then
+	uci set system.@system[0].enforce_fw_sign='1'
+fi
 
 exit 0
