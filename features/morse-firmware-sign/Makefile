@@ -8,11 +8,6 @@ PKG_LICENSE:=BSD-3-Clause
 
 PKG_MAINTAINER:=Morse Micro
 
-# Currently we still sign in the jenkins and the older versions want the usigned images.
-PKG_BUILD_DEPENDS := fwtool/host ucert/host usign/host
-
-PKG_CONFIG_DEPENDS += CONFIG_SIGNATURE_CHECK
-
 include $(INCLUDE_DIR)/package.mk
 
 define Package/morse-firmware-sign
