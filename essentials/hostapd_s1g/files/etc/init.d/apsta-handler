@@ -55,7 +55,6 @@ have_ap_sta_on_morse() {
 
     config_foreach scan_iface wifi-iface "$morse_device"
 
-    logger -p user.notice -t "$SERVICE" " AP STA found : $found"
     [ "$found" = "1" ] && return 0 || return 1
 }
 
@@ -68,8 +67,6 @@ start_service() {
         procd_set_param stderr 1
         procd_set_param respawn
         procd_close_instance
-    else
-        logger -p user.notice -t "$SERVICE" "not starting (not in AP+STA mode)"
     fi
 }
 
