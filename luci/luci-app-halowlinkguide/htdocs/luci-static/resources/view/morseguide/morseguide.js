@@ -4,8 +4,8 @@
 'require ui';
 
 // WARNING: Every time the offline user guide is updated, this link must be updated as well.
-const S3_BUCKET_USER_GUIDE_URL = 'https://repo.apps.morsemicro.com/openwrt/resources/HaLowLink+-+User+Guide+-+2.11+-+v1.pdf';
-const OFFLINE_USER_GUIDE_URL = '/HaLowLink_User_Guide_2.11-v1.pdf';
+const S3_BUCKET_USER_GUIDE_URL = 'https://repo.apps.morsemicro.com/openwrt/resources/HaLowLink+-+User+Guide+-+2.11+-+v2.pdf';
+const OFFLINE_USER_GUIDE_URL = '/HaLowLink_User_Guide_2.11-v2.pdf';
 
 return view.extend({
 	handleSaveApply: null,
