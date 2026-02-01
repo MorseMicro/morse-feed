@@ -87,6 +87,26 @@ check_powersave(){
 	json_select ..
 }
 
+get_sgi_config() {
+	enable_sgi=1
+	json_select config
+
+	if json_is_a s1g_capab array
+	then
+		json_select s1g_capab
+		idx=1
+		while json_is_a ${idx} string
+		do
+			json_get_var capab $idx
+			[ "${capab}" = "[SHORT-GI-NONE]" ] && enable_sgi=0
+			idx=$(( idx + 1 ))
+		done
+		json_select ..
+	fi
+
+	json_select ..
+}
+
 # Determines if we should change the specified bcf because
 # of the vfem_4v3 parameters (and reports errors if nonsense).
 get_vfem_4v3_bcf() {
@@ -574,23 +594,9 @@ drv_morse_setup() {
 
 	if [ -n "$ifnames_sta" ]; then
 		get_matter_config
+		get_sgi_config
 		json_select config
 		json_get_vars vendor_keep_alive_offload matter_enable
-
-		enable_sgi=1
-		if json_is_a s1g_capab array
-		then
-			json_select s1g_capab
-			idx=1
-			while json_is_a ${idx} string
-			do
-				json_get_var capab $idx
-				[ "${capab}" = "[SHORT-GI-NONE]" ] && enable_sgi=0
-				idx=$(( idx + 1 ))
-			done
-			json_select ..
-		fi
-
 		json_select ..
 
 		for_each_interface "sta" morse_setup_sta
@@ -598,6 +604,7 @@ drv_morse_setup() {
 
 	if [ -n "$ifnames_mesh" ]; then
 		get_mesh11sd_config
+		get_sgi_config
 		json_select config
 		json_get_vars mesh_max_peer_links mesh_plink_timeout mesh_hwmp_rootmode mesh_gate_announcements mesh_fwding mesh_rssi_threshold mbca_config mbca_min_beacon_gap_ms mbca_tbtt_adj_interval_sec mesh_beacon_timing_report_int mbss_start_scan_duration_ms mesh_beacon_less_mode mesh_dynamic_peering mesh_rssi_margin mesh_blacklist_timeout
 		json_select ..
