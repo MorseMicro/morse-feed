@@ -13,6 +13,7 @@
 . /lib/netifd/morse/morse_utils.sh
 . /lib/functions/system.sh
 
+LOGTAG="morse-wireless-defaults"
 
 default_ssid=$(uci get system.@system[0].hostname 2>/dev/null)
 default_wifi_key="$(persistent_vars_storage.sh READ default_wifi_key)"
@@ -24,6 +25,15 @@ mm_region="$(persistent_vars_storage.sh READ mm_region)"
 
 _get_iface() {
 	uci get "wireless.default_$1.$2"
+}
+
+can_validate_country() {
+    ubus call iwinfo countrylist "{\"device\":\"$1\"}" >/dev/null 2>&1
+}
+
+is_valid_country() {
+	ubus call iwinfo countrylist "{\"device\":\"$1\"}" \
+		| jsonfilter -e "@.results[@.code=\"$2\"]" >/dev/null 2>&1
 }
 
 _change_device_defaults() {
@@ -45,8 +55,36 @@ _change_device_defaults() {
 
 	config_get type "$config" type
 
-	# Only change if it's in the default state
-	# (otherwise we're probably running on a sysupgrade).
+	# If switching between morse and mac80211 S1G drivers, any existing country
+	# should have been retained (APP-6398), which we will try to reuse here.
+	# The hotplug may have filled in a default country too.
+	local effective_country
+
+	# The locked region must always take precedence
+	if [ -n "$mm_region" ]; then
+		effective_country="$mm_region"
+	else
+		config_get effective_country "$config" country
+	fi
+
+	if [ "$type" = mac80211 -a "$effective_country" = EU ]; then
+		# EU is not a valid country code, and can't be used for non-HaLow WiFi.
+		# Default to DE as a reasonable stop-gap.
+		effective_country='DE'
+	fi
+
+	if [ -n "$effective_country" ] &&
+		can_validate_country "$config" &&
+		! is_valid_country "$config" "$effective_country"; then
+		echo "$LOGTAG: Unsetting invalid country $effective_country for $config" > /dev/kmsg
+		uci delete "wireless.$config.country" > /dev/null 2>&1
+		effective_country=''
+	fi
+
+	# Only change if it's in the default state (i.e. default ssid and key),
+	# otherwise we're probably running on a sysupgrade. Note that the country
+	# may have been retained by the during an S1G driver switch, but all
+	# other configs will remain default due to the hotplug.
 	local default_encryption
 	if [ "$type" = morse ] &&
 		[ "$(_get_iface "$config" ssid)" = MorseMicro ] &&
@@ -57,12 +95,12 @@ _change_device_defaults() {
 
 		# Select an appropriate channel if we have a region.
 		# Probably this should be pushed down into netifd-morse.
-		if [ -n "$mm_region" ]; then
+		if [ -n "$effective_country" ]; then
 			# Start on the middle channel of the max bandwidth for the country code.
 			# Channels can be queried from iwinfo or the driver, but not if the
 			# device is down, and the device is not up until we have a valid channel.
 			local bandwidth="$(awk -F, '$1==cc && $3 == "True" && $4 > max {max=$4} END {print max}' \
-				cc="$mm_region" /usr/share/morse-regdb/channels.csv)"
+				cc="$effective_country" /usr/share/morse-regdb/channels.csv)"
 
 			# NB channel selection is no longer necessary, as we have
 			# moved to the default OpenWrt behaviour of using ACS if
@@ -70,18 +108,33 @@ _change_device_defaults() {
 			# However, for now we only make it the explicit default
 			# in EU/GB, where it is required.
 			local channel
-			if [ "$mm_region" = EU -o "$mm_region" = GB ]; then
+			if [ "$effective_country" = EU -o "$effective_country" = GB ]; then
 				channel=auto
 				uci set "wireless.$config.s1g_chanbw=$bandwidth"
 			else
 				channel="$(awk -F, '$1==cc && $3 == "True" && $4==bw {print $8, $5}' \
-					cc="$mm_region" bw="$bandwidth" /usr/share/morse-regdb/channels.csv \
+					cc="$effective_country" bw="$bandwidth" /usr/share/morse-regdb/channels.csv \
 					| sort -n | awk '{a[NR]=$2} END {print a[int((NR+1)/2)]}')"
 			fi
 
 			uci set "wireless.$config.channel=$channel"
-			echo "uci-default-morse-wireless: setting $config to $mm_region on $channel" > /dev/kmsg
+			echo "$LOGTAG: setting $config to $effective_country on channel $channel" > /dev/kmsg
 		fi
+	elif [ "$type" = mac80211 ] &&
+		[ "$device_band" = s1g ]; then
+		# If the native S1G device's country is not set, keep it disabled.
+		[ -z "$effective_country" ] && return
+
+		# Set a default channel for known-compatible regions.
+		case "$effective_country" in
+				AU|CA|US)
+						# APP-6398: set a default channel known to work with Native S1G.
+						uci set "wireless.$config.channel=41"
+						uci set "wireless.$config.s1g_oper_chwidth=3"
+						echo "$LOGTAG: setting $config to $effective_country on channel 41" > /dev/kmsg
+						;;
+				*) return ;;
+		esac
 	elif [ "$type" = mac80211 ] &&
 		[ "$(_get_iface "$config" ssid)" = OpenWrt ] &&
 		[ "$(_get_iface "$config" mode)" = ap ] &&
@@ -95,16 +148,7 @@ _change_device_defaults() {
 		return
 	fi
 
-	if [ -n "$mm_region" ]; then
-		if [ "$type" = mac80211 -a "$mm_region" = EU ]; then
-			# EU is not a valid country code, and can't be used for non-HaLow WiFi.
-			# Default to DE as a reasonable stop-gap, particularly given
-			# we only use 2.4GHz (and not 5GHz).
-			uci set "wireless.$config.country=DE"
-		else
-			uci set "wireless.$config.country=$mm_region"
-		fi
-	fi
+	[ -n "$effective_country" ] && uci set "wireless.$config.country=$effective_country"
 
 	uci batch <<- END
 		delete wireless.$config.disabled
@@ -113,27 +157,27 @@ _change_device_defaults() {
 	END
 }
 
-# Wait if we need to for the morse hotplug to finish, since we can
-# be reasonably sure that there should be a morse device.
+# Wait if we need to for the S1G hotplug to finish, since we can
+# be reasonably sure that there should be a S1G device.
 # This isn't a proper solution to this problem (i.e. the raciness
 # of the hotplug vs uci-defaults), but we also can't trivially
 # attach to the existing hotplug because the uboot env setup only
 # runs in uci-defaults (and we sometimes need this for
 # persistent_vars_storage.sh).
-wait_for_morse_device() {
+wait_for_s1g_device() {
 	local found_device=0
 	local attempt
 
 	for attempt in 1 2 3 4 5; do
-		_find_morse_device() {
-			local type
-			config_get type "$1" type
-			if [ "$type" = morse ]; then
+		_find_s1g_device() {
+			local band
+			config_get band "$1" band
+			if [ "$band" = s1g ]; then
 				found_device=1
 			fi
 		}
 
-		config_foreach _find_morse_device wifi-device
+		config_foreach _find_s1g_device wifi-device
 
 		if [ "$found_device" = 1 ]; then
 			return
@@ -145,5 +189,5 @@ wait_for_morse_device() {
 }
 
 config_load wireless
-wait_for_morse_device
+wait_for_s1g_device
 config_foreach _change_device_defaults wifi-device
