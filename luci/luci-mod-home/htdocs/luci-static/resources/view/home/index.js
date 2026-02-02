@@ -197,18 +197,21 @@ function isHaLow(wifiNetwork) {
 // This is a shorter/more informative name than we get from hwmodes_text
 // which prioritises the frequency for 'normal' wifi.
 function getWifiName(wifiNetwork) {
-	const hwmodes = wifiNetwork.ubus('dev', 'iwinfo', 'hwmodes');
-	if (hwmodes?.includes('ah')) {
-		return _('HaLow');
-	}
-
-	const frequency = wifiNetwork.ubus('dev', 'iwinfo', 'frequency');
+	// Returns MHz for S1G, GHz otherwise
+	const frequency = wifiNetwork.getFrequency();
 	if (frequency) {
-		if (frequency > 4000) {
-			return '%.0f GHz'.format(frequency / 1000);
-		} else {
-			return '%.1f GHz'.format(frequency / 1000);
-		}
+		// S1G
+		if (frequency > 860)
+			return _('HaLow');
+		// 2.4 GHz
+		else if (frequency >= 2.4 && frequency <= 2.5)
+			return '2.4 GHz';
+		// 5 GHz
+		else if (frequency > 5 && frequency < 5.9)
+			return '5 GHz';
+		// 6 GHz
+		else if (frequency >= 5.9 && frequency < 7.2)
+			return '6 GHz';
 	}
 
 	return wifiNetwork.ubus('dev', 'iwinfo', 'hwmodes_text') ?? _('Wi-Fi');
