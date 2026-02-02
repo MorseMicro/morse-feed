@@ -2796,6 +2796,23 @@ body:not(.Interfaces) .cbi-rowstyle-2:first-child {
     max-width: var(--max-modal-width);
     max-height: none;
   }
+
+  .button-row {
+    display: flex;
+    justify-content: space-between;
+
+    > button:not(:last-of-type) {
+      margin-right: 0.5em;
+    }
+
+    > button:first-of-type {
+      margin-right: auto;
+    }
+
+    ul > li {
+      color: inherit;
+    }
+  }
 }
 
 body.modal-overlay-active {
