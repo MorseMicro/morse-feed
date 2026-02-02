@@ -882,7 +882,7 @@ return view.extend({
 			encryptionOption.renderUpdate(sectionId, isMorse ? 'sae' : 'psk2');
 		};
 
-		if (!isMorse) {
+		if (!isHaLow) {
 			// Since we don't support WDS here, and in advanced config changing
 			// the mode would let you select the WDS status (similar to our HaLow
 			// dropdown here), if we've changed let's remove WDS.
