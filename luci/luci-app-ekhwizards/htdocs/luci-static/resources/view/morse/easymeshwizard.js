@@ -104,20 +104,18 @@ return wizard.AbstractWizardView.extend({
 				uci.set('prplmesh', 'config', 'management_mode', 'Multi-AP-Controller-and-Agent');
 				uci.set('prplmesh', 'config', 'operating_mode', 'Gateway');
 				uci.set('prplmesh', 'config', 'wired_backhaul', '1');
-				uci.set('wireless', morseBackhaulStaName, 'disabled', '1');
 			} else {
 				uci.set('prplmesh', 'config', 'gateway', '0');
 				uci.set('prplmesh', 'config', 'management_mode', 'Multi-AP-Agent');
 				uci.set('prplmesh', 'config', 'operating_mode', 'WDS-Repeater');
 				uci.set('prplmesh', 'config', 'wired_backhaul', '0');
-				uci.set('wireless', morseBackhaulStaName, 'disabled', '0');
 			}
 
 			uci.set('prplmesh', morseDeviceName, 'hostap_iface', 'wlan-prpl');
 			uci.set('prplmesh', morseDeviceName, 'sta_iface', 'wlan-prpl-1');
 		};
 
-		const setMultiapWirelessConfig = () => {
+		const setMultiapWirelessConfig = (isController) => {
 			// EasyMesh specifies that Fronthaul BSS must be configured
 			// as PSK+SAE (WPA3 transition mode).
 			uci.set('wireless', morseInterfaceName, 'encryption', 'sae-mixed');
@@ -126,15 +124,27 @@ return wizard.AbstractWizardView.extend({
 			uci.set('wireless', morseInterfaceName, 'bss_transition', '1');
 			uci.set('wireless', morseInterfaceName, 'multi_ap', '3');
 			uci.set('wireless', morseInterfaceName, 'ieee80211k', '1');
-
 			uci.set('wireless', morseInterfaceName, 'ieee80211w', '2');
 			uci.set('wireless', morseInterfaceName, 'disabled', '0');
 			uci.set('wireless', morseInterfaceName, 'ifname', 'wlan-prpl');
 
-			uci.set('wireless', morseBackhaulStaName, 'mode', 'sta');
-			uci.set('wireless', morseBackhaulStaName, 'multi_ap', '1');
-			uci.set('wireless', morseBackhaulStaName, 'wds', '1');
-			uci.set('wireless', morseBackhaulStaName, 'ifname', 'wlan-prpl-1');
+			if (!isController) {
+				const ap_ssid = uci.get('wireless', morseInterfaceName, 'ssid');
+				const ap_key = uci.get('wireless', morseInterfaceName, 'key');
+				const ap_enc = uci.get('wireless', morseInterfaceName, 'encryption');
+
+				ap_ssid && uci.set('wireless', morseBackhaulStaName, 'ssid', ap_ssid);
+				ap_key && uci.set('wireless', morseBackhaulStaName, 'key', ap_key);
+				ap_enc && uci.set('wireless', morseBackhaulStaName, 'encryption', ap_enc);
+
+				uci.set('wireless', morseBackhaulStaName, 'mode', 'sta');
+				uci.set('wireless', morseBackhaulStaName, 'multi_ap', '1');
+				uci.set('wireless', morseBackhaulStaName, 'wds', '1');
+				uci.set('wireless', morseBackhaulStaName, 'ifname', 'wlan-prpl-1');
+				uci.set('wireless', morseBackhaulStaName, 'disabled', '0');
+			} else {
+				uci.set('wireless', morseBackhaulStaName, 'disabled', '1');
+			}
 
 			// Remove mesh_id from default interface to avoid confusion.
 			uci.unset('wireless', morseInterfaceName, 'mesh_id');
@@ -242,7 +252,7 @@ return wizard.AbstractWizardView.extend({
 		// Set all prplmesh configurations
 		setEasyMeshConfig(isController);
 		// Set all Multi-ap wireless configuration
-		setMultiapWirelessConfig();
+		setMultiapWirelessConfig(isController);
 		// Set all WPS related configuration
 		setWpsConfig();
 
@@ -438,9 +448,8 @@ return wizard.AbstractWizardView.extend({
 
 		page = this.page(morseApInterfaceSection,
 			_('Setup EasyMesh Network'),
-			_(`All devices in the EasyMesh network will share the same <b>SSID</b> and
-				 MUST operate on the same <b>Operating Frequency</b>.<br> On an EasyMesh Agent,
-				 the SSID is auto-configured by the Controller after successful pairing.`));
+			_(`Devices in this EasyMesh network must use the same network credentials and channelization.
+				The settings entered here apply to the HaLow interface(s).`));
 
 		page.enableDiagram({
 			extras: ['AP_HALOW_INT_SELECT', 'AP_HALOW_INT_SELECT_FILL'],
@@ -449,7 +458,6 @@ return wizard.AbstractWizardView.extend({
 		});
 
 		option = page.option(form.Value, 'ssid', _('<abbr title="Service Set Identifier">SSID</abbr>'));
-		option.depends(`prplmesh.config.master`, '1');
 		option.datatype = 'maxlength(32)';
 		option.rmempty = false;
 		option.retain = true;
@@ -463,7 +471,6 @@ return wizard.AbstractWizardView.extend({
 		option.forcewrite = true; // Required since our load doesn't reflect uci.
 
 		option = page.option(form.Value, 'key', _('Passphrase'));
-		option.depends(`prplmesh.config.master`, '1');
 		option.datatype = 'wpakey';
 		option.password = true;
 		option.rmempty = false;
