@@ -709,16 +709,26 @@ return view.extend({
 			return;
 		}
 
-		if (isHaLow && L.hasSystemFeature('morse_native_s1g') && SUPPORTED_MAC80211_HALOW_COUNTRIES.includes(device.country) && canSwitchWifiDriver) {
+		if (isHaLow && L.hasSystemFeature('morse_native_s1g') && canSwitchWifiDriver) {
+			const mac80211CountrySupported = SUPPORTED_MAC80211_HALOW_COUNTRIES.includes(device.country);
 			const alternateType = device.type === 'morse' ? 'mac80211' : 'morse';
 
 			section.option(form.HiddenValue, 'type');
 			option = section.option(form.DummyValue, '_switch_driver', _('HaLow device type'));
 			option.cfgvalue = (_sectionId) => {
 				return E('div', [
-					E('span', { style: 'padding: 0.5rem;' }, device.type),
+					E('span', Object.assign(
+						{ style: 'padding: 0.5rem;' },
+						!mac80211CountrySupported
+							? {
+									'class': 'zonebadge network-name show-warning',
+									'data-tooltip': _(`Switching is only enabled for ${SUPPORTED_MAC80211_HALOW_COUNTRIES.join(', ')}.`),
+							  }
+							: {},
+					), device.type),
 					E('button', {
 						class: 'cbi-button cbi-button-primary',
+						...(mac80211CountrySupported ? {} : { disabled: 'disabled' }),
 						click: () => ui.showModal(`${_('Switch device type to')} ${alternateType}?`, [
 							E('p', device.type === 'morse' ? MAC80211_HALOW_DEVICE_TYPE_DESCRIPTION : MORSE_HALOW_DEVICE_TYPE_DESCRIPTION),
 							E('p', HALOW_DEVICE_TYPE_SWITCH_WARNING),
