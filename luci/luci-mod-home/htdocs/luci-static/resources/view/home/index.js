@@ -384,7 +384,7 @@ function renderSignalBadge(signalPercent, signalValue, noiseValue, mode) {
 		'data-signal': signalValue,
 		'data-noise': noiseValue,
 	}, [
-		E('img', { 'data-tooltip': title, 'style': 'padding-right: 10px', 'src': icon }),
+		E('img', { 'data-tooltip': title, 'style': 'padding-right: 10px; height: 16px;', 'src': icon }),
 		value,
 	]);
 }

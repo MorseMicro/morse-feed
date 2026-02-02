@@ -666,24 +666,24 @@ var CBISSIDListScan = form.Value.extend({
 
 		let icon;
 		if (qualityPercent < 0) {
-			icon = L.resource('icons/signal-none.png');
+			icon = L.resource('icons/signal-none.svg');
 		} else if (qualityPercent === 0) {
-			icon = L.resource('icons/signal-0.png');
+			icon = L.resource('icons/signal-000.svg');
 		} else if (qualityPercent < 25) {
-			icon = L.resource('icons/signal-0-25.png');
+			icon = L.resource('icons/signal-000-025.svg');
 		} else if (qualityPercent < 50) {
-			icon = L.resource('icons/signal-25-50.png');
+			icon = L.resource('icons/signal-025-050.svg');
 		} else if (qualityPercent < 75) {
-			icon = L.resource('icons/signal-50-75.png');
+			icon = L.resource('icons/signal-050-075.svg');
 		} else {
-			icon = L.resource('icons/signal-75-100.png');
+			icon = L.resource('icons/signal-075-100.svg');
 		}
 
 		return E('div', { style: 'display: flex; align-items: center; justify-content: space-between; width: 100%;' }, [
 			E('span', {}, ssid),
 			E('span', { style: 'flex-grow: 1;' }, ''),
 			res?.signal !== undefined && E('b', { style: 'padding: 0 5px; font-size: 0.7rem;' }, `${res.signal} dBm`),
-			E('img', { src: icon }),
+			E('img', { src: icon, style: 'height: 20px;' }),
 		].filter(v => v));
 	},
 

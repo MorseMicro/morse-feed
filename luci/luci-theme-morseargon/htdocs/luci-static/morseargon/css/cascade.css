@@ -2442,6 +2442,12 @@ body:not(.Interfaces) .cbi-rowstyle-2:first-child {
   margin-top: -3px;
 }
 
+.cbi-dropdown img {
+  /* the following are necessary to constrain (vector) images of any size */
+  max-height: 1.6em; /* Adjusts image height to fit slightly larger than text line height */
+  width: auto; /* Preserves aspect ratio */
+}
+
 .cbi-dropdown > ul {
   display: flex;
   overflow: hidden auto;
@@ -2918,6 +2924,12 @@ body.modal-overlay-active #modal_overlay {
   padding: 0.25rem 0.8rem;
   background: #eee;
   border-radius: 4px;
+
+  img {
+    width: 32px;
+    height: 32px;
+    vertical-align: middle;
+  }
 }
 
 td > .ifacebadge,
