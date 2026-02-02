@@ -229,7 +229,7 @@ function getChanInfo(wifiNetwork) {
 
 	const freqInfo = `${wifiNetwork.getFrequency()} ${wifiNetwork.getFrequencyUnit()}`;
 	if (isHaLow(wifiNetwork)) {
-		const chanbw = wifiNetwork.ubus('dev', 'iwinfo', 'htmode');
+		const chanbw = wifiNetwork.ubus('dev', 'iwinfo', 'center_width');
 		return `${wifiNetwork.getChannel()} (${freqInfo}; ${chanbw} MHz)`;
 	} else {
 		return `${wifiNetwork.getChannel()} (${freqInfo})`;
