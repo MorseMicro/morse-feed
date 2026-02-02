@@ -118,6 +118,7 @@ body {
 }
 
 textarea {
+  font-family: monospace;
   padding: 0.2rem;
 
   &:focus-visible {
@@ -2934,6 +2935,10 @@ body.modal-overlay-active #modal_overlay {
   text-align: center;
 }
 
+#cbi-network-interface .ifacebox-body {
+  white-space: normal;
+}
+
 .ifacebadge {
   display: inline-flex;
   align-items: center;
@@ -3344,10 +3349,12 @@ span[data-tooltip] .label {
 .zone-forwards {
   display: flex;
   min-width: 10rem;
+  flex-wrap: nowrap;
 }
 
 .zone-forwards > * {
   flex: 1 1 45%;
+  text-wrap: auto;
 }
 
 .zone-forwards > span {
