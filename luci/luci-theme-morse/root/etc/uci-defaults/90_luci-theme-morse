@@ -1,7 +1,0 @@
-#!/bin/sh
-
-uci set "luci.themes.Morse=/luci-static/morse"
-uci set "luci.main.mediaurlbase=/luci-static/morse"
-uci commit luci
-
-exit 0
