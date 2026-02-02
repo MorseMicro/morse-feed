@@ -2277,9 +2277,21 @@ body:not(.Interfaces) .cbi-rowstyle-2:first-child {
     margin: 0.25rem 0;
     position: relative;
     max-width: 25rem;
-    pointer-events: none;
+    pointer-events: auto;
     color: #8898aa;
     outline: 0;
+    cursor: move;
+    user-select: text;
+
+    /* indication line for drag-and-drop in UIDynamicList */
+    .drag-over {
+      border-top: 1px solid var(--text-color-highest);
+    }
+
+    /* Make item being dragged in UIDynamicList partially transparent */
+    .dragging {
+      opacity: 0.5;
+    }
 
     &::after {
       content: "\00D7";
@@ -2321,6 +2333,9 @@ body:not(.Interfaces) .cbi-rowstyle-2:first-child {
       background-image: none;
       box-shadow: none;
       box-sizing: border-box;
+
+      /* prevent pointer changing when over the span element in UIDynamicList */
+      pointer-events: none;
     }
   }
 
@@ -2382,6 +2397,16 @@ body:not(.Interfaces) .cbi-rowstyle-2:first-child {
       color: #fff;
       background-color: var(--primary);
       border: 1px solid var(--primary);
+
+      /* indication line for drag-and-drop in UIDynamicList */
+      .drag-over {
+        border-top: 1px solid var(--text-color-highest);
+      }
+    }
+
+    /* indication line for drag-and-drop in UIDynamicList */
+    .cbi-input-text.drag-over {
+      border-top: 1px solid var(--text-color-highest);
     }
 
     &:not([ondrop]) {
