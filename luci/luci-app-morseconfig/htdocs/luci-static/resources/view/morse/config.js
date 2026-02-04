@@ -65,7 +65,7 @@ const callSwitchWifiDriverStatus = rpc.declare({
 	method: 'status',
 });
 
-const SUPPORTED_MAC80211_HALOW_COUNTRIES = ['AU', 'CA', 'US'];
+const SUPPORTED_MAC80211_HALOW_COUNTRIES = ['AU', 'US'];
 
 // These are from LuCI's resources/network.js, but unfortunately they're buried
 // in a switch statement there.

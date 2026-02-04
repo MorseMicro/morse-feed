@@ -127,7 +127,7 @@ _change_device_defaults() {
 
 		# Set a default channel for known-compatible regions.
 		case "$effective_country" in
-				AU|CA|US)
+				AU|US)
 						# APP-6398: set a default channel known to work with Native S1G.
 						uci set "wireless.$config.channel=41"
 						uci set "wireless.$config.s1g_oper_chwidth=3"
