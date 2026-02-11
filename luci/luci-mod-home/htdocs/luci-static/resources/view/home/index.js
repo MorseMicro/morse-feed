@@ -194,6 +194,11 @@ function isHaLow(wifiNetwork) {
 	return wifiNetwork.ubus('dev', 'iwinfo', 'hwmodes')?.includes('ah');
 }
 
+// The device type is unfortunately not stored in wifiDevice _ubusdata.
+function getWifiDeviceType(wifiDevice) {
+	return uci.get('wireless', wifiDevice, 'type');
+}
+
 // This is a shorter/more informative name than we get from hwmodes_text
 // which prioritises the frequency for 'normal' wifi.
 function getWifiName(wifiNetwork) {
@@ -1026,6 +1031,7 @@ function createAssoclistCard(wifiNetwork, wifiDevices, hostHints) {
 	//    so we load the module with a default country that we shouldn't use/report unless
 	//    it's explicitly set (i.e. in UCI)
 	const country = wifiDevices[wifiNetwork.getWifiDeviceName()].get('country') && wifiNetwork.ubus('net', 'iwinfo', 'country');
+	const deviceType = getWifiDeviceType(wifiNetwork.getWifiDeviceName());
 	const wifiPassword = (authentication.includes('sae') || authentication.includes('psk')) && wifiNetwork.get('key');
 	const hasDppd = L.hasSystemFeature('morsedppd');
 
@@ -1066,13 +1072,13 @@ function createAssoclistCard(wifiNetwork, wifiDevices, hostHints) {
 						}, '*'),
 					]),
 				].filter(e => e))),
-				// Currently, we only support DPP on HaLow.
+				// Currently, we only support DPP on Morse Micro HaLow (not Native S1G).
 				// We disable this if there is no QRCode on this device, as if this is not
 				// there we likely aren't running dppd (currently true on HaLowLink 1).
-				mode === 'ap' && hasDppd && isHaLow(wifiNetwork) && E('dt', _('DPP QR Code')),
-				mode === 'ap' && hasDppd && isHaLow(wifiNetwork) && E('dd', _('Scan the Client QR Code in the app.')),
-				mode === 'ap' && isHaLow(wifiNetwork) && E('dt', _('DPP Push button')),
-				mode === 'ap' && isHaLow(wifiNetwork) && E('dd', [
+				mode === 'ap' && hasDppd && isHaLow(wifiNetwork) && deviceType == 'morse' && E('dt', _('DPP QR Code')),
+				mode === 'ap' && hasDppd && isHaLow(wifiNetwork) && deviceType == 'morse' && E('dd', _('Scan the Client QR Code in the app.')),
+				mode === 'ap' && isHaLow(wifiNetwork) && deviceType == 'morse' && E('dt', _('DPP Push button')),
+				mode === 'ap' && isHaLow(wifiNetwork) && deviceType == 'morse' && E('dd', [
 					E('button', {
 						class: 'cbi-button cbi-button-action cbi-button-inline',
 						click: ui.createHandlerFn(this, () => startDPP('ap')),
