@@ -286,7 +286,7 @@ function apply_custom_config(uci, config) {
 
 		// prplmesh demands that its target.bridge is named br-prpl. How annoying.
 		uci.set("network", target.bridge, "name", "br-prpl");
-		const morse_macaddr = readfile("/sys/class/net/wlan0/address");
+		const morse_macaddr = readfile("/sys/class/net/wlh0/address");
 		const suffix = morse_macaddr
 			? substr(rtrim(morse_macaddr), 3)
 			: join(':', map([rand(), rand(), rand(), rand(), rand()], (n) => hexenc(chr(n % 256))));

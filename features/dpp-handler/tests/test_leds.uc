@@ -39,62 +39,62 @@ function mock_fs(cb) {
 
 return {
 	set_dpp_started_led_assoc: () => mock_fs(function() {
-		fs.writefile("/sys/class/net/wlan0/device/ieee80211/phy0", "");
+		fs.writefile("/sys/class/net/wlh0/device/ieee80211/phy0", "");
 		fs.writefile("/sys/class/leds/myled/trigger", "none x [phy0assoc] y");
 		fs.writefile("/sys/class/leds/otherled/trigger", "[none] x phy0assoc y");
-		leds.set_dpp_started_led("wlan0");
+		leds.set_dpp_started_led("wlh0");
 		assert(fs.readfile("/sys/class/leds/myled/trigger") === "timer");
 		assert(fs.readfile("/sys/class/leds/myled/delay_off") === "1000");
 		assert(fs.readfile("/sys/class/leds/myled/delay_on") === "1000");
 		assert(fs.readfile("/sys/class/leds/otherled/trigger") === "[none] x phy0assoc y");
-		leds.restore_dpp_led("wlan0");
+		leds.restore_dpp_led("wlh0");
 	}),
 
 	set_dpp_failed_led_assoc: () => mock_fs(function() {
-		fs.writefile("/sys/class/net/wlan0/device/ieee80211/phy0", "");
+		fs.writefile("/sys/class/net/wlh0/device/ieee80211/phy0", "");
 		fs.writefile("/sys/class/leds/myled/trigger", "none x [phy0assoc] y");
 		fs.writefile("/sys/class/leds/otherled/trigger", "[none] x phy0assoc y");
-		leds.set_dpp_failed_led("wlan0");
+		leds.set_dpp_failed_led("wlh0");
 		assert(fs.readfile("/sys/class/leds/myled/trigger") === "timer");
 		assert(fs.readfile("/sys/class/leds/myled/delay_off") === "100");
 		assert(fs.readfile("/sys/class/leds/myled/delay_on") === "100");
 		assert(fs.readfile("/sys/class/leds/otherled/trigger") === "[none] x phy0assoc y");
-		leds.restore_dpp_led("wlan0");
+		leds.restore_dpp_led("wlh0");
 	}),
 
 	set_restore_dpp_led_assoc: () => mock_fs(function() {
-		fs.writefile("/sys/class/net/wlan0/device/ieee80211/phy0", "");
+		fs.writefile("/sys/class/net/wlh0/device/ieee80211/phy0", "");
 		fs.writefile("/sys/class/leds/myled/trigger", "none x [phy0assoc] y");
 		fs.writefile("/sys/class/leds/otherled/trigger", "[none] x phy0assoc y");
-		leds.set_dpp_started_led("wlan0");
-		leds.set_dpp_failed_led("wlan0");
-		leds.restore_dpp_led("wlan0");
+		leds.set_dpp_started_led("wlh0");
+		leds.set_dpp_failed_led("wlh0");
+		leds.restore_dpp_led("wlh0");
 		assert(fs.readfile("/sys/class/leds/myled/trigger") === "phy0assoc");
 		assert(fs.readfile("/sys/class/leds/otherled/trigger") === "[none] x phy0assoc y");
 	}),
 
 	netdev_multi_led_sequence: () => mock_fs(function() {
-		fs.writefile("/sys/class/net/wlan0/device/ieee80211/phy0", "");
+		fs.writefile("/sys/class/net/wlh0/device/ieee80211/phy0", "");
 		fs.writefile("/sys/class/leds/myled/trigger", "none x [netdev] y");
-		fs.writefile("/sys/class/leds/myled/device_name", "wlan0");
+		fs.writefile("/sys/class/leds/myled/device_name", "wlh0");
 		fs.writefile("/sys/class/leds/myled/link", "1");
 		fs.writefile("/sys/class/leds/myled/rx", "1");
 		fs.writefile("/sys/class/leds/myled/tx", "1");
 		fs.writefile("/sys/class/leds/myled/invert", "0");
 		fs.writefile("/sys/class/leds/otherled/trigger", "none x [netdev] y");
-		fs.writefile("/sys/class/leds/otherled/device_name", "wlan0");
+		fs.writefile("/sys/class/leds/otherled/device_name", "wlh0");
 		fs.writefile("/sys/class/leds/otherled/link", "1");
 		fs.writefile("/sys/class/leds/otherled/rx", "1");
 		fs.writefile("/sys/class/leds/otherled/tx", "1");
 		fs.writefile("/sys/class/leds/otherled/invert", "1");
 
-		leds.set_dpp_started_led("wlan0");
+		leds.set_dpp_started_led("wlh0");
 		assert(fs.readfile("/sys/class/leds/otherled/trigger") === "none");
 		assert(fs.readfile("/sys/class/leds/myled/trigger") === "timer");
 		assert(fs.readfile("/sys/class/leds/myled/delay_off") === "1000");
 		assert(fs.readfile("/sys/class/leds/myled/delay_on") === "1000");
 
-		leds.set_dpp_failed_led("wlan0");
+		leds.set_dpp_failed_led("wlh0");
 		assert(fs.readfile("/sys/class/leds/otherled/trigger") === "none");
 		assert(fs.readfile("/sys/class/leds/myled/trigger") === "timer");
 		assert(fs.readfile("/sys/class/leds/myled/delay_off") === "100");
@@ -107,15 +107,15 @@ return {
 				fs.writefile(`/sys/class/leds/${led}/${param}`, "");
 			}
 		}
-		leds.restore_dpp_led("wlan0");
+		leds.restore_dpp_led("wlh0");
 		assert(fs.readfile("/sys/class/leds/myled/trigger") === "netdev");
-		assert(fs.readfile("/sys/class/leds/myled/device_name") === "wlan0");
+		assert(fs.readfile("/sys/class/leds/myled/device_name") === "wlh0");
 		assert(fs.readfile("/sys/class/leds/myled/link") === "1");
 		assert(fs.readfile("/sys/class/leds/myled/rx") === "1");
 		assert(fs.readfile("/sys/class/leds/myled/tx") === "1");
 		assert(fs.readfile("/sys/class/leds/myled/invert") === "0");
 		assert(fs.readfile("/sys/class/leds/otherled/trigger") === "netdev");
-		assert(fs.readfile("/sys/class/leds/otherled/device_name") === "wlan0");
+		assert(fs.readfile("/sys/class/leds/otherled/device_name") === "wlh0");
 		assert(fs.readfile("/sys/class/leds/otherled/link") === "1");
 		assert(fs.readfile("/sys/class/leds/otherled/rx") === "1");
 		assert(fs.readfile("/sys/class/leds/otherled/tx") === "1");

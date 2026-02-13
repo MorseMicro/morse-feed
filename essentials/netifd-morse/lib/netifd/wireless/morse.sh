@@ -5,6 +5,9 @@
 . /lib/netifd/morse/morse_overrides.sh
 . /lib/netifd/morse/morse_utils.sh
 
+# Morse interfaces will be named wlhX
+DEFAULT_MORSE_IFNAME="wlh"
+
 echo "Configuring morse device"
 device_section="$3"
 init_wireless_driver "$@"
@@ -848,7 +851,7 @@ morse_iface_bringup() {
 	json_get_vars ifname mode ssid wds powersave macaddr enable wpa_psk_file vlan_file
 	set_default wds 0
 
-	[ -z "$ifname" ] && ifname="$(_find_free_ifname wlan)"
+	[ -z "$ifname" ] && ifname="$(_find_free_ifname "$DEFAULT_MORSE_IFNAME")"
 
 	json_add_string ifname "$ifname"
 	json_add_string phy "$phy"

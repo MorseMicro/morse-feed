@@ -22,7 +22,7 @@ bad_usage()
     exit 1
 }
 
-INTERFACE="wlan0"
+INTERFACE="wlh0"
 MORSE_DIR="/"
 OUTPUT_PATH="/tmp"
 DEBUG_DIR=$(date +"%F_%X")
