@@ -129,7 +129,7 @@ function readSectionInfo() {
 		}
 	}
 	if (!morseDevice) {
-		throw new WizardConfigError(_('No HaLow radio found'));
+		throw new WizardConfigError(_('No Morse Micro HaLow radio found'));
 	}
 
 	if (morseDevice && !uci.get('wireless', morseInterfaceName)) {
@@ -812,10 +812,19 @@ const AbstractWizardView = view.extend({
 	},
 
 	renderBadConfigError(errorMessage) {
-		return E('div', { id: 'wizard-bad-config', class: 'alert-message warning' }, _(`
-			Configuration incompatible with config wizard detected (%s). If you wish
-			to use the wizard, you should <a href="%s">reset or reflash your device</a>.
-		`).format(errorMessage, L.url('admin', 'system', 'flash')));
+		return E('div', { id: 'wizard-bad-config', class: 'alert-message warning', style: 'font-weight: normal' }, [
+			E('p', _(`
+				This device is in a state where this wizard cannot work <strong>(%s)</strong>.
+				This page is only available when the device is in a compatible configuration.
+			`).format(errorMessage)),
+			L.hasSystemFeature('morse_native_s1g') && E('p', _(`
+				If you have set your HaLow device type to <strong>mac80211</strong>, switch it back to
+				<strong>morse</strong> from the <strong><a href="%s">Quick Config</a></strong> page to use this wizard.
+			`).format(L.url('admin', 'config'))),
+			E('p', _(`
+				If issues persist, you can <strong><a href="%s">reset or reflash your device</a></strong>.
+			`).format(L.url('admin', 'system', 'flash'))),
+		]);
 	},
 
 	renderIPChangeAlert() {
@@ -837,7 +846,7 @@ const AbstractWizardView = view.extend({
 			`).format(this.getEthernetStaticIpOriginal(), staticIp);
 		} else if (!originalStaticIp && staticIp) {
 			text = _(`
-				This device has a new static IPv4 address, %s! 
+				This device has a new static IPv4 address, %s!
 				To access this admin interface over ethernet, you may need to
 				disconnect and reconnect, then go to the new IP.
 			`).format(staticIp);

@@ -12,19 +12,41 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: htdocs/luci-static/resources/view/morse/morseapwizard.js:475
+#: /home/lyall/morse_feed_public/luci/luci-app-morseapwizard/htdocs/luci-static/resources/view/morse/morseapwizard.js:487
 msgid "(Recommended)"
 msgstr "（推奨）"
 
-#: htdocs/luci-static/resources/view/morse/morseapwizard.js:464
+#: /home/lyall/morse_feed_public/luci/luci-app-morseapwizard/htdocs/luci-static/resources/view/morse/morseapwizard.js:476
 msgid "802.11s Mesh"
 msgstr "802.11sメッシュ"
 
-#: htdocs/luci-static/resources/view/morse/morseapwizard.js:355
+#: /home/lyall/morse_feed_public/luci/luci-app-morseapwizard/htdocs/luci-static/resources/view/morse/morseapwizard.js:363
 msgid "802.11s Mesh is currently in beta for this product."
 msgstr "この製品の802.11sメッシュは現在ベータ版です。"
 
-#: htdocs/luci-static/resources/view/morse/morseapwizard.js:58
+#: /home/lyall/morse_feed_public/luci/luci-app-morseapwizard/htdocs/luci-static/resources/view/morse/morseapwizard.js:80
+msgid ""
+"<p>If issues persist, you can factory reset the device:</p> <ul> <li>hold "
+"the mode button until the Status LED starts <strong>slowly flashing green</"
+"strong>, then release the button <li>wait until the LED is <strong>solid "
+"green</strong> <li>find this device at 192.168.12.1 </ul>"
+msgstr ""
+"<p>問題が解決しない場合は、デバイスを工場出荷時設定にリセットできます:</p> "
+"<ul> <li>ステータス LED が<strong>緑でゆっくり点滅</strong>し始めるまでモー"
+"ドボタンを押し続けてから離します <li>LED が<strong>緑で点灯</strong>するまで"
+"待ちます <li>このデバイスに 192.168.12.1 でアクセスします </ul>"
+
+#: /home/lyall/morse_feed_public/luci/luci-app-morseapwizard/htdocs/luci-static/resources/view/morse/morseapwizard.js:75
+msgid ""
+"<p>If you have set your HaLow device type to <strong>mac80211</strong>, "
+"switch it back to <strong>morse</strong> from the <strong><a "
+"href=\"%s\">Quick Config</a></strong> page to use this wizard.</p>"
+msgstr ""
+"<p>HaLow デバイスタイプを <strong>mac80211</strong> に設定している場合は、こ"
+"のウィザードを使用するために <strong><a href=\"%s\">クイック設定</a></strong>"
+" ページから <strong>morse</strong> に戻してください。</p>"
+
+#: /home/lyall/morse_feed_public/luci/luci-app-morseapwizard/htdocs/luci-static/resources/view/morse/morseapwizard.js:58
 msgid ""
 "<p>This device is currently setup as an Access Point mode or equivalent "
 "(shown by a solid green Status LED). If you would like to connect to an "
@@ -43,7 +65,7 @@ msgstr ""
 "す <li>まずアクセスポイント、次にエクステンダーで短くボタンを押すとペアリング"
 "が開始されます。詳細はユーザーガイドをご覧ください </ul>"
 
-#: htdocs/luci-static/resources/view/morse/morseapwizard.js:36
+#: /home/lyall/morse_feed_public/luci/luci-app-morseapwizard/htdocs/luci-static/resources/view/morse/morseapwizard.js:36
 msgid ""
 "<p>This device is currently setup as an Extender (shown by a solid aqua "
 "Status LED), which is not configurable in general. To be able to change "
@@ -70,56 +92,52 @@ msgstr ""
 "セスポイント、次にエクステンダーで短くボタンを押すとペアリングが開始されま"
 "す。詳細はユーザーガイドをご覧ください </ul>"
 
-#: htdocs/luci-static/resources/view/morse/morseapwizard.js:70
+#: /home/lyall/morse_feed_public/luci/luci-app-morseapwizard/htdocs/luci-static/resources/view/morse/morseapwizard.js:70
 msgid ""
-"<p>This device is in a state where this wizard cannot work (%s). To "
-"configure via this page, you should factory reset: <ul> <li>hold the mode "
-"button until the Status LED starts <strong>slowly flashing green</strong>, "
-"then release the button <li>wait until the LED is <strong>solid green</"
-"strong> <li>find this device at 192.168.12.1 </ul>"
+"<p>This device is in a state where this wizard cannot work <strong>(Error: "
+"%s)</strong>. This page is only available when the device is in a compatible "
+"configuration.</p>"
 msgstr ""
-"<p>このウィザードは現在の状態（%s）では動作できません。このページで設定するに"
-"は、工場出荷時設定にリセットしてください。 <ul> <li>ステータス LED が<strong>"
-"緑でゆっくり点滅</strong>し始めるまでモードボタンを押し続けてから離します "
-"<li>LED が<strong>緑で点灯</strong>するまで待ちます <li>このデバイスに "
-"192.168.12.1 でアクセスします </ul>"
+"<p>このデバイスはこのウィザードが動作できない状態です <strong>（エラー: %s）"
+"</strong>。このページは、デバイスが互換性のある設定のときのみ利用できます。</"
+"p>"
 
-#: htdocs/luci-static/resources/view/morse/morseapwizard.js:462
+#: /home/lyall/morse_feed_public/luci/luci-app-morseapwizard/htdocs/luci-static/resources/view/morse/morseapwizard.js:474
 msgid "Access Point"
 msgstr "アクセスポイント"
 
-#: htdocs/luci-static/resources/view/morse/morseapwizard.js:358
+#: /home/lyall/morse_feed_public/luci/luci-app-morseapwizard/htdocs/luci-static/resources/view/morse/morseapwizard.js:366
 msgid ""
 "After saving a 2.4 GHz Wi-Fi uplink configuration, you will need to connect "
 "to the correct network on the Home page. Find the Uplink card, click on the "
 "\"Disconnected\" cross, then set the SSID and password."
 msgstr ""
-"2.4 GHz Wi-Fi アップリンクの設定を保存した後は、ホームメニューから正しいネット"
-"ワークに接続する必要があります。Uplink カードを探し、「未接続」のバツ印"
-"をクリックしてから SSID とパスワードを設定してください。"
+"2.4 GHz Wi-Fi アップリンクの設定を保存した後は、ホームメニューから正しいネッ"
+"トワークに接続する必要があります。Uplink カードを探し、「未接続」のバツ印をク"
+"リックしてから SSID とパスワードを設定してください。"
 
-#: htdocs/luci-static/resources/view/morse/morseaplanding.js:101
+#: /home/lyall/morse_feed_public/luci/luci-app-morseapwizard/htdocs/luci-static/resources/view/morse/morseaplanding.js:101
 msgid "An error occurred while saving the form:"
 msgstr "フォームの保存中にエラーが発生しました:"
 
-#: htdocs/luci-static/resources/view/morse/morseaplanding.js:188
+#: /home/lyall/morse_feed_public/luci/luci-app-morseapwizard/htdocs/luci-static/resources/view/morse/morseaplanding.js:188
 msgid "Apply"
 msgstr "適用"
 
-#: htdocs/luci-static/resources/view/morse/morseaplanding.js:165
+#: /home/lyall/morse_feed_public/luci/luci-app-morseapwizard/htdocs/luci-static/resources/view/morse/morseaplanding.js:165
 msgid ""
 "Before you can use your HaLow device, you must set the country appropriately."
 msgstr "HaLow デバイスを使用する前に、適切な国を設定する必要があります。"
 
-#: htdocs/luci-static/resources/view/morse/morseaplanding.js:137
+#: /home/lyall/morse_feed_public/luci/luci-app-morseapwizard/htdocs/luci-static/resources/view/morse/morseaplanding.js:137
 msgid "Country"
 msgstr "国"
 
-#: htdocs/luci-static/resources/view/morse/morseaplanding.js:104
+#: /home/lyall/morse_feed_public/luci/luci-app-morseapwizard/htdocs/luci-static/resources/view/morse/morseaplanding.js:104
 msgid "Dismiss"
 msgstr "閉じる"
 
-#: htdocs/luci-static/resources/view/morse/morseapwizard.js:350
+#: /home/lyall/morse_feed_public/luci/luci-app-morseapwizard/htdocs/luci-static/resources/view/morse/morseapwizard.js:358
 msgid ""
 "Easy Mesh Controller configuration allows centralized management of WiFi "
 "network credentials. The HaLow Gateway's network credentials will be "
@@ -131,52 +149,52 @@ msgstr ""
 "適用されます。<br><br><i>注意: エクステンダーのWi-Fi接続用QRコードは無効にな"
 "ります。"
 
-#: htdocs/luci-static/resources/view/morse/morseapwizard.js:463
+#: /home/lyall/morse_feed_public/luci/luci-app-morseapwizard/htdocs/luci-static/resources/view/morse/morseapwizard.js:475
 msgid "EasyMesh Controller"
 msgstr "EasyMeshコントローラー"
 
-#: htdocs/luci-static/resources/view/morse/morseapwizard.js:462
+#: /home/lyall/morse_feed_public/luci/luci-app-morseapwizard/htdocs/luci-static/resources/view/morse/morseapwizard.js:474
 msgid "Fastest mode if <4km range."
 msgstr "到達距離が 4 km 未満の場合は最も高速なモードです。"
 
-#: root/usr/share/rpcd/acl.d/luci-app-morseapwizard.json:3
+#: /home/lyall/morse_feed_public/luci/luci-app-morseapwizard/root/usr/share/rpcd/acl.d/luci-app-morseapwizard.json:3
 msgid "Grant enough access for morseapwizard to rewrite config"
 msgstr "morseapwizard が設定を書き換えられるよう十分なアクセス権限を付与します"
 
-#: htdocs/luci-static/resources/view/morse/morseaplanding.js:134
+#: /home/lyall/morse_feed_public/luci/luci-app-morseapwizard/htdocs/luci-static/resources/view/morse/morseaplanding.js:134
 msgid "HaLow Configuration"
 msgstr "HaLow設定"
 
-#: htdocs/luci-static/resources/view/morse/morseapwizard.js:453
+#: /home/lyall/morse_feed_public/luci/luci-app-morseapwizard/htdocs/luci-static/resources/view/morse/morseapwizard.js:465
 msgid "HaLow Mode"
 msgstr "HaLowモード"
 
-#: ucode/template/morse/morseaplanding.ut:8
+#: /home/lyall/morse_feed_public/luci/luci-app-morseapwizard/ucode/template/morse/morseaplanding.ut:8
 msgid "Loading view..."
 msgstr "ビューを読み込み中..."
 
-#: htdocs/luci-static/resources/view/morse/morseapwizard.js:469
-#: htdocs/luci-static/resources/view/morse/morseapwizard.js:484
+#: /home/lyall/morse_feed_public/luci/luci-app-morseapwizard/htdocs/luci-static/resources/view/morse/morseapwizard.js:481
+#: /home/lyall/morse_feed_public/luci/luci-app-morseapwizard/htdocs/luci-static/resources/view/morse/morseapwizard.js:496
 msgid "Network Mode"
 msgstr "ネットワークモード"
 
-#: htdocs/luci-static/resources/view/morse/morseapwizard.js:402
+#: /home/lyall/morse_feed_public/luci/luci-app-morseapwizard/htdocs/luci-static/resources/view/morse/morseapwizard.js:410
 msgid "No non-HaLow Wi-Fi radios found"
 msgstr "HaLow 以外の Wi-Fi 無線が見つかりません"
 
-#: htdocs/luci-static/resources/view/morse/morseaplanding.js:100
+#: /home/lyall/morse_feed_public/luci/luci-app-morseapwizard/htdocs/luci-static/resources/view/morse/morseaplanding.js:100
 msgid "Save error"
 msgstr "保存エラー"
 
-#: htdocs/luci-static/resources/view/morse/morseaplanding.js:151
+#: /home/lyall/morse_feed_public/luci/luci-app-morseapwizard/htdocs/luci-static/resources/view/morse/morseaplanding.js:151
 msgid "System Configuration"
 msgstr "システム設定"
 
-#: htdocs/luci-static/resources/view/morse/morseaplanding.js:152
+#: /home/lyall/morse_feed_public/luci/luci-app-morseapwizard/htdocs/luci-static/resources/view/morse/morseaplanding.js:152
 msgid "System Language"
 msgstr "システム言語"
 
-#: htdocs/luci-static/resources/view/morse/morseaplanding.js:138
+#: /home/lyall/morse_feed_public/luci/luci-app-morseapwizard/htdocs/luci-static/resources/view/morse/morseaplanding.js:138
 msgid ""
 "The country determines the frequencies used by your HaLow device. For "
 "details, see the <a href=\"%s\" target=\"_blank\">regulatory data table</a>."
@@ -184,12 +202,12 @@ msgstr ""
 "国の設定によって HaLow デバイスが使用する周波数が決まります。詳細は <a "
 "href=\"%s\" target=\"_blank\">規制データ表</a> を参照してください。"
 
-#: htdocs/luci-static/resources/view/morse/morseapwizard.js:463
-#: htdocs/luci-static/resources/view/morse/morseapwizard.js:464
+#: /home/lyall/morse_feed_public/luci/luci-app-morseapwizard/htdocs/luci-static/resources/view/morse/morseapwizard.js:475
+#: /home/lyall/morse_feed_public/luci/luci-app-morseapwizard/htdocs/luci-static/resources/view/morse/morseapwizard.js:476
 msgid "Use extra devices for more range."
 msgstr "追加のデバイスを使って通信範囲を広げます。"
 
-#: htdocs/luci-static/resources/view/morse/morseaplanding.js:120
+#: /home/lyall/morse_feed_public/luci/luci-app-morseapwizard/htdocs/luci-static/resources/view/morse/morseaplanding.js:120
 msgid ""
 "Usually, you would set the country for your Morse Micro HaLow device here. "
 "However, no Morse Micro device has been detected. If this is a transient "
@@ -199,12 +217,12 @@ msgstr ""
 "スが検出されませんでした。一時的な問題であれば、後で「ネットワーク -> 無線」"
 "ページで国を設定できます。"
 
-#: htdocs/luci-static/resources/view/morse/morseaplanding.js:119
-#: htdocs/luci-static/resources/view/morse/morseaplanding.js:164
+#: /home/lyall/morse_feed_public/luci/luci-app-morseapwizard/htdocs/luci-static/resources/view/morse/morseaplanding.js:119
+#: /home/lyall/morse_feed_public/luci/luci-app-morseapwizard/htdocs/luci-static/resources/view/morse/morseaplanding.js:164
 msgid "Welcome!"
 msgstr "ようこそ！"
 
-#: htdocs/luci-static/resources/view/morse/morseapwizard.js:476
+#: /home/lyall/morse_feed_public/luci/luci-app-morseapwizard/htdocs/luci-static/resources/view/morse/morseapwizard.js:488
 msgid ""
 "Wi-Fi HaLow devices will get an IP on this device's local network and use "
 "2.4 GHz Wi-Fi for an uplink (not an Ethernet cable)."
@@ -212,24 +230,37 @@ msgstr ""
 "Wi-Fi HaLowデバイスはこのデバイスのローカルネットワークでIPを取得し、アップリ"
 "ンクには（イーサネットケーブルではなく）2.4GHz Wi-Fiを使用します。"
 
-#: htdocs/luci-static/resources/view/morse/morseapwizard.js:472
+#: /home/lyall/morse_feed_public/luci/luci-app-morseapwizard/htdocs/luci-static/resources/view/morse/morseapwizard.js:484
 msgid "Wi-Fi HaLow devices will get an IP on this device's local network."
 msgstr ""
 "Wi-Fi HaLowデバイスはこのデバイスのローカルネットワークでIPを取得します。"
 
-#: htdocs/luci-static/resources/view/morse/morseapwizard.js:474
+#: /home/lyall/morse_feed_public/luci/luci-app-morseapwizard/htdocs/luci-static/resources/view/morse/morseapwizard.js:486
 msgid "Wi-Fi HaLow devices will get an IP on your existing router's network."
 msgstr "Wi-Fi HaLowデバイスは既存のルーターのネットワークでIPを取得します。"
 
-#: htdocs/luci-static/resources/view/morse/morseapwizard.js:423
-#: htdocs/luci-static/resources/view/morse/morseapwizard.js:494
-#: root/usr/share/luci/menu.d/luci-app-morseapwizard.json:11
+#: /home/lyall/morse_feed_public/luci/luci-app-morseapwizard/htdocs/luci-static/resources/view/morse/morseapwizard.js:435
+#: /home/lyall/morse_feed_public/luci/luci-app-morseapwizard/htdocs/luci-static/resources/view/morse/morseapwizard.js:506
+#: /home/lyall/morse_feed_public/luci/luci-app-morseapwizard/root/usr/share/luci/menu.d/luci-app-morseapwizard.json:11
 msgid "Wizard"
 msgstr "ウィザード"
 
-#: htdocs/luci-static/resources/view/morse/morseaplanding.js:153
+#: /home/lyall/morse_feed_public/luci/luci-app-morseapwizard/htdocs/luci-static/resources/view/morse/morseaplanding.js:153
 msgid "auto"
 msgstr "自動"
+
+#~ msgid ""
+#~ "<p>This device is in a state where this wizard cannot work (%s). To "
+#~ "configure via this page, you should factory reset: <ul> <li>hold the mode "
+#~ "button until the Status LED starts <strong>slowly flashing green</"
+#~ "strong>, then release the button <li>wait until the LED is <strong>solid "
+#~ "green</strong> <li>find this device at 192.168.12.1 </ul>"
+#~ msgstr ""
+#~ "<p>このウィザードは現在の状態（%s）では動作できません。このページで設定す"
+#~ "るには、工場出荷時設定にリセットしてください。 <ul> <li>ステータス LED が"
+#~ "<strong>緑でゆっくり点滅</strong>し始めるまでモードボタンを押し続けてから"
+#~ "離します <li>LED が<strong>緑で点灯</strong>するまで待ちます <li>このデバ"
+#~ "イスに 192.168.12.1 でアクセスします </ul>"
 
 #~ msgid ""
 #~ "<p>Easy Mesh Controller configuration allows centralized management of "

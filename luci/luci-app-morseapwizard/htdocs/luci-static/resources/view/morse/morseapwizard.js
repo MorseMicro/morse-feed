@@ -68,9 +68,17 @@ reset the device to Extender mode (shown by a solid aqua Status LED):
 `).trim();
 
 const INVALID_CONFIG_MESSAGE = _(`
-<p>This device is in a state where this wizard cannot work (%s).
+<p>This device is in a state where this wizard cannot work <strong>(Error: %s)</strong>.
+This page is only available when the device is in a compatible configuration.</p>
+`).trim();
 
-To configure via this page, you should factory reset:
+const INVALID_HALOW_DEVICE_TYPE_MESSAGE = _(`
+<p>If you have set your HaLow device type to <strong>mac80211</strong>, switch it back to
+<strong>morse</strong> from the <strong><a href="%s">Quick Config</a></strong> page to use this wizard.</p>
+`).format(L.url('admin', 'config'));
+
+const RESET_DEVICE_MESSAGE = _(`
+<p>If issues persist, you can factory reset the device:</p>
 
 <ul>
 	<li>hold the mode button until the Status LED starts <strong>slowly flashing green</strong>,
@@ -402,7 +410,11 @@ return view.extend({
 					this.errorMessage = INVALID_CONFIG_MESSAGE.format(_('No non-HaLow Wi-Fi radios found'));
 				}
 			} catch (e) {
-				this.errorMessage = INVALID_CONFIG_MESSAGE.format(e.message);
+				this.errorMessage = `
+					${INVALID_CONFIG_MESSAGE.format(e.message)}
+					${L.hasSystemFeature('morse_native_s1g') && INVALID_HALOW_DEVICE_TYPE_MESSAGE}
+					${RESET_DEVICE_MESSAGE}
+				`;
 			}
 		}
 
