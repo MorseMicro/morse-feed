@@ -4,7 +4,7 @@
 		"write": {
 			"ubus": {
 				"umdns": [ "update", "browse" ],
-				"rangetest": [ 
+				"rangetest": [
 					"background_iperf3_server",
 					"background_iperf3_client",
 					"get_background",
@@ -15,16 +15,16 @@
 					"morse_cli_channel",
 					"ip_link",
 					"remote_device_login",
-					"remote_device_call" 
+					"remote_device_call"
 				]
 			},
 			"file": {
+				"/bin/mkdir -p /tmp/rangetest" : [ "exec" ],
 				"/tmp/rangetest/*": [ "write", "remove" ]
 			}
 		},
 		"read": {
 			"file": {
-				"mkdir -p /tmp/rangetest" : [ "exec" ],
 				"/tmp/rangetest" : [ "list" ],
 				"/tmp/rangetest/*" : [ "read" ]
 			},

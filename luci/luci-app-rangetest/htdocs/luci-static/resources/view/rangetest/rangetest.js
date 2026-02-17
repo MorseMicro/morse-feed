@@ -537,7 +537,7 @@ async function runRangetest(cancelPromise, configuration, testProgressBar, updat
 	} finally {
 		inProgressTestId = null;
 		updateResultsSummaryRow(testResults);
-		saveLocalTest(testResults.id, testResults);
+		await saveLocalTest(testResults.id, testResults);
 	}
 }
 
@@ -570,11 +570,11 @@ async function deleteLocalTest(testId) {
 	}
 }
 
-function saveLocalTest(testId, data) {
+async function saveLocalTest(testId, data) {
 	const path = `${TEST_RESULT_DIRECTORY}/${testId}`;
 	try {
-		fs.exec_direct('mkdir', ['-p', TEST_RESULT_DIRECTORY]);
-		fs.write(path, JSON.stringify(data));
+		await fs.exec('/bin/mkdir', ['-p', TEST_RESULT_DIRECTORY]);
+		await fs.write(path, JSON.stringify(data));
 	} catch (error) {
 		console.warn(`Error saving file: ${path}`, error);
 	}
