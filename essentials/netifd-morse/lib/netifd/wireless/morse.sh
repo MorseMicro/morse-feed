@@ -38,9 +38,9 @@ TX_Q_CONFIGS=" tx_queue_data3_aifs tx_queue_data3_cwmin tx_queue_data3_cwmax tx_
 			   tx_queue_data1_aifs tx_queue_data1_cwmin tx_queue_data1_cwmax tx_queue_data1_burst
 			   tx_queue_data0_aifs tx_queue_data0_cwmin tx_queue_data0_cwmax tx_queue_data0_burst"
 WMM_AC_CONFIGS="wmm_ac_bk_aifs wmm_ac_bk_cwmin wmm_ac_bk_cwmax wmm_ac_bk_txop_limit wmm_ac_bk_acm
-			    wmm_ac_be_aifs wmm_ac_be_cwmin wmm_ac_be_cwmax wmm_ac_be_txop_limit wmm_ac_be_acm
-			    wmm_ac_vi_aifs wmm_ac_vi_cwmin wmm_ac_vi_cwmax wmm_ac_vi_txop_limit wmm_ac_vi_acm
-			    wmm_ac_vo_aifs wmm_ac_vo_cwmin wmm_ac_vo_cwmax wmm_ac_vo_txop_limit wmm_ac_vo_acm "
+				wmm_ac_be_aifs wmm_ac_be_cwmin wmm_ac_be_cwmax wmm_ac_be_txop_limit wmm_ac_be_acm
+				wmm_ac_vi_aifs wmm_ac_vi_cwmin wmm_ac_vi_cwmax wmm_ac_vi_txop_limit wmm_ac_vi_acm
+				wmm_ac_vo_aifs wmm_ac_vo_cwmin wmm_ac_vo_cwmax wmm_ac_vo_txop_limit wmm_ac_vo_acm "
 RAW_BLOCK_CONFIGS="raw0_enabled raw0_start_time_us raw0_duration_us raw0_slots raw0_cross_slot
 				raw0_max_beacon_spread raw0_nominal_stas_per_beacon raw0_start_offset raw0_period
 				raw1_enabled raw1_start_time_us raw1_duration_us raw1_slots raw1_cross_slot
@@ -67,28 +67,27 @@ check_cac(){
 	json_select ..
 }
 
+check_powersave_iface() {
+	local disabled powersave
 
-check_powersave(){
-	powersave_val=0
-	json_select interfaces
-	json_get_keys interface_ids
+	json_select config
+	json_get_var disabled disabled
 
-	for id in $interface_ids; do
-		json_select "$id"
-		if json_is_a config object;then
-			json_select config
-			json_get_var powersave powersave
-			if [ -n "$powersave" ] && [ "$powersave" = "1" ]; then
-				powersave_val=1
-				json_select ..; json_select ..
-				break
-			fi
-			json_select ..
-		fi
+	if [ "$disabled" = 1 ]; then
 		json_select ..
-	done
+		return
+	fi
+
+	num_iface=$((num_iface + 1))
+
+	json_get_var powersave powersave
+	if [ "$powersave" = "1" ]; then
+		ps_requested_by_iface=1
+	fi
+
 	json_select ..
 }
+
 
 get_sgi_config() {
 	enable_sgi=1
@@ -209,17 +208,22 @@ build_mod_params() {
 
 	MOD_PARAMS="$MOD_PARAMS macaddr_suffix=$ETH0_MAC_SUFFIX"
 
-	# APP-4887: Keep powersave disabled by default on USB-based Morse devices to ensure the LED remains functional.
-	local is_usb=0
-	case "$path" in
-		*usb*) is_usb=1 ;;
-	esac
+	num_iface=0
+	ps_requested_by_iface=0
+	for_each_interface "ap sta adhoc mesh none monitor" check_powersave_iface
 
-	if [ "$is_usb" -eq 1 ]; then
-		check_powersave
-		if [ "$powersave_val" -eq 0 ]; then
-			MOD_PARAMS="$MOD_PARAMS enable_ps=0"
-		fi
+	# APP-4887: Keep powersave disabled by default on USB-based Morse devices to ensure the LED remains functional.
+	is_usb=0
+	case "$path" in *usb*) is_usb=1 ;; esac
+
+	ps_disabled_by_modparam=0
+	if [ "$num_iface" -gt 1 ]; then
+		MOD_PARAMS="$MOD_PARAMS enable_ps=0"
+		ps_disabled_by_modparam=1
+		[ "$ps_requested_by_iface" -eq 1 ] && echo "WARNING: Power save feature is not supported in multi interface"
+	elif [ "$ps_requested_by_iface" -eq 0 ] && [ "$is_usb" -eq 1 ]; then
+		MOD_PARAMS="$MOD_PARAMS enable_ps=0"
+		ps_disabled_by_modparam=1
 	fi
 
 	MOD_PARAMS=`echo $MOD_PARAMS | xargs`
@@ -793,14 +797,13 @@ morse_iface_create() {
 				iw dev "$ifname" set 4addr off
 			fi
 
-			# Disable powersave for Morse USB mode as a workaround for APP-3745
-			if iwinfo nl80211 path "$phy" | grep -q "usb"; then
-				set_default powersave 0
-			else
-				set_default powersave 1
+			# When power save was disabled by mod param, skip iw powersave.
+			if [ "$ps_disabled_by_modparam" -eq 0 ]; then
+				# Keep powersave disabled by default for USB mode (APP-3745)
+				[ "$is_usb" -eq 1 ] && set_default powersave 0 || set_default powersave 1
+				[ "$powersave" -gt 0 ] && powersave="on" || powersave="off"
+				iw dev "$ifname" set power_save "$powersave"
 			fi
-			[ "$powersave" -gt 0 ] && powersave="on" || powersave="off"
-			iw dev "$ifname" set power_save "$powersave"
 		;;
 
 		mesh)
@@ -1324,7 +1327,7 @@ EOF
 
 morse_hostapd_add_raw() {
 	local enabled start_time_us duration_us slots cross_slot \
-	      max_beacon_spread nominal_stas_per_beacon
+		  max_beacon_spread nominal_stas_per_beacon
 	#Clear previous raw_block
 	raw_block=""
 	local max_raw=8 idx=-1
