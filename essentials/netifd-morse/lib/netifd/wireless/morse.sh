@@ -526,19 +526,6 @@ drv_morse_setup() {
 		return 1
 	fi
 
-	# wlan? is automatically created on module insertion, but will
-	# usually have been cleaned up by the hotplug. However, if we've
-	# just inserted the module, wait a little for the hotplug to run
-	# so we (a) can claim wlan? and (b) don't have our interfaces
-	# deleted by the hotplug (unlikely, but theoretically possible).
-	if [ "$inserted_module" = 1 ]; then
-		retries=3
-		while [ -d "/sys/class/ieee80211/$phy/device/net" ] && [ "$retries" -gt 0 ]; do
-			sleep 1
-			retries="$((retries - 1))"
-		done
-	fi
-
 	json_add_object data
 	json_add_string phy "$phy"
 	json_close_object
