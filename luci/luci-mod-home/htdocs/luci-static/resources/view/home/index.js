@@ -704,14 +704,46 @@ async function createUplinkCard(netIface, wifiDevices, wifiNetworks, hasQRCode) 
 		speed = device.getSpeed();
 	}
 
-	let isUp = netIface.isUp() && device.isUp() && device.getCarrier();
 	const ips = [netIface.getIPAddr(), netIface.getIP6Addr()].filter(e => e);
 	const qrcodeDppMode = hasQRCode && wifiNetwork && isHaLow(wifiNetwork) && wifiNetwork.get('dpp') === '1';
 
-	if (wifiNetwork?.assoclist && wifiNetwork.assoclist.length === 0) {
+	let isUp = false;
+	let connStatus = '✘';
+	let connClass = 'medium-number';
+	let connStatusStyle;
+	let connString;
+	const connStringAttrs = { class: 'big-text click-to-expand' };
+	if (!device.isUp()) {
+		// Disabled — device is down.
+		connString = _('Disabled');
+	} else if (!device.getCarrier() || (wifiNetwork?.assoclist && wifiNetwork.assoclist.length === 0)) {
+		// Disconnected — device is up but the link is down.
 		// AP/Mesh Point/IBSS can be 'up' without any associations. Treat this as down
 		// for the purposes of an uplink.
-		isUp = false;
+		connString = _('Disconnected');
+		connStringAttrs.style = 'cursor: help';
+		connStringAttrs['data-tooltip'] = _('Device is up but the link is down');
+	} else if (!netIface.isUp()) {
+		// No IP — link is up but DHCP has not completed.
+		connStatus = '～';
+		connStatusStyle = 'font-size: 5rem';
+		connString = _('No IP');
+		connStringAttrs.style = 'cursor: help';
+		connStringAttrs['data-tooltip'] = _('Link is up but no IP address has been assigned');
+	} else {
+		isUp = true;
+		// Connected — show speed if available.
+		if (speed >= 1000) {
+			connStatus = `${Math.round(speed / 100) / 10} Gbps`;
+			connString = _('Max Throughput');
+		} else if (speed > 0) {
+			connStatus = `${Math.round(speed * 10) / 10} Mbps`;
+			connString = _('Max Throughput');
+		} else {
+			connStatus = '✔';
+			connClass = 'big-number';
+			connString = _('Connected');
+		}
 	}
 
 	let connectMethods;
@@ -724,23 +756,6 @@ async function createUplinkCard(netIface, wifiDevices, wifiNetworks, hasQRCode) 
 		const id = `client-connect-methods-${wifiNetwork.getDevice().getName()}`;
 		connectMethods = document.getElementById(id) || await renderUplinkWifiConnectMethods(id, hasQRCode, wifiNetwork, isUp);
 		updateUplinkWifiConnectMethods(connectMethods, isUp);
-	}
-
-	let connStatus = '✘';
-	let connClass = 'medium-number';
-	let connString = _('Disconnected');
-	if (isUp) {
-		if (speed >= 1000) {
-			connStatus = `${Math.round(speed / 100) / 10} Gbps`;
-			connString = _('Max Throughput');
-		} else if (speed > 0) {
-			connStatus = `${Math.round(speed * 10) / 10} Mbps`;
-			connString = _('Max Throughput');
-		} else {
-			connStatus = '✔';
-			connClass = 'big-number';
-			connString = _('Connected');
-		}
 	}
 
 	return new Card(`uplink-${netIface.getName()}`, {
@@ -772,8 +787,8 @@ async function createUplinkCard(netIface, wifiDevices, wifiNetworks, hasQRCode) 
 					}),
 				])
 				: E('div', { class: 'main-counter' }, [
-					E('button', { class: `${connClass} click-to-expand` }, connStatus),
-					E('button', { class: 'big-text click-to-expand' }, connString),
+					E('button', { class: `${connClass} click-to-expand`, style: connStatusStyle }, connStatus),
+					E('button', connStringAttrs, connString),
 				]),
 		],
 		maxContents: wifiNetwork && [
