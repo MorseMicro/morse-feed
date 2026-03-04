@@ -20,7 +20,7 @@ MM_MOD_INT="watchdog_interval_secs max_rates max_rate_tries spi_clock_speed max_
 MM_MOD_BOOL="enable_mac80211_connection_monitor mcs10_mode enable_rts_8mhz
 			enable_otp_check enable_survey enable_subbands enable_ps enable_trav_pilot enable_watchdog_reset
 			enable_watchdog no_hwcrypt enable_raw enable_arp_offload enable_dynamic_ps_offload
-			enable_coredump enable_mbssid_ie enable_trav_pilot enable_cts_to_self
+			enable_coredump enable_mbssid_ie enable_trav_pilot enable_cts_to_self enable_airtime_fairness
 			enable_twt enable_bcn_change_seq_monitor enable_dhcpc_offload enable_ibss_probe_filtering enable_auto_duty_cycle
 			enable_auto_mpsw enable_mcast_whitelist log_modparams_on_boot enable_fixed_rate spi_use_edge_irq
 			enable_sched_scan enable_1mhz_probes enable_ext_xtal_init
@@ -178,13 +178,13 @@ build_mod_params() {
 		MOD_PARAMS="$MOD_PARAMS enable_4v3_fem=1"
 	fi
 
+	json_get_var enable_airtime_fairness "enable_airtime_fairness"
+	[ -z "$enable_airtime_fairness" ] && MOD_PARAMS="$MOD_PARAMS enable_airtime_fairness=1"
+
 	for var in $MM_MOD_BOOL $MM_MOD_INT $MM_MOD_STRING; do
 		json_get_var mm_mod_val "$var"
 		[ -n "$mm_mod_val" ] && MOD_PARAMS="$MOD_PARAMS $var=$mm_mod_val"
 	done
-
-	# Always enable airtime fairness
-	MOD_PARAMS="$MOD_PARAMS enable_airtime_fairness=1"
 
 	case "$firmware_type" in
 		''|softmac)
