@@ -47,6 +47,7 @@ define Package/morse-bundle/install
 	$(INSTALL_DIR) $(1)/etc/boot-defaults
 	$(INSTALL_DIR) $(1)/etc/sysctl.d
 	$(INSTALL_DIR) $(1)/morse/scripts
+	$(INSTALL_DIR) $(1)/usr/share/rpcd/acl.d
 	$(if $(CONFIG_TARGET_bcm27xx_bcm2711), \
 		$(INSTALL_BIN) ./files/etc/init.d_bcm2711/* $(1)/etc/init.d/.)
 	$(INSTALL_BIN) ./files/etc/uci-defaults/* $(1)/etc/uci-defaults/.
@@ -58,6 +59,7 @@ define Package/morse-bundle/install
 	$(INSTALL_BIN) ./files/etc/board.d/* $(1)/etc/board.d/.
 	$(INSTALL_BIN) ./files/etc/init.d/* $(1)/etc/init.d/.
 	$(INSTALL_BIN) ./files/etc/sysctl.d/* $(1)/etc/sysctl.d/
+	$(INSTALL_DATA) ./files/usr/share/rpcd/acl.d/morse-bundle.json $(1)/usr/share/rpcd/acl.d/
 endef
 
 $(eval $(call BuildPackage,morse-bundle))

@@ -1,0 +1,13 @@
+{
+    "morse-bundle": {
+        "description": "Allow enabling dropbear via rpcd",
+        "write": {
+            "ubus": {
+                "uci": [ "set", "commit" ]
+            },
+            "uci": {
+                "dropbear": [ "write" ]
+            }
+        }
+    }
+}
