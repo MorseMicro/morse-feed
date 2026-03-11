@@ -179,7 +179,7 @@ build_mod_params() {
 	fi
 
 	json_get_var enable_airtime_fairness "enable_airtime_fairness"
-	[ -z "$enable_airtime_fairness" ] && MOD_PARAMS="$MOD_PARAMS enable_airtime_fairness=1"
+	[ -z "$enable_airtime_fairness" ] && [ "$firmware_type" != "fullmac" ] && MOD_PARAMS="$MOD_PARAMS enable_airtime_fairness=1"
 
 	for var in $MM_MOD_BOOL $MM_MOD_INT $MM_MOD_STRING; do
 		json_get_var mm_mod_val "$var"
