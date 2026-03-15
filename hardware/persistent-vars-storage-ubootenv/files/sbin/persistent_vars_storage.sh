@@ -54,7 +54,8 @@ show_factory_data()
 
 	case "$board_name" in
 		morse,halowlink1 |\
-		morse,halowlink2)
+		morse,halowlink2 |\
+		morse,halowlink-apx)
 			case "$1" in
 				device_password)
 					show_raw_partition_data factory 0x40a0 32
@@ -120,7 +121,8 @@ else
 	fi
 	case "$_board_name" in
 		morse,halowlink1|\
-		morse,halowlink2)
+		morse,halowlink2|\
+		morse,halowlink-apx)
 			conffile=/tmp/fw_sys_fallback.config
 			echo '/dev/mtd1 0x0 0x8000 0x1000' > "$conffile"
 			;;
