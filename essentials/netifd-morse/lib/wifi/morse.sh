@@ -35,7 +35,7 @@ detect_morse() {
 
 		dev="${_dev##*/}"
 
-		local path="$(iwinfo dot11ah path "$dev")"
+		local path="$(iwinfo nl80211 path "$dev")"
 		local macaddr="$(cat /sys/class/ieee80211/${dev}/macaddress)"
 		local board_type="$(cat /sys/class/ieee80211/${dev}/device/board_type)"
 
@@ -57,8 +57,8 @@ detect_morse() {
 			# If it does, avoid updating the path because having two sysfs entries for the same Morse device
 			# indicates an invalid or inconsistent system state.
 			config_get devpath ${morse_device} path
-			phy="$(iwinfo dot11ah phyname "path=$devpath")"
-			if [ "$phy" != "$dev" ]; then
+			phy="$(iwinfo nl80211 phyname "path=$devpath")"
+			if [ -n "$phy" ] && [ "$phy" != "$dev" ]; then
 				logger -p 3 -t wifi-morse "Ignoring $dev, as Morse device $phy already exists."
 				continue
 			fi

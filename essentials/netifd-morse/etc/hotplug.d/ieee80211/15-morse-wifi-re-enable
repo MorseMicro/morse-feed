@@ -76,9 +76,23 @@ for radio in $radios; do
 	json_select ..
 	json_select ..
 
+	# network.wireless status' path may be stale on USB replug until netifd updates it.
+	# Prefer UCI which is updated by 10-wifi-detect.
+	uci_path="$(uci -q get "wireless.${radio}.path")"
+	if [ -n "$uci_path" ]; then
+		path="$uci_path"
+	fi
+
 	if [ "$band" != "s1g" ]; then
 		# This code should work in the generic case, but currently it's in netifd-morse
 		# so let's only try to deal with Morse wifi chips.
+		continue
+	fi
+
+	if [ -z "$path" ]; then
+		# The radio may be identified by MAC address rather than path in UCI which means that
+		# the DEVPATH from the hotplug event cannot be matched.
+		logger -t morse-wifi-re-enable "Could not find a configured path for $radio"
 		continue
 	fi
 
