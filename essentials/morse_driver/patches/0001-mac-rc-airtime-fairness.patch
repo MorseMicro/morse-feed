@@ -1,0 +1,54 @@
+From a74c40de3eff160bcf787fffcd4e59c19859acc6 Mon Sep 17 00:00:00 2001
+From: Lachlan Hodges <lachlan.hodges@morsemicro.com>
+Date: Wed, 25 Feb 2026 13:50:56 +1100
+Subject: [PATCH] TEST mac/rc airtime fairness
+
+---
+ mac.c | 1 +
+ rc.c  | 4 ++++
+ 2 files changed, 5 insertions(+)
+
+diff --git a/mac.c b/mac.c
+index fd808494ce14..fc39b3d7fa1f 100644
+--- a/mac.c
++++ b/mac.c
+@@ -6826,6 +6826,7 @@ static void morse_mac_config_wiphy(struct morse *mors)
+ 
+ 	wiphy_ext_feature_set(wiphy, NL80211_EXT_FEATURE_SET_SCAN_DWELL);
+ 	wiphy_ext_feature_set(wiphy, NL80211_EXT_FEATURE_VHT_IBSS);
++	wiphy_ext_feature_set(wiphy, NL80211_EXT_FEATURE_AIRTIME_FAIRNESS);
+ 
+ 	comb = kcalloc(1, sizeof(*comb), GFP_KERNEL);
+ 	if_limits = kcalloc(1, sizeof(*if_limits), GFP_KERNEL);
+diff --git a/rc.c b/rc.c
+index ca65f0a2ac35..50b931e160ea 100644
+--- a/rc.c
++++ b/rc.c
+@@ -674,6 +674,7 @@ void morse_rc_sta_feedback_rates(struct morse *mors, struct sk_buff *skb,
+ 	struct morse_sta *msta = NULL;
+ 	struct ieee80211_vif *vif = NULL;
+ 	struct morse_vif *mors_vif;
++	u64 tx_airtime = 0;
+ 
+ 	vif = txi->control.vif ? txi->control.vif : morse_get_vif_from_tx_status(mors, tx_sts);
+ 
+@@ -699,6 +700,7 @@ void morse_rc_sta_feedback_rates(struct morse *mors, struct sk_buff *skb,
+ 		rates.rates[i].bw = morse_ratecode_bw_index_get(tx_sts->rates[i].morse_ratecode);
+ 		rates.rates[i].flags = morse_ratecode_rts_get(tx_sts->rates[i].morse_ratecode);
+ 		rates.rates[i].attempts = txi->control.rates[i].count;
++		tx_airtime += mmrc_calculate_rate_tx_time(&rates.rates[i], skb->len);
+ 	}
+ 
+ 	if (msta) {
+@@ -727,6 +729,8 @@ void morse_rc_sta_feedback_rates(struct morse *mors, struct sk_buff *skb,
+ 	morse_rc_sta_set_rates(mors, msta, &rates, attempts,
+ 			       !!(le32_to_cpu(tx_sts->flags) & MORSE_TX_STATUS_WAS_AGGREGATED));
+ 
++	ieee80211_sta_register_airtime(sta, tx_sts->tid, tx_airtime, 0);
++
+ exit:
+ 	ieee80211_tx_info_clear_status(txi);
+ 
+-- 
+2.43.0
+
