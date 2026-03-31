@@ -18,7 +18,8 @@
 				"sysupgrade": ["*"],
 				"file": [ "exec", "read", "stat" ],
 				"luci": [ "getLocaltime" ]
-			}
+			},
+			"uci": [ "system", "upgrade" ]
 		},
 		"write": {
 			"file": {
