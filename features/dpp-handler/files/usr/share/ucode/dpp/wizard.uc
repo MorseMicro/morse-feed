@@ -196,6 +196,7 @@ function apply_custom_config(uci, config) {
 		if (!check_config(config, ["country", "ssid", "key", "encryption"])) {
 			return false;
 		}
+
 		uci.set("wireless", target.device, "country", config.country);
 		if (config.s1g_chzn) {
 			uci.set("wireless", target.device, "s1g_chzn", config.s1g_chzn);
@@ -215,12 +216,15 @@ function apply_custom_config(uci, config) {
 		if (!check_config(config, ["country", "channel", "mesh_id", "key", "encryption"])) {
 			return false;
 		}
+
 		uci.set("wireless", target.device, "country", config.country);
 		uci.set("wireless", target.device, "channel", config.channel);
-		if (config.s1g_chzn) {
-			uci.set("wireless", target.device, "s1g_chzn", config.s1g_chzn);
-		} else {
-			uci.delete("wireless", target.device, "s1g_chzn", config.s1g_chzn);
+		for (let chn_config in ["s1g_chzn", "s1g_prim_chwidth", "s1g_prim_1mhz_chan_index"]) {
+			if (config[chn_config]) {
+				uci.set("wireless", target.device, chn_config, config[chn_config]);
+			} else {
+				uci.delete("wireless", target.device, chn_config);
+			}
 		}
 
 		uci.set("wireless", target.iface, "mode", "mesh");
@@ -239,6 +243,7 @@ function apply_custom_config(uci, config) {
 			warn("Configurator requests prplmesh but prplmesh is not installed.");
 			return false;
 		}
+
 		uci.set("wireless", target.device, "country", config.country);
 		// prplmesh shouldn't require a channel, but currently does due to
 		// a bug with bringing up a HaLow AP and STA at the same time.
@@ -359,6 +364,8 @@ function generate_custom_config(uci) {
 				country: uci.get("wireless", morse_device, "country"),
 				s1g_chzn: uci.get("wireless", morse_device, "s1g_chzn"),
 				channel: uci.get("wireless", morse_device, "channel"),
+				s1g_prim_chwidth: uci.get("wireless", morse_device, "s1g_prim_chwidth"),
+				s1g_prim_1mhz_chan_index: uci.get("wireless", morse_device, "s1g_prim_1mhz_chan_index"),
 				mesh_id: uci.get("wireless", iface, "mesh_id"),
 				key: uci.get("wireless", iface, "key"),
 				encryption: uci.get("wireless", iface, "encryption"),

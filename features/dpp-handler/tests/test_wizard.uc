@@ -64,6 +64,8 @@ function mock_ap_uci_data() {
 				country: "AU",
 				channel: "44",
 				s1g_chzn: "80211_2020",
+				s1g_prim_1mhz_chan_index: "0",
+				s1g_prim_chwidth: "1",
 			},
 			default_radio0: {
 				".type": "wifi-iface",
@@ -250,6 +252,8 @@ return {
 		assert(conf_extra.country === "AU");
 		assert(conf_extra.channel === "44");
 		assert(conf_extra.s1g_chzn === "80211_2020");
+		assert(conf_extra.s1g_prim_chwidth) === "1";
+		assert(conf_extra.s1g_prim_1mhz_chan_index === "0");
 	},
 
 	generate_dpp_command_unsupported_encryption_returns_null: function () {
