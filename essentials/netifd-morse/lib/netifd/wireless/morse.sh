@@ -300,6 +300,9 @@ drv_morse_init_iface_config() {
 	#cac
 	config_add_boolean cac
 
+	#auth_retry_backoff
+	config_add_string auth_retry_backoff
+
 	#raw
 	config_add_int raw_sta_priority
 	config_add_int raw

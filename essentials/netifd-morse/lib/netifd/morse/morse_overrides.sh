@@ -1104,6 +1104,21 @@ morse_override_wpa_supplicant_add_network() {
 	json_get_vars cac
 	[ -n "$cac" ] && append network_data "cac=$cac" "$N$T"
 
+	json_get_vars auth_retry_backoff
+	if [ -n "$auth_retry_backoff" ]; then
+		case "$auth_retry_backoff" in
+			*[!0-9\ ]*) echo "WARNING: auth_retry_backoff contains invalid characters, ignoring '$auth_retry_backoff'" ;;
+			*)
+				local _ok=1 _n=0
+				for _v in $auth_retry_backoff; do
+					_n=$(( _n + 1 ))
+					[ "$_v" -eq 0 ] && { echo "WARNING: auth_retry_backoff zero at position $_n, ignoring '$auth_retry_backoff'"; _ok=0; break; }
+				done
+				[ "$_ok" -eq 1 ] && [ "$_n" -gt 0 ] && append network_data "auth_retry_backoff=$auth_retry_backoff" "$N$T"
+				;;
+		esac
+	fi
+
 	json_get_vars twt wake_interval min_wake_duration setup_command
 	twt_block=
 	if [ "${twt:=0}" -eq "1" ]; then
