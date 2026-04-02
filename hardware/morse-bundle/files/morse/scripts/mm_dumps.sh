@@ -157,7 +157,7 @@ s() {
 
 # Sanitise a keyword from a file
 #
-#   sanitise_uci_file [option_name] files/etc/config/wireless
+#   sanitise_uci_files [option_name] files/etc/config/wireless
 #
 # This function will sanitise the lines with the specified uci options in them.
 #
@@ -167,12 +167,48 @@ sanitise_uci_files() {
 	sed -i "s/option[[:space:]]\+$option_name[[:space:]].*/option $option_name 'SANITISED'/" "$@"
 }
 
+# Sanitise a key=value field across a set of files
+#
+#   sanitise_key_value_files [key_name] files/var/run/hostapd-*.conf
+#
+sanitise_key_value_files() {
+	key_name=$1
+	shift
+	sed -i "s/^$key_name=.*/$key_name=SANITISED/" "$@"
+}
+
+# Sanitise sensitive fields from hostapd config files
+# (wpa_passphrase, wpa_psk, sae_password, multi_ap_backhaul_wpa_*)
+#
+sanitise_hostapd_conf_files() {
+	local files
+	files=$(find files/var/run -name 'hostapd-*.conf' 2>/dev/null)
+	[ -z "$files" ] && return
+	sanitise_key_value_files wpa_passphrase $files
+	sanitise_key_value_files wpa_psk $files
+	sanitise_key_value_files sae_password $files
+	sanitise_key_value_files multi_ap_backhaul_wpa_passphrase $files
+	sanitise_key_value_files multi_ap_backhaul_wpa_psk $files
+}
+
+# Sanitise keys from hostapd PSK files (/var/run/hostapd-*.psk)
+# Each line format: [vlanid=VID ]  <MAC>  <KEY>
+# Replace everything after the MAC address with SANITISED.
+#
+sanitise_hostapd_psk_files() {
+	find files/var/run -name 'hostapd-*.psk' 2>/dev/null | while read f; do
+		sed -i 's/\([[:xdigit:]:]\{17\}[[:space:]]\+\).*/\1SANITISED/' "$f"
+	done
+}
+
 # Remove sensitive data from the dump
 #
 sanitise_dump() {
 	sanitise_uci_files password files/etc/config/*
 	sanitise_uci_files key files/etc/config/wireless
 	sanitise_uci_files default_wifi_key files/etc/config/system
+	sanitise_hostapd_conf_files
+	sanitise_hostapd_psk_files
 }
 
 echo "Saving info to $OUTPUT_PATH/$DEBUG_DIR"
