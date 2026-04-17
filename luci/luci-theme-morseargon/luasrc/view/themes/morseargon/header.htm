@@ -116,7 +116,8 @@
 		{"/sbin/persistent_vars_storage.sh", "READ", "mm_virtual_wire"},
 		true
 	).stdout == "1\n";
-	local morse_test_mode = posix.stat("/etc/modules.d/morse-test-driver", "type") ~= nil;
+	local morse_test_mode = posix.stat("/etc/modules.d/morse-81x-test", "type") ~= nil
+		or posix.stat("/etc/modules.d/morse-61x-test", "type") ~= nil;
 -%>
 <!DOCTYPE html>
 <html lang="<%=luci.i18n.context.lang%>">
