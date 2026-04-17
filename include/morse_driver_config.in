@@ -1,3 +1,9 @@
+config MORSE_USB
+	bool "USB support"
+	depends on USB_SUPPORT
+	default y if PACKAGE_kmod-morse-81x || PACKAGE_kmod-morse-81x-test
+	default n
+
 config MORSE_SDIO
 	bool "SDIO support "
 	default y

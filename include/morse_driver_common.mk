@@ -1,51 +1,11 @@
-#
-# Copyright 2022 Morse Micro
-#
-# This is free software, licensed under the GPL 2 license.
-#
-
-include $(TOPDIR)/rules.mk
-
-PKG_NAME:=morse_driver
-PKG_RELEASE=3
-
-PKG_VERSION:=1.17.8
-
 PKG_LICENSE:=GPLv2
-PKG_LICENSE_FILES:=LICENSE
-
-PKG_SOURCE_VERSION:=$(PKG_VERSION)
-PKG_SOURCE_URL:=https://github.com/MorseMicro/morse_driver.git
-PKG_MIRROR_HASH:=19d84870458c21bf8199b3f97a8002825428c728d29e41a7244f2b7b0eca0fc3
-PKG_SOURCE_MIRROR:=0
-PKG_SOURCE_PROTO:=git
+PKG_LICENSE_FILES:=
 
 PKG_MAINTAINER:=Morse Micro
 PKG_BUILD_PARALLEL:=1
 
-include $(INCLUDE_DIR)/kernel.mk
-include $(INCLUDE_DIR)/package.mk
-
-define KernelPackage/morse
-  CATEGORY:=Morse Micro
-  SUBMENU:=Essentials
-  TITLE:=Morse Micro Wi-Fi HaLow driver
-  DEPENDS:= +kmod-mmc +kmod-mac80211 +kmod-trelay +kmod-lib-crc7 morse-fw +morse-board-config +MORSE_USB:kmod-usb-core
-  FILES:=\
-    $(PKG_BUILD_DIR)/morse.ko \
-    $(PKG_BUILD_DIR)/dot11ah/dot11ah.ko
-  AUTOLOAD:=$(call AutoProbe,morse)
-  MODPARAMS.morse:=country=US
-  PROVIDES:=kmod-morse
-endef
-
-define KernelPackage/morse/config
-    config MORSE_USB
-      bool "USB support "
-      depends on USB_SUPPORT
-      default y
-    source "$(SOURCE)/Config.in"
-endef
+UNZIP_CMD=unzip -q -n -d  $(1) $(DL_DIR)/$(PKG_SOURCE) && mv $(1)/*/* $(1)/
+DTC=$(wildcard $(LINUX_DIR)/scripts/dtc/dtc)
 
 ifeq ($(CONFIG_MORSE_SDIO),y)
   MORSE_MAKEDEFS += CONFIG_MORSE_SDIO=y
@@ -126,5 +86,3 @@ define Build/Compile
 		NOSTDINC_FLAGS="$(NOSTDINC_FLAGS)" \
 		modules
 endef
-
-$(eval $(call KernelPackage,morse))
