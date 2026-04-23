@@ -1,29 +1,13 @@
 #!/bin/sh
 
 # Apply region restrictions.
-# Because this runs in early boot, we haven't setup uci yet and haven't
-# generated the appropriate /etc/fw_sys.config file.
-
-added=0
-if [ ! -e /etc/fw_sys.config ]; then
-	case "$(board_name)" in
-	morse,halowlink1|\
-	morse,halowlink2)
-		echo '/dev/mtd1 0x0 0x8000 0x1000' > /etc/fw_sys.config
-		added=1
-		;;
-	*)
-		echo region-restriction: no config to do region lock on first boot. > /dev/kmsg
-		;;
-	esac
-fi
+# Because this runs in early firstboot uci hasn't been set up yet and
+# /etc/fw_sys.config and it's fallback /etc/fw_env.config haven't been generated.
+# /sbin/persistent_vars_storage.sh works around this by constructing a temporary
+# config in /tmp for known board types to make mm_region and mm_region_unlocked accessible.
 
 mm_region="$(persistent_vars_storage.sh READ mm_region)"
 mm_region_unlocked="$(persistent_vars_storage.sh READ mm_region_unlocked)"
-
-if [ "$added" = 1 ]; then
-	rm /etc/fw_sys.config
-fi
 
 if [ -n "$mm_region" -a "$mm_region_unlocked" != 1 ]; then
 	for fname in $(find /lib/firmware -name "mm_region_${mm_region}_*"); do
