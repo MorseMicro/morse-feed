@@ -96,8 +96,36 @@ show_factory_data()
 # compiled into the uboot, so it causes issues.
 if [ -e /etc/fw_sys.config ]; then
 	conffile=/etc/fw_sys.config
-else
+elif [ -e /etc/fw_env.config ]; then
 	conffile=/etc/fw_env.config
+else
+	# Neither config file is present which means that we are in a firstboot scenario.
+	# This happens because mount_root uses a tmpfs overlay whilst the flash-backed
+	# jffs2 (empty on first boot, erased during factory reset) is being prepared.
+	# When mount_root pivots to the "real" but empty overlay there is a period where
+	# uboot-envtools uci-defaults have not yet generated the required /etc/fw_*.config
+	# files.
+	#
+	# To work around this we create a temporary config in /tmp based on the known
+	# partition layout for particular board_names which allows fw_printenv/fw_setenv
+	# to work. This file is not cleaned up because it will disappear on reboot.
+	#
+	# The values below are MTD addresses which match their corresponding entries in
+	# package/boot/uboot-envtools/files/ramips.
+	_board_name=""
+	if [ -e /tmp/sysinfo/board_name ]; then
+		_board_name=$(cat /tmp/sysinfo/board_name)
+	fi
+	case "$_board_name" in
+		morse,halowlink1|\
+		morse,halowlink2)
+			conffile=/tmp/fw_sys_fallback.config
+			echo '/dev/mtd1 0x0 0x8000 0x1000' > "$conffile"
+			;;
+		*)
+			conffile=/etc/fw_env.config
+			;;
+	esac
 fi
 
 operation="$1"
