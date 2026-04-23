@@ -16,19 +16,6 @@ board_name="$(strings /proc/device-tree/compatible | head -1)"
 # This lets us have a different basic LED colour depending
 # on the mode of the device.
 _mm_mode="$(persistent_vars_storage.sh READ mm_mode 2> /dev/null)"
-if [ -z "$_mm_mode" ]; then
-	# Sadly, fw_*.config files are populated by uci-defaults, and when we're
-	# early in the boot process we don't have it. But we really want to
-	# show the mode colour early in the boot process to avoid confusion.
-	case "$board_name" in
-	morse,halowlink1|\
-	morse,halowlink2)
-		echo '/dev/mtd1 0x0 0x8000 0x1000' > /tmp/artini_preinit_fw_sys.config
-		_mm_mode="$(fw_printenv -n -c /tmp/artini_preinit_fw_sys.config mm_mode 2> /dev/null)"
-		rm /tmp/artini_preinit_fw_sys.config
-		;;
-	esac
-fi
 
 status_red=$(get_dt_led status-red)
 status_green=$(get_dt_led status-green)
