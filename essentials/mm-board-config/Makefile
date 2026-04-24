@@ -9,15 +9,17 @@
 #
 
 include $(TOPDIR)/rules.mk
+include ../../include/morse_version.mk
 
 PKG_NAME:=morse-board-config
 PKG_RELEASE=6
 
-PKG_VERSION:=1.17.8
+PKG_VERSION:=$(MORSE_FEED_SOURCE_VERSION)
+PKG_RELEASE=1
 
-PKG_SOURCE_VERSION:=1457e131f1b1cd7728d73ae3a09729b1782a776a
+PKG_SOURCE_VERSION:=$(PKG_VERSION)
 PKG_SOURCE_URL:=https://github.com/MorseMicro/morse-firmware.git
-PKG_MIRROR_HASH:=b228fd210e1827feb3db86c394a90755d0d8948d1e032198ebfa7100d2301bc9
+PKG_MIRROR_HASH:=$(MORSE_BCF_HASH)
 PKG_SOURCE_MIRROR:=0
 PKG_SOURCE_PROTO:=git
 
@@ -35,7 +37,7 @@ define Package/morse-board-config
   CATEGORY:=Morse Micro
   SUBMENU:=Essentials
   URL:=$(PKG_SOURCE_URL)
-  TITLE:=Morse Micro WIFI HaLow Board Config File
+  TITLE:=Morse Micro Wi-Fi HaLow Board Config File
   PROVIDES:=morse-board-config
 endef
 

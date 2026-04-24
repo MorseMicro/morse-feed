@@ -9,15 +9,16 @@
 #
 
 include $(TOPDIR)/rules.mk
+include ../../include/morse_version.mk
 
 PKG_NAME:=morse-fw
-PKG_RELEASE=2
+PKG_RELEASE=3
 
-PKG_VERSION:=1.17.8
+PKG_VERSION:=$(MORSE_FEED_SOURCE_VERSION)
 
-PKG_SOURCE_VERSION:=1457e131f1b1cd7728d73ae3a09729b1782a776a
+PKG_SOURCE_VERSION:=$(PKG_VERSION)
 PKG_SOURCE_URL:=https://github.com/MorseMicro/morse-firmware.git
-PKG_MIRROR_HASH:=e60879d98a34cf0b1f0375e5158bac757e24819eb58d906670d872bfe96fe252
+PKG_MIRROR_HASH:=$(MORSE_FW_HASH)
 PKG_SOURCE_MIRROR:=0
 PKG_SOURCE_PROTO:=git
 
@@ -29,6 +30,10 @@ RSTRIP:=:
 include $(INCLUDE_DIR)/kernel.mk
 include $(INCLUDE_DIR)/package.mk
 
+define Package/morse-fw/config
+  source "$(SOURCE)/Config.in"
+endef
+
 define Package/morse-fw-6108
   SECTION:=firmware
   CATEGORY:=Morse Micro
@@ -36,10 +41,11 @@ define Package/morse-fw-6108
   URL:=$(PKG_SOURCE_URL)
   TITLE:=Morse Micro WIFI HaLow standard firmware for 6108
   PROVIDES:=morse-fw
+  CONFLICTS:=morse-fw-8108 morse-fw-8108-tlm morse-fw-8108-flm
 endef
 
-define Package/morse-fw/config
-  source "$(SOURCE)/Config.in"
+define Package/morse-fw-6108/config
+  select MORSE_CHIP_MM61X
 endef
 
 define Package/morse-fw-6108-tlm
@@ -49,6 +55,11 @@ define Package/morse-fw-6108-tlm
   URL:=$(PKG_SOURCE_URL)
   TITLE:=Morse Micro WIFI HaLow Thin LMAC firmware for 6108
   PROVIDES:=morse-fw
+  CONFLICTS:=morse-fw-8108 morse-fw-8108-tlm morse-fw-8108-flm
+endef
+
+define Package/morse-fw-6108-tlm/config
+  select MORSE_CHIP_MM61X
 endef
 
 define Package/morse-fw-6108-tlm/description
@@ -65,6 +76,10 @@ define Package/morse-fw-8108
   PROVIDES:=morse-fw
 endef
 
+define Package/morse-fw-8108/config
+  select MORSE_CHIP_MM81X
+endef
+
 define Package/morse-fw-8108-tlm
   SECTION:=firmware
   CATEGORY:=Morse Micro
@@ -72,6 +87,10 @@ define Package/morse-fw-8108-tlm
   URL:=$(PKG_SOURCE_URL)
   TITLE:=Morse Micro WIFI HaLow Thin LMAC firmware for 8108
   PROVIDES:=morse-fw
+endef
+
+define Package/morse-fw-8108-tlm/config
+  select MORSE_CHIP_MM81X
 endef
 
 define Package/morse-fw-8108-tlm/description
@@ -86,6 +105,10 @@ define Package/morse-fw-8108-flm
   URL:=$(PKG_SOURCE_URL)
   TITLE:=Morse Micro WIFI HaLow FullMAC firmware for 8108
   PROVIDES:=morse-fw
+endef
+
+define Package/morse-fw-8108-flm/config
+  select MORSE_CHIP_MM81X
 endef
 
 define Package/morse-fw-8108-flm/description

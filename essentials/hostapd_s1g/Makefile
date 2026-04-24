@@ -6,19 +6,20 @@
 #
 
 include $(TOPDIR)/rules.mk
-
+include ../../include/morse_version.mk
 PKG_NAME:=hostapd_s1g
-PKG_RELEASE=2
+PKG_RELEASE=3
 
-PKG_VERSION:=1.17.8
+PKG_VERSION:=$(MORSE_FEED_SOURCE_VERSION)
 
 PKG_LICENSE:=BSD-3-Clause
 
 PKG_SOURCE_VERSION:=$(PKG_VERSION)
 PKG_SOURCE_URL:=https://github.com/MorseMicro/hostap.git
-PKG_MIRROR_HASH:=c1dc965d2ad4f93c4f6af57403b0df5dd914fd9c27b34d748e83bde6ab950f89
+PKG_MIRROR_HASH:=$(MORSE_HOSTAPD_S1G_HASH)
 PKG_SOURCE_MIRROR:=0
 PKG_SOURCE_PROTO:=git
+PATCH_DIR:=./patches/$(MORSE_FEED_PATCHES_DIR)
 
 PKG_MAINTAINER:=Morse Micro <info@morsemicro.com>
 PKG_BUILD_PARALLEL:=1

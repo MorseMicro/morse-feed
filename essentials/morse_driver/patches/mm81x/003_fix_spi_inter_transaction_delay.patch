@@ -1,3 +1,8 @@
+Add more delay between SPI transactions when not in block mode.
+EKH01 in Openwrt has less delay between SPI transactions than Buildroot.
+Currently the driver has enough delay between blocks but not when the transaction isn't a block.
+Banff needs more delay than Eagle Crest, that's why this issue wasn't happening on Eagle Crest.
+
 diff --git a/spi.c b/spi.c
 index 5863943..05f88ad 100644
 --- a/spi.c

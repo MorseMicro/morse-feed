@@ -1,0 +1,3 @@
+config SELECT_morse-fw
+	bool "Enable Morse firmware"
+	default y

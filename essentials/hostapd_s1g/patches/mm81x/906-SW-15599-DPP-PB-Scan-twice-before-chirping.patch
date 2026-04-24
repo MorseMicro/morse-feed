@@ -1,0 +1,136 @@
+From 1832926a16cc89ef78d2fd68a42449daa7b833bf Mon Sep 17 00:00:00 2001
+From: Lewis O'Flynn <lewis.oflynn@morsemicro.com>
+Date: Tue, 7 Apr 2026 23:42:15 +0000
+Subject: [PATCH] SW-15599 DPP PB: Scan twice before chirping (pull request
+ #428)
+
+Section 6.2.2 of the Wi-Fi Easy Connect Specification (v3.0) describes
+the steps used to generate a channel list to chirp on. Step 3 describes
+the scan an Enrollee performs to discover APs.
+
+```
+3. Scan all supported bands and add each channel on which an AP is
+advertising the Configurator Connectivity element (Section 8.5.2) to the
+channel list;
+```
+
+The Hostap implementation of this scan is to scan only once. However,
+this can be unreliable if the scan is not successful (e.g. the probe
+request collides with something and is lost). If this occurs, the
+channel the AP is in is not added to the channel list, and DPP will have
+no hope of succeeding.
+
+The probe requests sent by the enrollee are broadcast and are not ACKed,
+and are therefore fragile. Increase the reliability of this step by
+scanning twice, and appending to the channel list both times.
+
+Approved-by: Sahand Maleki
+Approved-by: Andrew Pope
+Approved-by: James Haggerty
+Approved-by: Adam Baumann
+Approved-by: Dan Callaghan
+Approved-by: Ayman Grais
+Approved-by: Wonseok Kim
+Approved-by: Joshua Wilkinson
+---
+ wpa_supplicant/dpp_supplicant.c   | 36 +++++++++++++++++++++++++------
+ wpa_supplicant/wpa_supplicant_i.h |  1 +
+ 2 files changed, 30 insertions(+), 7 deletions(-)
+
+diff --git a/wpa_supplicant/dpp_supplicant.c b/wpa_supplicant/dpp_supplicant.c
+index 37dc98883..41980e701 100644
+--- a/wpa_supplicant/dpp_supplicant.c
++++ b/wpa_supplicant/dpp_supplicant.c
+@@ -5287,7 +5287,6 @@ static int * wpas_dpp_presence_ann_channels(struct wpa_supplicant *wpa_s,
+ 	unsigned int i;
+ 	struct hostapd_hw_modes *mode;
+ 	int c;
+-	struct wpa_bss *bss;
+ 	bool chan6 = wpa_s->hw.modes == NULL;
+ 	int *freqs = NULL;
+ 
+@@ -5365,17 +5364,22 @@ static int * wpas_dpp_presence_ann_channels(struct wpa_supplicant *wpa_s,
+ 		}
+ 	}
+ 
++	return freqs;
++}
++
++static void wpas_dpp_presence_ann_append_scan_results(struct wpa_supplicant *wpa_s,
++						      int **freqs)
++{
++	struct wpa_bss *bss;
++
+ 	/* Add channels from scan results for APs that advertise Configurator
+ 	 * Connectivity element */
+ 	dl_list_for_each(bss, &wpa_s->bss, struct wpa_bss, list) {
+ 		if (wpa_bss_get_vendor_ie(bss, DPP_CC_IE_VENDOR_TYPE))
+-			int_array_add_unique(&freqs, bss->freq);
++			int_array_add_unique(freqs, bss->freq);
+ 	}
+-
+-	return freqs;
+ }
+ 
+-
+ static void wpas_dpp_chirp_scan_res_handler(struct wpa_supplicant *wpa_s,
+ 					    struct wpa_scan_results *scan_res)
+ {
+@@ -5388,6 +5392,8 @@ static void wpas_dpp_chirp_scan_res_handler(struct wpa_supplicant *wpa_s,
+ 
+ 	os_free(wpa_s->dpp_chirp_freqs);
+ 	wpa_s->dpp_chirp_freqs = wpas_dpp_presence_ann_channels(wpa_s, bi);
++	wpas_dpp_presence_ann_append_scan_results(wpa_s,
++						      &wpa_s->dpp_chirp_freqs);
+ 	log_dpp_presence_ann_channels(wpa_s->dpp_chirp_freqs);
+ 
+ 	if (!wpa_s->dpp_chirp_freqs ||
+@@ -5954,8 +5960,23 @@ static void wpas_dpp_pb_scan_res_handler(struct wpa_supplicant *wpa_s,
+ 	if (!wpa_s->dpp_pb_time.sec && !wpa_s->dpp_pb_time.usec)
+ 		return;
+ 
+-	os_free(wpa_s->dpp_pb_freqs);
+-	wpa_s->dpp_pb_freqs = wpas_dpp_presence_ann_channels(wpa_s, NULL);
++	if (!wpa_s->dpp_pb_scan_retries) {
++		os_free(wpa_s->dpp_pb_freqs);
++		wpa_s->dpp_pb_freqs = wpas_dpp_presence_ann_channels(wpa_s, NULL);
++	}
++
++	wpa_s->dpp_pb_scan_retries++;
++	wpas_dpp_presence_ann_append_scan_results(wpa_s, &wpa_s->dpp_pb_freqs);
++
++	if (wpa_s->dpp_pb_scan_retries < 2) {
++		wpa_s->scan_req = MANUAL_SCAN_REQ;
++		wpa_s->scan_res_handler = wpas_dpp_pb_scan_res_handler;
++		wpa_supplicant_cancel_sched_scan(wpa_s);
++		wpa_supplicant_req_scan(wpa_s, 0, 500000);
++		return;
++	}
++
++	wpa_s->dpp_pb_scan_retries = 0;
+ 	log_dpp_presence_ann_channels(wpa_s->dpp_pb_freqs);
+ 
+ 	wpa_printf(MSG_DEBUG, "DPP: Scan completed for PB discovery");
+@@ -6016,6 +6037,7 @@ int wpas_dpp_push_button(struct wpa_supplicant *wpa_s, const char *cmd)
+ 		   "DPP: Scan to create channel list for PB discovery");
+ 	wpa_s->scan_req = MANUAL_SCAN_REQ;
+ 	wpa_s->scan_res_handler = wpas_dpp_pb_scan_res_handler;
++	wpa_s->dpp_pb_scan_retries = 0;
+ 	wpa_supplicant_cancel_sched_scan(wpa_s);
+ 	wpa_supplicant_req_scan(wpa_s, 0, 0);
+ 	wpa_msg(wpa_s, MSG_INFO, DPP_EVENT_PB_STATUS "started");
+diff --git a/wpa_supplicant/wpa_supplicant_i.h b/wpa_supplicant/wpa_supplicant_i.h
+index 8f65454b8..b31c38c4c 100644
+--- a/wpa_supplicant/wpa_supplicant_i.h
++++ b/wpa_supplicant/wpa_supplicant_i.h
+@@ -1591,6 +1591,7 @@ struct wpa_supplicant {
+ 	struct os_reltime dpp_pb_time;
+ 	bool dpp_pb_configurator;
+ 	int *dpp_pb_freqs;
++	int dpp_pb_scan_retries;
+ 	unsigned int dpp_pb_freq_idx;
+ 	unsigned int dpp_pb_announce_count;
+ 	struct wpabuf *dpp_pb_announcement;
+-- 
+2.43.0
+
