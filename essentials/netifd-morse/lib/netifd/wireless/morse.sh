@@ -484,31 +484,19 @@ drv_morse_setup() {
 
 	build_mod_params
 
-	local morse_module_config_file
-	local morse_test_module_config_file
-	local dot11ah_module_config_file
+	local morse_module_config_file="/etc/modules.d/morse"
+	local morse_test_module_config_file="/etc/modules.d/morse-test-driver"
+	local dot11ah_module_config_file="/etc/modules.d/dot11ah"
 
-	# Find whichever driver module config exists
-	for f in /etc/modules.d/morse-81x /etc/modules.d/morse-61x; do
-		[ -f "$f" ] && morse_module_config_file="$f" && break
-	done
-
-	# Find whichever test driver module config exists
-	for f in /etc/modules.d/morse-81x-test /etc/modules.d/morse-61x-test; do
-		[ -f "$f" ] && morse_test_module_config_file="$f" && break
-	done
-
-	dot11ah_module_config_file="/etc/modules.d/dot11ah"
-
-	if [ -n "$morse_module_config_file" -a -n "$morse_test_module_config_file" ]; then
+	if [ -f "$morse_module_config_file" -a -f "$morse_test_module_config_file" ]; then
 		echo "Both morse-test-driver and morse in /etc/modules.d; refusing to configure" >&2
 		wireless_set_retry 0
 		return 1
-	elif [ -z "$morse_module_config_file" -a -z "$morse_test_module_config_file" ]; then
-		echo "Neither morse-test-driver or morse found in /etc/modules.d; refusing to configure" >&2
+	elif [ ! -f "$morse_module_config_file" -a ! -f "$morse_test_module_config_file" ]; then
+		echo "Neither morse-test-driver or morse in /etc/modules.d; refusing to configure" >&2
 		wireless_set_retry 0
 		return 1
-	elif [ -n "$morse_test_module_config_file" ]; then
+	elif [ -f "$morse_test_module_config_file" ]; then
 		# If test module config file is available, use the test mode driver.
 		morse_module_config_file="$morse_test_module_config_file"
 	fi
