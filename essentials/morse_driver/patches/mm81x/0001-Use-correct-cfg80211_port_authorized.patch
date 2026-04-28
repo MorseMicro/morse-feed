@@ -11,16 +11,16 @@ backported as of openwrt 23.05.5.
 
 --- a/wiphy.c
 +++ b/wiphy.c
-@@ -1917,12 +1917,7 @@ void morse_wiphy_connected(struct morse *mors, const u8 *bssid,
-	morse_wiphy_process_assoc_resp_ies(mors_vif, assoc_resp_ies, assoc_resp_ies_len);
+@@ -1520,12 +1520,7 @@
+ 		morse_wiphy_process_assoc_resp_ies(mors_vif, assoc_resp_ies, assoc_resp_ies_len);
  
- /* TODO: this should only be called if we connected with SAE (or OWE?) */
+ 	/* TODO: this should only be called if we connected with SAE (or OWE?) */
 -#if (KERNEL_VERSION(6, 2, 0) <= MAC80211_VERSION_CODE) || \
 -	(defined(CONFIG_ANDROID) && (KERNEL_VERSION(6, 1, 25) <= LINUX_VERSION_CODE))
-	cfg80211_port_authorized(ndev, bssid, NULL, 0, GFP_KERNEL);
--#elif KERNEL_VERSION(4, 15, 0) <= LINUX_VERSION_CODE
+ 	cfg80211_port_authorized(ndev, bssid, NULL, 0, GFP_KERNEL);
+-#elif KERNEL_VERSION(4, 15, 0) <= MAC80211_VERSION_CODE
 -	cfg80211_port_authorized(ndev, bssid, GFP_KERNEL);
 -#endif
  
-	if (!roamed)
-		queue_work(mors->wiphy_wq, &mors_vif->connected_work);
+ 	if (mors_vif->connected_bss)
+ 		morse_wiphy_connected_update_rts(mors, mors_vif->connected_bss);

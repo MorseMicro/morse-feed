@@ -4,11 +4,9 @@ Date:   Wed Sep 17 17:33:53 2025 +1000
 
     APP-4271 : apsta mode channel alignment bug fixes.
 
-diff --git a/mac.c b/mac.c
-index d0222538..a718dcf3 100644
 --- a/mac.c
 +++ b/mac.c
-@@ -646,6 +646,23 @@ static struct ieee80211_vif *morse_get_first_vif_of_type(struct morse *mors,
+@@ -655,6 +655,23 @@
  	return vif;
  }
  
@@ -32,16 +30,16 @@ index d0222538..a718dcf3 100644
  struct ieee80211_vif *morse_get_ap_vif(struct morse *mors)
  {
  	return morse_get_first_vif_of_type(mors, NL80211_IFTYPE_AP);
-@@ -3321,6 +3338,8 @@ static int morse_mac_change_channel(struct ieee80211_hw *hw)
- 	const char *region = morse_dot11ah_get_region_str();
+@@ -3860,6 +3877,8 @@
  	int vif_id;
+ 	bool set_tx_power_limit;
  	bool have_ap = morse_get_ap_vif(mors) ? true : false;
 +	bool have_sta = morse_get_sta_vif(mors) ? true : false;
 +	bool have_active_ap = morse_get_active_ap(mors) ? true : false;
+ 	struct morse_vif *mors_scan_vif = NULL;
  
- 	/* Convert 5G channel to S1G channel */
- 	chan_s1g = morse_dot11ah_channel_chandef_to_s1g(&conf->chandef);
-@@ -3339,7 +3358,7 @@ static int morse_mac_change_channel(struct ieee80211_hw *hw)
+ 
+@@ -3880,7 +3899,7 @@
  		(chan_s1g->ch.flags & IEEE80211_CHAN_2MHZ) ? 2 : 1;
  
  	/* Update primary channel info based on BSS only if no AP interfaces */
@@ -50,7 +48,7 @@ index d0222538..a718dcf3 100644
  		for (vif_id = 0; vif_id < mors->max_vifs; vif_id++) {
  			struct ieee80211_vif *vif = morse_get_vif_from_vif_id(mors, vif_id);
  
-@@ -3352,7 +3371,7 @@ static int morse_mac_change_channel(struct ieee80211_hw *hw)
+@@ -3893,7 +3912,7 @@
  				 * width to 2MHz to be able to receive these responses.
  				 */
  				pri_bw_mhz = op_bw_mhz > 1 ? 2 : 1;
