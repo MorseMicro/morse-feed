@@ -24,7 +24,8 @@ include $(INCLUDE_DIR)/package.mk
 
 define Package/dppd-creds-dummy
   SECTION:=Utilities
-  CATEGORY:=Utilities
+  CATEGORY:=Morse Micro
+  SUBMENU:=Features
   PROVIDES:=dppd-creds
   TITLE:=DPP daemon credentials generator.
 endef

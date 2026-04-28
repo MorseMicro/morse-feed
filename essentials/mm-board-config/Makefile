@@ -60,7 +60,7 @@ define Build/Compile
 endef
 
 define Package/morse-board-config/install
-	$(INSTALL_DIR) $(1)/usr/share/morse-bcf
+	$(INSTALL_DIR) $(1)/usr/share/morse-board-config
 	$(INSTALL_DIR) $(1)/lib/firmware/morse
 
 	find $(PKG_BUILD_DIR)/bcf -name "*.bin" -exec $(INSTALL_DATA) {} $(1)/lib/firmware/morse/ \;
@@ -79,7 +79,7 @@ define Package/morse-board-config/install
 	# Link the failsafe bcf by default so userspace can query the driver.
 	ln -s /lib/firmware/morse/bcf_failsafe.bin $(1)/lib/firmware/morse/bcf_default.bin
 
-	$(INSTALL_DATA) ./files/usr/share/morse-board-config/db.txt $(1)/usr/share/morse-bcf/db.txt
+	$(INSTALL_DATA) ./files/usr/share/morse-board-config/db.txt $(1)/usr/share/morse-board-config/db.txt
 endef
 
 define Package/morse-board-config-hotplug-model/install
