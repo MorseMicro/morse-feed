@@ -115,6 +115,8 @@ else
 	_board_name=""
 	if [ -e /tmp/sysinfo/board_name ]; then
 		_board_name=$(cat /tmp/sysinfo/board_name)
+	elif [ -e /proc/device-tree/compatible ]; then
+		_board_name="$(strings /proc/device-tree/compatible | head -1)"
 	fi
 	case "$_board_name" in
 		morse,halowlink1|\
