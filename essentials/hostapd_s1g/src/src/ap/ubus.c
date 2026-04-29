@@ -941,7 +941,7 @@ hostapd_switch_chan(struct ubus_context *ctx, struct ubus_object *obj,
 	SET_CSA_SETTING(CSA_HE, freq_params.he_enabled, bool);
 	SET_CSA_SETTING(CSA_BLOCK_TX, block_tx, bool);
 
-	css.freq_params.channel = hostapd_hw_get_channel(hapd, css.freq_params.freq);
+	css.freq_params.channel = hostapd_hw_get_channel(hapd, css.freq_params.freq, 0);
 	if (!css.freq_params.channel)
 		return UBUS_STATUS_NOT_SUPPORTED;
 
@@ -958,7 +958,7 @@ hostapd_switch_chan(struct ubus_context *ctx, struct ubus_object *obj,
 	}
 
 	hostapd_set_freq_params(&css.freq_params, iconf->hw_mode,
-				css.freq_params.freq,
+				css.freq_params.freq, 0,
 				css.freq_params.channel, iconf->enable_edmg,
 				iconf->edmg_channel,
 				css.freq_params.ht_enabled,
