@@ -26,18 +26,6 @@ wifi="$(get_dt_led wifi)"
 status="$(get_dt_led status)"
 power=""
 
-apx_ap_mode=0
-case "$board_name:$_mm_mode" in
-morse,halowlink-apx:ap)
-	# APX swaps the logical roles in AP mode:
-	#   led0 -> status, led1 -> power, led2 -> halow
-	power="$status"
-	status="$wifi"
-	wifi=""
-	apx_ap_mode=1
-	;;
-esac
-
 red="255 0 0"
 green="0 255 0"
 blue="0 0 127"
@@ -45,6 +33,31 @@ yellow="255 255 0"
 cyan="0 255 127"
 light_purple="255 0 127"
 dark_purple="64 0 128"
+
+three_pwmled_sta_color="$cyan"
+
+apx_ap_mode=0
+three_pwmled_factory_reset_all_leds=0
+case "$board_name" in
+morse,halowlink-apx)
+	three_pwmled_factory_reset_all_leds=1
+
+	# Green is too similar to yellow on APX boards - use amber.
+	yellow="255 100 0"
+	three_pwmled_sta_color="$green"
+
+	case "$_mm_mode" in
+	ap)
+		# APX swaps the logical roles in AP mode:
+		#   led0 -> status, led1 -> power, led2 -> halow
+		power="$status"
+		status="$wifi"
+		wifi=""
+		apx_ap_mode=1
+		;;
+	esac
+	;;
+esac
 
 led_set_color() {
 	# input is <led> <R G B>, The assumption here is that
@@ -96,7 +109,7 @@ set_three_pwmled_normal() {
 	led_set_color "$halow" "$light_purple"
 	[ -n "$wifi" ] && led_on "$wifi"
 	if [ "$_mm_mode" = sta ]; then
-		led_set_color "$status" "$cyan"
+		led_set_color "$status" "$three_pwmled_sta_color"
 	else
 		led_set_color "$status" "$green"
 	fi
@@ -111,7 +124,7 @@ set_three_pwmled_normal() {
 set_three_pwmled_state() {
 	case "$1" in
 	preinit|preinit_regular)
-		if [ "$apx_ap_mode" -eq 1 ]; then
+		if [ "$apx_ap_mode" = 1 ]; then
 			set_apx_ap_preinit_state
 		else
 			set_three_pwmled_normal
@@ -133,11 +146,32 @@ set_three_pwmled_state() {
 		led_blink "$status"
 		;;
 	factory_reset)
-		set_power_led_green
-		led_off "$halow"
-		[ -n "$wifi" ] && led_off "$wifi"
+		if [ "$three_pwmled_factory_reset_all_leds" = 1 ]; then
+			# Set colours first, then start all timers together to keep blinks in sync.
+			led_on "$halow"
+			led_set_color "$halow" "$yellow"
+			led_on "$status"
+			led_set_color "$status" "$yellow"
+			[ -n "$wifi" ] && led_on "$wifi"
+			[ -n "$wifi" ] && led_set_color "$wifi" "$yellow"
+			[ -n "$power" ] && led_on "$power"
+			[ -n "$power" ] && led_set_color "$power" "$yellow"
+			led_blink "$halow"
+			led_blink "$status"
+			[ -n "$wifi" ] && led_blink "$wifi"
+			[ -n "$power" ] && led_blink "$power"
+		else
+			set_power_led_green
+			led_off "$halow"
+			[ -n "$wifi" ] && led_off "$wifi"
+			led_set_color "$status" "$yellow"
+			led_blink "$status"
+		fi
+		;;
+	soft_reset)
+		led_on "$status"
 		led_set_color "$status" "$yellow"
-		led_blink "$status"
+		led_blink_slow "$status"
 		;;
 	ap_change)
 		# Changing to AP mode.
@@ -148,7 +182,7 @@ set_three_pwmled_state() {
 	sta_change)
 		# Changing to STA mode.
 		set_power_led_green
-		led_set_color "$status" "$cyan"
+		led_set_color "$status" "$three_pwmled_sta_color"
 		led_blink_fast "$status"
 		;;
 	done)
