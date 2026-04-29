@@ -476,12 +476,6 @@ drv_morse_setup() {
 		return 1
 	fi
 
-	if [ "$country" = AU -a "$s1g_chzn" != 80211_2020 -a "$firmware_type" = fullmac ]; then
-		echo "FullMAC in AU only supports s1g_chzn=80211_2020."
-		wireless_set_retry 0
-		return 1
-	fi
-
 	build_mod_params
 
 	local morse_module_config_file="/etc/modules.d/morse"
