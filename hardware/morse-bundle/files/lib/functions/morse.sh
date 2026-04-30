@@ -1,0 +1,73 @@
+#
+# Copyright 2025 Morse Micro
+#
+# This is free software, licensed under the GPL 2 license.
+
+. /lib/functions/system.sh
+
+morse_generate_default_hostname() {
+	local mac_label suffix prefix hostname DEVICE_PRODUCT
+
+	. /etc/device_info
+
+	mac_label="$(get_mac_label)"
+	if [ -z "$mac_label" ]; then
+		mac_label="$(cat /sys/class/net/eth0/address)"
+	fi
+
+	if [ -n "$mac_label" ]; then
+		suffix="$(echo "$mac_label" | tr -d ':' | tr A-Z a-z)"
+		case "$(cat /tmp/sysinfo/board_name)" in
+			glinet,gl-mt3000|\
+			morse,*ekh19*)
+				suffix=${suffix: -3}
+			;;
+			*)
+				suffix=${suffix: -4}
+			;;
+		esac
+	else
+		suffix="z$(tr -dc 'a-f0-9' </dev/urandom | head -c 3)"
+	fi
+
+	if [ -n "${DEVICE_PRODUCT}" ] && [ "$DEVICE_PRODUCT" != Generic ]; then
+		prefix="${DEVICE_PRODUCT}"
+	else
+		case "$(cat /tmp/sysinfo/board_name)" in
+			glinet,gl-mt3000|\
+			morse,*ekh19*)
+				prefix=GL-MT3000
+			;;
+			morse,*ekh01*)
+				prefix=ekh01
+			;;
+			morse,*ekh03*)
+				prefix=ekh03
+			;;
+			morse,*ekh04*)
+				prefix=ekh04
+			;;
+			*)
+				# Strip manufacturer for hostname to keep it short
+				prefix=$(sed 's/^.*,//' /tmp/sysinfo/board_name | tr A-Z a-z)
+			;;
+		esac
+	fi
+
+	# Trim prefix so hostname is not too large and is lowercase.
+	# This is particularly important so that the SSID is not illegal,
+	# as we base the default SSID on the hostname. However, the trim
+	# is from the start if possible to maintain specificity.
+	# e.g. qemu-standard-pc-q35-ich9-2009 -> pc-q35-ich9-2009
+	prefix=$(echo "$prefix" | awk -F- '{
+		while (index($0, "-") && length() > 20) {
+			sub(/^[^-]*-/, "")
+		}
+		print substr($0, 1, 20)
+	}')
+
+	hostname="$(echo "$prefix-$suffix" | tr -c -d 'A-Za-z0-9_-')"
+	[ -z "$hostname" ] && return 1
+
+	echo "$hostname"
+}
