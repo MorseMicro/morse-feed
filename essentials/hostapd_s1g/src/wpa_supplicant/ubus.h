@@ -30,10 +30,9 @@ void wpas_ubus_event_state(struct wpa_supplicant *wpa_s, const char *state);
 void wpas_ubus_notify(struct wpa_supplicant *wpa_s, const struct wps_credential *cred);
 #endif
 
-#ifdef CONFIG_DPP3
-void wpas_ubus_notify_dpp_pb_result(struct wpa_supplicant *wpa_s, const char *status);
-#endif
 #ifdef CONFIG_DPP
+void wpas_ubus_notify_dpp_result(struct wpa_supplicant *wpa_s,
+				 const char *status, const u8 *peer_mac);
 void wpas_ubus_notify_dpp_conf_failed(struct wpa_supplicant *wpa_s);
 void wpas_ubus_notify_dpp_conf_received(struct wpa_supplicant *wpa_s, const struct dpp_config_obj *conf);
 #endif
@@ -57,7 +56,13 @@ static inline void wpas_ubus_notify(struct wpa_supplicant *wpa_s, struct wps_cre
 {
 }
 
-static inline void wpas_ubus_notify_dpp_pb_result(struct wpa_supplicant *wpa_s, const char *status)
+static inline void wpas_ubus_notify_dpp_result(struct wpa_supplicant *wpa_s,
+					       const char *status,
+					       const u8 *peer_mac)
+{
+}
+
+static inline void wpas_ubus_notify_dpp_conf_failed(struct wpa_supplicant *wpa_s)
 {
 }
 

@@ -10,6 +10,7 @@
 #include "utils/common.h"
 #include "utils/eloop.h"
 #include "utils/wpabuf.h"
+#include "common/dpp.h"
 #include "common/ieee802_11_defs.h"
 #include "common/hw_features_common.h"
 #include "hostapd.h"
@@ -788,6 +789,318 @@ hostapd_bss_wps_cancel(struct ubus_context *ctx, struct ubus_object *obj,
 	return 0;
 }
 #endif /* CONFIG_WPS */
+
+#ifdef CONFIG_DPP
+#define HOSTAPD_UBUS_DPP_REPLY_LEN 4096
+
+static const char *
+hostapd_ubus_dpp_get_id_arg(struct blob_attr *attr, const char *default_value)
+{
+	const char *id;
+
+	if (!attr)
+		return default_value;
+
+	if (blobmsg_type(attr) != BLOBMSG_TYPE_STRING)
+		return NULL;
+
+	id = blobmsg_get_string(attr);
+	if (!id || !*id)
+		return NULL;
+
+	return id;
+}
+
+static int
+hostapd_ubus_dpp_validate_id_arg(const char *id)
+{
+	const char *pos;
+
+	if (!id || !*id)
+		return -1;
+
+	for (pos = id; *pos; pos++) {
+		if (*pos < '0' || *pos > '9')
+			return -1;
+	}
+
+	return 0;
+}
+
+static int
+hostapd_ubus_dpp_parse_id(const char *id, unsigned int *value)
+{
+	unsigned long parsed;
+
+	if (hostapd_ubus_dpp_validate_id_arg(id) < 0)
+		return -1;
+
+	parsed = strtoul(id, NULL, 10);
+	if ((unsigned int) parsed != parsed)
+		return -1;
+
+	*value = (unsigned int) parsed;
+	return 0;
+}
+
+enum {
+	DPP_QR_CODE_URI,
+	__DPP_QR_CODE_MAX
+};
+
+static const struct blobmsg_policy dpp_qr_code_policy[__DPP_QR_CODE_MAX] = {
+	[DPP_QR_CODE_URI] = { "uri", BLOBMSG_TYPE_STRING },
+};
+
+static int
+hostapd_bss_dpp_qr_code(struct ubus_context *ctx, struct ubus_object *obj,
+			struct ubus_request_data *req, const char *method,
+			struct blob_attr *msg)
+{
+	int rc;
+	struct blob_attr *tb[__DPP_QR_CODE_MAX];
+	struct hostapd_data *hapd = get_hapd_from_object(obj);
+	const char *uri;
+
+	if (msg) {
+		blobmsg_parse(dpp_qr_code_policy, __DPP_QR_CODE_MAX, tb,
+			      blob_data(msg), blob_len(msg));
+	} else {
+		memset(tb, 0, sizeof(tb));
+	}
+
+	uri = tb[DPP_QR_CODE_URI] ? blobmsg_data(tb[DPP_QR_CODE_URI]) : NULL;
+
+	if (!uri || !*uri)
+		return UBUS_STATUS_INVALID_ARGUMENT;
+
+	rc = hostapd_dpp_qr_code(hapd, uri);
+	if (rc < 0)
+		return UBUS_STATUS_NOT_SUPPORTED;
+
+	blob_buf_init(&b, 0);
+	blobmsg_add_u32(&b, "id", rc);
+	ubus_send_reply(ctx, req, b.head);
+
+	return 0;
+}
+
+enum {
+	DPP_ID,
+	__DPP_ID_MAX
+};
+
+static const struct blobmsg_policy dpp_id_policy[__DPP_ID_MAX] = {
+	[DPP_ID] = { "id", BLOBMSG_TYPE_STRING },
+};
+
+static int
+hostapd_bss_dpp_bootstrap_remove(struct ubus_context *ctx,
+				 struct ubus_object *obj,
+				 struct ubus_request_data *req,
+				 const char *method, struct blob_attr *msg)
+{
+	const char *arg;
+	struct blob_attr *tb[__DPP_ID_MAX];
+	struct hostapd_data *hapd = get_hapd_from_object(obj);
+
+	if (msg) {
+		blobmsg_parse(dpp_id_policy, __DPP_ID_MAX, tb,
+			      blob_data(msg), blob_len(msg));
+	} else {
+		memset(tb, 0, sizeof(tb));
+	}
+
+	arg = hostapd_ubus_dpp_get_id_arg(tb[DPP_ID], "1");
+	if (hostapd_ubus_dpp_validate_id_arg(arg) < 0)
+		return UBUS_STATUS_INVALID_ARGUMENT;
+
+	if (dpp_bootstrap_remove(hapd->iface->interfaces->dpp, arg) < 0)
+		return UBUS_STATUS_NOT_SUPPORTED;
+
+	return 0;
+}
+
+static int
+hostapd_bss_dpp_configurator_get_key(struct ubus_context *ctx,
+				     struct ubus_object *obj,
+				     struct ubus_request_data *req,
+				     const char *method, struct blob_attr *msg)
+{
+	int rc;
+	unsigned int id;
+	const char *arg;
+	char key[HOSTAPD_UBUS_DPP_REPLY_LEN];
+	struct blob_attr *tb[__DPP_ID_MAX];
+	struct hostapd_data *hapd = get_hapd_from_object(obj);
+
+	if (msg) {
+		blobmsg_parse(dpp_id_policy, __DPP_ID_MAX, tb,
+			      blob_data(msg), blob_len(msg));
+	} else {
+		memset(tb, 0, sizeof(tb));
+	}
+
+	arg = hostapd_ubus_dpp_get_id_arg(tb[DPP_ID], "1");
+	if (hostapd_ubus_dpp_parse_id(arg, &id) < 0)
+		return UBUS_STATUS_INVALID_ARGUMENT;
+
+	rc = dpp_configurator_get_key_id(hapd->iface->interfaces->dpp, id,
+					 key, sizeof(key));
+	if (rc < 0)
+		return UBUS_STATUS_NOT_SUPPORTED;
+
+	blob_buf_init(&b, 0);
+	blobmsg_add_u32(&b, "id", id);
+	blobmsg_add_string(&b, "key", key);
+	ubus_send_reply(ctx, req, b.head);
+
+	return 0;
+}
+
+enum {
+	DPP_CONFIGURATOR_ADD_CRYPTO_CONF,
+	__DPP_CONFIGURATOR_ADD_MAX
+};
+
+static const struct blobmsg_policy
+dpp_configurator_add_policy[__DPP_CONFIGURATOR_ADD_MAX] = {
+	[DPP_CONFIGURATOR_ADD_CRYPTO_CONF] = {
+		"crypto_conf", BLOBMSG_TYPE_STRING
+	},
+};
+
+static int
+hostapd_bss_dpp_configurator_add(struct ubus_context *ctx,
+				 struct ubus_object *obj,
+				 struct ubus_request_data *req,
+				 const char *method, struct blob_attr *msg)
+{
+	int rc;
+	int len;
+	char *cmd_buf = NULL;
+	const char *cmd = "";
+	const char *crypto_conf;
+	struct blob_attr *tb[__DPP_CONFIGURATOR_ADD_MAX];
+	struct hostapd_data *hapd = get_hapd_from_object(obj);
+
+	if (msg) {
+		blobmsg_parse(dpp_configurator_add_policy,
+			      __DPP_CONFIGURATOR_ADD_MAX, tb,
+			      blob_data(msg), blob_len(msg));
+	} else {
+		memset(tb, 0, sizeof(tb));
+	}
+
+	crypto_conf = tb[DPP_CONFIGURATOR_ADD_CRYPTO_CONF] ?
+		blobmsg_get_string(tb[DPP_CONFIGURATOR_ADD_CRYPTO_CONF]) : NULL;
+	if (crypto_conf && *crypto_conf) {
+		if (crypto_conf[0] == ' ') {
+			cmd = crypto_conf;
+		} else {
+			cmd_buf = os_malloc(os_strlen(crypto_conf) + 2);
+			if (!cmd_buf)
+				return UBUS_STATUS_UNKNOWN_ERROR;
+
+			len = os_snprintf(cmd_buf, os_strlen(crypto_conf) + 2,
+					  " %s", crypto_conf);
+			if (os_snprintf_error(os_strlen(crypto_conf) + 2, len)) {
+				os_free(cmd_buf);
+				return UBUS_STATUS_UNKNOWN_ERROR;
+			}
+
+			cmd = cmd_buf;
+		}
+	}
+
+	rc = dpp_configurator_add(hapd->iface->interfaces->dpp, cmd);
+	os_free(cmd_buf);
+	if (rc < 0)
+		return UBUS_STATUS_NOT_SUPPORTED;
+
+	blob_buf_init(&b, 0);
+	blobmsg_add_u32(&b, "id", rc);
+	ubus_send_reply(ctx, req, b.head);
+
+	return 0;
+}
+
+enum {
+	DPP_CONFIGURATOR_PARAMS_DPP_CONF,
+	__DPP_CONFIGURATOR_PARAMS_MAX
+};
+
+static const struct blobmsg_policy
+dpp_configurator_params_policy[__DPP_CONFIGURATOR_PARAMS_MAX] = {
+	[DPP_CONFIGURATOR_PARAMS_DPP_CONF] = { "dpp_conf", BLOBMSG_TYPE_STRING },
+};
+
+static int
+hostapd_bss_set_dpp_configurator_params(struct ubus_context *ctx,
+					struct ubus_object *obj,
+					struct ubus_request_data *req,
+					const char *method,
+					struct blob_attr *msg)
+{
+	char *params;
+	const char *dpp_conf;
+	struct blob_attr *tb[__DPP_CONFIGURATOR_PARAMS_MAX];
+	struct hostapd_data *hapd = get_hapd_from_object(obj);
+
+	if (msg) {
+		blobmsg_parse(dpp_configurator_params_policy,
+			      __DPP_CONFIGURATOR_PARAMS_MAX, tb,
+			      blob_data(msg), blob_len(msg));
+	} else {
+		memset(tb, 0, sizeof(tb));
+	}
+
+	dpp_conf = tb[DPP_CONFIGURATOR_PARAMS_DPP_CONF] ?
+		blobmsg_get_string(tb[DPP_CONFIGURATOR_PARAMS_DPP_CONF]) : NULL;
+
+	if (!dpp_conf || !*dpp_conf)
+		return UBUS_STATUS_INVALID_ARGUMENT;
+
+	params = os_strdup(dpp_conf);
+	if (!params)
+		return UBUS_STATUS_UNKNOWN_ERROR;
+
+	os_free(hapd->dpp_configurator_params);
+	hapd->dpp_configurator_params = params;
+#ifdef CONFIG_DPP2
+	dpp_controller_set_params(hapd->iface->interfaces->dpp, params);
+#endif /* CONFIG_DPP2 */
+
+	return 0;
+}
+
+static int
+hostapd_bss_dpp_configurator_remove(struct ubus_context *ctx,
+				    struct ubus_object *obj,
+				    struct ubus_request_data *req,
+				    const char *method, struct blob_attr *msg)
+{
+	const char *arg;
+	struct blob_attr *tb[__DPP_ID_MAX];
+	struct hostapd_data *hapd = get_hapd_from_object(obj);
+
+	if (msg) {
+		blobmsg_parse(dpp_id_policy, __DPP_ID_MAX, tb,
+			      blob_data(msg), blob_len(msg));
+	} else {
+		memset(tb, 0, sizeof(tb));
+	}
+
+	arg = hostapd_ubus_dpp_get_id_arg(tb[DPP_ID], "1");
+	if (hostapd_ubus_dpp_validate_id_arg(arg) < 0)
+		return UBUS_STATUS_INVALID_ARGUMENT;
+
+	if (dpp_configurator_remove(hapd->iface->interfaces->dpp, arg) < 0)
+		return UBUS_STATUS_NOT_SUPPORTED;
+
+	return 0;
+}
+#endif /* CONFIG_DPP */
 
 #ifdef CONFIG_DPP3
 enum {
@@ -1827,6 +2140,14 @@ static const struct ubus_method bss_methods[] = {
 	UBUS_METHOD_NOARG("wps_status", hostapd_bss_wps_status),
 	UBUS_METHOD_NOARG("wps_cancel", hostapd_bss_wps_cancel),
 #endif
+#ifdef CONFIG_DPP
+	UBUS_METHOD("dpp_qr_code", hostapd_bss_dpp_qr_code, dpp_qr_code_policy),
+	UBUS_METHOD("dpp_bootstrap_remove", hostapd_bss_dpp_bootstrap_remove, dpp_id_policy),
+	UBUS_METHOD("dpp_configurator_get_key", hostapd_bss_dpp_configurator_get_key, dpp_id_policy),
+	UBUS_METHOD("dpp_configurator_add", hostapd_bss_dpp_configurator_add, dpp_configurator_add_policy),
+	UBUS_METHOD("set_dpp_configurator_params", hostapd_bss_set_dpp_configurator_params, dpp_configurator_params_policy),
+	UBUS_METHOD("dpp_configurator_remove", hostapd_bss_dpp_configurator_remove, dpp_id_policy),
+#endif
 #ifdef CONFIG_DPP3
 	UBUS_METHOD("dpp_push_button", hostapd_bss_dpp_push_button, dpp_push_button_policy),
 #endif
@@ -2055,25 +2376,45 @@ void hostapd_ubus_notify_type(struct hostapd_data *hapd, const char *type)
 }
 
 #ifdef CONFIG_DPP
-void hostapd_ubus_notify_dpp_conf_failed(struct hostapd_data *hapd)
+static bool hostapd_ubus_dpp_is_qrcode(const struct dpp_authentication *auth)
+{
+	if (!auth)
+		return false;
+
+	return (auth->own_bi && auth->own_bi->type == DPP_BOOTSTRAP_QR_CODE) ||
+		(auth->peer_bi && auth->peer_bi->type == DPP_BOOTSTRAP_QR_CODE);
+}
+
+void hostapd_ubus_notify_dpp_conf_failed(struct hostapd_data *hapd,
+					 const struct dpp_authentication *auth)
 {
 	blob_buf_init(&b, 0);
 
 	blobmsg_add_string(&b, "ifname", hapd->conf->iface);
+	if (hostapd_ubus_dpp_is_qrcode(auth))
+		blobmsg_add_macaddr(&b, "peer_mac", auth->peer_mac_addr);
 
-	ubus_send_event(ctx, "dpp.conf_failed", b.head);
+	ubus_send_event(ctx,
+			hostapd_ubus_dpp_is_qrcode(auth) ?
+			"dpp.qr.conf_failed" : "dpp.pb.conf_failed",
+			b.head);
 }
-#endif
 
-#ifdef CONFIG_DPP3
-void hostapd_ubus_notify_dpp_pb_result(struct hostapd_data *hapd, const char *status)
+void hostapd_ubus_notify_dpp_result(struct hostapd_data *hapd,
+				    const char *status,
+				    const struct dpp_authentication *auth)
 {
 	blob_buf_init(&b, 0);
 
 	blobmsg_add_string(&b, "ifname", hapd->conf->iface);
 	blobmsg_add_string(&b, "status", status);
+	if (hostapd_ubus_dpp_is_qrcode(auth))
+		blobmsg_add_macaddr(&b, "peer_mac", auth->peer_mac_addr);
 
-	ubus_send_event(ctx, "dpp.result", b.head);
+	ubus_send_event(ctx,
+			hostapd_ubus_dpp_is_qrcode(auth) ?
+			"dpp.qr.result" : "dpp.pb.result",
+			b.head);
 }
 #endif
 

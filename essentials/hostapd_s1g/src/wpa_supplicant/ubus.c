@@ -29,6 +29,16 @@ static struct ubus_context *ctx;
 static struct blob_buf b;
 static int ctx_ref;
 
+static void
+blobmsg_add_macaddr(struct blob_buf *buf, const char *name, const u8 *addr)
+{
+	char *s;
+
+	s = blobmsg_alloc_string_buffer(buf, name, 20);
+	sprintf(s, MACSTR, MAC2STR(addr));
+	blobmsg_add_string_buffer(buf);
+}
+
 int hostapd_config_s1g_val(const struct hostapd_config *conf) {
 	return 0;
 }
@@ -261,31 +271,49 @@ void wpas_ubus_notify_type(struct wpa_supplicant *wpa_s, const char *type)
 	ubus_notify(ctx, &wpa_s->ubus.obj, type, NULL, -1);
 }
 
-#ifdef CONFIG_DPP3
-void wpas_ubus_notify_dpp_pb_result(struct wpa_supplicant *wpa_s, const char *status)
+static bool wpas_ubus_dpp_is_pb(struct wpa_supplicant *wpa_s)
 {
+#ifdef CONFIG_DPP3
+	return (wpa_s->dpp_pb_time.sec || wpa_s->dpp_pb_time.usec);
+#else
+	return false;
+#endif
+}
+
+#ifdef CONFIG_DPP
+void wpas_ubus_notify_dpp_result(struct wpa_supplicant *wpa_s,
+				 const char *status, const u8 *peer_mac)
+{
+	const char *event;
+
 	blob_buf_init(&b, 0);
 
 	blobmsg_add_string(&b, "ifname", wpa_s->ifname);
 	blobmsg_add_string(&b, "status", status);
+	if (peer_mac)
+		blobmsg_add_macaddr(&b, "peer_mac", peer_mac);
 
-	ubus_send_event(ctx, "dpp.result", b.head);
+	event = wpas_ubus_dpp_is_pb(wpa_s) ? "dpp.pb.result" : "dpp.qr.result";
+	ubus_send_event(ctx, event, b.head);
 }
-#endif
 
-#ifdef CONFIG_DPP
 void wpas_ubus_notify_dpp_conf_failed(struct wpa_supplicant *wpa_s)
 {
+	const char *event;
+
 	blob_buf_init(&b, 0);
 
 	blobmsg_add_string(&b, "ifname", wpa_s->ifname);
 
-	ubus_send_event(ctx, "dpp.conf_failed", b.head);
+	event = wpas_ubus_dpp_is_pb(wpa_s) ? "dpp.pb.conf_failed" :
+		"dpp.qr.conf_failed";
+	ubus_send_event(ctx, event, b.head);
 }
 
 void wpas_ubus_notify_dpp_conf_received(struct wpa_supplicant *wpa_s,
 					const struct dpp_config_obj *conf)
 {
+	const char *event;
 	void *tbl;
 
 	blob_buf_init(&b, 0);
@@ -295,7 +323,9 @@ void wpas_ubus_notify_dpp_conf_received(struct wpa_supplicant *wpa_s,
 	blobmsg_add_json_from_string(&b, conf->conf_obj);
 	blobmsg_close_table(&b, tbl);
 
-	ubus_send_event(ctx, "dpp.conf_received", b.head);
+	event = wpas_ubus_dpp_is_pb(wpa_s) ? "dpp.pb.conf_received" :
+		"dpp.qr.conf_received";
+	ubus_send_event(ctx, event, b.head);
 }
 #endif
 
@@ -386,4 +416,3 @@ void wpas_ubus_event_state(struct wpa_supplicant *wpa_s, const char *state)
 	blob_buf_free(&b);
 	return;
 }
-

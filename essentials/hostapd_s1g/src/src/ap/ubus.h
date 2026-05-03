@@ -28,6 +28,7 @@ struct hostapd_data;
 struct sta_info;
 struct hapd_interfaces;
 struct rrm_measurement_beacon_report;
+struct dpp_authentication;
 
 #ifdef UBUS_SUPPORT
 
@@ -54,10 +55,11 @@ void hostapd_ubus_handle_link_measurement(struct hostapd_data *hapd, const u8 *d
 void hostapd_ubus_notify_type(struct hostapd_data *hapd, const char *type);
 void hostapd_ubus_notify(struct hostapd_data *hapd, const char *type, const u8 *mac);
 #ifdef CONFIG_DPP
-void hostapd_ubus_notify_dpp_conf_failed(struct hostapd_data *hapd);
-#endif
-#ifdef CONFIG_DPP3
-void hostapd_ubus_notify_dpp_pb_result(struct hostapd_data *hapd, const char *status);
+void hostapd_ubus_notify_dpp_conf_failed(
+	struct hostapd_data *hapd, const struct dpp_authentication *auth);
+void hostapd_ubus_notify_dpp_result(struct hostapd_data *hapd,
+				    const char *status,
+				    const struct dpp_authentication *auth);
 #endif
 void hostapd_ubus_notify_beacon_report(struct hostapd_data *hapd,
 				       const u8 *addr, u8 token, u8 rep_mode,
@@ -123,7 +125,14 @@ static inline void hostapd_ubus_notify(struct hostapd_data *hapd, const char *ty
 {
 }
 
-static inline void hostapd_ubus_notify_dpp_pb_result(struct hostapd_data *hapd, const char *status)
+static inline void hostapd_ubus_notify_dpp_conf_failed(
+	struct hostapd_data *hapd, const struct dpp_authentication *auth)
+{
+}
+
+static inline void hostapd_ubus_notify_dpp_result(
+	struct hostapd_data *hapd, const char *status,
+	const struct dpp_authentication *auth)
 {
 }
 
