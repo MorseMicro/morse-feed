@@ -414,17 +414,11 @@ function generate_custom_config(uci) {
  *
  * @param {object} uci - UCI cursor.
  * @param {object} section - UCI section name for wifi-iface.
+ * @param {boolean} include_custom - If true, include custom conf_extra fields.
  * @returns {string|null} - DPP conf string or null if unsupported.
  */
-export function generate_dpp_command(uci, section) {
-	const fields = {
-		conf_extra_name: EXTRA_CONF_NAMESPACE,
-	};
-
-	const custom_config = generate_custom_config(uci);
-	if (!custom_config) {
-		return null;
-	}
+export function generate_dpp_command(uci, section, include_custom) {
+	const fields = {};
 
 	const encryption = uci.get("wireless", section, "encryption");
 	const dpp_encryption = {
@@ -439,9 +433,15 @@ export function generate_dpp_command(uci, section) {
 	fields.conf = `sta-${dpp_encryption}`;
 	fields.ssid = hexenc(uci.get("wireless", section, "ssid"));
 	fields.pass = hexenc(uci.get("wireless", section, "key"));
+	if (include_custom) {
+		const custom_config = generate_custom_config(uci);
+		if (!custom_config) {
+			return null;
+		}
 
-	fields.conf_extra_value = hexenc(custom_config);
-
+		fields.conf_extra_name = EXTRA_CONF_NAMESPACE;
+		fields.conf_extra_value = hexenc(custom_config);
+	}
 	return join(" ", map(keys(fields), field => `${field}=${fields[field]}`));
 };
 
