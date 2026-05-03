@@ -103,6 +103,29 @@ function debug(...msg) {
 
 
 /**
+ * Extract the peer MAC address from a DPP URI string.
+ *
+ * The DPP URI format is: DPP:[<field>;]M:<mac_no_colons>;K:<pubkey>;;
+ * The M: field is the enrollee MAC address without colons.
+ *
+ * @param {string} qrcode - DPP URI string.
+ * @returns {string|null} - MAC address in aa:bb:cc:dd:ee:ff form, or null if not found.
+ */
+function get_peer_mac_from_qrcode(qrcode) {
+	const m = match(qrcode, /M:([0-9a-fA-F]{12})/);
+	if (!m) {
+		return null;
+	}
+	// Insert colons: aabbccddeeff -> aa:bb:cc:dd:ee:ff
+	const hex = lc(m[1]);
+	return join(":", [
+		substr(hex, 0, 2), substr(hex, 2, 2), substr(hex, 4, 2),
+		substr(hex, 6, 2), substr(hex, 8, 2), substr(hex, 10, 2),
+	]);
+}
+
+
+/**
  * Get section which created ifname (is there a cleaner way?).
  */
 function get_ifname_section(ifname, wireless_status) {
@@ -224,6 +247,7 @@ function find_ifname(ubus_obj) {
 
 // dpp_pb is the current PB interaction; it will block other interactions.
 let dpp_pb = null;
+
 // wpad_objects has all the WpadObject objects, mapped by ifname.
 const wpad_objects = {};
 
@@ -244,6 +268,7 @@ const DPPPB = {
 			timer: null,
 			ifnames: [],
 			waiting_for_temp_iface: false,
+			conf: null,
 		}, this);
 	},
 
@@ -282,7 +307,7 @@ const DPPPB = {
 
 	restore_leds: function () {
 		for (let ifname in this.ifnames) {
-			debug("Restoring LED for ", this.ifname, "\n");
+			debug("Restoring LED for ", ifname, "\n");
 			restore_dpp_led(ifname);
 		}
 	},
@@ -397,6 +422,188 @@ const DPPPB = {
 
 
 /**
+ * DPPQR prototype (i.e. class).
+ *
+ * Handles a DPP QR code interaction on a single interface.
+ * One DPPQR object is created per (ifname, qrcode, peer_mac) tuple.
+ */
+const DPPQR = {
+	new: function (ifname, mode, peer_mac, sessions) {
+		return proto({
+			ifname,
+			mode,
+			peer_mac,
+			sessions,
+			bootstrap_id: null,
+			timer: null,
+		}, this);
+	},
+
+	cleanup: function () {
+		debug(`DPPQR cleanup on ${this.ifname} peer=${this.peer_mac} bootstrap_id=${this.bootstrap_id}`);
+		if (this.timer) {
+			this.timer.cancel();
+			this.timer = null;
+		}
+		if (this.bootstrap_id !== null) {
+			ubus.defer(`hostapd.${this.ifname}`, "dpp_bootstrap_remove",
+				   { id: `${this.bootstrap_id}` });
+			this.bootstrap_id = null;
+		}
+		delete this.sessions[this.peer_mac];
+	},
+
+	restore_leds: function () {
+		// Not planned yet
+		return;
+	},
+
+	/**
+	 * Ensure a DPP configurator is ready on this iface (Master mode only).
+	 *
+	 * Gets or creates a configurator key, generates the basic DPP config
+	 * (without custom fields), and sets the configurator params on hostapd.
+	 *
+	 * @param {string} ubus_obj - Target ubus object.
+	 * @returns {object} - { status: "success" } or { status: "failed", error_code }.
+	 */
+	ensure_configurator: function (ubus_obj) {
+		let configurator_id;
+
+		const configurator = ubus.call(ubus_obj, "dpp_configurator_get_key");
+		if (configurator?.id) {
+			configurator_id = `${configurator.id}`;
+			debug(`DPPQR reusing existing configurator id=${configurator_id} on ${this.ifname}`);
+		} else {
+			const add = ubus.call(ubus_obj, "dpp_configurator_add");
+			if (!add?.id) {
+				warn(`dpp_configurator_add failed on ${this.ifname}: ${ubus.error()}\n`);
+				return { status: "failed", error_code: "hostapd_error" };
+			}
+			configurator_id = `${add.id}`;
+			print(`DPPQR created configurator id=${configurator_id} on ${this.ifname}\n`);
+		}
+
+		const uci = cursor();
+		const wireless_status = ubus.call("network.wireless", "status");
+		const section = wireless_status ? get_ifname_section(this.ifname, wireless_status) : null;
+		if (!section) {
+			warn(`DPPQR ensure_configurator: no section for ${this.ifname}\n`);
+			return { status: "failed", error_code: "no_available_mode" };
+		}
+
+		const dpp_command = generate_dpp_command(uci, section, true);
+		if (!dpp_command) {
+			warn(`DPPQR ensure_configurator: generate_dpp_command returned null for ${section}\n`);
+			return { status: "failed", error_code: "bad_argument" };
+		}
+
+		const command = `${dpp_command} configurator=${configurator_id}`;
+		debug(`DPPQR set_dpp_configurator_params on ${this.ifname}: ${command}`);
+		ubus.call(ubus_obj, "set_dpp_configurator_params", { "dpp_conf" : command });
+		if (ubus.error()) {
+			warn(`set_dpp_configurator_params failed on ${this.ifname}: ${ubus.error()}\n`);
+			return { status: "failed", error_code: "hostapd_error" };
+		}
+
+		return { status: "success" };
+	},
+
+	/**
+	 * Configurator (AP) side: submit the QR URI to hostapd to get a bootstrap id.
+	 *
+	 * @param {string} ubus_obj - Target ubus object (e.g. "hostapd.wlan0").
+	 * @param {object} options - { uri, expiry }.
+	 * @returns {boolean} - True on success.
+	 */
+	start_configurator: function (ubus_obj, options) {
+		const configurator = this.ensure_configurator(ubus_obj);
+		if (configurator.status === "failed") {
+			return false;
+		}
+
+		const result = ubus.call(ubus_obj, "dpp_qr_code", { uri: options.uri });
+		if (!result?.id) {
+			warn(`Unable to start DPP QR code interaction on ${this.ifname}: ${ubus.error()}\n`);
+			return false;
+		}
+		this.bootstrap_id = result.id;
+		debug(`DPPQR bootstrap_id=${this.bootstrap_id} registered on ${this.ifname}`);
+
+		const that = this;
+		const expiry_ms = ((options?.expiry > 0) ? options.expiry : FINISH_AFTER_SECS) * 1000;
+		debug(`DPPQR expiry armed for ${expiry_ms}ms on ${this.ifname} peer=${this.peer_mac}`);
+		this.timer = uloop.timer(expiry_ms, () => {
+			warn(`DPPQR session expired on ${that.ifname} peer=${that.peer_mac}\n`);
+			that.failed();
+		});
+
+		return true;
+
+	},
+
+	/**
+	 * Enrollee (STA) side: session is already in progress in wpa_supplicant;
+	 * we just track it for subsequent conf_received/result events.
+	 *
+	 * @param {string} ubus_obj - Target ubus object (e.g. "wpa_supplicant.wlan0").
+	 * @param {object} options - { expiry }.
+	 * @returns {boolean} - True on success.
+	 */
+	start_enrollee: function (ubus_obj, options) {
+		// Nothing to do on the supplicant; the auth has already begun.
+		return true;
+	},
+
+	/**
+	 * Start the QR code interaction.
+	 *
+	 * Signature aligned with DPPPB.start(ubus_obj, options). Dispatches to
+	 * start_configurator (AP) or start_enrollee (STA) based on this.mode,
+	 * then arms the session expiry timer.
+	 *
+	 * @param {string} ubus_obj - Target ubus object (e.g. "hostapd.wlan0").
+	 * @param {object} options - { expiry } (enrollee) or { uri, expiry } (configurator).
+	 *                           expiry is the session validity in seconds.
+	 */
+	start: function (ubus_obj, options) {
+		print(`Starting QR code DPP on ${this.ifname} (mode=${this.mode}) peer=${this.peer_mac}\n`);
+
+		const ok = (this.mode === "Master")
+			? this.start_configurator(ubus_obj, options)
+			: this.start_enrollee(ubus_obj, options);
+
+		return ok;
+	},
+
+	/**
+	 * Fail the QR interaction. ubus_obj is accepted for signature parity with
+	 * DPPPB.failed but is unused (DPPQR is single-iface).
+	 */
+	failed: function (ubus_obj) {
+		print(`DPPQR failed on ${this.ifname} peer=${this.peer_mac}\n`);
+		this.cleanup();
+	},
+
+	/**
+	 * Failed configuration after a successful QR interaction.
+	 *
+	 * Mirrors DPPPB.failed_config for symmetry; treated the same as failed()
+	 * since QR has no session-overlap lockout.
+	 */
+	failed_config: function (ubus_obj) {
+		print(`DPPQR failed_config on ${this.ifname} peer=${this.peer_mac}\n`);
+		this.failed(ubus_obj);
+	},
+
+	success: function () {
+		print(`DPPQR success on ${this.ifname} peer=${this.peer_mac}\n`);
+		this.cleanup();
+	},
+};
+
+
+/**
  * WpadObject prototype (i.e. class).
  *
  * One WpadObject is created for each iface you want to react to
@@ -407,8 +614,11 @@ const WpadObject = {
 	 * Construct a WpadObject.
 	 */
 	new: function (ubus_obj, ifname, hwmode, mode) {
+		// QR sessions are tracked on HaLow AP (configurator) and STA (enrollee) ifaces.
+		const qr_capable = (hwmode === "ah" && mode in ["Master", "Client"]);
 		return proto({
 			ubus_obj, ifname, hwmode, mode,
+			dpp_qr_sessions: qr_capable ? {} : null,
 		}, this);
 	},
 
@@ -441,51 +651,137 @@ const WpadObject = {
 		return dpp_pb && (this.ifname in dpp_pb.ifnames);
 	},
 
-	notify: function (type, data) {
-		debug("Received event: ", type, " ", data);
-
-		switch (type) {
-			case "dpp.conf_failed":
-				// Sometimes, there's no dpp_pb_result after a conf failure,
-				// so we need to trigger this immediately.
-				// This seems to happen if you try to dpp pb
-				// back to yourself with the same creds.
-				this.failed();
-				break;
-			case "dpp.conf_received":
-				this.conf = data.conf;
-				break;
-			case "dpp.result":
-				// Confusingly, this happens for both PBs and QRCode interactions.
-				if (data.status === "success") {
-					this.success();
-				} else {
-					// Anthing that's _not_ a success is some kind of failure.
-					warn(`DPP failed on ${this.ifname} due to ${data.status}\n`);
-					this.failed();
-				}
-				break;
-			default:
-				warn(`Received unknown event: ${type} - ${data}\n`);
-				break;
+	find_qr_session: function (peer_mac) {
+		if (!this.dpp_qr_sessions) {
+			return null;
 		}
+		if (peer_mac) {
+			return this.dpp_qr_sessions[peer_mac];
+		}
+		// Supplicant QR events don't carry peer_mac; return the first active session.
+		const macs = keys(this.dpp_qr_sessions);
+		return length(macs) ? this.dpp_qr_sessions[macs[0]] : null;
+	},
+
+	/**
+	 * Resolve the DPP session for an event flow.
+	 *
+	 * @param {string} flow - "pb" or "qr".
+	 * @param {object} data - Event payload.
+	 * @returns {object|null} - Session object (DPPPB or DPPQR), or null.
+	 */
+	resolve_session: function (flow, data) {
+		if (flow === "pb") {
+			return this.is_dpp_pb() ? dpp_pb : null;
+		}
+		if (flow === "qr") {
+			return this.find_qr_session(data.peer_mac);
+		}
+		return null;
+	},
+
+	notify: function (type, data) {
+		debug("Received DPP event: ", type, " ", data);
+
+		// Event format: dpp.<flow>.<action>  (e.g. dpp.pb.result, dpp.qr.conf_failed).
+		const parts = split(type, ".");
+		const flow = parts[1];
+		const action = parts[2];
+
+		if (flow === "qr" && action === "result" && data.status === "started") {
+			if (this.mode === "Client") {
+				// Supplicant emits a result "started" on enrollee side when auth starts.
+				// Create a session to track subsequent conf_received/result.
+				print(`DPP QR session "started" on ${this.ifname} with peer=${data.peer_mac}\n`);
+				this.start_qr_session(data.peer_mac, {});
+			}
+			// On the configurator (Master) side, "started" is informational
+			// (auth begun); the terminal result will arrive later. Ignore it
+			// so we don't tear down the bootstrap mid-handshake.
+			return;
+		}
+
+		const session = this.resolve_session(flow, data);
+		if (!session) {
+			warn(`No active DPP session for ${type} on ${this.ifname} (peer=${data.peer_mac ?? "n/a"})\n`);
+			return;
+		}
+
+		if (action === "conf_failed") {
+			// Sometimes, there's no *.result after a conf failure,
+			// so we need to trigger this immediately.
+			// This seems to happen if you try to DPP back to yourself with the same creds.
+			print(`Received ${type} on ${this.ifname} (peer=${data.peer_mac ?? "n/a"})\n`);
+			this.failed(session);
+		} else if (action === "conf_received") {
+			debug(`Received ${type} on ${this.ifname} peer=${data.peer_mac ?? "n/a"}`);
+			session.conf = data.conf;
+		} else if (action === "result") {
+			print(`Received ${type} status=${data.status} on ${this.ifname} (peer=${data.peer_mac ?? "n/a"})\n`);
+			if (data.status === "success") {
+				this.success(session);
+			} 
+			else {
+				warn(`DPP failed on ${this.ifname} due to ${data.status}\n`);
+				this.failed(session);
+			}
+		} else {
+			warn(`Received unknown DPP event: ${type}\n`);
+		}
+	},
+
+	/**
+	 * Start a DPP QR session on this iface.
+	 *
+	 * Creates a DPPQR, ensures the configurator is ready (Master only), and
+	 * starts the session. The session is inserted into dpp_qr_sessions only
+	 * after start() succeeds.
+	 *
+	 * @param {string} peer_mac - Enrollee MAC (keys the session).
+	 * @param {object} options - { uri, expiry } for Master; {} for Client.
+	 * @returns {object} - { status: "success" } or { status: "failed", error_code }.
+	 */
+	start_qr_session: function (peer_mac, options) {
+		debug(`start_qr_session on ${this.ifname} peer=${peer_mac} mode=${this.mode}`);
+
+		if (!this.dpp_qr_sessions || !peer_mac) {
+			warn(`start_qr_session rejected on ${this.ifname}: iface not QR-capable (mode=${this.mode}) or missing peer_mac (${peer_mac})\n`);
+			return { status: "failed", error_code: "bad_argument" };
+		}
+
+		if (this.dpp_qr_sessions[peer_mac]) {
+			warn(`start_qr_session rejected on ${this.ifname}: peer ${peer_mac} already active\n`);
+			return { status: "failed", error_code: "already_active" };
+		}
+
+		const session = DPPQR.new(this.ifname, this.mode, peer_mac, this.dpp_qr_sessions);
+
+		if (!session.start(this.ubus_obj, options)) {
+			return { status: "failed", error_code: "dpp_failed" };
+		}
+
+		this.dpp_qr_sessions[peer_mac] = session;
+		print(`QR session started on ${this.ifname} peer=${peer_mac} mode=${this.mode}\n`);
+		return { status: "success" };
 	},
 
 	cleanup: function () {
 		if (this.is_dpp_pb()) {
 			dpp_pb.failed(this.ubus_obj);
 		}
-	},
-
-	failed: function () {
-		this.conf = null;
-
-		if (this.is_dpp_pb()) {
-			dpp_pb.failed(this.ubus_obj);
+		if (this.dpp_qr_sessions) {
+			for (let session in values(this.dpp_qr_sessions)) {
+				session.cleanup();
+			}
 		}
 	},
 
-	apply_client_config: function () {
+	failed: function (session) {
+		session.conf = null;
+		session.failed(this.ubus_obj);
+	},
+
+	apply_client_config: function (session) {
 		const uci = cursor();
 
 		let section;
@@ -494,24 +790,25 @@ const WpadObject = {
 			section = get_ifname_section(this.ifname, wireless_status);
 		}
 
+		debug(sprintf("apply_client_config on %s (section=%s): %.J\n",
+		              this.ifname, section, session.conf));
+
 		// apply_config needs section to target the normal conf, but
 		// custom conf will apply without section. This would usually
 		// happen if it's a temporary interface.
-		return apply_config(uci, this.conf, section) && commit_config(uci);
+		return apply_config(uci, session.conf, section) && commit_config(uci);
 	},
 
-	success: function () {
+	success: function (session) {
 		let config_success = true;
 		if (this.mode === "Client") {
-			config_success = this.apply_client_config();
+			config_success = this.apply_client_config(session);
 		}
 
-		if (this.is_dpp_pb()) {
-			if (config_success) {
-				dpp_pb.success();
-			} else {
-				dpp_pb.failed_config(this.ubus_obj);
-			}
+		if (config_success) {
+			session.success();
+		} else {
+			session.failed_config(this.ubus_obj);
 		}
 	},
 };
@@ -630,7 +927,7 @@ function push_button(req) {
 				warn(`Unable to start DPP PB interaction on ${wpad_obj.ubus_obj}: no section for ${wpad_obj.ifname}.\n`);
 				continue;
 			}
-			options.command = generate_dpp_command(uci, section);
+			options.command = generate_dpp_command(uci, section, true);
 			if (!options.command) {
 				warn(`Unable to start DPP PB interaction on ${wpad_obj.ubus_obj}: failed to generate command.\n`);
 				continue;
@@ -662,6 +959,56 @@ function push_button(req) {
 	};
 }
 
+/**
+ * Ubus handler for registering a DPP QR code and starting a configurator session.
+ *
+ * Finds the first HaLow AP interface and delegates to its start_qr_session.
+ *
+ * @param {object} req - Ubus request object.
+ *   uri {string}     - DPP URI from the enrollee's QR code (mandatory).
+ *   expiry {number}  - Optional session expiry in seconds (default: FINISH_AFTER_SECS).
+ * @returns {object} - { status: "success", peer_mac } or { status: "failed", error_code }.
+ */
+function register_qrcode(req) {
+	const uri = req.args.uri;
+	const expiry = req.args.expiry;
+
+	print(`ubus register_qrcode called (expiry=${expiry ?? "default"})\n`);
+
+	if (!uri) {
+		warn("register_qrcode rejected: missing uri\n");
+		return { status: "failed", error_code: "bad_argument" };
+	}
+
+	const peer_mac = get_peer_mac_from_qrcode(uri);
+	if (!peer_mac) {
+		warn(`register_qrcode rejected: could not parse peer_mac from uri\n`);
+		return { status: "failed", error_code: "bad_argument" };
+	}
+	debug(`register_qrcode parsed peer_mac=${peer_mac} from uri`);
+
+	// Find the first HaLow AP wpad_object.
+	let target_wpad_obj = null;
+	for (let wpad_obj in values(wpad_objects)) {
+		if (wpad_obj.hwmode === "ah" && wpad_obj.mode === "Master") {
+			target_wpad_obj = wpad_obj;
+			break;
+		}
+	}
+
+	if (!target_wpad_obj) {
+		warn("register_qrcode rejected: no HaLow AP interface available\n");
+		return { status: "failed", error_code: "no_available_mode" };
+	}
+	debug(`register_qrcode using ifname=${target_wpad_obj.ifname}`);
+
+	const result = target_wpad_obj.start_qr_session(peer_mac, { uri, expiry });
+	if (result.status === "failed") {
+		warn(`register_qrcode failed: error_code=${result.error_code}\n`);
+		return result;
+	}
+	return { status: "success"};
+}
 
 /**
  * Keeps track of all wpad_objects for ifaces that can be targeted.
@@ -719,6 +1066,14 @@ function terminate(signo) {
 		dpp_pb.restore_leds();
 	}
 
+	for (let wpad_obj in values(wpad_objects)) {
+		if (wpad_obj.dpp_qr_sessions) {
+			for (let session in values(wpad_obj.dpp_qr_sessions)) {
+				session.restore_leds();
+			}
+		}
+	}
+
 	// In OpenWrt 23.05.6, calling exit(0) here breaks libucode (GPF), but we really
 	// want to terminate the program.
 	assert(false, "Ignore this exception; it's a workaround for a broken exit() in signal handlers");
@@ -739,7 +1094,16 @@ let ubus_methods = {
 		args: {
 			ubus_rpc_session: "",
 		},
-	}
+	},
+
+	register_qrcode: {
+		call: register_qrcode,
+		args: {
+			uri: "",
+			expiry: 0,
+			ubus_rpc_session: "",
+		},
+	},
 };
 
 
@@ -757,25 +1121,30 @@ if (DEBUG) {
 		},
 
 		_generate_dpp_command: {
-			call: (req) => ({"command": generate_dpp_command(cursor(), req.args.section)}),
+			call: (req) => ({"command": generate_dpp_command(cursor(), req.args.section, req.args.include_custom ?? true)}),
 			args: {
 				section: "",
+				include_custom: true,
 			},
 		},
 	};
 }
 
 
+function dispatch_dpp_event(type, data) {
+	const wpad_obj = wpad_objects[data.ifname];
+	if (!wpad_obj) {
+		warn(`Not listening to ${data.ifname}, so ignoring ${type} (internal error).\n`);
+		return;
+	}
+	wpad_obj.notify(type, data);
+}
+
+
 uloop.init();
 ubus.publish("dpp", ubus_methods);
 register_wpad_objects();
-ubus.listener("dpp.*", function (type, data) {
-	if (wpad_objects[data.ifname]) {
-		wpad_objects[data.ifname].notify(type, data);
-	} else {
-		warn(`Not listening to ${data.ifname}, so ignoring ${type} (internal error).\n`);
-	}
-});
+ubus.listener("dpp.*", dispatch_dpp_event);
 signal('int', terminate);
 signal('term', terminate);
 uloop.run();

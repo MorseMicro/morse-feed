@@ -174,7 +174,7 @@ function assert_initial_config_removed(uci) {
 return {
 	generate_dpp_command_halow_standard: function () {
 		const uci = MockUCICursor.new(mock_ap_uci_data());
-		const dpp_command = wizard.generate_dpp_command(uci, "default_radio1");
+		const dpp_command = wizard.generate_dpp_command(uci, "default_radio1", true);
 		assert(dpp_command);
 		const result = unpack_dpp_command(dpp_command);
 		assert(result.conf === "sta-sae");
@@ -193,7 +193,7 @@ return {
 
 	generate_dpp_command_other_standard: function () {
 		const uci = MockUCICursor.new(mock_ap_uci_data());
-		const dpp_command = wizard.generate_dpp_command(uci, "default_radio0");
+		const dpp_command = wizard.generate_dpp_command(uci, "default_radio0", true);
 		assert(dpp_command);
 		const result = unpack_dpp_command(dpp_command);
 		assert(result.conf === "sta-psk");
@@ -215,7 +215,7 @@ return {
 	generate_dpp_command_prplmesh: function () {
 		const uci = MockUCICursor.new(mock_ap_uci_data());
 		uci.set("prplmesh", "config", "enable", "1");
-		const dpp_command = wizard.generate_dpp_command(uci, "default_radio1");
+		const dpp_command = wizard.generate_dpp_command(uci, "default_radio1", true);
 		assert(dpp_command);
 		const result = unpack_dpp_command(dpp_command);
 		assert(result.conf === "sta-sae");
@@ -236,7 +236,7 @@ return {
 	generate_dpp_command_mesh11s: function () {
 		const uci = MockUCICursor.new(mock_ap_uci_data());
 		uci.set("wireless", "mesh_radio1", "disabled", "0");
-		const dpp_command = wizard.generate_dpp_command(uci, "default_radio1");
+		const dpp_command = wizard.generate_dpp_command(uci, "default_radio1", true);
 		assert(dpp_command);
 		const result = unpack_dpp_command(dpp_command);
 		assert(result.conf === "sta-sae");
@@ -259,7 +259,7 @@ return {
 	generate_dpp_command_unsupported_encryption_returns_null: function () {
 		const uci = MockUCICursor.new(mock_ap_uci_data());
 		uci.set("wireless", "default_radio1", "encryption", "wep");
-		const dpp_command = wizard.generate_dpp_command(uci, "default_radio1");
+		const dpp_command = wizard.generate_dpp_command(uci, "default_radio1", true);
 		assert(dpp_command === null);
 	},
 
@@ -267,8 +267,20 @@ return {
 		const uci = MockUCICursor.new(mock_ap_uci_data());
 		uci.set("prplmesh", "config", "enable", "0");
 		uci.set("wireless", "default_radio1", "mode", "sta");
-		const dpp_command = wizard.generate_dpp_command(uci, "default_radio1");
+		const dpp_command = wizard.generate_dpp_command(uci, "default_radio1", true);
 		assert(dpp_command === null);
+	},
+
+	generate_dpp_command_without_custom: function () {
+		const uci = MockUCICursor.new(mock_ap_uci_data());
+		const dpp_command = wizard.generate_dpp_command(uci, "default_radio1", false);
+		assert(dpp_command);
+		const result = unpack_dpp_command(dpp_command);
+		assert(result.conf === "sta-sae");
+		assert(result.pass === "mockpass");
+		assert(result.ssid === "mockssid");
+		assert(!result.conf_extra_name);
+		assert(!result.conf_extra_value);
 	},
 
 	apply_config_no_custom: function () {
