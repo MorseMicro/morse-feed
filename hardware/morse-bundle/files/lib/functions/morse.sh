@@ -47,6 +47,9 @@ morse_generate_default_hostname() {
 			morse,*ekh04*)
 				prefix=ekh04
 			;;
+			morse,halowlink-apx)
+				prefix=hl-apx
+			;;
 			*)
 				# Strip manufacturer for hostname to keep it short
 				prefix=$(sed 's/^.*,//' /tmp/sysinfo/board_name | tr A-Z a-z)
