@@ -26,7 +26,7 @@ define KernelPackage/morse
   CATEGORY:=Morse Micro
   SUBMENU:=Essentials
   TITLE:=Morse Micro Wi-Fi HaLow driver for MM61x
-  DEPENDS:= +kmod-mmc +kmod-mac80211 +kmod-trelay +kmod-lib-crc7 morse-fw +morse-board-config +MORSE_USB:kmod-usb-core
+  DEPENDS:= +kmod-mmc +!MORSE_CUSTOM_MAC80211:kmod-mac80211 +kmod-trelay +kmod-lib-crc7 morse-fw +morse-board-config +MORSE_USB:kmod-usb-core
   FILES:=\
     $(PKG_BUILD_DIR)/morse.ko \
     $(PKG_BUILD_DIR)/dot11ah/dot11ah.ko
@@ -37,6 +37,15 @@ endef
 
 define KernelPackage/morse/config
 	source "$(SOURCE)/Config.in"
+endef
+
+# TODO : 
+# This should be solved by making vendor mac80211 package emit this provides
+define Package/kmod-morse/extra_provides
+  $(if $(CONFIG_MORSE_CUSTOM_MAC80211), \
+      echo "cfg80211.ko"; \
+      echo "mac80211.ko"; \
+  )
 endef
 
 $(eval $(call KernelPackage,morse))

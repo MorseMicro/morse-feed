@@ -31,7 +31,7 @@ define Package/hostapd_s1g
   CATEGORY:=Morse Micro
   SUBMENU:=Essentials
   TITLE:=Morse Micro HaLow hostapd
-  DEPENDS:= kmod-morse +kmod-cfg80211 +morsecli +libnl +libopenssl +libubus +libblobmsg-json
+  DEPENDS:= kmod-morse +!MORSE_CUSTOM_CFG80211:kmod-cfg80211 +morsecli +libnl +libopenssl +libubus +libblobmsg-json
   USERID:=network=101:network=101
 endef
 
@@ -41,6 +41,14 @@ define Package/hostapd_s1g/description
 endef
 
 define Package/hostapd_s1g/config
+	config MORSE_CUSTOM_CFG80211
+		bool "Use custom cfg80211 package"
+		default n
+		help
+			Suppress auto-selection of the default kmod-cfg80211 package.
+			Enable when using a vendor-specific cfg80211 package, with the
+			custom package explicitly selected via CONFIG_PACKAGE_kmod-<name>=y.
+
 	if PACKAGE_hostapd_s1g
 
 		config MORSE_HOSTAPD_S1G_EAP
@@ -85,7 +93,7 @@ define Package/wpa_supplicant_s1g
   CATEGORY:=Morse Micro
   SUBMENU:=Essentials
   TITLE:=Morse Micro HaLow wpa_supplicant
-  DEPENDS:= kmod-morse +kmod-cfg80211 +morsecli +libnl +libopenssl +libubus +MORSE_WPA_SUPPLICANT_S1G_DBUS:dbus +MORSE_WPA_SUPPLICANT_S1G_DBUS:libdbus +libblobmsg-json
+  DEPENDS:= kmod-morse +!MORSE_CUSTOM_CFG80211:kmod-cfg80211 +morsecli +libnl +libopenssl +libubus +MORSE_WPA_SUPPLICANT_S1G_DBUS:dbus +MORSE_WPA_SUPPLICANT_S1G_DBUS:libdbus +libblobmsg-json
   USERID:=network=101:network=101
 endef
 
