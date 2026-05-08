@@ -4,6 +4,14 @@ config MORSE_USB
 		default n if MORSE_CHIP_MM61X
 		default y
 
+config MORSE_CUSTOM_MAC80211
+	bool "Use custom mac80211 package"
+	default n
+	help
+		Suppress auto-selection of the default kmod-mac80211 package.
+		Enable when using a vendor-specific mac80211 package, with the
+		custom package explicitly selected via CONFIG_PACKAGE_kmod-<name>=y.
+
 if PACKAGE_kmod-morse || PACKAGE_kmod-morse-test-driver
 	config MORSE_SDIO
 		bool "SDIO support "

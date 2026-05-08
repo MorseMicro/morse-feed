@@ -45,26 +45,29 @@ ifneq ($(CONFIG_MORSE_RC),y)
   MORSE_MAKEDEFS += CONFIG_DISABLE_MORSE_RC=y
 endif
 
-MAC80211_VERSION := $(shell grep '^PKG_VERSION:=' $(TOPDIR)/package/kernel/mac80211/Makefile | cut -d'=' -f2 | cut -d'-' -f1)
+OPENWRT_MAC80211_VERSION := $(shell grep '^PKG_VERSION:=' $(TOPDIR)/package/kernel/mac80211/Makefile | cut -d'=' -f2 | cut -d'-' -f1)
 
 MORSE_MAKEDEFS += \
   MORSE_VERSION=0-$(PKG_VERSION) \
   KERNEL_SRC=$(LINUX_DIR) \
-  CONFIG_MORSE_SDIO_ALIGNMENT=$(CONFIG_MORSE_SDIO_ALIGNMENT) \
-  CONFIG_BACKPORT_VERSION=v$(MAC80211_VERSION)
-# This refers to the version of mac80211 backported to OpenWrt
-# Occasionally patches are required to remove some parts of the driver
-# as OpenWrt may sometimes pull in further patches from later kernel versions
-# than that of the mac80211 backport.
+  CONFIG_MORSE_SDIO_ALIGNMENT=$(CONFIG_MORSE_SDIO_ALIGNMENT)
 
-NOSTDINC_FLAGS = \
-	-I$(PKG_BUILD_DIR) \
-	-I$(STAGING_DIR)/usr/include/mac80211-backport/uapi \
-	-I$(STAGING_DIR)/usr/include/mac80211-backport \
-	-I$(STAGING_DIR)/usr/include/mac80211/uapi \
-	-I$(STAGING_DIR)/usr/include/mac80211 \
-	-include backport/autoconf.h \
-	-include backport/backport.h
+ifneq ($(CONFIG_MORSE_CUSTOM_MAC80211),y)
+  # This refers to the version of mac80211 backported to OpenWrt
+  # Occasionally patches are required to remove some parts of the driver
+  # as OpenWrt may sometimes pull in further patches from later kernel versions
+  # than that of the mac80211 backport.
+  MORSE_MAKEDEFS += CONFIG_BACKPORT_VERSION=v$(OPENWRT_MAC80211_VERSION)
+
+  NOSTDINC_FLAGS = \
+    -I$(PKG_BUILD_DIR) \
+    -I$(STAGING_DIR)/usr/include/mac80211-backport/uapi \
+    -I$(STAGING_DIR)/usr/include/mac80211-backport \
+    -I$(STAGING_DIR)/usr/include/mac80211/uapi \
+    -I$(STAGING_DIR)/usr/include/mac80211 \
+    -include backport/autoconf.h \
+    -include backport/backport.h
+endif
 
 ifeq ($(CONFIG_MORSE_DEBUG_LOGGING),y)
   NOSTDINC_FLAGS += -DDYNAMIC_DEBUG_MODULE
