@@ -22,11 +22,11 @@ define Package/netifd-morse
   CATEGORY:=Morse Micro
   SUBMENU:=Essentials
   TITLE:=Morse Micro HaLow support for netifd
-  # NB this requires netifd, but this is pulled in by
-  # kmod-cfg80211 (via wifi-scripts), and specifying
-  # it here creates a recursive dependency.
-  DEPENDS:= kmod-morse +kmod-cfg80211 \
-	+morse-regdb +wpa_supplicant_s1g +hostapd_s1g +morsecli
+
+  # This package is also depends on netifd and kmod-cfg80211.
+  # These are already pulled in by hostapd_s1g. Listing them
+  # explicitly here creates a recursive dependency.
+  DEPENDS:= kmod-morse +morse-regdb +wpa_supplicant_s1g +hostapd_s1g +morsecli
 endef
 
 define Build/Compile
