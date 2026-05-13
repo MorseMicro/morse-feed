@@ -48,6 +48,11 @@ CONFIGURE_ARGS += \
 TARGET_CFLAGS += -I$(STAGING_DIR)/usr/include/libnl3
 TARGET_LDFLAGS += -lnl-3 -lnl-genl-3 -lm
 
+# OpenWrt 22.03/glibc does not implicitly expose ncurses wide-char APIs,
+# so symbols like WACS_HLINE stay hidden unless _XOPEN_SOURCE_EXTENDED is set.
+# On OpenWrt 23+ this is already implied, so this is a compatibility no-op.
+TARGET_CFLAGS += -D_XOPEN_SOURCE_EXTENDED
+
 define Package/morse-wavemon/install
 	$(INSTALL_DIR) $(1)/sbin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/wavemon $(1)/sbin/
