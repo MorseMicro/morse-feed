@@ -1,0 +1,39 @@
+From e991a2887ebf065d9d62e5dd11d6128eb58f628e Mon Sep 17 00:00:00 2001
+From: Naushir Patuck <naush@raspberrypi.com>
+Date: Mon, 18 Sep 2023 10:10:45 +0100
+Subject: [PATCH] pipeline: rpi: Reset the frame lengths queue during configure
+
+The IPA stores a list of the last 10 frame lengths applied to the
+sensor for determining the timeout to use. This list gets reset on
+start(), but there is a path through the code that accesses this list
+in configure() which happens earlier, causing a logical error.
+
+Fix this by constructing the list with 10 initial values of 0s.
+
+Bug: https://github.com/raspberrypi/libcamera/issues/64
+Signed-off-by: Naushir Patuck <naush@raspberrypi.com>
+Reviewed-by: Kieran Bingham <kieran.bingham@ideasonboard.com>
+Reviewed-by: David Plowman <david.plowman@raspberrypi.com>
+Signed-off-by: Kieran Bingham <kieran.bingham@ideasonboard.com>
+---
+ src/ipa/rpi/common/ipa_base.cpp | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/ipa/rpi/common/ipa_base.cpp b/src/ipa/rpi/common/ipa_base.cpp
+index 5d8344e3..551adadf 100644
+--- a/src/ipa/rpi/common/ipa_base.cpp
++++ b/src/ipa/rpi/common/ipa_base.cpp
+@@ -100,8 +100,8 @@ LOG_DEFINE_CATEGORY(IPARPI)
+ namespace ipa::RPi {
+ 
+ IpaBase::IpaBase()
+-	: controller_(), frameCount_(0), mistrustCount_(0), lastRunTimestamp_(0),
+-	  firstStart_(true)
++	: controller_(), frameLengths_(FrameLengthsQueueSize, 0s), frameCount_(0),
++	  mistrustCount_(0), lastRunTimestamp_(0), firstStart_(true)
+ {
+ }
+ 
+-- 
+2.34.1
+
