@@ -36,6 +36,7 @@ define Package/morse_mesh11sd
   SUBMENU:=Features
   TITLE:=Dynamic 802.11s Mesh Configuration Daemon
   PKGARCH:=all
+  DEPENDS:= +ucode +ucode-mod-fs +ucode-mod-uci +ucode-mod-nl80211
   URL:=https://github.com/opennds/mesh11sd
   PROVIDES:=mesh11sd
 endef
