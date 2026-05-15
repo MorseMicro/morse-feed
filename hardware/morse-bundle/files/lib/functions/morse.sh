@@ -22,6 +22,14 @@ morse_generate_default_hostname() {
 			morse,*ekh19*)
 				suffix=${suffix: -3}
 			;;
+			# RD14 exposes a default MAC during early boot,
+			# causing identical hostnames across devices.
+			# Temporary workaround until APP-7046 is fixed.
+			morse,rd14)
+				mac="$(mib get ELAN_MAC_ADDR | cut -d= -f2)"
+				suffix="$(echo "$mac" | tr A-Z a-z)"
+				suffix="${suffix: -4}"
+			;;
 			*)
 				suffix=${suffix: -4}
 			;;
