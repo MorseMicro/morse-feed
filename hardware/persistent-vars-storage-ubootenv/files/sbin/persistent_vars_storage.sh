@@ -45,7 +45,7 @@ show_raw_partition_data()
 }
 
 # This is here so we can iterate over all currently set keys.
-FACTORY_KEYS="device_password default_wifi_key mm_region mm_sku mm_region_unlocked"
+FACTORY_KEYS="device_password default_wifi_key mm_region mm_region_unlocked mm_sku hw_version manufacturer mm_mode mp_fw serial dpp_priv_key"
 
 show_factory_data()
 {
@@ -54,8 +54,7 @@ show_factory_data()
 
 	case "$board_name" in
 		morse,halowlink1 |\
-		morse,halowlink2 |\
-		morse,halowlink-apx)
+		morse,halowlink2)
 			case "$1" in
 				device_password)
 					show_raw_partition_data factory 0x40a0 32
@@ -67,7 +66,7 @@ show_factory_data()
 					show_raw_partition_data factory 0x40c0 2
 				;;
 				mm_region_unlocked)
-					if [ "$board_name" = morse,halowlink1 ]; then
+					if [ "$board_name" = "morse,halowlink1" ]; then
 						echo 1
 					fi
 				;;
@@ -75,6 +74,43 @@ show_factory_data()
 					# This is used to select a BCF other than the OTP default.
 					# See /lib/netifd/wireless/morse.sh
 					show_raw_partition_data factory 0x40e0 32
+				;;
+			esac
+		;;
+		morse,halowlink-apx)
+			case "$1" in
+				default_wifi_key)
+					show_raw_partition_data factory 0x4080 32
+				;;
+				device_password)
+					show_raw_partition_data factory 0x40a0 32
+				;;
+				mm_region)
+					show_raw_partition_data factory 0x40c0 2
+				;;
+				mm_sku)
+					show_raw_partition_data factory 0x40e0 32
+				;;
+				mm_region_unlocked)
+					show_raw_partition_data factory 0x4100 1
+				;;
+				hw_version)
+					show_raw_partition_data factory 0x4120 32
+				;;
+				manufacturer)
+					show_raw_partition_data factory 0x4140 32
+				;;
+				mm_mode)
+					show_raw_partition_data factory 0x4160 32
+				;;
+				mp_fw)
+					show_raw_partition_data factory 0x4180 32
+				;;
+				serial)
+					show_raw_partition_data factory 0x41a0 64
+				;;
+				dpp_priv_key)
+					show_raw_partition_data factory 0x41e0 224
 				;;
 			esac
 		;;
