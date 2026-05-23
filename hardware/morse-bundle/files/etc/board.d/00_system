@@ -1,6 +1,6 @@
 . /lib/functions/uci-defaults.sh
 . /lib/functions/system.sh
-. /lib/functions/morse.sh
+. /lib/functions/morse-hostname.sh
 
 board=$(board_name)
 

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-. /lib/netifd/morse/morse_utils.sh
+. /lib/functions/morse.sh
 . /usr/share/libubox/jshn.sh
 
 

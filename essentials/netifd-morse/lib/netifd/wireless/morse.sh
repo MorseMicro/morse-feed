@@ -3,7 +3,7 @@
 . /lib/netifd/netifd-wireless.sh
 . /lib/netifd/hostapd.sh
 . /lib/netifd/morse/morse_overrides.sh
-. /lib/netifd/morse/morse_utils.sh
+. /lib/functions/morse.sh
 
 # Morse interfaces will be named wlhX
 DEFAULT_MORSE_IFNAME="wlh"

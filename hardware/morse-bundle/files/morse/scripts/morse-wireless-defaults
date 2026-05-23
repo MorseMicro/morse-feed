@@ -10,7 +10,7 @@
 # it out of board.d.
 
 . /lib/functions.sh
-. /lib/netifd/morse/morse_utils.sh
+. /lib/functions/morse.sh
 . /lib/functions/system.sh
 
 LOGTAG="morse-wireless-defaults"
