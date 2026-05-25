@@ -79,6 +79,17 @@ led_blink_veryfast() {
 	led_timer "$1" 50 50
 }
 
+# Requires CONFIG_LEDS_TRIGGER_PATTERN.
+# Do the non-arming setup first before starting in sync.
+led_pattern_blink_setup() {
+	led_set_attr "$1" trigger pattern
+	led_set_attr "$1" repeat -1
+}
+
+led_pattern_blink_start() {
+	led_set_attr "$1" pattern "0 300 0 0 255 300 255 0"
+}
+
 set_three_pwmled_normal() {
 	# There's a bug in the pwm-multicolor module which means colour
 	# change malfunctions if the LED is off due to a timer trigger.
@@ -122,7 +133,6 @@ set_three_pwmled_state() {
 		;;
 	factory_reset)
 		if [ "$three_pwmled_factory_reset_all_leds" = 1 ]; then
-			# Set colours first, then start all timers together to keep blinks in sync.
 			led_on "$halow"
 			led_set_color "$halow" "$yellow"
 			led_on "$status"
@@ -131,10 +141,14 @@ set_three_pwmled_state() {
 			[ -n "$wifi" ] && led_set_color "$wifi" "$yellow"
 			[ -n "$link" ] && led_on "$link"
 			[ -n "$link" ] && led_set_color "$link" "$yellow"
-			led_blink "$halow"
-			led_blink "$status"
-			[ -n "$wifi" ] && led_blink "$wifi"
-			[ -n "$link" ] && led_blink "$link"
+			led_pattern_blink_setup "$halow"
+			led_pattern_blink_setup "$status"
+			[ -n "$wifi" ] && led_pattern_blink_setup "$wifi"
+			[ -n "$link" ] && led_pattern_blink_setup "$link"
+			led_pattern_blink_start "$halow"
+			led_pattern_blink_start "$status"
+			[ -n "$wifi" ] && led_pattern_blink_start "$wifi"
+			[ -n "$link" ] && led_pattern_blink_start "$link"
 		else
 			led_off "$halow"
 			[ -n "$wifi" ] && led_off "$wifi"
