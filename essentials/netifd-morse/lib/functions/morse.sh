@@ -1,3 +1,5 @@
+. /lib/functions.sh
+
 kill_wait()
 {
 	local names=$*
@@ -150,4 +152,110 @@ morse_find_ifname()
 			break
 		fi
 	done
+}
+
+# morse_config_get_iface <variable> [mode]
+#
+# Find the (first) UCI section name of a wifi-iface attached
+# to the (first) morse-wifi-device. If <mode> is given (e.g.
+# "ap", "sta", "mesh"), only ifaces with that mode are considered.
+#
+# Sets the named output variable to the matching section name, empty
+# if nothing is found.
+#
+# Caller must have already run `config_load wireless`.
+#
+# Usage
+#	config_load wireless
+#	morse_config_get_iface sta_iface sta
+#	[ -n "$sta_iface" ] || { echo "no morse STA found" >&2; exit 1; }
+#
+morse_config_get_iface() {
+	local __out
+	__out="$1"
+	local __mode
+	__mode="$2"
+
+	case "$__out" in
+		*[!A-Za-z0-9_]*|'')
+			echo "invalid output variable name: $__out" >&2
+			return 1
+			;;
+	esac
+
+	local __morse_uci_device
+	__morse_uci_device=
+	config_foreach _morse_config_get_device_cb wifi-device
+
+	local __morse_uci_iface
+	__morse_uci_iface=
+	[ -n "$__morse_uci_device" ] && config_foreach _morse_config_get_iface_cb wifi-iface "$__mode"
+
+	eval "$__out=\$__morse_uci_iface"
+}
+
+_morse_config_get_iface_cb() {
+	local section
+	section="$1"
+	local want_mode
+	want_mode="$2"
+	local device mode
+
+	[ -n "$__morse_uci_iface" ] && return 0
+
+	config_get device "$section" device
+	[ "$device" = "$__morse_uci_device" ] || return 0
+
+	if [ -n "$want_mode" ]; then
+		config_get mode "$section" mode
+		[ "$mode" = "$want_mode" ] || return 0
+	fi
+
+	__morse_uci_iface="$section"
+}
+
+# morse_config_get_device <variable>
+#
+# Find the (first) UCI section name of the morse wifi-device.
+#
+# Mimics /lib/functions.sh config_get by setting the named
+# output variable to the first wifi-device section with type='morse'
+# or an empty string if none was found.
+#
+# Caller must have already run `config_load wireless`.
+#
+# Usage:
+#	config_load wireless
+#	morse_config_get_device dev
+#	[ -n "$dev" ] || { echo "no morse device" >&2; exit 1; }
+#
+morse_config_get_device() {
+	local __out
+	__out="$1"
+
+	case "$__out" in
+		*[!A-Za-z0-9_]*|'')
+			echo "invalid output variable name: $__out" >&2
+			return 1
+			;;
+	esac
+
+	local __morse_uci_device
+	__morse_uci_device=
+
+	config_foreach _morse_config_get_device_cb wifi-device
+
+	eval "$__out=\$__morse_uci_device"
+}
+
+_morse_config_get_device_cb() {
+	local section
+	section="$1"
+
+	local type
+
+	[ -n "$__morse_uci_device" ] && return 0
+
+	config_get type "$section" type
+	[ "$type" = morse ] && __morse_uci_device="$section"
 }
