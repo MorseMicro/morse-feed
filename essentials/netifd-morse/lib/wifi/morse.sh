@@ -111,7 +111,7 @@ EOF
 					bcf=bcf_ekh04_v6.bin
 				;;
 				morse,halowlink-apx)
-					bcf=bcf_fgh100mhaamd.bin
+					bcf=bcf_mmd_apx1_ext.bin
 				;;
 				morse,halowlink1)
 					bcf=bcf_mm_hl1.bin
