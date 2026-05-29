@@ -22,6 +22,16 @@ persistent_vars_storage() {
 	fi
 }
 
+# In factory mode the contract manufacturer writes the production
+# dpp_priv_key into the factory partition slot. If we let this hotplug
+# auto-generate one earlier in the same boot, it would land in uboot env
+# and mask the factory-written value forever.
+mm_mode=$(persistent_vars_storage READ mm_mode)
+if [ "$mm_mode" = "factory" ]; then
+	logger -p 4 -t dpp-qrcode-key "mm_mode=factory, skipping DPP key handling"
+	exit 0
+fi
+
 get_dpp_info_field() {
 	local board_name=$(cat /tmp/sysinfo/board_name)
 	local sid=$(persistent_vars_storage READ serial)
