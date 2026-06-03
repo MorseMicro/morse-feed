@@ -412,7 +412,7 @@ return view.extend({
 			} catch (e) {
 				this.errorMessage = `
 					${INVALID_CONFIG_MESSAGE.format(e.message)}
-					${L.hasSystemFeature('morse_native_s1g') && INVALID_HALOW_DEVICE_TYPE_MESSAGE}
+					${L.hasSystemFeature('morse_native_s1g') ? INVALID_HALOW_DEVICE_TYPE_MESSAGE : ''}
 					${RESET_DEVICE_MESSAGE}
 				`;
 			}
