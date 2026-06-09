@@ -1052,7 +1052,7 @@ return view.extend({
 		remoteDeviceCoordinatesInput.optional = true;
 
 		let rangeInput = s.option(form.Value, 'range', _('Range (m)'), _('The distance between devices under test'));
-		rangeInput.datatype = 'and(min(1), uinteger)';
+		rangeInput.datatype = 'and(range(1, 1000000), uinteger)';
 		rangeInput.placeholder = _('500');
 		rangeInput.rmempty = false;
 		rangeInput.optional = false;
