@@ -25,6 +25,27 @@ const MESSAGE_TYPES = {
 	INFO: 'info',
 };
 
+// Single source of truth for results-summary column labels, shared by the
+// results table and the CSV export functions (CSV headers parsed in order).
+const RESULTS_SUMMARY_COLUMN_LABELS = {
+	id: _('ID'),
+	status: _('Status'),
+	timestamp: _('Time'),
+	remoteHost: _('Remote Host'),
+	description: _('Description'),
+	distance: _('Distance (m)'),
+	localDeviceCoordinates: _('Local Device Coordinates'),
+	remoteDeviceCoordinates: _('Remote Device Coordinates'),
+	locationGeoJson: _('Location'),
+	udpThroughputSend: _('UDP Send Throughput (Mbps)'),
+	udpThroughputReceive: _('UDP Receive Throughput (Mbps)'),
+	tcpThroughputSend: _('TCP Send Throughput (Mbps)'),
+	tcpThroughputReceive: _('TCP Receive Throughput (Mbps)'),
+	bandwidth: _('Bandwidth (MHz)'),
+	channel: _('Channel'),
+	signalStrength: _('Signal Strength (dBm)'),
+};
+
 document.querySelector('head').appendChild(E('link', {
 	rel: 'stylesheet',
 	type: 'text/css',
@@ -597,15 +618,17 @@ function exportResultsSummaryAsCSVFile(allTestData, fileName) {
 		resultsSummaries.push(parseResultsSummaryRowData(testData));
 	});
 
-	const csvColumnNames = Object.keys(resultsSummaries[0]).filter(columnName => !headerBlocklist.includes(columnName));
+	const csvColumnKeys = Object.keys(RESULTS_SUMMARY_COLUMN_LABELS)
+		.filter(key => key in resultsSummaries[0] && !headerBlocklist.includes(key));
+	const headerRow = csvColumnKeys.map(key => `"${RESULTS_SUMMARY_COLUMN_LABELS[key].replace(/"/g, '""')}"`);
 	const csvRows = resultsSummaries.map((summary) => {
-		return csvColumnNames.map((header) => {
-			switch (typeof summary[header]) {
+		return csvColumnKeys.map((key) => {
+			switch (typeof summary[key]) {
 				case 'string':
-					return `"${summary[header].replace(/"/g, '""')}"`;
+					return `"${summary[key].replace(/"/g, '""')}"`;
 				case 'number':
 				case 'boolean':
-					return summary[header];
+					return summary[key];
 				case 'undefined':
 					return '';
 				default:
@@ -613,7 +636,7 @@ function exportResultsSummaryAsCSVFile(allTestData, fileName) {
 			}
 		});
 	});
-	const csvData = [csvColumnNames.join(','), ...csvRows.map(row => row.join(','))].join('\n');
+	const csvData = [headerRow.join(','), ...csvRows.map(row => row.join(','))].join('\n');
 
 	const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
 	const url = URL.createObjectURL(blob);
@@ -1252,53 +1275,53 @@ return view.extend({
 			]);
 		};
 
-		o = s.option(form.DummyValue, 'status', _('Status'));
+		o = s.option(form.DummyValue, 'status', RESULTS_SUMMARY_COLUMN_LABELS.status);
 		o.datatype = 'string';
 		o.readonly = true;
 
-		o = s.option(form.DummyValue, 'timestamp', _('Time'));
+		o = s.option(form.DummyValue, 'timestamp', RESULTS_SUMMARY_COLUMN_LABELS.timestamp);
 		o.datatype = 'string';
 		o.readonly = true;
 
-		o = s.option(form.DummyValue, 'remoteHost', _('Remote Host'));
+		o = s.option(form.DummyValue, 'remoteHost', RESULTS_SUMMARY_COLUMN_LABELS.remoteHost);
 		o.datatype = 'string';
 		o.readonly = true;
 
-		o = s.option(form.DummyValue, 'description', _('Description'));
+		o = s.option(form.DummyValue, 'description', RESULTS_SUMMARY_COLUMN_LABELS.description);
 		o.datatype = 'string';
 
-		o = s.option(form.DummyValue, 'distance', _('Distance (m)'));
+		o = s.option(form.DummyValue, 'distance', RESULTS_SUMMARY_COLUMN_LABELS.distance);
 		o.datatype = 'uinteger';
 		o.readonly = true;
 
-		o = s.option(this.MapViewButton, 'locationGeoJson', _('Location'));
+		o = s.option(this.MapViewButton, 'locationGeoJson', RESULTS_SUMMARY_COLUMN_LABELS.locationGeoJson);
 		o.editable = true;
 
-		o = s.option(form.DummyValue, 'udpThroughputSend', _('UDP Send Throughput (Mbps)'));
+		o = s.option(form.DummyValue, 'udpThroughputSend', RESULTS_SUMMARY_COLUMN_LABELS.udpThroughputSend);
 		o.datatype = 'string';
 		o.readonly = true;
 
-		o = s.option(form.DummyValue, 'udpThroughputReceive', _('UDP Receive Throughput (Mbps)'));
+		o = s.option(form.DummyValue, 'udpThroughputReceive', RESULTS_SUMMARY_COLUMN_LABELS.udpThroughputReceive);
 		o.datatype = 'string';
 		o.readonly = true;
 
-		o = s.option(form.DummyValue, 'tcpThroughputSend', _('TCP Send Throughput (Mbps)'));
+		o = s.option(form.DummyValue, 'tcpThroughputSend', RESULTS_SUMMARY_COLUMN_LABELS.tcpThroughputSend);
 		o.datatype = 'string';
 		o.readonly = true;
 
-		o = s.option(form.DummyValue, 'tcpThroughputReceive', _('TCP Receive Throughput (Mbps)'));
+		o = s.option(form.DummyValue, 'tcpThroughputReceive', RESULTS_SUMMARY_COLUMN_LABELS.tcpThroughputReceive);
 		o.datatype = 'string';
 		o.readonly = true;
 
-		o = s.option(form.DummyValue, 'bandwidth', _('Bandwidth (MHz)'));
+		o = s.option(form.DummyValue, 'bandwidth', RESULTS_SUMMARY_COLUMN_LABELS.bandwidth);
 		o.datatype = 'uinteger';
 		o.readonly = true;
 
-		o = s.option(form.DummyValue, 'channel', _('Channel'));
+		o = s.option(form.DummyValue, 'channel', RESULTS_SUMMARY_COLUMN_LABELS.channel);
 		o.datatype = 'uinteger';
 		o.readonly = true;
 
-		o = s.option(form.DummyValue, 'signalStrength', _('Signal Strength (dBm)'));
+		o = s.option(form.DummyValue, 'signalStrength', RESULTS_SUMMARY_COLUMN_LABELS.signalStrength);
 		o.datatype = 'integer';
 		o.readonly = true;
 
