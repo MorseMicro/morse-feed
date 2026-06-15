@@ -156,6 +156,11 @@ set_three_pwmled_state() {
 			led_blink "$status"
 		fi
 		;;
+	soft_reset_pending)
+		led_on "$status"
+		led_set_color "$status" "$yellow"
+		led_blink_fast "$status"
+		;;
 	soft_reset)
 		led_on "$status"
 		led_set_color "$status" "$yellow"
