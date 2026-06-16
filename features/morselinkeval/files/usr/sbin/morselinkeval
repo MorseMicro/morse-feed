@@ -1,0 +1,7 @@
+#!/usr/bin/ucode -RS
+'use strict';
+
+import { Service } from "morselinkeval.service";
+
+const svc = Service.new(ARGV);
+svc.run();
