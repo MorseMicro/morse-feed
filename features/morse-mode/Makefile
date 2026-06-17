@@ -15,7 +15,7 @@ define Package/morse-mode
   CATEGORY:=Morse Micro
   SUBMENU:=Features
   TITLE:=Access morse mode info via ubus
-  DEPENDS:=+netifd-morse +morse-regdb
+  DEPENDS:=+netifd-morse +morse-regdb +rpcd-mod-ucode
 endef
 
 define Build/Compile
