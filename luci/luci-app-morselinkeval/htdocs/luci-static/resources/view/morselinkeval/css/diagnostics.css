@@ -1,0 +1,884 @@
+:root {
+	/* Palette mapped onto luci-theme-morseargon tokens with fallbacks so the
+	 * page tracks the active theme (light/dark); brand/status hues stay fixed. */
+	--mle-primary:       var(--primary, #571c76);
+	--mle-primary-light: var(--bar-bg, #e9d9f2);
+	--mle-border:        var(--border-color-medium, #d4d4d4);
+	--mle-border-light:  var(--lighter, var(--border-color-low, #e9ecef));
+	--mle-text:          var(--gray-dark, var(--text-color-high, currentColor));
+	--mle-text-dim:      var(--menu-color, var(--text-color-medium, currentColor));
+	--mle-text-mute:     var(--gray, var(--text-color-low, #8898aa));
+	--mle-bg-faint:      var(--secondary, var(--background-color-low, #f7fafc));
+
+	--mle-surface:        var(--background-color-high, #fff);
+	--mle-surface-sunken: var(--background-color, var(--background-color-low, #f5f5f5));
+	--mle-surface-header: var(--lighter, var(--background-color-medium, #eef1f4));
+
+	--mle-green:     var(--success, #2dce89);
+	--mle-green-rgb: 45,206,137;
+	--mle-blue:      var(--blue, #5e72e4);
+	--mle-amber:     var(--warning, #fb6340);
+	--mle-amber-rgb: 251,99,64;
+	--mle-fair-rgb:  184,118,0;
+	--mle-mono:      'Courier New', monospace;
+
+	/* Four-tier quality scale (bespoke; theme has no grade colours). */
+	--mle-excellent-bg: #e8f5ec;
+	--mle-excellent-fg: #1f7a3d;
+	--mle-good-bg:      #f0f7e6;
+	--mle-good-fg:      #4d8525;
+	--mle-fair-bg:      #fff4e0;
+	--mle-fair-fg:      #b87600;
+	--mle-poor-bg:      #faece9;
+	--mle-poor-fg:      var(--danger, #f5365c);
+
+	/* Misc fixed hues that were previously inlined in rules. */
+	--mle-on-accent: #fff;      /* text/icons sitting on a solid status fill */
+	--mle-amber-fg:  #b56700;   /* warn-banner / warn-badge text on amber tint */
+	--mle-blue-bg:   #e8f0ff;   /* SGI tag background */
+	--mle-green-faint: #fafffb; /* "clear" characteristic chip background */
+}
+
+/* Shared pulse; callers set --mle-pulse-rgb to recolour it. */
+@keyframes mle-pulse {
+	0%   { box-shadow: 0 0 0 0 rgba(var(--mle-pulse-rgb), 0.5); }
+	70%  { box-shadow: 0 0 0 5px rgba(var(--mle-pulse-rgb), 0); }
+	100% { box-shadow: 0 0 0 0 rgba(var(--mle-pulse-rgb), 0); }
+}
+
+/* ===== Layout ===== */
+
+.mle-peerlink-wrapper { margin: 0; }
+
+/* ===== Panel scaffold (section panels + alerts box) ===== */
+
+.mle-section-panel,
+.mle-alerts-box {
+	background: var(--mle-surface);
+	border: 1px solid var(--mle-border-light);
+	border-radius: 2px;
+	margin: 12px 16px;
+	overflow: hidden;
+}
+.mle-alerts-box { border-color: var(--mle-border); }
+
+.mle-section-header,
+.mle-alerts-header {
+	padding: 8px 14px;
+	background: var(--mle-surface-header);
+	border-bottom: 1px solid var(--mle-border-light);
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	font-size: 11px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	color: var(--mle-text);
+}
+.mle-alerts-header {
+	border-bottom-color: var(--mle-border);
+	color: var(--mle-text-dim);
+}
+
+.mle-section-header-title {
+	display: flex;
+	align-items: center;
+	gap: 7px;
+}
+.mle-section-header-icon {
+	font-size: 13px;
+	line-height: 1;
+}
+.mle-section-body { padding: 16px; }
+.mle-section-sub {
+	font-size: 12px;
+	color: var(--text-color-high);
+	margin-bottom: 12px;
+}
+
+/* ===== Form row ===== */
+
+.mle-form-row {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 8px;
+	padding: 12px 16px;
+	background: var(--mle-bg-faint);
+	border-bottom: 1px solid var(--mle-border-light);
+}
+.mle-form-row label {
+	font-size: 13px;
+	color: var(--mle-text);
+	white-space: nowrap;
+}
+.mle-hint {
+	font-size: 11px;
+	color: var(--mle-text-mute);
+}
+
+/* Monospaced MAC dropdown (modifier on .cbi-input-select). */
+.mle-select-mono {
+	font-family: var(--mle-mono);
+	font-size: 12px;
+	min-width: 240px;
+}
+.mle-input-mac {
+	padding: 5px 8px;
+	border: 1px solid var(--mle-border);
+	background: var(--mle-surface-sunken);
+	font-family: var(--mle-mono);
+	font-size: 12px;
+	width: 185px;
+	border-radius: 2px;
+	color: var(--mle-text-dim);
+}
+
+/* ===== Mode badge ===== */
+
+.mle-mode-badge {
+	font-size: 10px;
+	padding: 2px 8px;
+	border-radius: 2px;
+	color: var(--mle-on-accent);
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	font-weight: 600;
+}
+.mle-mode-ap  { background: var(--mle-primary); }
+.mle-mode-sta { background: var(--mle-blue); }
+
+/* ===== Chips ===== */
+
+.mle-chip-bar {
+	padding: 8px 16px;
+	background: var(--mle-surface);
+	border-bottom: 1px solid var(--mle-border-light);
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	align-items: center;
+	min-height: 40px;
+}
+.mle-chip-label {
+	font-size: 11px;
+	color: var(--primary-color-low);
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+}
+.mle-chip-empty {
+	font-size: 11px;
+	color: var(--text-color-high);
+	font-style: italic;
+}
+
+/* Outline pill shared by peer chips and info chips; modifiers set padding. */
+.mle-chip {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	background: var(--mle-bg-faint);
+	border: 1px solid var(--mle-border-light);
+	border-radius: 12px;
+	font-size: 12px;
+}
+.mle-peer-chip { padding: 3px 4px 3px 8px; }
+.mle-info-chip { padding: 3px 10px; }
+
+.mle-chip-dot {
+	width: 9px;
+	height: 9px;
+	border-radius: 50%;
+	flex-shrink: 0;
+}
+.mle-chip-mac {
+	font-family: var(--mle-mono);
+	font-size: 11px;
+	font-weight: 600;
+	color: var(--mle-text);
+}
+.mle-info-chip-lbl {
+	font-size: 10px;
+	font-weight: 600;
+	color: var(--primary-color-low);
+	text-transform: uppercase;
+	letter-spacing: 0.4px;
+}
+.mle-info-chip-val {
+	font-family: var(--mle-mono);
+	font-size: 11px;
+	font-weight: 600;
+	color: var(--primary-color-high);
+}
+
+/* Circular close button (peer chip + alert dismiss); reddens on hover. */
+.mle-x-btn {
+	cursor: pointer;
+	color: var(--mle-text-mute);
+	font-weight: bold;
+	border-radius: 50%;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	transition: background 0.15s, color 0.15s;
+}
+.mle-x-btn:hover {
+	background: var(--mle-poor-fg);
+	color: var(--mle-on-accent);
+}
+.mle-chip-x {
+	width: 16px;
+	height: 16px;
+	font-size: 13px;
+	line-height: 1;
+}
+
+/* ===== Status bar ===== */
+
+.mle-status-bar {
+	padding: 8px 16px;
+	background: var(--mle-surface);
+	border-bottom: 1px solid var(--mle-border-light);
+	display: flex;
+	gap: 20px;
+	font-size: 12px;
+	color: var(--mle-text-dim);
+	align-items: center;
+}
+.mle-status-bar b {
+	color: var(--mle-text);
+	font-weight: 600;
+}
+.mle-live-dot {
+	display: inline-block;
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	background: var(--mle-green);
+	margin-right: 5px;
+	--mle-pulse-rgb: var(--mle-green-rgb);
+	animation: mle-pulse 1.6s infinite;
+}
+
+/* ===== Link Quality table ===== */
+
+.mle-lq-table {
+	width: 100%;
+	border-collapse: collapse;
+	table-layout: auto;
+}
+.mle-lq-table thead th {
+	background: var(--mle-surface-header);
+	color: var(--mle-text);
+	text-align: left;
+	padding: 9px 10px;
+	font-size: 11px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	border: 1px solid var(--mle-border-light);
+}
+.mle-lq-table thead th:last-child { border-right: none; }
+.mle-lq-table td {
+	padding: 0;
+	border-right: 1px solid var(--mle-border-light);
+	border-bottom: 1px solid var(--mle-border);
+	vertical-align: top;
+}
+.mle-lq-table td:last-child { border-right: none; }
+
+.mle-col-mac { width: 14%; }
+.mle-col-q   { width: 21%; }
+
+.mle-scenario-filter-row {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin-bottom: 10px;
+	font-size: 12px;
+	color: var(--mle-text);
+}
+.mle-lq-table.mle-hide-typical      .mle-col-typical      { display: none; }
+.mle-lq-table.mle-hide-conservative .mle-col-conservative { display: none; }
+.mle-lq-table.mle-hide-worst        .mle-col-worst        { display: none; }
+
+/* ===== MAC cell ===== */
+
+.mle-cell-mac {
+	padding: 12px 10px;
+	background: var(--mle-bg-faint);
+}
+.mle-station-dot {
+	display: inline-block;
+	width: 10px;
+	height: 10px;
+	border-radius: 2px;
+	margin-right: 6px;
+	vertical-align: middle;
+}
+.mle-mac-addr {
+	font-family: var(--mle-mono);
+	font-size: 12px;
+	font-weight: 600;
+}
+
+/* Live readout inside the MAC cell */
+.mle-live-readout {
+	margin-top: 10px;
+	padding-top: 8px;
+	border-top: 1px dashed var(--mle-border);
+}
+.mle-live-label {
+	font-size: 9px;
+	text-transform: uppercase;
+	letter-spacing: 1px;
+	color: var(--mle-text-mute);
+	margin-bottom: 4px;
+	display: flex;
+	align-items: center;
+	gap: 5px;
+}
+.mle-live-label::before {
+	content: '';
+	width: 6px;
+	height: 6px;
+	border-radius: 50%;
+	background: var(--mle-green);
+	--mle-pulse-rgb: var(--mle-green-rgb);
+	animation: mle-pulse 1.6s infinite;
+}
+.mle-live-row {
+	font-family: var(--mle-mono);
+	font-size: 11px;
+	color: var(--mle-text);
+	padding: 1px 0;
+	display: flex;
+	align-items: baseline;
+	gap: 3px;
+}
+.mle-live-dir {
+	font-size: 9px;
+	text-transform: uppercase;
+	color: var(--mle-text-mute);
+	width: 18px;
+	flex-shrink: 0;
+}
+.mle-live-val-sm {
+	font-size: 12px;
+	font-weight: 700;
+	color: var(--mle-text);
+}
+.mle-live-sgi {
+	font-size: 9px;
+	background: var(--mle-blue-bg);
+	color: var(--mle-blue);
+	padding: 0 3px;
+	border-radius: 2px;
+	font-weight: 600;
+}
+.mle-live-rate {
+	font-size: 10px;
+	color: var(--mle-text-dim);
+}
+
+/* ===== Quality cells ===== */
+
+.mle-cell-q { padding: 10px; }
+.mle-q-excellent-bg { background: var(--mle-excellent-bg); }
+.mle-q-good-bg      { background: var(--mle-good-bg); }
+.mle-q-fair-bg      { background: var(--mle-fair-bg); }
+.mle-q-poor-bg      { background: var(--mle-poor-bg); }
+
+.mle-badge {
+	display: inline-block;
+	padding: 2px 8px;
+	border-radius: 2px;
+	font-size: 11px;
+	font-weight: 700;
+	letter-spacing: 0.3px;
+	text-transform: uppercase;
+	margin-bottom: 8px;
+}
+.mle-q-excellent { background: var(--mle-excellent-fg); color: var(--mle-on-accent); }
+.mle-q-good      { background: var(--mle-good-fg);      color: var(--mle-on-accent); }
+.mle-q-fair      { background: var(--mle-fair-fg);      color: var(--mle-on-accent); }
+.mle-q-poor      { background: var(--mle-poor-fg);      color: var(--mle-on-accent); }
+
+.mle-metric {
+	display: flex;
+	justify-content: space-between;
+	align-items: baseline;
+	padding: 2px 0;
+	font-size: 12px;
+	border-bottom: 1px dashed var(--mle-border-light);
+}
+.mle-metric:last-child { border-bottom: none; }
+.mle-metric-lbl {
+	color: var(--mle-text-dim);
+	font-size: 11px;
+}
+.mle-metric-val {
+	font-family: var(--mle-mono);
+	font-weight: 600;
+	color: var(--mle-text);
+}
+.mle-unit {
+	font-weight: 400;
+	color: var(--mle-text-mute);
+	font-size: 10px;
+}
+.mle-dim { color: var(--mle-text-mute); }
+
+/* ===== Placeholders / warming states ===== */
+
+/* Centered muted block; modifiers tweak padding/background/layout. */
+.mle-placeholder {
+	padding: 24px;
+	text-align: center;
+	font-size: 13px;
+	color: var(--mle-text-mute);
+	font-style: italic;
+}
+.mle-empty-row td { border: none; }
+
+.mle-warming {
+	padding: 14px 10px;
+	background: var(--mle-surface);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+}
+.mle-collecting-dot {
+	display: inline-block;
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	background: var(--mle-fair-fg);
+	--mle-pulse-rgb: var(--mle-fair-rgb);
+	animation: mle-pulse 1.6s infinite;
+}
+
+/* ===== Chart ===== */
+
+.mle-chart-section { margin-top: 16px; }
+.mle-chart-filter-row {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 10px 12px;
+	background: var(--mle-bg-faint);
+	border: 1px solid var(--mle-border-light);
+	border-radius: 3px;
+	margin-bottom: 14px;
+	font-size: 12px;
+	flex-wrap: wrap;
+}
+.mle-chart-filter-label {
+	font-weight: 600;
+	color: var(--mle-text);
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	font-size: 11px;
+	white-space: nowrap;
+}
+.mle-chart-wrap {
+	position: relative;
+	height: 320px;
+	margin-bottom: 14px;
+}
+.mle-chart-canvas {
+	width: 100% !important;
+	height: 100% !important;
+}
+.mle-chart-stats {
+	display: grid;
+	grid-template-columns: repeat(4, 1fr);
+	gap: 10px;
+	padding-top: 12px;
+	border-top: 1px solid var(--mle-border-light);
+}
+/* Planner chart shows three stats, not four. */
+.mle-chart-stats-3 { grid-template-columns: repeat(3, 1fr); }
+.mle-chart-stat { text-align: center; }
+
+/* Stat label/value shared by chart stats and the planner RSSI panel. */
+.mle-stat-lbl {
+	font-size: 10px;
+	font-weight: 600;
+	color: var(--primary-color-low);
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	margin-bottom: 4px;
+}
+.mle-stat-val {
+	font-family: var(--mle-mono);
+	font-size: 18px;
+	font-weight: 700;
+}
+
+/* ===== Diagnostics alerts ===== */
+
+.mle-alerts-header-right {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+}
+.mle-alerts-counts {
+	display: flex;
+	gap: 8px;
+}
+.mle-alerts-cnt {
+	padding: 1px 8px;
+	border-radius: 8px;
+	font-size: 10px;
+	background: var(--mle-surface);
+	border: 1px solid;
+}
+.mle-alerts-cnt-error { color: var(--mle-poor-fg); border-color: var(--mle-poor-fg); }
+.mle-alerts-cnt-warn  { color: var(--mle-fair-fg); border-color: var(--mle-fair-fg); }
+.mle-alerts-cnt-info  { color: var(--mle-blue);    border-color: var(--mle-blue); }
+
+.mle-alerts-clear-btn {
+	background: var(--mle-surface);
+	border: 1px solid var(--mle-border);
+	padding: 2px 10px;
+	font-size: 10px;
+	cursor: pointer;
+	border-radius: 2px;
+	color: var(--mle-text-dim);
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+}
+.mle-alerts-clear-btn:hover { background: var(--mle-surface-header); }
+
+.mle-alerts-list { background: var(--mle-surface); }
+
+.mle-alert-row {
+	display: flex;
+	align-items: flex-start;
+	gap: 10px;
+	padding: 10px 14px;
+	background: var(--mle-surface);
+	border-bottom: 1px solid var(--mle-border-light);
+	border-left: 4px solid;
+	font-size: 12px;
+	transition: opacity 0.15s;
+}
+.mle-alert-row:last-child { border-bottom: none; }
+.mle-alert-row.mle-alert-removing { opacity: 0; }
+.mle-alert-error { border-left-color: var(--mle-poor-fg); }
+.mle-alert-warn  { border-left-color: var(--mle-fair-fg); }
+.mle-alert-info  { border-left-color: var(--mle-blue); }
+
+.mle-alert-icon {
+	flex-shrink: 0;
+	width: 20px;
+	height: 20px;
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 11px;
+	font-weight: 700;
+	color: var(--mle-on-accent);
+}
+.mle-alert-icon-error { background: var(--mle-poor-fg); }
+.mle-alert-icon-warn  { background: var(--mle-fair-fg); }
+.mle-alert-icon-info  { background: var(--mle-blue); }
+
+.mle-alert-body { flex: 1; }
+.mle-alert-title {
+	font-weight: 600;
+	color: var(--mle-text);
+	font-size: 12px;
+	margin-bottom: 2px;
+}
+.mle-alert-detail {
+	color: var(--mle-text-dim);
+	font-size: 11px;
+	line-height: 1.4;
+	word-break: break-word;
+}
+.mle-alert-dismiss {
+	flex-shrink: 0;
+	width: 18px;
+	height: 18px;
+}
+.mle-alerts-empty {
+	padding: 20px;
+	font-size: 12px;
+	background: var(--mle-surface);
+}
+
+/* ===== Interference Live ===== */
+
+.mle-intf-section { margin-bottom: 12px; }
+.mle-intf-chan {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 8px;
+	margin: 0 0 12px;
+}
+.mle-intf-warming,
+.mle-intf-empty {
+	background: var(--mle-bg-faint);
+	border-radius: 4px;
+}
+.mle-intf-warming {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+}
+.mle-intf-summary { margin-bottom: 10px; }
+.mle-intf-summary-badge {
+	display: inline-block;
+	padding: 4px 12px;
+	border-radius: 999px;
+	font-size: 12px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.4px;
+}
+.mle-intf-summary-ok {
+	background: rgba(var(--mle-green-rgb), 0.12);
+	color: var(--mle-green);
+	border: 1px solid rgba(var(--mle-green-rgb), 0.3);
+}
+.mle-intf-summary-warn {
+	background: rgba(var(--mle-amber-rgb), 0.12);
+	color: var(--mle-amber-fg);
+	border: 1px solid rgba(var(--mle-amber-rgb), 0.35);
+}
+.mle-intf-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+	gap: 8px;
+}
+.mle-intf-chip {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	padding: 8px 10px;
+	border-radius: 4px;
+	font-size: 12px;
+	border: 1px solid var(--mle-border-light);
+	background: var(--mle-surface);
+	transition: opacity 0.15s, filter 0.15s, background 0.15s;
+}
+.mle-intf-chip-head {
+	display: grid;
+	grid-template-columns: 20px 1fr auto;
+	align-items: center;
+	gap: 8px;
+}
+.mle-intf-chip-icon {
+	font-size: 14px;
+	text-align: center;
+	font-weight: 700;
+}
+.mle-intf-chip-name {
+	color: var(--mle-text);
+	font-weight: 600;
+}
+.mle-intf-chip-state {
+	font-size: 10px;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.4px;
+}
+.mle-intf-chip-desc {
+	color: var(--mle-text-mute);
+	line-height: 1.4;
+}
+.mle-intf-chip-clear { background: var(--mle-green-faint); }
+.mle-intf-chip-clear .mle-intf-chip-icon  { color: var(--mle-green); }
+.mle-intf-chip-clear .mle-intf-chip-state { color: var(--mle-green); }
+.mle-intf-chip-active {
+	background: rgba(var(--mle-amber-rgb), 0.08);
+	border-color: rgba(var(--mle-amber-rgb), 0.4);
+}
+.mle-intf-chip-active .mle-intf-chip-icon  { color: var(--mle-amber); }
+.mle-intf-chip-active .mle-intf-chip-state { color: var(--mle-amber); }
+
+/* Inactive (clear) characteristics are dimmed so active ones stand out;
+ * hovering restores full clarity for inspection. */
+.mle-intf-chip-muted {
+	opacity: 0.5;
+	filter: saturate(0.4);
+}
+.mle-intf-chip-muted:hover {
+	opacity: 1;
+	filter: none;
+}
+
+/* Labelled sub-blocks within the Interference Live panel. */
+.mle-intf-block + .mle-intf-block { margin-top: 16px; }
+.mle-intf-block-title {
+	font-size: 12px;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.4px;
+	color: var(--mle-text-dim);
+	margin-bottom: 8px;
+}
+
+/* Link & Rate Stability verdict banner (Metric 2). One banner per peer,
+ * stacked in the Link Stability block. */
+.mle-stab-banners {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+}
+.mle-stab-banner {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 8px 12px;
+	border-radius: 4px;
+	font-size: 12px;
+	font-weight: 600;
+	border: 1px solid transparent;
+}
+.mle-stab-icon { font-size: 14px; font-weight: 700; }
+.mle-stab-mac {
+	font-family: var(--mle-mono);
+	font-weight: 600;
+	/* Match .mle-mac-addr: take the body text colour, not the banner tint. */
+	color: var(--mle-text);
+}
+.mle-stab-ok {
+	background: rgba(var(--mle-green-rgb), 0.12);
+	color: var(--mle-green);
+	border-color: rgba(var(--mle-green-rgb), 0.3);
+}
+.mle-stab-spikes { color: var(--mle-excellent-fg); }
+.mle-stab-warn {
+	background: rgba(var(--mle-amber-rgb), 0.12);
+	color: var(--mle-amber-fg);
+	border-color: rgba(var(--mle-amber-rgb), 0.35);
+}
+
+/* Verbose legend under the Link Quality Prediction table (Metric 1). */
+.mle-q-legend {
+	margin-top: 12px;
+	padding-top: 10px;
+	border-top: 1px solid var(--mle-border-light);
+	font-size: 11px;
+	color: var(--mle-text-mute);
+}
+
+/* Scale row — coloured dots from worst to best. */
+.mle-q-legend-scale {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: center;
+	gap: 6px 14px;
+}
+.mle-q-legend-scale-label {
+	font-weight: 700;
+	font-size: 10px;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	color: var(--mle-text-dim);
+}
+.mle-q-legend-scale-item {
+	display: inline-flex;
+	align-items: center;
+	color: var(--mle-text-dim);
+}
+.mle-q-legend-scale-item .mle-station-dot {
+	margin-right: 5px;
+}
+.mle-q-scale-dot-poor      { background: var(--mle-poor-fg); }
+.mle-q-scale-dot-low       { background: var(--mle-amber); }
+.mle-q-scale-dot-moderate  { background: var(--mle-fair-fg); }
+.mle-q-scale-dot-good      { background: var(--mle-good-fg); }
+.mle-q-scale-dot-excellent { background: var(--mle-excellent-fg); }
+
+/* ===== Link Planner ===== */
+
+.mle-input-toggle {
+	display: inline-flex;
+	align-items: stretch;
+	gap: 8px;
+}
+
+/* Propagation-mode segment; active (radio checked) highlights purple. */
+.mle-plan-seg {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 4px 8px;
+	border: 1px solid var(--mle-border);
+	border-radius: 4px;
+	background: var(--mle-surface);
+	font-size: 13px;
+	cursor: pointer;
+}
+/* Reset the theme's global radio offset so it sits on the segment baseline. */
+.mle-plan-seg input[type="radio"] {
+	position: relative;
+	top: 0;
+	right: 0;
+	margin: 0;
+	vertical-align: middle;
+	cursor: pointer;
+	flex-shrink: 0;
+}
+.mle-plan-seg-lbl {
+	white-space: nowrap;
+	color: var(--mle-text);
+}
+.mle-plan-seg:has(input[type="radio"]:checked) {
+	border-color: var(--mle-primary);
+	background: var(--mle-primary-light);
+}
+.mle-plan-seg:has(input[type="radio"]:checked) .mle-plan-seg-lbl {
+	color: var(--mle-primary);
+	font-weight: 600;
+}
+
+.mle-input-num {
+	padding: 5px 8px;
+	border: 1px solid var(--mle-border);
+	background: var(--mle-surface);
+	font-family: var(--mle-mono);
+	font-size: 12px;
+	width: 80px;
+	border-radius: 2px;
+	vertical-align: middle;
+}
+.mle-input-num:disabled {
+	background: var(--mle-surface-sunken);
+	color: var(--mle-text-mute);
+}
+
+.mle-plan-summary {
+	display: flex;
+	flex-direction: column;
+	gap: 14px;
+}
+.mle-plan-chips {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 8px;
+}
+.mle-plan-rssi {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 16px;
+}
+.mle-plan-stat {
+	min-width: 180px;
+	padding: 10px 14px;
+	background: var(--mle-surface);
+	border: 1px solid var(--mle-border-light);
+	border-radius: 4px;
+}
+.mle-plan-stat-val { color: var(--primary-color-high); }

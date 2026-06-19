@@ -1,0 +1,17 @@
+{
+	"luci-app-morselinkeval": {
+		"description": "Grant access to the HaLow Link Diagnostics app",
+		"read": {
+			"ubus": {
+				"morse.eval.link_planner": [ "status" ],
+				"morse.eval.peer_link": [ "status" ]
+			}
+		},
+		"write": {
+			"ubus": {
+				"morse.eval.link_planner": [ "estimate", "stop", "status" ],
+				"morse.eval.peer_link": [ "estimate", "stop", "status" ]
+			}
+		}
+	}
+}

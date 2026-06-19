@@ -1,0 +1,13 @@
+{
+	"admin/network/halow-diagnostics": {
+		"title": "HaLow Diagnostics",
+		"order": 45,
+		"action": {
+			"type": "view",
+			"path": "morselinkeval/morsediagnostics"
+		},
+		"depends": {
+			"acl": ["luci-app-morselinkeval"]
+		}
+	}
+}

@@ -1,0 +1,575 @@
+msgid ""
+msgstr "Content-Type: text/plain; charset=UTF-8"
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/peerlink.js:481
+msgid "+ Add"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/peerlink.js:496
+msgid "Add Peer"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/peerlink.js:407
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/peerlink.js:519
+msgid "Add peers above to start monitoring link quality."
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/interference.js:47
+msgid "Adjacent-channel"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/ui.js:141
+msgid "All"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/interference.js:180
+msgid "All clear"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/planner.js:115
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/planner.js:397
+msgid "Attenuation"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/planner.js:225
+msgid "Attenuation must be 0 dB or greater."
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/planner.js:127
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/ui.js:128
+msgid "Bandwidth"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/interference.js:27
+msgid "Cellular"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/ui.js:127
+msgid "Center Frequency"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/ui.js:126
+msgid "Channel"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/ui.js:125
+msgid "Channel Info:"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/planner.js:482
+msgid ""
+"Channel interference measured locally on this interface during the estimate."
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/alerts.js:16
+msgid "Clear all"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/interference.js:37
+msgid "Close-channel"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/peerlink.js:97
+msgid "Collecting"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/interference.js:92
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/interference.js:238
+msgid "Collecting…"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/chart.js:256
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/peerlink.js:529
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/planner.js:460
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/ui.js:143
+msgid "Conservative"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/chart.js:452
+msgid "Current MCS"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/peerlink.js:564
+msgid "Current Noise"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/peerlink.js:563
+msgid "Current RSSI"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/peerlink.js:565
+msgid "Current SINR"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/alerts.js:19
+msgid "Diagnostics"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/alerts.js:78
+msgid "Dismiss"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/planner.js:116
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/planner.js:391
+msgid "Distance"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/planner.js:218
+msgid "Distance must be greater than 0 metres."
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/planner.js:305
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/planner.js:412
+msgid "Estimate"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/planner.js:90
+msgid "Estimating"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/interference.js:213
+msgid "Excellent"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/planner.js:121
+msgid "FSPL"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/planner.js:125
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/planner.js:428
+msgid "Fade margin"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/planner.js:232
+msgid "Fade margin must be 0 dB or greater."
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/peerlink.js:240
+msgid "Failed to start estimation session"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/peerlink.js:242
+msgid "Failed to start link estimation for peer"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/planner.js:257
+msgid "Failed to start link planning estimate"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/planner.js:94
+msgid "Free-space (FSPL)"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/planner.js:126
+msgid "Frequency"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/interference.js:212
+msgid "Good"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/root/usr/share/rpcd/acl.d/luci-app-morselinkeval.json:3
+msgid "Grant access to the HaLow Link Diagnostics app"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/morsediagnostics.js:84
+#: luci/luci-app-morselinkeval/root/usr/share/luci/menu.d/luci-app-morselinkeval.json:3
+msgid "HaLow Diagnostics"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/interference.js:38
+msgid "High-power interference observed close to the operating channel."
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/ui.js:178
+msgid "Idle"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/interference.js:32
+msgid "In-channel"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/peerlink.js:493
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/planner.js:423
+msgid "Interface"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/ui.js:179
+msgid "Interface:"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/interference.js:174
+msgid "Interference Characteristics"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/peerlink.js:544
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/planner.js:481
+msgid "Interference Live"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/interference.js:135
+msgid "Interference can introduce link instabilities."
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/interference.js:131
+msgid "Interference trigger spikes seen, but the link remains stable."
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/planner.js:224
+msgid "Invalid attenuation"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/planner.js:217
+msgid "Invalid distance"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/planner.js:231
+msgid "Invalid fade margin"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/morsediagnostics.js:77
+msgid "Link Planner"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/peerlink.js:549
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/planner.js:469
+msgid "Link Quality Prediction"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/chart.js:282
+msgid "Link Quality Prediction Over Time"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/interference.js:196
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/peerlink.js:379
+msgid "Link Stability"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/peerlink.js:279
+msgid "Link estimation session ended unexpectedly"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/interference.js:127
+msgid "Link is stable."
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/planner.js:238
+msgid "Link planner started"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/planner.js:258
+msgid "Link planning estimate failed"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/planner.js:272
+msgid "Link planning session ended unexpectedly"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/peerlink.js:210
+msgid "Live · now"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/peerlink.js:281
+msgid "Lost link estimation session for peer"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/planner.js:273
+msgid "Lost link planning session"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/interference.js:210
+msgid "Low"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/interference.js:104
+msgid "MCS"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/ui.js:97
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/ui.js:104
+msgid "MODE"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/planner.js:121
+msgid "Manual"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/planner.js:94
+msgid "Manual attenuation"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/planner.js:500
+msgid "Measured Noise"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/planner.js:120
+msgid "Model"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/planner.js:93
+msgid "Model:"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/interference.js:211
+msgid "Moderate"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/peerlink.js:115
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/peerlink.js:506
+msgid "Monitoring:"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/interference.js:33
+msgid "Narrowband interference detected inside the operating channel."
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/ui.js:82
+msgid "No HaLow AP or STA interfaces found."
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/planner.js:110
+msgid "No estimate yet — set inputs and click Estimate."
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/peerlink.js:130
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/peerlink.js:507
+msgid "No peers selected"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/interference.js:102
+msgid "Noise & Interf."
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/chart.js:407
+msgid "Noise (dBm)"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/interference.js:43
+msgid "Other Wi-Fi HaLow networks detected on the same channel."
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/planner.js:123
+msgid "Path loss"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/morsediagnostics.js:73
+msgid "Peer Link Quality"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/peerlink.js:527
+msgid "Peer MAC"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/chart.js:244
+msgid "Peer:"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/planner.js:426
+msgid "Plan by"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/chart.js:436
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/peerlink.js:566
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/planner.js:502
+msgid "Predicted MCS"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/planner.js:499
+msgid "Predicted RSSI"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/planner.js:446
+msgid ""
+"Predicted RSSI from the propagation model, using the interface Tx power and "
+"channel read from the driver."
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/planner.js:497
+msgid ""
+"Predicted RSSI is constant; the measured noise floor, resulting SINR and "
+"predicted MCS vary as the current channel is sampled."
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/planner.js:131
+msgid "Predicted RSSI · typical"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/planner.js:135
+msgid "Predicted RSSI · worst-case"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/peerlink.js:550
+msgid "Predicted link quality per peer under three operating profiles."
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/planner.js:470
+msgid ""
+"Predicted link quality under three operating profiles for the planned link."
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/chart.js:259
+msgid "Profile:"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/planner.js:445
+msgid "Propagation Estimate"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/interference.js:101
+msgid "RSSI"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/chart.js:420
+msgid "RSSI (dBm)"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/peerlink.js:501
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/planner.js:432
+msgid "Refresh"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/peerlink.js:122
+msgid "Remove peer"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/planner.js:239
+msgid ""
+"Runs a medium eval on the firmware; may impact throughput on connected "
+"stations."
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/interference.js:103
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/planner.js:501
+msgid "SINR"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/peerlink.js:466
+msgid "STA mode: peer is auto-detected from the connected AP"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/interference.js:42
+msgid "Same-channel"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/interference.js:225
+msgid "Scale"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/ui.js:136
+msgid "Show profiles:"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/planner.js:34
+msgid "Start the session to monitor link quality."
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/planner.js:302
+msgid "Stop"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/planner.js:124
+msgid "Tx power"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/chart.js:255
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/peerlink.js:528
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/planner.js:459
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/ui.js:142
+msgid "Typical"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/interference.js:209
+msgid "Very Poor"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/interference.js:28
+msgid ""
+"Very high-power out-of-band interference — suspected source: cellular tower."
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/interference.js:48
+msgid ""
+"Wi-Fi HaLow network(s) may be present on an adjacent or overlapping channel."
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/chart.js:273
+msgid "Window:"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/chart.js:257
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/peerlink.js:530
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/planner.js:461
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/ui.js:144
+msgid "Worst-case"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/peerlink.js:101
+msgid "active peer"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/peerlink.js:101
+msgid "active peers"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/interference.js:179
+msgid "anomalies detected"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/interference.js:179
+msgid "anomaly detected"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/interference.js:166
+msgid "clear"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/peerlink.js:150
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/peerlink.js:472
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/peerlink.js:473
+msgid "connected"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/interference.js:166
+msgid "detected"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/alerts.js:36
+msgid "error"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/alerts.js:11
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/alerts.js:36
+msgid "errors"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/alerts.js:13
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/alerts.js:38
+msgid "info"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/peerlink.js:473
+msgid "not connected"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/alerts.js:19
+msgid "notifications"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/alerts.js:37
+msgid "warning"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/alerts.js:12
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/alerts.js:37
+msgid "warnings"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/chart.js:136
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/chart.js:243
+msgid "— no peers —"
+msgstr ""
+
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/peerlink.js:143
+#: luci/luci-app-morselinkeval/htdocs/luci-static/resources/view/morselinkeval/peerlink.js:457
+msgid "— select a station —"
+msgstr ""
