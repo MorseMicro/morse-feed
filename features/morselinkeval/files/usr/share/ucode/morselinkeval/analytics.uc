@@ -240,6 +240,7 @@ function compute_agc_noise_floor(samples) {
 }
 
 function compute_link_stability(rssi_stats, rx_power_stats, agc_noise_floor) {
+	/* No trigger spikes = no interference concern = report stable immediately */
 	if (!agc_noise_floor || !agc_noise_floor.triggered) {
 		return {
 			agc_triggered: false,
@@ -393,7 +394,11 @@ function build_peer_result(samples) {
 	const rssi_stats = summarise(map(samples, (sample) => sample.rssi));
 	const rx_power_stats = summarise(map(samples, (sample) => sample.rx_power));
 	const max_noise_stats = summarise(map(samples, (sample) => sample.max_noise));
-	const bw_mhz = dominant(map(samples, (sample) => sample.current_bw_mhz));
+	/* Fall back to per-packet detected BW when current_bw_mhz is missing. */
+	let bw_mhz = dominant(map(samples, (sample) => sample.current_bw_mhz));
+	if (bw_mhz == null)
+		bw_mhz = dominant(map(samples, (sample) =>
+			sample.detected_bw_hz ? int(sample.detected_bw_hz / 1000000) : null));
 	const current_rx = last_valid(samples, "rx");
 	const current_tx = last_valid(samples, "tx");
 	const agc_noise_floor = compute_agc_noise_floor(samples);
