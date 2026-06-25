@@ -15,13 +15,19 @@
 
 LOGTAG="morse-wireless-defaults"
 
+persistent_vars_storage() {
+	if which persistent_vars_storage.sh > /dev/null; then
+		persistent_vars_storage.sh "$@"
+	fi
+}
+
 default_ssid=$(uci get system.@system[0].hostname 2>/dev/null)
-default_wifi_key="$(persistent_vars_storage.sh READ default_wifi_key)"
+default_wifi_key="$(persistent_vars_storage READ default_wifi_key)"
 if [ -z "$default_wifi_key" ]; then
-	default_wifi_key=$(tr -dc 'A-Za-z0-9' < /dev/urandom | head -c 8)
+	default_wifi_key=$(tr -dc 'A-Za-z0-9' < /dev/urandom 2>/dev/null | head -c 8)
 fi
 uci set "system.@system[0].default_wifi_key=$default_wifi_key"
-mm_region="$(persistent_vars_storage.sh READ mm_region)"
+mm_region="$(persistent_vars_storage READ mm_region)"
 
 _get_iface() {
 	uci get "wireless.default_$1.$2"
@@ -76,7 +82,7 @@ _change_device_defaults() {
 	if [ -n "$effective_country" ] &&
 		can_validate_country "$config" &&
 		! is_valid_country "$config" "$effective_country"; then
-		echo "$LOGTAG: Unsetting invalid country $effective_country for $config" > /dev/kmsg
+		echo "$LOGTAG: Unsetting invalid country $effective_country for $config"
 		uci delete "wireless.$config.country" > /dev/null 2>&1
 		effective_country=''
 	fi
@@ -118,7 +124,7 @@ _change_device_defaults() {
 			fi
 
 			uci set "wireless.$config.channel=$channel"
-			echo "$LOGTAG: setting $config to $effective_country on channel $channel" > /dev/kmsg
+			echo "$LOGTAG: setting $config to $effective_country on channel $channel"
 		fi
 	elif [ "$type" = mac80211 ] &&
 		[ "$device_band" = s1g ]; then
@@ -131,7 +137,7 @@ _change_device_defaults() {
 						# APP-6398: set a default channel known to work with Native S1G.
 						uci set "wireless.$config.channel=41"
 						uci set "wireless.$config.s1g_oper_chwidth=3"
-						echo "$LOGTAG: setting $config to $effective_country on channel 41" > /dev/kmsg
+						echo "$LOGTAG: setting $config to $effective_country on channel 41"
 						;;
 				*) return ;;
 		esac

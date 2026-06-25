@@ -46,7 +46,7 @@ migrate_configs() {
 	copy_uci_options "$src_device" "$dest_device" $DEVICE_WHITELIST
 	copy_uci_options "$src_iface"  "$dest_iface"  $IFACE_WHITELIST
 
-	/morse/scripts/morse-wireless-defaults > /dev/null 2>&1
+	/morse/scripts/morse-wireless-defaults 2>&1 | logger -t "$LOGTAG"
 	uci commit wireless
 
 	logger -t "$LOGTAG" "Migrating device $src_device to device $dest_device and interface $src_iface to $dest_iface"
