@@ -62,19 +62,17 @@ get_dpp_mac_address() {
 			# see the comments in the file that implements this UCI override:
 			# /rom/etc/uci-defaults/98-modeset-apx.
 			#
-			# Because this runs from hotplug, there may be a race where netifd has not
-			# yet brought up wlan0 as the primary source of MAC truth. In that case, we
-			# short-circuit to lan2 and read the MAC address directly from the Ethernet
-			# interface, assuming the override has completed successfully and wlan0 will
-			# come up with the same address.
-			if [ -r /sys/class/net/wlan0/address ]; then
-				cat /sys/class/net/wlan0/address
-				return 0
-			elif [ -r /sys/class/net/lan2/address ]; then
+			# Because this runs from hotplug, there may be races where:
+			#
+			# 	- Netifd has not yet brought up wlan0 as the primary source of UCI-overridden MAC truth.
+			#	- wlan0 has been brought up using the OTP MAC address instead of the UCI-override lan2 version.
+			#
+			# To defend against each race we short-circuit to using lan2.
+			if [ -r /sys/class/net/lan2/address ]; then
 				cat /sys/class/net/lan2/address
 				return 0
 			else
-				logger -p 3 -t dpp-qrcode-key "Unable find APX DPP MAC address from wlan0 or lan2"
+				logger -p 3 -t dpp-qrcode-key "Unable find APX DPP MAC address from lan2"
 				return 1
 			fi
 		;;
