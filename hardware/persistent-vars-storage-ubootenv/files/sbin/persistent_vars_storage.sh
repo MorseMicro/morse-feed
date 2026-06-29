@@ -45,7 +45,7 @@ show_raw_partition_data()
 }
 
 # This is here so we can iterate over all currently set keys.
-FACTORY_KEYS="device_password default_wifi_key mm_region mm_region_unlocked mm_sku hw_version manufacturer mm_mode mp_fw serial dpp_priv_key"
+FACTORY_KEYS="device_password default_wifi_key mm_region mm_region_unlocked mm_sku hw_version manufacturer mm_mode mp_fw serial_id serial_number dpp_priv_key"
 
 show_factory_data()
 {
@@ -106,8 +106,11 @@ show_factory_data()
 				mp_fw)
 					show_raw_partition_data factory 0x4180 32
 				;;
-				serial)
+				serial_id)
 					show_raw_partition_data factory 0x41a0 64
+				;;
+				serial_number)
+					show_raw_partition_data factory 0x42c0 32
 				;;
 				dpp_priv_key)
 					show_raw_partition_data factory 0x41e0 224
