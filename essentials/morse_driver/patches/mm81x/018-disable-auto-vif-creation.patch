@@ -7,9 +7,8 @@ creating a default STA interface when the morse driver registers with
 ieee80211_register_hw(). Interface creation is handled by the OpenWrt
 wifi subsystem (mac80211.sh/netifd) via nl80211.
 
-This ensures consistent behaviour across mac80211 versions (5.10 auto-
-creates a default wlanX; 6.12 does not). With this flag, both versions
-rely on userspace for interface management.
+This ensures consistent behaviour across mac80211 versions (OpenWrt 24.10+ no longer 
+creates a default wlanX). With this flag, both versions rely on userspace for interface management.
 
 --- a/mac.c
 +++ b/mac.c
