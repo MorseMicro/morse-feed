@@ -35,7 +35,7 @@ fi
 
 get_dpp_info_field() {
 	local board_name=$(cat /tmp/sysinfo/board_name)
-	local sid=$(persistent_vars_storage READ serial)
+	local sid=$(persistent_vars_storage READ serial_id)
 
 	DPP_INFO_FIELD=
 	case "$board_name" in
