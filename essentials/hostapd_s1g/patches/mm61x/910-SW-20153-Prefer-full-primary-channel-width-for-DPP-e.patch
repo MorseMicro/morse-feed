@@ -1,0 +1,149 @@
+From 33217f9dfadd023667d9def3afe0b070b4c55a07 Mon Sep 17 00:00:00 2001
+From: Andrew Pope <andrew.pope@morsemicro.com>
+Date: Wed, 24 Jun 2026 02:27:48 +0000
+Subject: [PATCH 1/3] SW-20153 Prefer full primary channel width for DPP
+ exchange (pull request #457)
+
+When the Morse driver masquerades S1G as 5 GHz/11n, a BSS with a 2 MHz
+primary channel is reported in scan results at its 1 MHz primary index
+mapped frequency. Performing DPP on the 1MHz
+subchannel results in the station missing other CTRL-RESP traffic on
+the wider primary channel (e.g. ACKs, RTS/CTS). This increases the
+chance of collision as the station does not observe correct inter-frame
+spacing and backoffs.
+
+Add morse_s1g_oper_ie_get_prim_ht_freq() which derives the wider primary
+channel's 5G mapped frequency directly from the S1G Operation IE;
+use it in wpas_dpp_presence_ann_append_scan_results() to override the
+scan-result frequency for any DPP Configurator Connectivity BSS where
+the IE is present.
+
+Note; this is dependent on the Morse driver keeping the S1G Operation
+IE present in received frames (and not stripping it out during
+the 5G conversion). When not present, we will fallback to the 1MHz
+mapped subchannel.
+---
+ src/utils/morse.c               |  26 ++++
+ src/utils/morse.h               |  12 ++
+ wpa_supplicant/dpp_supplicant.c |  38 +++++-
+ 4 files changed, 301 insertions(+), 3 deletions(-)
+
+diff --git a/src/utils/morse.c b/src/utils/morse.c
+index 1c115d587..ffa414afb 100644
+--- a/src/utils/morse.c
++++ b/src/utils/morse.c
+@@ -2423,6 +2423,32 @@ static int morse_s1g_chan_get_primary_chan_freq_ht(int s1g_op_bw, int s1g_prim_b
+ 	return ht_prim_freq ? ht_prim_freq : MORSE_S1G_RETURN_ERROR;
+ }
+ 
++int morse_s1g_oper_ie_get_prim_ht_freq(const struct ieee80211_s1g_operation *s1g_oper)
++{
++	char cc[COUNTRY_CODE_LEN];
++	int ht_prim_chan, ht_prim_freq, prim_bw;
++
++	if (!s1g_oper)
++		return MORSE_S1G_RETURN_ERROR;
++
++	if (morse_s1g_op_class_to_country(s1g_oper->s1g_oper_class, cc) != MORSE_SUCCESS)
++		return MORSE_S1G_RETURN_ERROR;
++
++	prim_bw = morse_s1g_chan_to_bw(s1g_oper->s1g_primary_ch);
++	if (prim_bw > IEEE80211_CHAN_1MHZ)
++		ht_prim_chan = morse_s1g_chan_to_ht_chan(s1g_oper->s1g_primary_ch);
++	else
++		ht_prim_chan = morse_s1g_chan_to_ht20_prim_chan(s1g_oper->s1g_oper_ch,
++								s1g_oper->s1g_primary_ch,
++								cc);
++
++	if (ht_prim_chan <= 0)
++		return MORSE_S1G_RETURN_ERROR;
++
++	ht_prim_freq = ieee80211_channel_to_frequency(ht_prim_chan, NL80211_BAND_5GHZ);
++	return (ht_prim_freq > 0) ? ht_prim_freq : MORSE_S1G_RETURN_ERROR;
++}
++
+ bool morse_s1g_is_chan_conf_primary_disabled(struct hostapd_config *conf,
+ 					     struct hostapd_hw_modes *mode, int s1g_op_chan)
+ {
+diff --git a/src/utils/morse.h b/src/utils/morse.h
+index 4733e86b4..84a571429 100644
+--- a/src/utils/morse.h
++++ b/src/utils/morse.h
+@@ -241,6 +241,18 @@ int morse_s1g_validate_csa_params(struct hostapd_iface *iface, struct csa_settin
+  */
+ int morse_convert_s1g_freq_to_ht_freq(int s1g_freq, const char *country);
+ 
++/**
++ * morse_s1g_oper_ie_get_primary_ht_freq() - Derive the 5 GHz-mapped frequency of
++ * the S1G primary channel directly from the S1G Operation element.
++ *
++ * @s1g_oper: Parsed S1G Operation element body; caller must verify length
++ *            >= sizeof(struct ieee80211_s1g_operation).
++ *
++ * Returns the primary channel's 5 GHz-mapped center frequency (MHz), or
++ * MORSE_S1G_RETURN_ERROR on failure.
++ */
++int morse_s1g_oper_ie_get_prim_ht_freq(const struct ieee80211_s1g_operation *s1g_oper);
++
+ /*
+  * Get the lowest center frequency for a given country.
+  */
+diff --git a/wpa_supplicant/dpp_supplicant.c b/wpa_supplicant/dpp_supplicant.c
+index a2399a0d6..2dca8dcd6 100644
+--- a/wpa_supplicant/dpp_supplicant.c
++++ b/wpa_supplicant/dpp_supplicant.c
+@@ -5553,6 +5553,29 @@ static int * wpas_dpp_presence_ann_channels(struct wpa_supplicant *wpa_s,
+ 	return freqs_khz;
+ }
+ 
++#ifdef CONFIG_MORSE_5GHZ_MAPPED
++/* Get full S1G primary channel width of a BSS (if known) */
++static int wpas_dpp_override_5g_s1g_frequency(const struct wpa_bss *bss, int freq_khz)
++{
++	int ret;
++	const u8 *ie = wpa_bss_get_ie(bss, WLAN_EID_S1G_OPERATION);
++
++	if (!ie)
++		goto exit;
++
++	if (ie[1] < (u8) sizeof(struct ieee80211_s1g_operation))
++		goto exit;
++
++	ret = morse_s1g_oper_ie_get_prim_ht_freq((const struct ieee80211_s1g_operation *) (ie + 2));
++	if (ret <= 0)
++		goto exit;
++
++	freq_khz = ret * 1000;
++exit:
++	return freq_khz;
++}
++#endif
++
+ static void wpas_dpp_presence_ann_append_scan_results(struct wpa_supplicant *wpa_s, int **freqs_khz)
+ {
+ 	struct wpa_bss *bss;
+@@ -5560,9 +5583,18 @@ static void wpas_dpp_presence_ann_append_scan_results(struct wpa_supplicant *wpa
+ 	/* Add channels from scan results for APs that advertise Configurator
+ 	 * Connectivity element */
+ 	dl_list_for_each(bss, &wpa_s->bss, struct wpa_bss, list) {
+-		if (wpa_bss_get_vendor_ie(bss, DPP_CC_IE_VENDOR_TYPE))
+-			int_array_add_unique(freqs_khz,
+-					     bss->freq * 1000 + bss->freq_offset);
++		if (wpa_bss_get_vendor_ie(bss, DPP_CC_IE_VENDOR_TYPE)) {
++			int freq_khz = bss->freq * 1000 + bss->freq_offset;
++
++#ifdef CONFIG_MORSE_5GHZ_MAPPED
++			/* Scan results are always reported on the 1Mhz primary index channel,
++			 * even if the full width of the primary channel is 2MHz. Override
++			 * to the full width primary channel.
++			 */
++			freq_khz = wpas_dpp_override_5g_s1g_frequency(bss, freq_khz);
++#endif
++			int_array_add_unique(freqs_khz, freq_khz);
++		}
+ 	}
+ }
+ 
+-- 
+2.51.0
+

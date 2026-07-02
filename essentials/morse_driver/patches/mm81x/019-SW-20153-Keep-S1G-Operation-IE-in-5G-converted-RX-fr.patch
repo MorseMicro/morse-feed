@@ -1,0 +1,48 @@
+From 84ad574b25170f0fee1813cef6fdee22b279f616 Mon Sep 17 00:00:00 2001
+From: Andrew Pope <andrew.pope@morsemicro.com>
+Date: Wed, 24 Jun 2026 02:01:47 +0000
+Subject: [PATCH] SW-20153 Keep S1G Operation IE in 5G converted RX frames
+ (pull request #2181)
+
+When the Morse driver masquerades S1G as 5 GHz/11n, a BSS with a 2 MHz
+primary channel is reported in scan results at its 1 MHz primary index
+mapped frequency. Performing DPP on the 1MHz
+subchannel results in the station missing other CTRL-RESP traffic on
+the wider primary channel (e.g. ACKs, RTS/CTS). This increases the
+chance of collision as the station does not observe correct inter-frame
+spacing and backoffs.
+
+The S1G Operation IE is currently stripped alongside S1G Capabilities
+during the S1G->11n RX frame-format conversion. Instead, keep it to
+give the supplicant the necessary context of a BSS' channel
+configuration. This will enable the supplicant to tune to the full
+primary channel during DPP, increasing chance of success.
+---
+ dot11ah/rx_s1g_to_11n.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/dot11ah/rx_s1g_to_11n.c b/dot11ah/rx_s1g_to_11n.c
+index fd126f417..29ba1db72 100644
+--- a/dot11ah/rx_s1g_to_11n.c
++++ b/dot11ah/rx_s1g_to_11n.c
+@@ -519,7 +519,7 @@ static int morse_dot11_required_rx_ies_size(struct dot11ah_ies_mask *ies_mask,
+ 		struct ie_element *elem;
+ 
+ 		if (ies_mask->ies[eid].ptr) {
+-			if (eid == WLAN_EID_S1G_OPERATION || eid == WLAN_EID_S1G_CAPABILITIES) {
++			if (eid == WLAN_EID_S1G_CAPABILITIES) {
+ 				continue;
+ 			} else if (!include_ssid && eid == WLAN_EID_SSID) {
+ 				continue;
+@@ -562,7 +562,7 @@ static u8 *morse_dot11ah_insert_required_rx_ie(struct dot11ah_ies_mask *ies_mask
+ 
+ 	for (eid = 0; eid < DOT11AH_MAX_EID; eid++) {
+ 		if (ies_mask->ies[eid].ptr) {
+-			if (eid == WLAN_EID_S1G_OPERATION || eid == WLAN_EID_S1G_CAPABILITIES) {
++			if (eid == WLAN_EID_S1G_CAPABILITIES) {
+ 				continue;
+ 			} else if (check_wmm && eid == WLAN_EID_VENDOR_SPECIFIC) {
+ 				if (ies_mask->ies[WLAN_EID_VENDOR_SPECIFIC].ptr)
+-- 
+2.51.0
+

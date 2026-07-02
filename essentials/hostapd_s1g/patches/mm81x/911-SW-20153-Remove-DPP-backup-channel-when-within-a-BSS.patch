@@ -1,0 +1,128 @@
+From c4ef8142fffbf0f7d06260a6dc4755aa19314e8f Mon Sep 17 00:00:00 2001
+From: Andrew Pope <andrew.pope@morsemicro.com>
+Date: Wed, 24 Jun 2026 03:28:21 +0000
+Subject: [PATCH 2/3] SW-20153 Remove DPP backup channel when within a BSS'
+ wider primary (pull request #461)
+
+The DPP presence-announcement channel list includes a mandated backup
+channel. When a DPP Configurator Connectivity BSS has a wider primary
+channel whose 1 MHz subchannel coincides with this backup frequency,
+the chirp list contains both the narrow backup entry and the
+full primary channel. If the configurator responds on the narrow
+entry first, the entire DPP exchange proceeds on the 1 MHz
+subchannel (which is bad).
+
+Track whether any DPP-CC BSS in scan results maps to the backup channel
+before and after the S1G primary-width override; remove the backup
+channel from the chirp list only when it appears exclusively as
+a narrow subchannel (i.e. no DPP-CC BSS has it as its full primary),
+preserving it when a genuine 1 MHz BSS is operating there.
+
+Also add int_array_del() to the int_array utility family to
+support in-place removal from 0-terminated int arrays.
+---
+ src/utils/common.c              | 15 ++++++
+ src/utils/common.h              |  1 +
+ wpa_supplicant/dpp_supplicant.c | 33 ++++++++++++-
+ 4 files changed, 133 insertions(+), 1 deletion(-)
+
+diff --git a/src/utils/common.c b/src/utils/common.c
+index fe496982e..cb9716d0f 100644
+--- a/src/utils/common.c
++++ b/src/utils/common.c
+@@ -1030,6 +1030,21 @@ bool int_array_includes(const int *arr, int val)
+ }
+ 
+ 
++void int_array_del(int **res, int val)
++{
++	size_t i, j;
++
++	if (!res || !*res)
++		return;
++
++	for (i = 0, j = 0; (*res)[i]; i++) {
++		if ((*res)[i] != val)
++			(*res)[j++] = (*res)[i];
++	}
++	(*res)[j] = 0;
++}
++
++
+ bool int_array_equal(const int *a, const int *b)
+ {
+ 	size_t alen, blen, i;
+diff --git a/src/utils/common.h b/src/utils/common.h
+index 796491bfb..bcebdb60e 100644
+--- a/src/utils/common.h
++++ b/src/utils/common.h
+@@ -600,6 +600,7 @@ size_t int_array_len(const int *a);
+ void int_array_concat(int **res, const int *a);
+ void int_array_sort_unique(int *a);
+ void int_array_add_unique(int **res, int a);
++void int_array_del(int **res, int val);
+ bool int_array_includes(const int *arr, int val);
+ bool int_array_equal(const int *a, const int *b);
+ int * int_array_dup(const int *a);
+diff --git a/wpa_supplicant/dpp_supplicant.c b/wpa_supplicant/dpp_supplicant.c
+index 2dca8dcd6..4f18b0ada 100644
+--- a/wpa_supplicant/dpp_supplicant.c
++++ b/wpa_supplicant/dpp_supplicant.c
+@@ -5579,6 +5579,15 @@ exit:
+ static void wpas_dpp_presence_ann_append_scan_results(struct wpa_supplicant *wpa_s, int **freqs_khz)
+ {
+ 	struct wpa_bss *bss;
++#if defined(CONFIG_MORSE_5GHZ_MAPPED)
++	int prim_on_preferred = 0;
++	int prim_contains_preferred = 0;
++	int preferred_s1g_ht_freq_khz;
++
++	preferred_s1g_ht_freq_khz = wpas_s1g_preferred_ht_announce_freq(wpa_s);
++	if (preferred_s1g_ht_freq_khz > 0)
++		preferred_s1g_ht_freq_khz *= 1000;
++#endif
+ 
+ 	/* Add channels from scan results for APs that advertise Configurator
+ 	 * Connectivity element */
+@@ -5587,15 +5596,37 @@ static void wpas_dpp_presence_ann_append_scan_results(struct wpa_supplicant *wpa
+ 			int freq_khz = bss->freq * 1000 + bss->freq_offset;
+ 
+ #ifdef CONFIG_MORSE_5GHZ_MAPPED
+-			/* Scan results are always reported on the 1Mhz primary index channel,
++			if (preferred_s1g_ht_freq_khz > 0 &&
++			    preferred_s1g_ht_freq_khz == freq_khz)
++				prim_contains_preferred++;
++
++			/* Scan results are always reported on the 1MHz primary index channel,
+ 			 * even if the full width of the primary channel is 2MHz. Override
+ 			 * to the full width primary channel.
+ 			 */
+ 			freq_khz = wpas_dpp_override_5g_s1g_frequency(bss, freq_khz);
++			if (preferred_s1g_ht_freq_khz > 0 &&
++			    preferred_s1g_ht_freq_khz == freq_khz)
++				prim_on_preferred++;
+ #endif
+ 			int_array_add_unique(freqs_khz, freq_khz);
+ 		}
+ 	}
++
++#ifdef CONFIG_MORSE_5GHZ_MAPPED
++	/* As per "6.2.2 Generation of Channel List for Presence Announcement -
++	 * Wi-Fi Easy Connect Specification v2.0.0.6.", duplicate channels should
++	 * be removed from the list (step 4).
++	 *
++	 * The preferred S1G channel may appear as the 1MHz subchannel of a BSSes
++	 * 2MHz primary channel. When this happens, and the channel
++	 * is not equal to the full primary channel of another BSS, the
++	 * preferred channel should be removed from the list. This is to avoid
++	 * duplicate annoucement sessions for a given BSS.
++	 */
++	if (!prim_on_preferred && prim_contains_preferred)
++		int_array_del(freqs_khz, preferred_s1g_ht_freq_khz);
++#endif
+ }
+ 
+ static void wpas_dpp_chirp_scan_res_handler(struct wpa_supplicant *wpa_s,
+-- 
+2.51.0
+

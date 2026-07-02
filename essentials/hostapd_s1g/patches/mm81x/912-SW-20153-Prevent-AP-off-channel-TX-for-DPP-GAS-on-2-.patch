@@ -1,0 +1,108 @@
+From 2fce55c36a71e5bbbf5ded186391c601d2df895e Mon Sep 17 00:00:00 2001
+From: Andrew Pope <andrew.pope@morsemicro.com>
+Date: Wed, 24 Jun 2026 04:12:08 +0000
+Subject: [PATCH 3/3] SW-20153 Prevent AP off-channel TX for DPP/GAS on 2 MHz
+ S1G primary (pull request #459)
+
+When a station performs DPP using the full 2 MHz primary frequency, the
+configurator AP receives action frames on the 5 GHz-mapped 2 MHz
+primary channel rather than the 1 MHz primary-index frequency hostapd
+tracks as its operating channel (hapd->iface->freq). Because these
+differ, the nl80211 driver treats responses as off-channel and narrows
+the radio to the primary width, causing the AP to stop beaconing and
+switch channels (which may incur PHY calibration).
+
+Add morse_s1g_conf_get_prim_ht_freq() to derive the AP's
+full-primary (5 GHz-mapped) frequency from config, and use it in
+handle_action() to normalise any received action-frame frequency
+that match it. This ensures that both DPP auth and GAS
+config-exchange responses are transmitted on-channel.
+---
+ src/ap/ieee802_11.c |  18 +++++++
+ src/utils/morse.c   |  21 ++++++++
+ src/utils/morse.h   |  11 ++++
+ 4 files changed, 172 insertions(+)
+
+diff --git a/src/ap/ieee802_11.c b/src/ap/ieee802_11.c
+index e6dce2b17..370a7757e 100644
+--- a/src/ap/ieee802_11.c
++++ b/src/ap/ieee802_11.c
+@@ -6829,6 +6829,24 @@ static int handle_action(struct hostapd_data *hapd,
+ 		sta->last_subtype = WLAN_FC_STYPE_ACTION;
+ 	}
+ 
++#ifdef CONFIG_MORSE_5GHZ_MAPPED
++#ifdef CONFIG_IEEE80211AH
++	/* Under the 5G/S1G mapping hostapd tracks its operating channel as the
++	 * 1 MHz primary-index frequency, even when the width of the actual S1G primary channel
++	 * is 2MHz. Replying to action frames on the received frequency can trigger
++	 * a needless off-channel TX, narrowing the radio to the primary width and dropping
++	 * frames on the wider operating channel. Normalise such receptions to the 5G operating
++	 * channel frequency so responses stay on-channel (e.g. for DPP/GAS).
++	 */
++	if (hapd->iconf->ieee80211ah && (int) freq != hapd->iface->freq) {
++		int prim_ht_freq = morse_s1g_conf_get_prim_ht_freq(hapd->iconf);
++
++		if (prim_ht_freq > 0 && freq == (unsigned int) prim_ht_freq)
++			freq = hapd->iface->freq;
++	}
++#endif /* CONFIG_IEEE80211AH */
++#endif /* CONFIG_MORSE_5GHZ_MAPPED */
++
+ 	switch (mgmt->u.action.category) {
+ #ifdef CONFIG_IEEE80211R_AP
+ 	case WLAN_ACTION_FT:
+diff --git a/src/utils/morse.c b/src/utils/morse.c
+index ffa414afb..ffa787011 100644
+--- a/src/utils/morse.c
++++ b/src/utils/morse.c
+@@ -2449,6 +2449,27 @@ int morse_s1g_oper_ie_get_prim_ht_freq(const struct ieee80211_s1g_operation *s1g
+ 	return (ht_prim_freq > 0) ? ht_prim_freq : MORSE_S1G_RETURN_ERROR;
+ }
+ 
++int morse_s1g_conf_get_prim_ht_freq(struct hostapd_config *conf)
++{
++	int ht_center_chan, s1g_op_chan, s1g_op_bw, s1g_prim_bw;
++
++	if (!conf)
++		return MORSE_S1G_RETURN_ERROR;
++
++	ht_center_chan = morse_ht_chan_to_ht_chan_center(conf, conf->channel);
++	s1g_op_chan = morse_ht_chan_to_s1g_chan(ht_center_chan);
++	s1g_op_bw = morse_s1g_chan_to_bw(s1g_op_chan);
++	if (s1g_op_bw == MORSE_S1G_RETURN_ERROR)
++		return MORSE_S1G_RETURN_ERROR;
++
++	s1g_prim_bw = (conf->s1g_prim_chwidth == S1G_PRIM_CHWIDTH_2) ?
++		IEEE80211_CHAN_2MHZ : IEEE80211_CHAN_1MHZ;
++
++	return morse_s1g_chan_get_primary_chan_freq_ht(s1g_op_bw, s1g_prim_bw, s1g_op_chan,
++						       conf->s1g_prim_1mhz_chan_index,
++						       conf->op_country);
++}
++
+ bool morse_s1g_is_chan_conf_primary_disabled(struct hostapd_config *conf,
+ 					     struct hostapd_hw_modes *mode, int s1g_op_chan)
+ {
+diff --git a/src/utils/morse.h b/src/utils/morse.h
+index 84a571429..49ed6876c 100644
+--- a/src/utils/morse.h
++++ b/src/utils/morse.h
+@@ -253,6 +253,17 @@ int morse_convert_s1g_freq_to_ht_freq(int s1g_freq, const char *country);
+  */
+ int morse_s1g_oper_ie_get_prim_ht_freq(const struct ieee80211_s1g_operation *s1g_oper);
+ 
++/**
++ * morse_s1g_conf_get_prim_ht_freq() - Derive the 5 GHz-mapped frequency of
++ * the AP's S1G primary channel from its running hostapd configuration.
++ *
++ * @conf: AP hostapd_config; must not be NULL.
++ *
++ * Returns the primary channel's 5 GHz-mapped center frequency (MHz), or
++ * MORSE_S1G_RETURN_ERROR on failure.
++ */
++int morse_s1g_conf_get_prim_ht_freq(struct hostapd_config *conf);
++
+ /*
+  * Get the lowest center frequency for a given country.
+  */
