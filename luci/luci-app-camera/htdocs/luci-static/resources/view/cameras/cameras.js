@@ -489,6 +489,9 @@ class ONVIFDevice {
 	}
 
 	renderAwsInfo() {
+		if (uci.get('aws_kvs') == null)
+			return null;
+
 		this.awsStreamId = getSectionNameFromUrl(this.streamUrl);
 		var streamStateStr = 'OFF';
 		var streamSection = uci.get('aws_kvs', this.awsStreamId);
@@ -1032,7 +1035,7 @@ return view.extend({
 		return Promise.all([
 			callLuciNetworkDevices(),
 			uci.load('cameras', 'wireless'),
-			uci.load('aws_kvs'),
+			uci.load('aws_kvs').catch(() => null),
 			videolive.loadTemplate(),
 		]);
 	},
