@@ -19,7 +19,8 @@ PKG_SOURCE_URL:=https://github.com/MorseMicro/hostap.git
 PKG_MIRROR_HASH:=$(MORSE_HOSTAPD_S1G_HASH)
 PKG_SOURCE_MIRROR:=0
 PKG_SOURCE_PROTO:=git
-PATCH_DIR:=./patches/$(MORSE_FEED_PATCHES_DIR)
+MORSE_CHIP_DIR:=$(MORSE_FEED_PATCHES_DIR)
+PATCH_DIR:=./$(MORSE_FEED_CHIP_DIR)/patches
 
 PKG_MAINTAINER:=Morse Micro <info@morsemicro.com>
 PKG_BUILD_PARALLEL:=1
@@ -268,7 +269,9 @@ MMWPA_SUPPLICANT_CONFIG = $(PKG_BUILD_DIR)/wpa_supplicant/.config
 MMHOSTAPD_CONFIG = $(PKG_BUILD_DIR)/hostapd/.config
 
 define Build/Prepare
-	$(call Build/Prepare/Default)
+	$(PKG_UNPACK)
+	$(CP) ./$(MORSE_CHIP_DIR)/src/. $(PKG_BUILD_DIR)
+	$(Build/Patch)
 	$(CP) $(PKG_BUILD_DIR)/wpa_supplicant/defconfig $(MMWPA_SUPPLICANT_CONFIG)
 	sed -i $(patsubst %,-e 's/^#\(%=\)/\1/',$(MMWPA_SUPPLICANT_CONFIG_ENABLE)) \
 		$(patsubst %,-e 's/^\(%=\)/#\1/',$(MMWPA_SUPPLICANT_CONFIG_DISABLE)) \
