@@ -346,7 +346,7 @@ const Service = {
 		const ms = (t1[0] - t0[0]) * 1000 + (t1[1] - t0[1]) / 1000000;
 		INFO("link_planner_status: %.2fms samples=%d gc=%d",
 			ms,
-			this.planner_session ? length(this.planner_session.samples) : 0,
+			this.planner_session ? length(this.planner_session.analytics.samples) : 0,
 			gc("count"));
 		return body;
 	},

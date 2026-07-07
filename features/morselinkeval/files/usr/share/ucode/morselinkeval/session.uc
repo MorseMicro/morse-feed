@@ -1,12 +1,20 @@
 'use strict';
 
 import * as uloop from "uloop";
-import { ulog, ERR, LOG_DEBUG } from "log";
+import { ulog, INFO, ERR, LOG_DEBUG } from "log";
 
-import * as analytics from "morselinkeval.analytics";
-import { Sampler } from "morselinkeval.collect";
+import { PeerAnalytics, PlannerAnalytics } from "morselinkeval.analytics";
+import { Sampler, get_chip } from "morselinkeval.collect";
 
 function DBG(...args) { ulog(LOG_DEBUG, ...args); }
+
+/* Resolve the Morse chip family for an interface, logging the result. A null
+ * (undetected) result is treated as MM8108 downstream. */
+function detect_chip(ifname) {
+	const chip = get_chip(ifname);
+	INFO("chip: ifname=%s chip=%s", ifname, chip != null ? chip : "unknown(->MM8108)");
+	return chip;
+}
 
 /* Seconds since the unix epoch as a float. clock(true) -> [sec, nsec]. */
 function now_s() {
@@ -18,21 +26,25 @@ function now_s() {
  * caller a chance to begin polling status before we start counting silence. */
 const POST_WARMUP_GRACE_S = 60;
 
-/* Session — common base for sampling-window sessions. Subclasses provide a
- * `new()` that calls `_init()` with the instance fields they need (notably
- * `settings` and `sampler`), and a `metrics_body()` to shape the wire body.
- * Optional `_on_start()` hook fires from `start()` for subclass-specific
- * startup logging. */
+/* Session — common base for sampling-window sessions. Owns the sampler, the
+ * chip-bound analytics and the lifecycle bookkeeping. Subclasses call
+ * `_new_base()` for a fully-formed instance, set `analytics_type` (PeerAnalytics
+ * / PlannerAnalytics) and a `metrics_body()` to shape the wire body, and attach
+ * their own extras (PlannerSession adds `planning` and `estimate`). An optional
+ * `_on_start()` hook fires from `start()` for subclass-specific startup logging.
+ * peer_mac is null for peer-less (planning) sessions. */
 const Session = {
-	_init: function (fields) {
+	_new_base: function (settings, ifname, peer_mac, on_idle) {
 		return proto({
-			samples: [],
 			samples_collected: 0,
 			sample_timer: null,
 			phase: "warming",
 			running_since_ts: null,
 			last_status_ts: null,
-			...fields,
+			settings,
+			sampler: Sampler.new(ifname, peer_mac, int(settings.interval_s * 1000)),
+			analytics: this.analytics_type.new(detect_chip(ifname), settings.window_size),
+			on_idle,
 		}, this);
 	},
 
@@ -79,16 +91,14 @@ const Session = {
 	},
 
 	window_full: function () {
-		return length(this.samples) >= this.settings.window_samples;
+		return this.analytics.ready();
 	},
 
 	tick_sample: function () {
 		try {
 			const sample = this.sampler.collect();
 
-			push(this.samples, sample);
-			if (length(this.samples) > this.settings.window_samples)
-				shift(this.samples);
+			this.analytics.push(sample);
 
 			this.samples_collected++;
 			const was_warming = (this.phase == "warming");
@@ -97,7 +107,7 @@ const Session = {
 			if (was_warming && this.phase == "running") {
 				this.running_since_ts = now_s();
 				DBG("session %s: window full (%d samples)",
-					this.sampler.ifname, length(this.samples));
+					this.sampler.ifname, this.settings.window_size);
 			}
 
 			this.check_idle();
@@ -111,12 +121,10 @@ const Session = {
 /* PeerSession — long-running live peer-link estimation.
  * Keyed by peer_mac within Service.peer_link_sessions. */
 const PeerSession = proto({
+	analytics_type: PeerAnalytics,
+
 	new: function (settings, ifname, peer_mac, on_idle) {
-		return this._init({
-			settings,
-			sampler: Sampler.new(ifname, peer_mac, int(settings.interval_s * 1000)),
-			on_idle,
-		});
+		return this._new_base(settings, ifname, peer_mac, on_idle);
 	},
 
 	/* Live wire body. Keyed under the peer MAC.
@@ -125,7 +133,7 @@ const PeerSession = proto({
 		const body = { status: "warming" };
 		if (this.window_full()) {
 			body.status = "ok";
-			body[this.sampler.peer_mac] = analytics.build_peer_result(this.samples);
+			body[this.sampler.peer_mac] = this.analytics.peer_result();
 		}
 		return body;
 	},
@@ -134,14 +142,15 @@ const PeerSession = proto({
 /* PlannerSession — propagation-model based deployment estimate. Runs until
  * explicitly stopped via ubus. */
 const PlannerSession = proto({
+	analytics_type: PlannerAnalytics,
+
 	new: function (settings, ifname, planning_params, on_idle) {
-		return this._init({
-			settings,
-			sampler: Sampler.new(ifname, null, int(settings.interval_s * 1000)),
-			planning: planning_params,
-			estimate: analytics.compute_planning_estimate(planning_params),
-			on_idle,
-		});
+		/* Peer-less session (null peer_mac). The estimate is settled eagerly so
+		 * metrics_body() can report it during warm-up, before the first sample. */
+		const s = this._new_base(settings, ifname, null, on_idle);
+		s.planning = planning_params;
+		s.estimate = s.analytics.planning_estimate(planning_params);
+		return s;
 	},
 
 	_on_start: function () {
@@ -157,7 +166,7 @@ const PlannerSession = proto({
 		if (!this.window_full())
 			return { status: "warming", estimate: this.estimate };
 
-		const result = analytics.build_planning_result(this.samples, this.estimate, this.planning.bw_mhz);
+		const result = this.analytics.planning_result(this.estimate, this.planning.bw_mhz);
 		return {
 			status:         "ok",
 			estimate:       result.estimate,

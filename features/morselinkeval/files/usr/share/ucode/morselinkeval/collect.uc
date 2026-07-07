@@ -8,6 +8,9 @@ import { normalize_mac } from "morselinkeval.util";
 
 function DBG(...args) { ulog(LOG_DEBUG, ...args); }
 
+const CHIP_MM8108 = "MM8108";
+const CHIP_MM6108 = "MM6108";
+
 const MORSE_CLI_STATS_MAP = {
 	"Current Operating BW (MHz)":            "current_op_bw_mhz",
 	"Packet Detect fired STF":               "stf_pd_fired",
@@ -17,6 +20,7 @@ const MORSE_CLI_STATS_MAP = {
 	"Detected channel BW (Hz)":              "channel_bandwidth",
 	"AGC false trigger":                     "agc_false_trigger",
 	"AGC false trigger gain code":           "agc_false_trigger_gc",
+	"AGC interference detected":             "agc_intrf_detected",
 	"Noise (dBm)":                           "noise_dbm",
 	"Medium energy (dBm)":                   "medium_energy_dbm",
 	"Narrowband interference power (dBm)":   "nb_intrf_power_dbm",
@@ -31,6 +35,15 @@ function as_number(value) {
 function sanitize_rssi(value) {
 	const n = as_number(value);
 	return n != null && n < 0 ? n : null;
+}
+
+/* Received power validity, matching the Python reference's (-100, 0) window:
+ * firmware emits 0/positive or <= -100 dBm sentinels when there is no valid
+ * reading. Without this filter a no-connection floor sample (e.g. -128 dBm)
+ * would dominate rx_power_stats.min and flip the link-stability verdict. */
+function sanitize_rx_power(value) {
+	const n = as_number(value);
+	return n != null && n > -100 && n < 0 ? n : null;
 }
 
 function now_ms() {
@@ -222,6 +235,49 @@ function set_medium_eval(ifname, enabled) {
 	return true;
 }
 
+function read_chip(ifname) {
+	const proc = fs.popen(`morse_cli -i ${ifname} hw_version 2>/dev/null`, "r");
+	if (!proc) {
+		WARN("morse_cli hw_version on %s: popen failed", ifname);
+		return null;
+	}
+
+	const out = proc.read("all");
+	const rc = proc.close();
+
+	if (rc != 0 || !out) {
+		WARN("morse_cli hw_version on %s: exit=%s", ifname, rc);
+		return null;
+	}
+
+	const m = match(out, /HW[^:]*:[ \t]*([^ \t\r\n]+)/);
+	const raw = m ? uc(m[1]) : null;
+
+	if (raw != null && index(raw, "MM81") == 0)
+		return CHIP_MM8108;
+	if (raw != null && index(raw, "MM61") == 0)
+		return CHIP_MM6108;
+
+	WARN("morse_cli hw_version on %s: unrecognised chip '%s'", ifname, raw != null ? raw : out);
+	return null;
+}
+
+/* The chip family is fixed for the device's lifetime, so it is detected once
+ * and cached (including a failed null). */
+let _chip = null;
+let _chip_detected = false;
+
+/* Cached Morse chip family, read from morse_cli on first call: CHIP_MM8108,
+ * CHIP_MM6108, or null when detection failed (treated as MM8108 downstream). */
+function get_chip(ifname) {
+	if (_chip_detected)
+		return _chip;
+
+	_chip = read_chip(ifname);
+	_chip_detected = true;
+	return _chip;
+}
+
 /* Highest of the three noise/interference indicators in the morse_cli stats,
  * or null if none are valid. Firmware uses positive sentinels (0, 1, etc.) for
  * "no reading" on some fields, so reject anything not in a plausible dBm range. */
@@ -229,7 +285,10 @@ function max_noise_dbm(fields) {
 	const candidates = [];
 	for (let name in [ "noise_dbm", "medium_energy_dbm", "nb_intrf_power_dbm" ]) {
 		const n = as_number(fields[name]);
-		if (n != null && n > -140 && n < 0)
+		/* Keep only plausible dBm readings, matching the Python reference's
+		 * (-100, 0) window: firmware reports 0/positive sentinels for "no
+		 * reading", and values <= -100 dBm are treated as no-connection floor. */
+		if (n != null && n > -100 && n < 0)
 			push(candidates, n);
 	}
 
@@ -343,6 +402,7 @@ const Sample = {
 		"detected_bw_hz",
 		"agc_false_trigger",
 		"agc_false_trigger_gc",
+		"agc_intrf_detected",
 		"corr2s_energy",
 		"nb_intrf_detected",
 		"stf_pd_fired",
@@ -404,12 +464,13 @@ const Sampler = {
 		const stats = get_morse_stats(this.ifname, this.max_stats_age_ms);
 		const bw    = channel_bw(stats);
 
-		this.scratch.rx_power             = as_number(stats.received_pwr);
+		this.scratch.rx_power             = sanitize_rx_power(stats.received_pwr);
 		this.scratch.max_noise            = max_noise_dbm(stats);
 		this.scratch.current_bw_mhz       = bw.current_bw_mhz;
 		this.scratch.detected_bw_hz       = bw.detected_bw_hz;
 		this.scratch.agc_false_trigger    = as_number(stats.agc_false_trigger);
 		this.scratch.agc_false_trigger_gc = as_number(stats.agc_false_trigger_gc);
+		this.scratch.agc_intrf_detected   = as_number(stats.agc_intrf_detected);
 		this.scratch.corr2s_energy        = as_number(stats.corr2s_energy);
 		this.scratch.nb_intrf_detected    = as_number(stats.nb_intrf_detected);
 		this.scratch.stf_pd_fired         = as_number(stats.stf_pd_fired);
@@ -453,6 +514,9 @@ export {
 	get_channel_info,
 	get_connected_bssid,
 	set_medium_eval,
+	get_chip,
+	CHIP_MM8108,
+	CHIP_MM6108,
 	Sample,
 	Sampler
 };

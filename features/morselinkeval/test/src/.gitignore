@@ -1,0 +1,3 @@
+# Auto-created clone of halow_link_quality_metric when the src/pysrc symlink is
+# missing (see run_tests.py: ensure_py_src / PY_SRC_CLONE).
+/.pysrc-clone/

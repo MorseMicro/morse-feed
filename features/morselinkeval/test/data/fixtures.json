@@ -1,0 +1,223 @@
+{
+  "scenarios": [
+
+    {
+      "name": "quality_excellent_mm8108",
+      "description": "GROUP Link Quality | MM8108 @ 8 MHz. Strong RSSI (~-50) over a quiet -96 dBm floor -> SNR ~46 dB reaches MCS9 -> Excellent. AGC flat + clean counters isolate the quality classification (no interference, stable).",
+      "kind": "peer",
+      "chip": "MM8108",
+      "bw_mhz": 8,
+      "samples": [
+        {"rssi": -50, "rx_power": -51, "max_noise": -96, "current_bw_mhz": 8, "detected_bw_hz": 8000000, "agc_false_trigger": 50, "agc_false_trigger_gc": 0, "corr2s_energy": 0, "nb_intrf_detected": 0, "rx_ndp_not_for_us": 0, "stf_pd_fired": 5, "ltf_pd_fired": 5},
+        {"rssi": -51, "rx_power": -52, "max_noise": -95, "current_bw_mhz": 8, "detected_bw_hz": 8000000, "agc_false_trigger": 50, "agc_false_trigger_gc": 0, "corr2s_energy": 0, "nb_intrf_detected": 0, "rx_ndp_not_for_us": 0, "stf_pd_fired": 5, "ltf_pd_fired": 5},
+        {"rssi": -49, "rx_power": -50, "max_noise": -97, "current_bw_mhz": 8, "detected_bw_hz": 8000000, "agc_false_trigger": 50, "agc_false_trigger_gc": 0, "corr2s_energy": 0, "nb_intrf_detected": 0, "rx_ndp_not_for_us": 0, "stf_pd_fired": 5, "ltf_pd_fired": 5},
+        {"rssi": -50, "rx_power": -51, "max_noise": -96, "current_bw_mhz": 8, "detected_bw_hz": 8000000, "agc_false_trigger": 50, "agc_false_trigger_gc": 0, "corr2s_energy": 0, "nb_intrf_detected": 0, "rx_ndp_not_for_us": 0, "stf_pd_fired": 5, "ltf_pd_fired": 5},
+        {"rssi": -52, "rx_power": -53, "max_noise": -95, "current_bw_mhz": 8, "detected_bw_hz": 8000000, "agc_false_trigger": 50, "agc_false_trigger_gc": 0, "corr2s_energy": 0, "nb_intrf_detected": 0, "rx_ndp_not_for_us": 0, "stf_pd_fired": 5, "ltf_pd_fired": 5}
+      ]
+    },
+    {
+      "name": "quality_low_mm8108",
+      "description": "GROUP Link Quality | MM8108 @ 2 MHz. Weak RSSI (~-86) over a -93 dBm floor -> SNR ~7 dB clears only MCS1 (2 MHz needs 5.7) -> Low. AGC flat + clean counters keep it stable/no-interference so the low classification stands alone.",
+      "kind": "peer",
+      "chip": "MM8108",
+      "bw_mhz": 2,
+      "samples": [
+        {"rssi": -86, "rx_power": -87, "max_noise": -93, "current_bw_mhz": 2, "detected_bw_hz": 2000000, "agc_false_trigger": 30, "agc_false_trigger_gc": 0, "corr2s_energy": 0, "nb_intrf_detected": 0, "rx_ndp_not_for_us": 0, "stf_pd_fired": 5, "ltf_pd_fired": 5},
+        {"rssi": -87, "rx_power": -88, "max_noise": -93, "current_bw_mhz": 2, "detected_bw_hz": 2000000, "agc_false_trigger": 30, "agc_false_trigger_gc": 0, "corr2s_energy": 0, "nb_intrf_detected": 0, "rx_ndp_not_for_us": 0, "stf_pd_fired": 5, "ltf_pd_fired": 5},
+        {"rssi": -85, "rx_power": -86, "max_noise": -94, "current_bw_mhz": 2, "detected_bw_hz": 2000000, "agc_false_trigger": 30, "agc_false_trigger_gc": 0, "corr2s_energy": 0, "nb_intrf_detected": 0, "rx_ndp_not_for_us": 0, "stf_pd_fired": 5, "ltf_pd_fired": 5},
+        {"rssi": -86, "rx_power": -87, "max_noise": -93, "current_bw_mhz": 2, "detected_bw_hz": 2000000, "agc_false_trigger": 30, "agc_false_trigger_gc": 0, "corr2s_energy": 0, "nb_intrf_detected": 0, "rx_ndp_not_for_us": 0, "stf_pd_fired": 5, "ltf_pd_fired": 5},
+        {"rssi": -88, "rx_power": -89, "max_noise": -92, "current_bw_mhz": 2, "detected_bw_hz": 2000000, "agc_false_trigger": 30, "agc_false_trigger_gc": 0, "corr2s_energy": 0, "nb_intrf_detected": 0, "rx_ndp_not_for_us": 0, "stf_pd_fired": 5, "ltf_pd_fired": 5}
+      ]
+    },
+    {
+      "name": "quality_good_mm6108",
+      "description": "GROUP Link Quality | MM6108 @ 4 MHz. Mid RSSI (~-80) over a -95 dBm floor -> SNR ~15 dB reaches MCS4 (4 MHz needs 13.7) -> Good. Uses agc_intrf_detected (MM6108 counter), held flat so stability stays clear.",
+      "kind": "peer",
+      "chip": "MM6108",
+      "bw_mhz": 4,
+      "samples": [
+        {"rssi": -80, "rx_power": -81, "max_noise": -95, "current_bw_mhz": 4, "detected_bw_hz": 4000000, "agc_intrf_detected": 4, "corr2s_energy": 0, "nb_intrf_detected": 0, "rx_ndp_not_for_us": 0, "stf_pd_fired": 5, "ltf_pd_fired": 5},
+        {"rssi": -81, "rx_power": -82, "max_noise": -95, "current_bw_mhz": 4, "detected_bw_hz": 4000000, "agc_intrf_detected": 4, "corr2s_energy": 0, "nb_intrf_detected": 0, "rx_ndp_not_for_us": 0, "stf_pd_fired": 5, "ltf_pd_fired": 5},
+        {"rssi": -79, "rx_power": -80, "max_noise": -96, "current_bw_mhz": 4, "detected_bw_hz": 4000000, "agc_intrf_detected": 5, "corr2s_energy": 0, "nb_intrf_detected": 0, "rx_ndp_not_for_us": 0, "stf_pd_fired": 5, "ltf_pd_fired": 5},
+        {"rssi": -80, "rx_power": -81, "max_noise": -95, "current_bw_mhz": 4, "detected_bw_hz": 4000000, "agc_intrf_detected": 5, "corr2s_energy": 0, "nb_intrf_detected": 0, "rx_ndp_not_for_us": 0, "stf_pd_fired": 5, "ltf_pd_fired": 5},
+        {"rssi": -80, "rx_power": -81, "max_noise": -94, "current_bw_mhz": 4, "detected_bw_hz": 4000000, "agc_intrf_detected": 5, "corr2s_energy": 0, "nb_intrf_detected": 0, "rx_ndp_not_for_us": 0, "stf_pd_fired": 5, "ltf_pd_fired": 5}
+      ]
+    },
+    {
+      "name": "quality_mcs7_cap_mm6108",
+      "description": "GROUP Link Quality | MM6108 @ 8 MHz. Very strong RSSI (~-50, SNR ~45) would hit MCS9 on MM8108, but the MM6108 table tops out at MCS7 (8/9 rows absent) -> capped at MCS7, still Excellent. corr2s_energy=2 is present but never flags cellular on MM6108 (corr2s unsupported) — chip-branch cross-check.",
+      "kind": "peer",
+      "chip": "MM6108",
+      "bw_mhz": 8,
+      "samples": [
+        {"rssi": -50, "rx_power": -51, "max_noise": -95, "current_bw_mhz": 8, "detected_bw_hz": 8000000, "agc_intrf_detected": 3, "corr2s_energy": 2, "nb_intrf_detected": 0, "rx_ndp_not_for_us": 0, "stf_pd_fired": 5, "ltf_pd_fired": 5},
+        {"rssi": -49, "rx_power": -50, "max_noise": -96, "current_bw_mhz": 8, "detected_bw_hz": 8000000, "agc_intrf_detected": 3, "corr2s_energy": 2, "nb_intrf_detected": 0, "rx_ndp_not_for_us": 0, "stf_pd_fired": 5, "ltf_pd_fired": 5},
+        {"rssi": -51, "rx_power": -52, "max_noise": -95, "current_bw_mhz": 8, "detected_bw_hz": 8000000, "agc_intrf_detected": 3, "corr2s_energy": 2, "nb_intrf_detected": 0, "rx_ndp_not_for_us": 0, "stf_pd_fired": 5, "ltf_pd_fired": 5},
+        {"rssi": -50, "rx_power": -51, "max_noise": -94, "current_bw_mhz": 8, "detected_bw_hz": 8000000, "agc_intrf_detected": 3, "corr2s_energy": 2, "nb_intrf_detected": 0, "rx_ndp_not_for_us": 0, "stf_pd_fired": 5, "ltf_pd_fired": 5},
+        {"rssi": -52, "rx_power": -53, "max_noise": -95, "current_bw_mhz": 8, "detected_bw_hz": 8000000, "agc_intrf_detected": 3, "corr2s_energy": 2, "nb_intrf_detected": 0, "rx_ndp_not_for_us": 0, "stf_pd_fired": 5, "ltf_pd_fired": 5}
+      ]
+    },
+
+    {
+      "name": "stability_impacted_mm8108",
+      "description": "GROUP Link Stability | MM8108 @ 2 MHz. AGC false-trigger jumps +50 with gain code 6 -> thermal NF = -111 + 5 + 6*3 = -88 dBm lifts the floor; weak min RSSI -88 -> min SNR2 ~0 dB < MCS0+3 dB threshold -> IMPACTED. Diff taken over fully-populated snapshots only.",
+      "kind": "peer",
+      "chip": "MM8108",
+      "bw_mhz": 2,
+      "samples": [
+        {"rssi": -80, "rx_power": -81, "max_noise": -95, "current_bw_mhz": 2, "detected_bw_hz": 2000000, "agc_false_trigger": 100, "agc_false_trigger_gc": 2, "corr2s_energy": 0, "nb_intrf_detected": 0, "rx_ndp_not_for_us": 0, "stf_pd_fired": 5, "ltf_pd_fired": 5},
+        {"rssi": -82, "rx_power": -83, "max_noise": -94, "current_bw_mhz": 2, "detected_bw_hz": 2000000, "agc_false_trigger": 100, "agc_false_trigger_gc": 2, "corr2s_energy": 0, "nb_intrf_detected": 0, "rx_ndp_not_for_us": 0, "stf_pd_fired": 5, "ltf_pd_fired": 5},
+        {"rssi": -79, "rx_power": -80, "max_noise": -95, "current_bw_mhz": 2, "detected_bw_hz": 2000000, "agc_false_trigger": 150, "agc_false_trigger_gc": 6, "corr2s_energy": 0, "nb_intrf_detected": 0, "rx_ndp_not_for_us": 0, "stf_pd_fired": 5, "ltf_pd_fired": 5},
+        {"rssi": -81, "rx_power": -82, "max_noise": -94, "current_bw_mhz": 2, "detected_bw_hz": 2000000, "agc_false_trigger": 152, "agc_false_trigger_gc": 6, "corr2s_energy": 0, "nb_intrf_detected": 0, "rx_ndp_not_for_us": 0, "stf_pd_fired": 5, "ltf_pd_fired": 5},
+        {"rssi": -88, "rx_power": -89, "max_noise": -93, "current_bw_mhz": 2, "detected_bw_hz": 2000000, "agc_false_trigger": 154, "agc_false_trigger_gc": 6, "corr2s_energy": 0, "nb_intrf_detected": 0, "rx_ndp_not_for_us": 0, "stf_pd_fired": 5, "ltf_pd_fired": 5}
+      ]
+    },
+    {
+      "name": "stability_triggered_but_stable_mm8108",
+      "description": "GROUP Link Stability | MM8108 @ 8 MHz. AGC false-trigger spikes +40 (triggered=true) but gain code 0 -> thermal NF -100 dBm, and the strong min RSSI -55 keeps min SNR2 ~41 dB well above MCS0+3 -> STABLE. Exercises the triggered-yet-stable path (spike present, link fine).",
+      "kind": "peer",
+      "chip": "MM8108",
+      "bw_mhz": 8,
+      "samples": [
+        {"rssi": -52, "rx_power": -53, "max_noise": -96, "current_bw_mhz": 8, "detected_bw_hz": 8000000, "agc_false_trigger": 20, "agc_false_trigger_gc": 0, "corr2s_energy": 0, "nb_intrf_detected": 0, "rx_ndp_not_for_us": 0, "stf_pd_fired": 5, "ltf_pd_fired": 5},
+        {"rssi": -53, "rx_power": -54, "max_noise": -95, "current_bw_mhz": 8, "detected_bw_hz": 8000000, "agc_false_trigger": 20, "agc_false_trigger_gc": 0, "corr2s_energy": 0, "nb_intrf_detected": 0, "rx_ndp_not_for_us": 0, "stf_pd_fired": 5, "ltf_pd_fired": 5},
+        {"rssi": -54, "rx_power": -55, "max_noise": -96, "current_bw_mhz": 8, "detected_bw_hz": 8000000, "agc_false_trigger": 60, "agc_false_trigger_gc": 0, "corr2s_energy": 0, "nb_intrf_detected": 0, "rx_ndp_not_for_us": 0, "stf_pd_fired": 5, "ltf_pd_fired": 5},
+        {"rssi": -53, "rx_power": -54, "max_noise": -95, "current_bw_mhz": 8, "detected_bw_hz": 8000000, "agc_false_trigger": 62, "agc_false_trigger_gc": 0, "corr2s_energy": 0, "nb_intrf_detected": 0, "rx_ndp_not_for_us": 0, "stf_pd_fired": 5, "ltf_pd_fired": 5},
+        {"rssi": -55, "rx_power": -56, "max_noise": -96, "current_bw_mhz": 8, "detected_bw_hz": 8000000, "agc_false_trigger": 64, "agc_false_trigger_gc": 0, "corr2s_energy": 0, "nb_intrf_detected": 0, "rx_ndp_not_for_us": 0, "stf_pd_fired": 5, "ltf_pd_fired": 5}
+      ]
+    },
+    {
+      "name": "stability_impacted_mm6108",
+      "description": "GROUP Link Stability | MM6108 @ 4 MHz. AGC interference counter jumps +14 (>10) -> triggered; MM6108 has no gain-code thermal model so the noise floor is max_noise (-90 dBm). Weak min RSSI -88 -> min SNR2 ~2 dB < MCS0(4 MHz)+3 dB -> IMPACTED.",
+      "kind": "peer",
+      "chip": "MM6108",
+      "bw_mhz": 4,
+      "samples": [
+        {"rssi": -85, "rx_power": -86, "max_noise": -90, "current_bw_mhz": 4, "detected_bw_hz": 4000000, "agc_intrf_detected": 5, "corr2s_energy": 0, "nb_intrf_detected": 0, "rx_ndp_not_for_us": 0, "stf_pd_fired": 5, "ltf_pd_fired": 5},
+        {"rssi": -86, "rx_power": -87, "max_noise": -90, "current_bw_mhz": 4, "detected_bw_hz": 4000000, "agc_intrf_detected": 6, "corr2s_energy": 0, "nb_intrf_detected": 0, "rx_ndp_not_for_us": 0, "stf_pd_fired": 5, "ltf_pd_fired": 5},
+        {"rssi": -84, "rx_power": -85, "max_noise": -90, "current_bw_mhz": 4, "detected_bw_hz": 4000000, "agc_intrf_detected": 20, "corr2s_energy": 0, "nb_intrf_detected": 0, "rx_ndp_not_for_us": 0, "stf_pd_fired": 5, "ltf_pd_fired": 5},
+        {"rssi": -85, "rx_power": -86, "max_noise": -90, "current_bw_mhz": 4, "detected_bw_hz": 4000000, "agc_intrf_detected": 22, "corr2s_energy": 0, "nb_intrf_detected": 0, "rx_ndp_not_for_us": 0, "stf_pd_fired": 5, "ltf_pd_fired": 5},
+        {"rssi": -88, "rx_power": -89, "max_noise": -90, "current_bw_mhz": 4, "detected_bw_hz": 4000000, "agc_intrf_detected": 24, "corr2s_energy": 0, "nb_intrf_detected": 0, "rx_ndp_not_for_us": 0, "stf_pd_fired": 5, "ltf_pd_fired": 5}
+      ]
+    },
+    {
+      "name": "stability_no_trigger_mm6108",
+      "description": "GROUP Link Stability | MM6108 @ 8 MHz. AGC interference counter stays flat (max step 1, <=10) -> not triggered -> reports STABLE immediately ('No AGC interference detected') without computing an SNR. Exercises the early no-trigger stable path on MM6108.",
+      "kind": "peer",
+      "chip": "MM6108",
+      "bw_mhz": 8,
+      "samples": [
+        {"rssi": -60, "rx_power": -61, "max_noise": -95, "current_bw_mhz": 8, "detected_bw_hz": 8000000, "agc_intrf_detected": 3, "corr2s_energy": 0, "nb_intrf_detected": 0, "rx_ndp_not_for_us": 0, "stf_pd_fired": 5, "ltf_pd_fired": 5},
+        {"rssi": -61, "rx_power": -62, "max_noise": -95, "current_bw_mhz": 8, "detected_bw_hz": 8000000, "agc_intrf_detected": 3, "corr2s_energy": 0, "nb_intrf_detected": 0, "rx_ndp_not_for_us": 0, "stf_pd_fired": 5, "ltf_pd_fired": 5},
+        {"rssi": -59, "rx_power": -60, "max_noise": -96, "current_bw_mhz": 8, "detected_bw_hz": 8000000, "agc_intrf_detected": 4, "corr2s_energy": 0, "nb_intrf_detected": 0, "rx_ndp_not_for_us": 0, "stf_pd_fired": 5, "ltf_pd_fired": 5},
+        {"rssi": -60, "rx_power": -61, "max_noise": -95, "current_bw_mhz": 8, "detected_bw_hz": 8000000, "agc_intrf_detected": 3, "corr2s_energy": 0, "nb_intrf_detected": 0, "rx_ndp_not_for_us": 0, "stf_pd_fired": 5, "ltf_pd_fired": 5},
+        {"rssi": -60, "rx_power": -61, "max_noise": -95, "current_bw_mhz": 8, "detected_bw_hz": 8000000, "agc_intrf_detected": 4, "corr2s_energy": 0, "nb_intrf_detected": 0, "rx_ndp_not_for_us": 0, "stf_pd_fired": 5, "ltf_pd_fired": 5}
+      ]
+    },
+
+    {
+      "name": "interference_corr2s_mm8108",
+      "description": "GROUP Interference | MM8108 @ 8 MHz. corr2s_energy=2 on one sample -> cellular_suspected; corr2s_energy=7 with the NB counter flat -> close_channel_detected. Both categories are Corr2S-based and MM8108-only. AGC flat so no stability trigger clouds the interference flags.",
+      "kind": "peer",
+      "chip": "MM8108",
+      "bw_mhz": 8,
+      "samples": [
+        {"rssi": -70, "rx_power": -71, "max_noise": -95, "current_bw_mhz": 8, "detected_bw_hz": 8000000, "agc_false_trigger": 20, "agc_false_trigger_gc": 0, "corr2s_energy": 0, "nb_intrf_detected": 4, "rx_ndp_not_for_us": 0, "stf_pd_fired": 5, "ltf_pd_fired": 5},
+        {"rssi": -71, "rx_power": -72, "max_noise": -95, "current_bw_mhz": 8, "detected_bw_hz": 8000000, "agc_false_trigger": 20, "agc_false_trigger_gc": 0, "corr2s_energy": 2, "nb_intrf_detected": 4, "rx_ndp_not_for_us": 0, "stf_pd_fired": 5, "ltf_pd_fired": 5},
+        {"rssi": -70, "rx_power": -71, "max_noise": -96, "current_bw_mhz": 8, "detected_bw_hz": 8000000, "agc_false_trigger": 20, "agc_false_trigger_gc": 0, "corr2s_energy": 0, "nb_intrf_detected": 4, "rx_ndp_not_for_us": 0, "stf_pd_fired": 5, "ltf_pd_fired": 5},
+        {"rssi": -70, "rx_power": -71, "max_noise": -95, "current_bw_mhz": 8, "detected_bw_hz": 8000000, "agc_false_trigger": 20, "agc_false_trigger_gc": 0, "corr2s_energy": 7, "nb_intrf_detected": 4, "rx_ndp_not_for_us": 0, "stf_pd_fired": 5, "ltf_pd_fired": 5},
+        {"rssi": -71, "rx_power": -72, "max_noise": -95, "current_bw_mhz": 8, "detected_bw_hz": 8000000, "agc_false_trigger": 20, "agc_false_trigger_gc": 0, "corr2s_energy": 0, "nb_intrf_detected": 4, "rx_ndp_not_for_us": 0, "stf_pd_fired": 5, "ltf_pd_fired": 5}
+      ]
+    },
+    {
+      "name": "interference_counters_mm8108",
+      "description": "GROUP Interference | MM8108 @ 8 MHz. NB counter increments -> in_channel_detected; RX-NDP-not-for-us increments -> same_channel_detected (co-channel HaLow); total dSTF (75) >> 1.5x total dLTF (4) -> adjacent_channel_detected. corr2s=0 so no cellular/close. The three counter-based categories that work on any chip.",
+      "kind": "peer",
+      "chip": "MM8108",
+      "bw_mhz": 8,
+      "samples": [
+        {"rssi": -70, "rx_power": -71, "max_noise": -95, "current_bw_mhz": 8, "detected_bw_hz": 8000000, "agc_false_trigger": 20, "agc_false_trigger_gc": 0, "corr2s_energy": 0, "nb_intrf_detected": 0, "rx_ndp_not_for_us": 0, "stf_pd_fired": 5, "ltf_pd_fired": 5},
+        {"rssi": -71, "rx_power": -72, "max_noise": -95, "current_bw_mhz": 8, "detected_bw_hz": 8000000, "agc_false_trigger": 20, "agc_false_trigger_gc": 0, "corr2s_energy": 0, "nb_intrf_detected": 1, "rx_ndp_not_for_us": 1, "stf_pd_fired": 20, "ltf_pd_fired": 6},
+        {"rssi": -70, "rx_power": -71, "max_noise": -96, "current_bw_mhz": 8, "detected_bw_hz": 8000000, "agc_false_trigger": 20, "agc_false_trigger_gc": 0, "corr2s_energy": 0, "nb_intrf_detected": 2, "rx_ndp_not_for_us": 2, "stf_pd_fired": 40, "ltf_pd_fired": 7},
+        {"rssi": -70, "rx_power": -71, "max_noise": -95, "current_bw_mhz": 8, "detected_bw_hz": 8000000, "agc_false_trigger": 20, "agc_false_trigger_gc": 0, "corr2s_energy": 0, "nb_intrf_detected": 3, "rx_ndp_not_for_us": 3, "stf_pd_fired": 60, "ltf_pd_fired": 8},
+        {"rssi": -71, "rx_power": -72, "max_noise": -95, "current_bw_mhz": 8, "detected_bw_hz": 8000000, "agc_false_trigger": 20, "agc_false_trigger_gc": 0, "corr2s_energy": 0, "nb_intrf_detected": 4, "rx_ndp_not_for_us": 4, "stf_pd_fired": 80, "ltf_pd_fired": 9}
+      ]
+    },
+    {
+      "name": "interference_counters_mm6108",
+      "description": "GROUP Interference | MM6108 @ 8 MHz. Same three counter-based categories as the MM8108 case: NB increments -> in_channel, RX-NDP increments -> same_channel, dSTF >> 1.5x dLTF -> adjacent_channel. corr2s_energy=2 is present every sample but MUST NOT flag cellular on MM6108 (corr2s unsupported) — the key chip-branch cross-check.",
+      "kind": "peer",
+      "chip": "MM6108",
+      "bw_mhz": 8,
+      "samples": [
+        {"rssi": -70, "rx_power": -71, "max_noise": -95, "current_bw_mhz": 8, "detected_bw_hz": 8000000, "agc_intrf_detected": 3, "corr2s_energy": 2, "nb_intrf_detected": 0, "rx_ndp_not_for_us": 0, "stf_pd_fired": 5, "ltf_pd_fired": 5},
+        {"rssi": -71, "rx_power": -72, "max_noise": -95, "current_bw_mhz": 8, "detected_bw_hz": 8000000, "agc_intrf_detected": 3, "corr2s_energy": 2, "nb_intrf_detected": 1, "rx_ndp_not_for_us": 1, "stf_pd_fired": 20, "ltf_pd_fired": 6},
+        {"rssi": -70, "rx_power": -71, "max_noise": -96, "current_bw_mhz": 8, "detected_bw_hz": 8000000, "agc_intrf_detected": 4, "corr2s_energy": 2, "nb_intrf_detected": 2, "rx_ndp_not_for_us": 2, "stf_pd_fired": 40, "ltf_pd_fired": 7},
+        {"rssi": -70, "rx_power": -71, "max_noise": -95, "current_bw_mhz": 8, "detected_bw_hz": 8000000, "agc_intrf_detected": 3, "corr2s_energy": 2, "nb_intrf_detected": 3, "rx_ndp_not_for_us": 3, "stf_pd_fired": 60, "ltf_pd_fired": 8},
+        {"rssi": -71, "rx_power": -72, "max_noise": -95, "current_bw_mhz": 8, "detected_bw_hz": 8000000, "agc_intrf_detected": 4, "corr2s_energy": 2, "nb_intrf_detected": 4, "rx_ndp_not_for_us": 4, "stf_pd_fired": 80, "ltf_pd_fired": 9}
+      ]
+    },
+
+    {
+      "name": "planner_fspl_short_mm8108",
+      "description": "GROUP Planner | MM8108 @ 8 MHz, FSPL model. 50 m @ 20 dBm -> FSPL ~66 dB -> synthetic RSSI typical -46 / worst -56; over the -95 dBm window floor SNR ~49 dB -> Excellent (MCS9). corr2s_energy=2 -> cellular_suspected. bw_mhz forced by the planner; the window's own current_bw_mhz is ignored.",
+      "kind": "planner",
+      "chip": "MM8108",
+      "bw_mhz": 8,
+      "planner": {"tx_power_dbm": 20, "freq_mhz": 915, "distance_m": 50, "fade_margin_db": 10},
+      "samples": [
+        {"max_noise": -95, "current_bw_mhz": 8, "detected_bw_hz": 8000000, "agc_false_trigger": 20, "agc_false_trigger_gc": 0, "corr2s_energy": 0, "nb_intrf_detected": 0, "rx_ndp_not_for_us": 0, "stf_pd_fired": 5, "ltf_pd_fired": 5},
+        {"max_noise": -95, "current_bw_mhz": 8, "detected_bw_hz": 8000000, "agc_false_trigger": 20, "agc_false_trigger_gc": 0, "corr2s_energy": 2, "nb_intrf_detected": 0, "rx_ndp_not_for_us": 0, "stf_pd_fired": 5, "ltf_pd_fired": 5},
+        {"max_noise": -96, "current_bw_mhz": 8, "detected_bw_hz": 8000000, "agc_false_trigger": 20, "agc_false_trigger_gc": 0, "corr2s_energy": 0, "nb_intrf_detected": 0, "rx_ndp_not_for_us": 0, "stf_pd_fired": 5, "ltf_pd_fired": 5},
+        {"max_noise": -95, "current_bw_mhz": 8, "detected_bw_hz": 8000000, "agc_false_trigger": 20, "agc_false_trigger_gc": 0, "corr2s_energy": 0, "nb_intrf_detected": 0, "rx_ndp_not_for_us": 0, "stf_pd_fired": 5, "ltf_pd_fired": 5},
+        {"max_noise": -95, "current_bw_mhz": 8, "detected_bw_hz": 8000000, "agc_false_trigger": 20, "agc_false_trigger_gc": 0, "corr2s_energy": 0, "nb_intrf_detected": 0, "rx_ndp_not_for_us": 0, "stf_pd_fired": 5, "ltf_pd_fired": 5}
+      ]
+    },
+    {
+      "name": "planner_fspl_long_mm6108",
+      "description": "GROUP Planner | MM6108 @ 4 MHz, FSPL model. 1000 m @ 20 dBm -> FSPL ~92 dB -> synthetic RSSI typical -72 / worst -82; SNR ~23 dB caps at MCS7 on MM6108 -> typical Excellent, worst-case Moderate. RX-NDP increments -> same_channel_detected; corr2s ignored on MM6108.",
+      "kind": "planner",
+      "chip": "MM6108",
+      "bw_mhz": 4,
+      "planner": {"tx_power_dbm": 20, "freq_mhz": 915, "distance_m": 1000, "fade_margin_db": 10},
+      "samples": [
+        {"max_noise": -95, "current_bw_mhz": 4, "detected_bw_hz": 4000000, "agc_intrf_detected": 5, "corr2s_energy": 2, "nb_intrf_detected": 0, "rx_ndp_not_for_us": 0, "stf_pd_fired": 5, "ltf_pd_fired": 5},
+        {"max_noise": -96, "current_bw_mhz": 4, "detected_bw_hz": 4000000, "agc_intrf_detected": 5, "corr2s_energy": 2, "nb_intrf_detected": 0, "rx_ndp_not_for_us": 1, "stf_pd_fired": 5, "ltf_pd_fired": 5},
+        {"max_noise": -95, "current_bw_mhz": 4, "detected_bw_hz": 4000000, "agc_intrf_detected": 6, "corr2s_energy": 2, "nb_intrf_detected": 0, "rx_ndp_not_for_us": 2, "stf_pd_fired": 5, "ltf_pd_fired": 5},
+        {"max_noise": -95, "current_bw_mhz": 4, "detected_bw_hz": 4000000, "agc_intrf_detected": 6, "corr2s_energy": 2, "nb_intrf_detected": 0, "rx_ndp_not_for_us": 3, "stf_pd_fired": 5, "ltf_pd_fired": 5},
+        {"max_noise": -95, "current_bw_mhz": 4, "detected_bw_hz": 4000000, "agc_intrf_detected": 6, "corr2s_energy": 2, "nb_intrf_detected": 0, "rx_ndp_not_for_us": 4, "stf_pd_fired": 5, "ltf_pd_fired": 5}
+      ]
+    },
+    {
+      "name": "planner_manual_atten_mm8108",
+      "description": "GROUP Planner | MM8108 @ 8 MHz, MANUAL attenuation model. attenuation_db=100 (no distance) -> model 'manual', path loss 100 dB -> synthetic RSSI typical -80 / worst -90; SNR ~15 dB -> MCS4 typical Good, MCS1 worst. AGC flat + clean counters -> stable, no interference. Exercises the manual (attenuation) planner branch.",
+      "kind": "planner",
+      "chip": "MM8108",
+      "bw_mhz": 8,
+      "planner": {"tx_power_dbm": 20, "freq_mhz": 915, "attenuation_db": 100, "fade_margin_db": 10},
+      "samples": [
+        {"max_noise": -95, "current_bw_mhz": 8, "detected_bw_hz": 8000000, "agc_false_trigger": 20, "agc_false_trigger_gc": 0, "corr2s_energy": 0, "nb_intrf_detected": 0, "rx_ndp_not_for_us": 0, "stf_pd_fired": 5, "ltf_pd_fired": 5},
+        {"max_noise": -95, "current_bw_mhz": 8, "detected_bw_hz": 8000000, "agc_false_trigger": 20, "agc_false_trigger_gc": 0, "corr2s_energy": 0, "nb_intrf_detected": 0, "rx_ndp_not_for_us": 0, "stf_pd_fired": 5, "ltf_pd_fired": 5},
+        {"max_noise": -96, "current_bw_mhz": 8, "detected_bw_hz": 8000000, "agc_false_trigger": 20, "agc_false_trigger_gc": 0, "corr2s_energy": 0, "nb_intrf_detected": 0, "rx_ndp_not_for_us": 0, "stf_pd_fired": 5, "ltf_pd_fired": 5},
+        {"max_noise": -95, "current_bw_mhz": 8, "detected_bw_hz": 8000000, "agc_false_trigger": 20, "agc_false_trigger_gc": 0, "corr2s_energy": 0, "nb_intrf_detected": 0, "rx_ndp_not_for_us": 0, "stf_pd_fired": 5, "ltf_pd_fired": 5},
+        {"max_noise": -95, "current_bw_mhz": 8, "detected_bw_hz": 8000000, "agc_false_trigger": 20, "agc_false_trigger_gc": 0, "corr2s_energy": 0, "nb_intrf_detected": 0, "rx_ndp_not_for_us": 0, "stf_pd_fired": 5, "ltf_pd_fired": 5}
+      ]
+    },
+    {
+      "name": "planner_manual_high_atten_mm6108",
+      "description": "GROUP Planner | MM6108 @ 2 MHz, MANUAL attenuation model. attenuation_db=105 -> path loss 105 dB -> synthetic RSSI typical -85 / worst -95; SNR ~10 dB -> MCS3 typical Moderate, worst-case at the -95 floor -> Very Poor. A high-loss manual link on MM6108 showing graceful degradation across the three SNR scenarios.",
+      "kind": "planner",
+      "chip": "MM6108",
+      "bw_mhz": 2,
+      "planner": {"tx_power_dbm": 20, "freq_mhz": 915, "attenuation_db": 105, "fade_margin_db": 10},
+      "samples": [
+        {"max_noise": -95, "current_bw_mhz": 2, "detected_bw_hz": 2000000, "agc_intrf_detected": 4, "corr2s_energy": 0, "nb_intrf_detected": 0, "rx_ndp_not_for_us": 0, "stf_pd_fired": 5, "ltf_pd_fired": 5},
+        {"max_noise": -95, "current_bw_mhz": 2, "detected_bw_hz": 2000000, "agc_intrf_detected": 4, "corr2s_energy": 0, "nb_intrf_detected": 0, "rx_ndp_not_for_us": 0, "stf_pd_fired": 5, "ltf_pd_fired": 5},
+        {"max_noise": -96, "current_bw_mhz": 2, "detected_bw_hz": 2000000, "agc_intrf_detected": 5, "corr2s_energy": 0, "nb_intrf_detected": 0, "rx_ndp_not_for_us": 0, "stf_pd_fired": 5, "ltf_pd_fired": 5},
+        {"max_noise": -95, "current_bw_mhz": 2, "detected_bw_hz": 2000000, "agc_intrf_detected": 5, "corr2s_energy": 0, "nb_intrf_detected": 0, "rx_ndp_not_for_us": 0, "stf_pd_fired": 5, "ltf_pd_fired": 5},
+        {"max_noise": -95, "current_bw_mhz": 2, "detected_bw_hz": 2000000, "agc_intrf_detected": 5, "corr2s_energy": 0, "nb_intrf_detected": 0, "rx_ndp_not_for_us": 0, "stf_pd_fired": 5, "ltf_pd_fired": 5}
+      ]
+    }
+
+  ]
+}

@@ -104,13 +104,13 @@ const Config = {
 			settings[opt.key] = opt.integer ? int(value) : value;
 		}
 
-		settings.window_samples =
+		settings.window_size =
 			sample_window_count(settings.window_s, settings.interval_s);
 
 		this.settings = settings;
 		this.error = null;
 		INFO("config parsed: interval=%ss window=%ss samples=%d idle_timeout=%ss max_peer_link_sessions=%d",
-			settings.interval_s, settings.window_s, settings.window_samples,
+			settings.interval_s, settings.window_s, settings.window_size,
 			settings.idle_timeout_s, settings.max_peer_link_sessions);
 		return true;
 	},
