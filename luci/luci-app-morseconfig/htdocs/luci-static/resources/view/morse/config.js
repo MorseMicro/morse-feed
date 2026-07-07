@@ -65,7 +65,7 @@ const callSwitchWifiDriverStatus = rpc.declare({
 	method: 'status',
 });
 
-const SUPPORTED_MAC80211_HALOW_COUNTRIES = ['AU', 'US'];
+const SUPPORTED_MAC80211_HALOW_COUNTRIES = ['US'];
 
 // These are from LuCI's resources/network.js, but unfortunately they're buried
 // in a switch statement there.
@@ -714,7 +714,7 @@ return view.extend({
 			const alternateType = device.type === 'morse' ? 'mac80211' : 'morse';
 
 			section.option(form.HiddenValue, 'type');
-			option = section.option(form.DummyValue, '_switch_driver', _('HaLow device type'));
+			option = section.option(form.DummyValue, '_switch_driver', _('Wi-Fi HaLow device type'));
 			option.cfgvalue = (_sectionId) => {
 				return E('div', [
 					E('span', Object.assign(

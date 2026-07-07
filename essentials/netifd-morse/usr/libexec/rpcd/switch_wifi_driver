@@ -34,6 +34,11 @@ MORSE="morse"
 DOT11AH="dot11ah"
 MORSE_DRIVER_PATH="/lib/firmware/morse"
 MM81X="mm81x"
+# The mm81x driver is split into a core module plus per-bus modules. The bus
+# modules depend on (and modprobe will pull in) the core module.
+MM81X_CORE="mm81x_core"
+MM81X_SDIO="mm81x_sdio"
+MM81X_USB="mm81x_usb"
 MM81X_DRIVER_PATH="/lib/firmware/morsemicro"
 IW_DEV_FILE="/usr/share/libiwinfo/devices.txt"
 MODCONF="/etc/modules.conf"
@@ -95,24 +100,49 @@ get_valid_bus_from_driver_full() {
     esac
 }
 
-modules_for_driver() {
+# All module names associated with a driver, bus-independent. Used for
+# blacklisting so no variant can auto-load, regardless of which bus is present.
+modules_for_driver_all() {
     case "$1" in
         "$MORSE") echo "$DOT11AH $MORSE" ;;
-        "$MM81X") echo "$MM81X" ;;
+        "$MM81X") echo "$MM81X_CORE $MM81X_SDIO $MM81X_USB" ;;
     esac
 }
 
-# Removing modules in dependency-appropriate order
+# Modules to load, in dependency order. For mm81x only the module for the
+# detected bus is needed (modprobe pulls in mm81x_core); if the bus is unknown
+# we load both bus modules and let the unused one bind to nothing.
+modules_for_driver_load() {
+    case "$1" in
+        "$MORSE") echo "$DOT11AH $MORSE" ;;
+        "$MM81X")
+            case "$2" in
+                sdio) echo "$MM81X_CORE $MM81X_SDIO" ;;
+                usb)  echo "$MM81X_CORE $MM81X_USB" ;;
+                *)    echo "$MM81X_CORE $MM81X_SDIO $MM81X_USB" ;;
+            esac
+        ;;
+    esac
+}
+
+# Modules to remove, in dependency-appropriate (reverse) order.
 modules_for_driver_removal() {
     case "$1" in
         "$MORSE") echo "$MORSE $DOT11AH" ;;
-        "$MM81X") echo "$MM81X" ;;
+        "$MM81X")
+            case "$2" in
+                sdio) echo "$MM81X_SDIO $MM81X_CORE" ;;
+                usb)  echo "$MM81X_USB $MM81X_CORE" ;;
+                *)    echo "$MM81X_SDIO $MM81X_USB $MM81X_CORE" ;;
+            esac
+        ;;
     esac
 }
 
 load_modules() {
     local driver="$1"
-    set -- $(modules_for_driver "$driver")
+    local bus="$2"
+    set -- $(modules_for_driver_load "$driver" "$bus")
     for mod in "$@"; do
         # APP-6452: An admittedly poorly understood hack - kmodloader apparently doesn't work for mm81x
         if [ "$driver" = "$MM81X" ] && modprobe "$mod"; then
@@ -127,8 +157,14 @@ load_modules() {
 }
 
 remove_modules() {
-    set -- $(modules_for_driver_removal "$1")
+    local driver="$1"
+    local bus="$2"
+    set -- $(modules_for_driver_removal "$driver" "$bus")
     for mod in "$@"; do
+        # A not-loaded module (e.g. the other bus variant) is not an error.
+        if ! grep -q "^$mod " /proc/modules; then
+            continue
+        fi
         if rmmod "$mod"; then
             logger -t "$LOGTAG" "Unloaded $mod"
         else
@@ -157,8 +193,8 @@ get_s1g_devices() {
 update_blacklist() {
     [ -f "$MODCONF" ] || touch "$MODCONF"
     logger -t "$LOGTAG" "Remove existing blacklist entries for $MORSE and $MM81X"
-    sed -i '/^[[:space:]]*blacklist[[:space:]].*\<\(morse\|mm81x\|dot11ah\)\>/d' "$MODCONF"
-    set -- $(modules_for_driver "$1")
+    sed -i '/^[[:space:]]*blacklist[[:space:]].*\<\(morse\|mm81x\|dot11ah\)/d' "$MODCONF"
+    set -- $(modules_for_driver_all "$1")
     for mod in "$@"; do
         echo "blacklist $mod" >> "$MODCONF"
         logger -t "$LOGTAG" "Blacklisted $mod"
@@ -226,43 +262,6 @@ cleanup_s1g_device() {
     fi
 }
 
-perform_switch() {
-    driver="$1"
-    other="$2"
-
-    config_load wireless
-    logger -t "$LOGTAG" "Starting switch: $other -> $driver"
-
-    current_module="$(get_current_module)"
-
-    bus=""
-    if [ -n "$current_module" ]; then
-        driver_base="$current_module"
-        phy="$(get_phy_for_driver "$driver_base")"
-        driver_full="$(get_driver_full_from_phy "$phy")"
-        bus="$(get_valid_bus_from_driver_full "$driver_full")"
-    fi
-
-    # Get the last s1g device - it will be the one to be migrated
-    local s1g_device s1g_iface
-    s1g_device="$(find_last_s1g_device)"
-    s1g_iface="$(find_last_iface_for_device "$s1g_device")"
-
-    config_foreach cleanup_s1g_device wifi-device "$s1g_device" "$s1g_iface"
-    uci commit wireless
-
-    update_blacklist "$other"
-    remove_modules "$other"
-
-    patch_iwinfo_device_names "$driver"
-    [ "$bus" != "usb" ] && /morse/scripts/chipreset.sh > /dev/kmsg 2>&1
-
-    if ! load_modules "$driver"; then
-        logger -t "$LOGTAG" "Driver switch aborted: module load failed"
-        return
-    fi
-}
-
 switch_driver() {
     target_driver="$1"
     current_driver=$(get_current_module)
@@ -293,12 +292,14 @@ switch_driver() {
     uci commit wireless
 
     update_blacklist "$current_driver"
-    remove_modules "$current_driver"
+    remove_modules "$current_driver" "$bus"
 
     patch_iwinfo_device_names "$target_driver"
     [ "$bus" != "usb" ] && /morse/scripts/chipreset.sh > /dev/kmsg 2>&1
 
-    if ! load_modules "$target_driver"; then
+    # The physical bus is unchanged by the switch, so the bus detected from the
+    # outgoing driver is also the bus the incoming driver must bind to.
+    if ! load_modules "$target_driver" "$bus"; then
         logger -t "$LOGTAG" "Driver switch aborted: module load failed"
         printf '{"status":"fail","message":"Module load failed for %s"}\n' "$target_driver"
         exit 1
