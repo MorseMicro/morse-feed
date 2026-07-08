@@ -1,0 +1,13 @@
+This patch adds has_valid_regdom for the fallback country paths. Certain LATAM countries (MX, AR, CO & CL) use a fallback country instead (US for MX, AU for the others). As such, this path needs to be accounted for in the 016-load-driver-if-region-not-in-bcf.patch.
+Index: b/firmware.c
+===================================================================
+--- a/firmware.c
++++ b/firmware.c
+@@ -620,6 +620,7 @@
+ 				if (ret < 0)
+ 					goto exit;
+ 				regdom_len = ret;
++				mors->has_valid_regdom = true;
+ 				if (fill_regdom_info_from_bcf) {
+ 					ret = add_regdom_to_buffer(mors, regdom_buff,
+ 								   mors->country);
