@@ -700,9 +700,14 @@ drv_morse_teardown() {
 }
 
 morse_iface_create() {
-	local auto_channel_only=0
-	if [ "$svt_restricted_mode" != 1 ] && [ "$country" = EU -o "$country" = GB ]; then
-		auto_channel_only=1
+	# disable_peer_modes: country cannot use mesh/adhoc interfaces.
+	local disable_peer_modes=0
+	if [ "$svt_restricted_mode" != 1 ]; then
+		case "$country" in
+			EU|GB)
+				disable_peer_modes=1
+				;;
+		esac
 	fi
 
 	if [ "$interface_count" -ge 2 ]; then
@@ -747,22 +752,6 @@ morse_iface_create() {
 			if [ "$firmware_type" = fullmac ]; then
 				return 11
 			fi
-			if [ "$auto_channel_only" = 1 ]; then
-				[ "$auto_channel" = 0 ] && return 8
-
-				if ! service smart_manager info > /dev/null; then
-					return 10
-				fi
-
-				# If we don't have a DCS config section, it will default to enabled if channel=auto.
-				# However, if it is there, is must be enabled.
-				if uci get "smart_manager.${device_section}_dcs" > /dev/null 2>&1; then
-					if [ "$(uci get smart_manager.${device_section}_dcs.enabled 2> /dev/null)" != 1 ]; then
-						return 10
-					fi
-				fi
-			fi
-
 			[ "$has_chan_info" != 1 ] && return 6
 			morse_iw_interface_add "$phy" "$ifname" "$macaddr" __ap || return 1
 		;;
@@ -795,7 +784,7 @@ morse_iface_create() {
 				return 11
 			fi
 			[ "$has_chan_info" != 1 ] && return 6
-			[ "$auto_channel_only" = 1 ] && return 9
+			[ "$disable_peer_modes" = 1 ] && return 9
 			[ "$auto_channel" -gt 0 ] && return 4
 
 			morse_iw_interface_add "$phy" "$ifname" "$macaddr" mp || return 1
@@ -806,7 +795,7 @@ morse_iface_create() {
 				return 11
 			fi
 			[ "$has_chan_info" != 1 ] && return 6
-			[ "$auto_channel_only" = 1 ] && return 9
+			[ "$disable_peer_modes" = 1 ] && return 9
 			[ "$auto_channel" -gt 0 ] && return 4
 
 			morse_iw_interface_add "$phy" "$ifname" "$macaddr" adhoc || return 1
@@ -893,14 +882,8 @@ morse_iface_bringup() {
 		7)
 			echo "wifi-iface $iface_index mode=$mode ignored; if using channel=auto, only a single interface is supported"
 			;;
-		8)
-			echo "wifi-iface $iface_index mode=$mode ignored; EU/GB must have channel set to auto due to regulatory restrictions"
-			;;
 		9)
 			echo "wifi-iface $iface_index mode=$mode ignored; EU/GB cannot use mesh/adhoc interfaces due to regulatory restrictions"
-			;;
-		10)
-			echo "wifi-iface $iface_index mode=$mode ignored; EU/GB must have smart_manager installed and active for dynamic channel selection (DCS)"
 			;;
 		11)
 			echo "wifi-iface $iface_index mode=$mode ignored; firmware_type cannot be "$firmware_type" for this mode"

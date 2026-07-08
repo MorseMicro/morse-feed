@@ -1,7 +1,6 @@
 'use strict';
-/* globals baseclass configDiagram form halow morseuci morseui network rpc uci ui view */
+/* globals baseclass configDiagram form morseuci morseui network rpc uci ui view */
 'require baseclass';
-'require halow';
 'require view';
 'require form';
 'require uci';
@@ -242,13 +241,8 @@ function setBestChannel(channels, morseDeviceName, bandwidth) {
 
 	console.log(bestChannel);
 
-	if (halow.isAutoOnlyCountry(country)) {
-		uci.set('wireless', morseDeviceName, 'channel', 'auto');
-		uci.set('wireless', morseDeviceName, 's1g_chanbw', bestChannel.bw);
-	} else {
-		uci.set('wireless', morseDeviceName, 'channel', bestChannel.s1g_chan);
-		uci.unset('wireless', morseDeviceName, 's1g_chanbw');
-	}
+	uci.set('wireless', morseDeviceName, 'channel', bestChannel.s1g_chan);
+	uci.unset('wireless', morseDeviceName, 's1g_chanbw');
 
 	return true;
 }

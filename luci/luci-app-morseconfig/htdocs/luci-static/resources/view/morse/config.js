@@ -93,7 +93,7 @@ const HALOW_WIFI_MODE_NAMES = {
 const SUPPORTED_MAC80211_HALOW_MODES = ['ap-wds', 'ap', 'sta-wds', 'sta', 'none'];
 
 function isAllowedMode(country, mode) {
-	return !halow.isAutoOnlyCountry(country) || !['mesh', 'adhoc'].includes(mode);
+	return !halow.isDisabledMeshCountry(country) || !['mesh', 'adhoc'].includes(mode);
 }
 
 // These are extracted from LuCI's view/network/wireless.js.

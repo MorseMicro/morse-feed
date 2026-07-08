@@ -460,8 +460,8 @@ return view.extend({
 		const s = this.map.section(form.NamedSection, 'wizard');
 		let o;
 
-		// If you require ACS/DCS, we do not currently support mesh modes.
-		if (!halow.isAutoOnlyCountry(uci.get('wireless', morseDeviceName, 'country'))) {
+		// For countries designated as mesh disabled (currently EU & GB), we do not currently support mesh modes.
+		if (!halow.isDisabledMeshCountry(uci.get('wireless', morseDeviceName, 'country'))) {
 			o = s.option(form.ListValue, 'device_mode', _('HaLow Mode'));
 			o.widget = 'radio';
 			o.orientation = 'vertical';

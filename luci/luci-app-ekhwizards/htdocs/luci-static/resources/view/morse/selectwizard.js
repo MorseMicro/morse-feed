@@ -38,7 +38,7 @@ return view.extend({
 
 	render([hasPrplmesh, hasMesh11sd, hasMatter]) {
 		const morseDevice = uci.sections('wireless', 'wifi-device').find(s => s.type === 'morse');
-		const autoOnlyCountry = halow.isAutoOnlyCountry(morseDevice?.country);
+		const disabledMeshCountry = halow.isDisabledMeshCountry(morseDevice?.country);
 
 		const cards = [
 			this.card(
@@ -48,7 +48,7 @@ return view.extend({
 				L.resourceCacheBusted('view/morse/images/wizard.svg'),
 			),
 		];
-		if (!autoOnlyCountry && hasMesh11sd) {
+		if (!disabledMeshCountry && hasMesh11sd) {
 			cards.push(this.card(
 				L.url('admin', 'morse', 'meshwizard'),
 				_('802.11s Mesh'),
@@ -56,7 +56,7 @@ return view.extend({
 				L.resourceCacheBusted('view/morse/images/meshwizard.svg'),
 			));
 		}
-		if (!autoOnlyCountry && hasPrplmesh) {
+		if (!disabledMeshCountry && hasPrplmesh) {
 			cards.push(
 				this.card(
 					L.url('admin', 'morse', 'easymeshwizard'),
@@ -65,7 +65,7 @@ return view.extend({
 					L.resourceCacheBusted('view/morse/images/easymeshwizard.svg'),
 				));
 		}
-		if (!autoOnlyCountry && hasMatter) {
+		if (!disabledMeshCountry && hasMatter) {
 			cards.push(
 				this.card(
 					L.url('admin', 'morse', 'matterwizard'),
