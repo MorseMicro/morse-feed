@@ -285,10 +285,8 @@ function max_noise_dbm(fields) {
 	const candidates = [];
 	for (let name in [ "noise_dbm", "medium_energy_dbm", "nb_intrf_power_dbm" ]) {
 		const n = as_number(fields[name]);
-		/* Keep only plausible dBm readings, matching the Python reference's
-		 * (-100, 0) window: firmware reports 0/positive sentinels for "no
-		 * reading", and values <= -100 dBm are treated as no-connection floor. */
-		if (n != null && n > -100 && n < 0)
+		/* Python keeps -100 dB as boundary for noise. Fix needed in python? */
+		if (n != null && n > -140 && n < 0)
 			push(candidates, n);
 	}
 
