@@ -3,7 +3,7 @@
 [ "${ACTION}" = "add" ] && {
 	board_type=$(printf "%04x" "$(cat /sys/${DEVPATH}/device/board_type 2> /dev/null)");
 
-	awk -F, '$1==b{print $2, $4}' b="$board_type" /usr/share/morse-bcf/db.txt | {
+	awk -F, '$1==b{print $2, $4}' b="$board_type" /usr/share/morse-board-config/db.txt | {
 		read module_id chip_name
 
 		if [ -n "$module_id" ]; then
