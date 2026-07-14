@@ -548,8 +548,11 @@ drv_morse_setup() {
 		iw phy "$phy" set txpower auto
 	fi
 
-
-	[ -n "$frag" ] && iw phy "$phy" set frag "${frag%%.*}"
+	if [ -n "$frag" ]; then
+			iw phy "$phy" set frag "${frag%%.*}"
+	else
+			iw phy "$phy" set frag off
+	fi
 
 	# Figure out chan info (e.g. freq/bandwidth) from regulatory info,
 	# and determine appropriate primary channel index/width if not set.
