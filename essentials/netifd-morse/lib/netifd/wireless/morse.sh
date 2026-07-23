@@ -512,16 +512,21 @@ drv_morse_setup() {
 		# it may try to bring up the wifi iface again.
 		# This also gives enough time for the phy to appear
 		# (see find_phy below).
-		sleep 5
+		sleep 1 
 		inserted_module=1
 	fi
 	# don't do iw reg set as in mac80211; set via modparam
 
-	if ! find_phy; then
-		echo "Could not find PHY for device '$1'" >&2
-		wireless_set_retry 0
-		return 1
-	fi
+	phy_wait=0
+	while ! find_phy; do
+		if [ "$phy_wait" -ge 5 ]; then
+			echo "Could not find PHY for device '$1'" >&2
+			wireless_set_retry 0
+			return 1
+		fi
+		phy_wait=$((phy_wait + 1))
+		sleep 1
+	done
 
 	json_add_object data
 	json_add_string phy "$phy"
