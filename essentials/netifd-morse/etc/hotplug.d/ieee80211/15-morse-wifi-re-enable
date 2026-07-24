@@ -14,7 +14,9 @@ fi
 
 . /lib/netifd/morse/morse_migrate_config_functions.sh
 
-LOGTAG="15-morse-wifi-re-enable"
+LOGTAG="morse-wifi-re-enable"
+
+logger -t "$LOGTAG" "Hotplug executing after Wi-Fi $DEVICENAME hotplug $ACTION"
 
 finish_migration() {
 	config_load wireless
@@ -31,11 +33,11 @@ finish_migration() {
 	uci commit wireless
 
 	if [ -z "$dest_device" ]; then
-		logger -t morse-wifi-re-enable "No destination device found for config migration - aborting"
+		logger -t "$LOGTAG" "No destination device found for config migration - aborting"
 		exit 0
 	fi
 
-	logger -t morse-wifi-re-enable "Setting up Wi-Fi "$dest_device" after $DEVICENAME hotplug $ACTION upon config migration"
+	logger -t "$LOGTAG" "Setting up Wi-Fi "$dest_device" upon config migration"
 
 	/sbin/wifi up $dest_device
 }
@@ -58,7 +60,7 @@ if [ "$?" != 0 ]; then
 	# once all uci files have been initialised (i.e. at the end of /etc/init.d/boot).
 	# However, since at this point syslog is not yet up, in the normal case
 	# you won't see this log message.
-	logger -t morse-wifi-re-enable "Ignoring Wi-Fi hotplug $ACTION as netifd is not up"
+	logger -t "$LOGTAG" "Ignoring Wi-Fi hotplug $ACTION as netifd is not up"
 	exit 0
 fi
 
@@ -92,7 +94,7 @@ for radio in $radios; do
 	if [ -z "$path" ]; then
 		# The radio may be identified by MAC address rather than path in UCI which means that
 		# the DEVPATH from the hotplug event cannot be matched.
-		logger -t morse-wifi-re-enable "Could not find a configured path for $radio"
+		logger -t "$LOGTAG" "Could not find a configured path for $radio"
 		continue
 	fi
 
@@ -103,15 +105,15 @@ for radio in $radios; do
 			# parameters. Unfortunately, if morse.sh has no interfaces to configure, it can finish very quickly
 			# after inserting the module, so there's a short sleep added there to make sure this hotplug script
 			# "knows" that the interface is currently being reconfigured (otherwise it will bounce).
-			logger -t morse-wifi-re-enable "Ignoring Wi-Fi $DEVICENAME hotplug $ACTION as interface being reconfigured"
+			logger -t "$LOGTAG" "Ignoring hotplug as interface is being reconfigured"
 			exit 0
 		elif [ "$autostart" = 0 ]; then
 			# If you've brought down wifi with wifi down, hotplugging or rmmod/modprobing morse should not
 			# bring it up (otherwise this may interfere with low level activities).
-			logger -t morse-wifi-re-enable "Ignoring Wi-Fi $DEVICENAME hotplug $ACTION as wifi has been brought down manually"
+			logger -t "$LOGTAG" "Ignoring hotplug as wifi has been brought down manually"
 			exit 0
 		else
-			logger -t morse-wifi-re-enable "Setting up Wi-Fi "$radio" after $DEVICENAME hotplug $ACTION"
+			logger -t "$LOGTAG" "Setting up Wi-Fi $radio"
 			# We run `wifi up` here even for removal, as we want the detection code to rerun but for the iface
 			# _not_ to be marked manually down (i.e. autostart should remain 1}.
 			# Unfortunately, because wifi up is a toggle (brings things down then up), it will run
@@ -131,4 +133,4 @@ done
 # It would be nice to do this, but if we did want to we'd also want to apply morse-wireless-defaults
 # on hotplug, and potentially kick the user back to the wizard, so this is probably a bigger question
 # and potentially a separate hotplug script elsewhere.
-logger -t morse-wifi-re-enable "Ignoring Wi-Fi $DEVICENAME hotplug $ACTION as network.wireless status does not have a path for $DEVPATH"
+logger -t "$LOGTAG" "Ignoring hotplug as network.wireless status does not have a path for $DEVPATH"
