@@ -1,0 +1,48 @@
+#!/bin/sh
+# EU no longer supports 2MHz operation, but an upgrade could carry over a 2MHz EU config.
+
+[ -f /sysupgrade.tgz ] || exit 0
+
+. /lib/functions.sh
+. /lib/functions/morse.sh
+
+LOGTAG="migrate-eu-channels"
+
+migrate_eu_bandwidth() {
+	local section="$1"
+	local type country channel s1g_chanbw op_class center_freq
+
+	config_get type "$section" type
+	[ "$type" = morse ] || return 0
+
+	config_get country "$section" country
+	[ "$country" = EU ] || return 0
+
+	config_get channel "$section" channel
+	config_get s1g_chanbw "$section" s1g_chanbw
+	config_get op_class "$section" op_class
+
+	local needs_migration=0
+	[ "$s1g_chanbw" = 2 ] && needs_migration=1
+	case "$channel" in 2|6) needs_migration=1 ;; esac
+	case "$op_class" in 7|67) needs_migration=1 ;; esac
+	[ "$needs_migration" = 1 ] || return 0
+
+	if _get_s1g_default_bandwidth s1g_chanbw "$country" &&
+		_get_s1g_default_channel channel center_freq op_class "$country" "$s1g_chanbw"; then
+		uci -q set "wireless.$section.channel"="$channel"
+		logger -t "$LOGTAG" "Migrating $section to default 1MHz channel $channel (2MHz no longer supported in EU)"
+	else
+		uci -q set "wireless.$section.channel"=auto
+		logger -t "$LOGTAG" "Migrating $section to 1MHz auto channel (2MHz no longer supported in EU)"
+	fi
+
+	uci -q delete "wireless.$section.s1g_chanbw"
+	uci -q delete "wireless.$section.op_class"
+	uci -q delete "wireless.$section.s1g_prim_chwidth"
+	uci -q delete "wireless.$section.s1g_prim_1mhz_chan_index"
+}
+
+config_load wireless
+config_foreach migrate_eu_bandwidth wifi-device
+uci commit wireless
