@@ -108,20 +108,13 @@ _change_device_defaults() {
 			local bandwidth="$(awk -F, '$1==cc && $3 == "True" && $4 > max {max=$4} END {print max}' \
 				cc="$effective_country" /usr/share/morse-regdb/channels.csv)"
 
-			# NB channel selection is no longer necessary, as we have
-			# moved to the default OpenWrt behaviour of using ACS if
+			# NB channel selection is no longer strictly necessary, as we
+			# can move to the default OpenWrt behaviour of using ACS if
 			# the channel is not set (and use the max bandwidth).
-			# However, for now we only make it the explicit default
-			# in EU/GB, where it is required.
 			local channel
-			if [ "$effective_country" = EU -o "$effective_country" = GB ]; then
-				channel=auto
-				uci set "wireless.$config.s1g_chanbw=$bandwidth"
-			else
-				channel="$(awk -F, '$1==cc && $3 == "True" && $4==bw {print $8, $5}' \
-					cc="$effective_country" bw="$bandwidth" /usr/share/morse-regdb/channels.csv \
-					| sort -n | awk '{a[NR]=$2} END {print a[int((NR+1)/2)]}')"
-			fi
+			channel="$(awk -F, '$1==cc && $3 == "True" && $4==bw {print $8, $5}' \
+				cc="$effective_country" bw="$bandwidth" /usr/share/morse-regdb/channels.csv \
+				| sort -n | awk '{a[NR]=$2} END {print a[int((NR+1)/2)]}')"
 
 			uci set "wireless.$config.channel=$channel"
 			echo "$LOGTAG: setting $config to $effective_country on channel $channel"
