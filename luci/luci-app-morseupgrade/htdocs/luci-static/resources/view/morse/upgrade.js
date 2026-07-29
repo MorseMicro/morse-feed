@@ -22,7 +22,7 @@ var callUpgradeStat = rpc.declare({
 var callUpgradeDownload = rpc.declare({
 	object: 'morseupgrade',
 	method: 'download',
-	params: ['name', 'sum'],
+	params: ['url', 'sum'],
 });
 
 var callUpgradeVerify = rpc.declare({
@@ -141,6 +141,7 @@ const states = {
 
 const ubusStatus = {
 	ArgumentError: 'ArgumentError',
+	BoardInfoError: 'BoardInfoError',
 	BoardNotFoundError: 'BoardNotFoundError',
 	DownloadError: 'DownloadError',
 	HTTPError: 'HTTPError',
@@ -160,6 +161,7 @@ const ubusStatus = {
 // For errors, these are provided as additional context to the backend error message.
 const defaultMessages = {
 	ArgumentError: _('This is an internal error and may be due to configuration modifications. Please reset your device to factory defaults and try again or upgrade manually. If the problem persists, consider contacting Morse Micro support.'),
+	BoardInfoError: _('The device board information could not be read. Please reset your device to factory defaults and try again or upgrade manually. If the problem persists, consider contacting Morse Micro support.'),
 	BoardNotFoundError: _('This may happen if the device is not recognized by the server. Please verify that your device is supported and try again.'),
 	DownloadError: _('This issue may occur when your internet connection is unstable or the device has run out of space. Please reboot your Morse Micro device and ensure it is connected to stable internet (via the browser or device) before trying again.'),
 	HTTPError: _('This could be due to a network issue or server unavailability. Please ensure either your browser or Morse Micro device has internet access before retrying.'),
@@ -641,6 +643,9 @@ return view.extend({
 			case ubusStatus.BoardNotFoundError:
 				this.setState(states.ERROR, `${search.error}. ${defaultMessages[ubusStatus.BoardNotFoundError]}`);
 				return null;
+			case ubusStatus.BoardInfoError:
+				this.setState(states.ERROR, `${search.error}. ${defaultMessages[ubusStatus.BoardInfoError]}`);
+				return null;
 			case ubusStatus.NoUpdateNeededOK:
 				this.setState(states.UPDATED, defaultMessages[ubusStatus.NoUpdateNeededOK]);
 				return null;
@@ -864,7 +869,7 @@ return view.extend({
 				return;
 		}
 
-		await callUpgradeDownload(this.search.name, this.search.sum);
+		await callUpgradeDownload(this.search.url, this.search.sum);
 		this.setState(states.DOWNLOADING, '');
 		this.stateTimeout = window.setTimeout(L.bind(this.pollState, this), 2000);
 	},

@@ -1,0 +1,61 @@
+// Copyright 2026 Morse Micro
+// Licensed under the Apache License, Version 2.0.
+//
+// morseupgrade rpcd plugin (thin shim).
+//
+// This file exists only to (a) bind the real native I/O modules, (b) hand them
+// to the upgrade logic in morseupgrade/core.uc, and (c) register the resulting
+// handlers as the ubus object `morseupgrade`. All logic lives in core.uc so it
+// can be unit-tested without a device — see luci-app-morseupgrade/tests.
+//
+// The ubus object exposes:
+//   query()               -> device board/version info
+//   search()              -> locate an applicable upgrade image on the server
+//   download(url, sum)    -> start a background download of an image
+//   stat()                -> report on the state of a running/finished download
+//   verify(sum)           -> check the downloaded image against a sha256 sum
+//
+// The status strings returned here are consumed by upgrade.js (see the
+// `ubusStatus` map there); the accompanying `error`/`message` strings are
+// mainly for ubus and are not parsed by the UI.
+//
+// core.uc is imported by ABSOLUTE path rather than by module name so resolution
+// never depends on rpcd-mod-ucode's module search path.
+
+'use strict';
+
+import { connect } from "ubus";
+import { cursor } from "uci";
+import * as fs from "fs";
+import { sha256_file } from "digest";
+import { create } from "/usr/share/ucode/morseupgrade/core.uc";
+
+const handlers = create({
+	ubus: connect(),
+	cursor,
+	fs,
+	sha256_file,
+	system,
+});
+
+return {
+	morseupgrade: {
+		query: {
+			call: handlers.query,
+		},
+		search: {
+			call: handlers.search,
+		},
+		download: {
+			args: { url: '', sum: '' },
+			call: handlers.download,
+		},
+		stat: {
+			call: handlers.stat,
+		},
+		verify: {
+			args: { sum: '' },
+			call: handlers.verify,
+		},
+	},
+};

@@ -7,7 +7,7 @@
 include $(TOPDIR)/rules.mk
 
 LUCI_TITLE:=LuCI Morse Upgrader
-LUCI_DEPENDS:=+luci-base
+LUCI_DEPENDS:=+luci-base +rpcd-mod-ucode +ucode-mod-digest
 
 PKG_LICENSE:=Apache-2.0
 

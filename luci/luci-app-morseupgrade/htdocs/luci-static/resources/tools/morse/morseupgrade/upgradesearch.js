@@ -31,26 +31,129 @@ const UpgradeSearch = baseclass.extend({
 		return this.queryResult;
 	},
 
+	// Extract the version numbers from a version string for display, using the
+	// last dash so tagged versions like 'Morse-RTK-1.1.0' parse correctly.
 	parseMorseVersionString(morseVersion) {
-		let versionNumber = morseVersion.split('-');
-		return versionNumber[1].split('.').map(Number);
+		morseVersion ??= '';
+		const dash = morseVersion.lastIndexOf('-');
+		const tail = dash >= 0 ? morseVersion.slice(dash + 1) : morseVersion;
+		return tail.split('.').map(Number);
 	},
 
-	isUpgradeable(currentVersion, latestVersion) {
-		const currentSemVer = this.parseMorseVersionString(currentVersion);
-		const latestSemVer = this.parseMorseVersionString(latestVersion);
+	// Parse a version into a fixed [major, minor, patch, build] array, mirroring
+	// the rpcd backend so browser and device comparisons agree exactly.
+	parseVersion(version) {
+		version ??= '';
+		const dash = version.lastIndexOf('-');
+		const tail = dash >= 0 ? version.slice(dash + 1) : version;
+		const parts = tail.split('.');
 
-		let maxLength = Math.max(currentSemVer.length, latestSemVer.length);
-		for (let i = 0; i < maxLength; i++) {
-			const currentValue = currentSemVer[i] ?? 0;
-			const latestValue = latestSemVer[i] ?? 0;
+		const out = [];
+		for (let i = 0; i < 4; i++) {
+			const m = (parts[i] ?? '').match(/^[0-9]+/);
+			out.push(m ? parseInt(m[0], 10) : 0);
+		}
+		return out;
+	},
 
-			if (currentValue < latestValue) return true;
-			if (currentValue > latestValue) return false;
+	// True if the server version is strictly newer than the device version.
+	isNewer(serverVersion, deviceVersion) {
+		const a = this.parseVersion(serverVersion);
+		const b = this.parseVersion(deviceVersion);
+		for (let i = 0; i < 4; i++) {
+			if (a[i] != b[i])
+				return a[i] > b[i];
+		}
+		return false;
+	},
+
+	// Fetch and parse a JSON file relative to the configured repo. Returns the
+	// parsed object, or an HTTPError status object matching the rpcd backend.
+	fetchJson: async function (file) {
+		const url = `${this.repo}/${file}`;
+		try {
+			const response = await fetch(url, { cache: 'no-cache' });
+			if (!response.ok) {
+				return { status: 'HTTPError', error: 'Could not reach upgrade server', code: `${response.status}` };
+			}
+
+			const jsonObject = await response.json();
+			if (typeof jsonObject != 'object' || jsonObject == null) {
+				return { status: 'HTTPError', error: 'Could not reach upgrade server' };
+			}
+
+			return jsonObject;
+		} catch (e) {
+			return { status: 'HTTPError', error: 'Could not reach upgrade server', code: e.message };
+		}
+	},
+
+	// Look up the single {version, server} rule for this board within one
+	// version bucket ("latest" or an explicit running-version key).
+	getUpgradeRule(latestJson, boardInfo, bucket) {
+		const versionBucket = latestJson[bucket];
+		if (typeof versionBucket != 'object' || versionBucket == null)
+			return null;
+
+		const rule = versionBucket[boardInfo.board];
+		if (typeof rule != 'object' || rule == null)
+			return null;
+
+		return rule;
+	},
+
+	// Resolve the applicable upgrade rule for this board from latest.json.
+	// Returns a single rule object, null when the board is not listed, or a
+	// status object on error.
+	resolveLatest: async function (boardInfo) {
+		const latestJson = await this.fetchJson('latest.json');
+		if (latestJson.status)
+			return latestJson;
+
+		// A rule keyed by the currently running version takes precedence.
+		let upgradeRule = this.getUpgradeRule(latestJson, boardInfo, boardInfo.morse_version);
+
+		// Fall back to the default "latest" rule.
+		if (!upgradeRule)
+			upgradeRule = this.getUpgradeRule(latestJson, boardInfo, 'latest');
+
+		return upgradeRule;
+	},
+
+	getSysupgradeImage: async function (boardInfo, upgradeRule) {
+		const base = `${upgradeRule.server}/targets/${boardInfo.target}`;
+		const profilesJson = await this.fetchJson(`${base}/profiles.json`);
+		if (profilesJson.status)
+			return profilesJson;
+
+		let images = null;
+		for (const profile of Object.values(profilesJson.profiles ?? {})) {
+			if (typeof profile != 'object' || profile == null)
+				continue;
+			if ((profile.supported_devices ?? []).includes(boardInfo.board)) {
+				images = profile.images;
+				break;
+			}
 		}
 
-		// identical versions
-		return false;
+		if (!Array.isArray(images) || images.length == 0)
+			return { status: 'UpdateImageNotFoundError', error: `No images found on upgrade server for ${boardInfo.board}` };
+
+		// Decision is to force people to squashfs.
+		const image = images.find(img => typeof img == 'object' && img != null
+			&& img.type == 'sysupgrade' && img.filesystem == 'squashfs');
+
+		if (!image?.name)
+			return { status: 'UpdateImageNotFoundError', error: `No sysupgrade image found for ${boardInfo.board}` };
+
+		return {
+			status: 'UpdateImageFoundOK',
+			name: image.name,
+			version: profilesJson.version_code,
+			filesystem: image.filesystem,
+			sum: image.sha256,
+			url: `${this.repo}/${base}/${image.name}`,
+		};
 	},
 
 	// use the browser to search for an upgrade image,
@@ -61,60 +164,25 @@ const UpgradeSearch = baseclass.extend({
 			throw new Error('upgradesearch not initialized, ensure that upgradeSearch.load() is called first!');
 		}
 
-		let profiles, latestVersion;
-		const profilesUrl = `${this.repo}/${this.queryResult.target}/profiles.json`;
-		try {
-			let response = await fetch(profilesUrl, { cache: 'no-cache' });
+		const boardInfo = this.queryResult;
 
-			if (!response.ok) {
-				throw new Error(`Could not reach upgrade server via browser (${response.status})`);
-			}
+		if (!boardInfo.board || !boardInfo.morse_version || !boardInfo.target)
+			return { status: 'BoardInfoError', error: 'Could not read board information' };
 
-			({ version_code: latestVersion, profiles } = await response.json());
-		} catch (e) {
-			return {
-				status: 'HTTPError',
-				error: 'Could not reach upgrade server',
-				code: e.message,
-			};
-		}
+		const upgradeRule = await this.resolveLatest(boardInfo);
 
-		if (!this.isUpgradeable(this.queryResult.morse_version, latestVersion)) {
-			return {
-				status: 'NoUpdateNeededOK',
-				message: 'Already up to date!',
-			};
-		}
+		// Failure/status object detected while loading latest.json.
+		if (typeof upgradeRule == 'object' && upgradeRule != null && upgradeRule.status)
+			return upgradeRule;
 
-		const profile = Object.values(profiles).find(profile => profile.supported_devices.includes(this.queryResult.board));
+		// Board not listed (or deprecated) - nothing to upgrade to.
+		if (!upgradeRule || (!upgradeRule.version && !upgradeRule.server))
+			return { status: 'NoUpdateNeededOK', message: 'Already up to date!' };
 
-		// skip the backend trying again by not throwing an error
-		// maybe this is dangerous and the backend should try again?
-		// I just don't see any case where it would end differently.
-		if (!profile) {
-			return {
-				status: 'BoardNotFoundError',
-				error: `No profiles found on upgrade server for device type '${this.queryResult.board}'`,
-			};
-		}
+		if (!this.isNewer(upgradeRule.version, boardInfo.morse_version))
+			return { status: 'NoUpdateNeededOK', message: 'Already up to date!' };
 
-		const image = Object.values(profile.images).find(image => image.filesystem == 'squashfs' && image.type == 'sysupgrade');
-
-		if (!image) {
-			return {
-				status: 'UpdateImageNotFoundError',
-				error: `No ${latestVersion} images found on upgrade server for '${this.queryResult.board}'`,
-			};
-		}
-
-		return {
-			status: 'UpdateImageFoundOK',
-			name: image.name,
-			version: latestVersion,
-			filesystem: image.filesystem,
-			sum: image.sha256,
-			url: `${this.repo}/${this.queryResult.target}/${image.name}`,
-		};
+		return this.getSysupgradeImage(boardInfo, upgradeRule);
 	},
 
 	/**
@@ -144,7 +212,7 @@ const UpgradeSearch = baseclass.extend({
 	 *           "version": "Morse-2.8.5",
 	 *           "filesystem": "squashfs",
 	 *           "sum": "97c13d9808e19920062cc13463a5323ab970dcdf1c96cc6b9c8fede05cc61037",
-	 *           "url": "https://repo.apps.morsemicro.com/openwrt/releases/latest/targets/bcm27xx/bcm2711/openwrt-morse-2.8.5-morsemicro-mm6108-ekh01-03-squashfs-sysupgrade.img.gz"
+	 *           "url": "https://repo.apps.morsemicro.com/openwrt/releases/<version>/<board>/targets/bcm27xx/bcm2711/openwrt-morse-2.8.5-morsemicro-mm6108-ekh01-03-squashfs-sysupgrade.img.gz"
 	 *       }
 	 *   }
 	 * ```

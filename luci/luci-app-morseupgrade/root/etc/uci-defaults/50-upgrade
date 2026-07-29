@@ -2,4 +2,4 @@
 # Copyright 2024 Morse Micro
 
 # set the repo config regardless
-uci set upgrade.@upgrade[-1].repo=https://repo.apps.morsemicro.com/openwrt/releases-openssl-signed/latest/targets
+uci set upgrade.@upgrade[-1].repo=https://repo.apps.morsemicro.com/openwrt/platform_releases
