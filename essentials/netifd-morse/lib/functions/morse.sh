@@ -1,5 +1,7 @@
 . /lib/functions.sh
 
+MORSE_REGDB_CHANNELS_CSV="/usr/share/morse-regdb/channels.csv"
+
 kill_wait()
 {
 	local names=$*
@@ -41,13 +43,147 @@ list_phy_interfaces() {
 	done
 }
 
-# Get regulatory info.
+# _get_s1g_default_bandwidth <variable> <country> [s1g_chzn]
+#
+# Get the default (maximum) S1G operating bandwidth for a given country.
+#
+# s1g_chzn is optional. Rows with no chzn column value are always considered.
+#
+# Leaves the named output variable empty if no matching rows are found.
+#
+# Returns:
+#	- 1 if the output variable name is invalid or no rows were found
+#	- 2 if the country is missing
+#
+# Usage:
+#	_get_s1g_default_bandwidth bw EU
+#	[ -n "$bw" ] || { echo "no bandwidth for EU" >&2; exit 1; }
+#
+_get_s1g_default_bandwidth() {
+	local __out="$1"
+	local __country="$2"
+	local __s1g_chzn="$3"
+
+	case "$__out" in
+		*[!A-Za-z0-9_]*|'')
+			echo "invalid output variable name: $__out" >&2
+			return 1
+			;;
+	esac
+
+	if [ -z "$__country" ]; then
+		return 2
+	fi
+
+	local __s1g_chanbw
+	__s1g_chanbw="$(awk -F, '$1==country && (!$2 || (!chzn && $3 == "True") || $2 ~ ("(^|;)" chzn "(;|$)")) && $4 > max {max=$4} END {print max}' \
+		chzn="$__s1g_chzn" country="$__country" "$MORSE_REGDB_CHANNELS_CSV")"
+
+	eval "$__out=\$__s1g_chanbw"
+
+	[ -n "$__s1g_chanbw" ]
+}
+
+# _get_s1g_default_channel <channel_var> <freq_var> <op_class_var> <country> <s1g_chanbw> [op_class] [s1g_chzn]
+#
+# Get the default (middle) S1G channel for a country and bandwidth.
+#
+# Sets channel_var/freq_var/op_class_var to the middle channel by frequency.
+# op_class and s1g_chzn are optional filters.
+#
+# Returns:
+#	- 1 if an output variable name is invalid or no matching channel is found
+#	- 2 if country or s1g_chanbw is missing
+#
+# Usage:
+#	_get_s1g_default_bandwidth bw EU
+#	_get_s1g_default_channel ch freq op_class EU "$bw"
+#	[ -n "$ch" ] || { echo "no channel for EU" >&2; exit 1; }
+#
+_get_s1g_default_channel() {
+	local __channel_out="$1"
+	local __freq_out="$2"
+	local __op_class_out="$3"
+	local __country="$4"
+	local __s1g_chanbw="$5"
+	local __op_class_filter="$6"
+	local __s1g_chzn="$7"
+
+	local __row
+
+	case "$__channel_out" in
+		*[!A-Za-z0-9_]*|'')
+			echo "invalid output variable name: $__channel_out" >&2
+			return 1
+			;;
+	esac
+	case "$__freq_out" in
+		*[!A-Za-z0-9_]*|'')
+			echo "invalid output variable name: $__freq_out" >&2
+			return 1
+			;;
+	esac
+	case "$__op_class_out" in
+		*[!A-Za-z0-9_]*|'')
+			echo "invalid output variable name: $__op_class_out" >&2
+			return 1
+			;;
+	esac
+
+	if [ -z "$__country" -o -z "$__s1g_chanbw" ]; then
+		return 2
+	fi
+
+	__row="$(awk -F, '$1==country && $4==bw && \
+			(!$2 || (!chzn && $3 == "True") || $2 ~ ("(^|;)" chzn "(;|$)")) && \
+			(!op_class || $6==op_class || $7==op_class) \
+			{print $8, $5, $7}' \
+		country="$__country" bw="$__s1g_chanbw" chzn="$__s1g_chzn" op_class="$__op_class_filter" \
+		"$MORSE_REGDB_CHANNELS_CSV" \
+		| sort -n | awk '{a[NR]=$0} END {if (NR) print a[int((NR+1)/2)]}')"
+
+	if [ -z "$__row" ]; then
+		return 1
+	fi
+
+	set -- $__row
+	local __center_freq=$1
+	local __channel=$2
+	local __op_class="$__op_class_filter"
+	if [ -z "$__op_class" ]; then
+		__op_class=$3
+	fi
+
+	eval "$__channel_out=\$__channel"
+	eval "$__freq_out=\$__center_freq"
+	eval "$__op_class_out=\$__op_class"
+
+	return 0
+}
+
+# _get_regulatory <country> [channel] [s1g_chanbw] [op_class] [s1g_chzn]
+#
+# Get regulatory info for a country.
+#
 # Country is required, remaining args are optional.
-# If channel is unset, it will choose a high bandwidth channel.
-# If channel is auto, it will choose the maximum available bandwidth if bandwidth
-# is not provided.
-# Sets "$country", "$channel", "$s1g_chanbw", and "$op_class".
-# "$center_freq" is also set if channel is not auto.
+#
+# If channel is unset/0/auto, the default bandwidth is chosen (if
+# not already provided), and the default channel of that bandwidth is chosen.
+# Otherwise, the given channel is validated and its bandwidth/op_class/center_freq
+# are looked up.
+#
+# Sets "$country", "$channel", "$s1g_chanbw", "$op_class", and "$center_freq".
+#
+# Returns:
+#	- 1 if no matching regulatory entry is found
+#	- 2 if country is missing or channel is invalid.
+#
+# Usage:
+#	_get_regulatory "$country" "$channel" "$s1g_chanbw" "$op_class" "$s1g_chzn"
+#	if [ $? -ne 0 ]; then
+#		echo "Couldn't find regulatory data for $country" >&2
+#	fi
+#
 _get_regulatory() {
 	country=$1
 	channel=$2
@@ -74,11 +210,14 @@ _get_regulatory() {
 		esac
 	fi
 
-	# Choose the maximum possible bandwidth if no bw set and auto
-	# (NB if no channel is set, auto_channel is 1).
-	if [ "$auto_channel" -gt 0 -a -z "$s1g_chanbw" ]; then
-		s1g_chanbw="$(awk -F, '$1==country && (!$2 || (!chzn && $3 == "True") || $2 ~ ("(^|;)" chzn "(;|$)")) && $4 > max {max=$4} END {print max}' \
-			chzn="$s1g_chzn" country="$country" /usr/share/morse-regdb/channels.csv)"
+	if [ "$auto_channel" -gt 0 ]; then
+		# Choose the maximum possible bandwidth if none was requested, then
+		# resolve the default (middle) channel of that bandwidth.
+		if [ -z "$s1g_chanbw" ]; then
+			_get_s1g_default_bandwidth s1g_chanbw "$country" "$s1g_chzn" || return 1
+		fi
+		_get_s1g_default_channel channel center_freq op_class "$country" "$s1g_chanbw" "$op_class" "$s1g_chzn"
+		return $?
 	fi
 
 	oIFS=$IFS
@@ -115,27 +254,18 @@ _get_regulatory() {
 			continue
 		fi
 
-		if [ "$auto_channel" -gt 0 -o "$channel" = "$ch" ]; then
+		if [ "$channel" = "$ch" ]; then
 			s1g_chanbw=$bw
-
-			# If an auto channel is selected here, we use the op_class to restrict
-			# to the right bandwidth. Oddly, hostapd_s1g (ACS) and smart_manager (DCS)
-			# appear to not respect this op_class completely, but do use it to determine
-			# the bandwidth.
 			if [ -z "$op_class" ]; then
 				op_class="$g_op"
 			fi
-
-			if [ "$auto_channel" -eq 0 ]; then
-				channel=$ch
-				s1g_chanbw=$bw
-				center_freq=$freq
-			fi
+			channel=$ch
+			center_freq=$freq
 
 			IFS=$oIFS
 			return 0
 		fi
-	done < /usr/share/morse-regdb/channels.csv
+	done < "$MORSE_REGDB_CHANNELS_CSV"
 
 	IFS=$oIFS
 	return 1
