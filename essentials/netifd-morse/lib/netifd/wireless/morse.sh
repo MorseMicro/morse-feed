@@ -400,7 +400,7 @@ change_module_parameters() {
 	local params="$3"
 	local extra_params=""
 
-	if [ "$module" = morse ]; then
+	if [ "$module" = morse -o "$module" = morse_test_mode ]; then
 		# These are parameters that we use morse_cli to configure,
 		# but because we have no way to revert back to the original
 		# state any change requires us to reload the module.
@@ -479,30 +479,23 @@ drv_morse_setup() {
 	build_mod_params
 
 	local morse_module_config_file="/etc/modules.d/morse"
-	local morse_test_module_config_file="/etc/modules.d/morse-test-driver"
 	local dot11ah_module_config_file="/etc/modules.d/dot11ah"
+	local morse_module_name="morse"
+	local dot11ah_module_name="dot11ah"
 
-	if [ -f "$morse_module_config_file" -a -f "$morse_test_module_config_file" ]; then
-		echo "Both morse-test-driver and morse in /etc/modules.d; refusing to configure" >&2
-		wireless_set_retry 0
-		return 1
-	elif [ ! -f "$morse_module_config_file" -a ! -f "$morse_test_module_config_file" ]; then
-		echo "Neither morse-test-driver or morse in /etc/modules.d; refusing to configure" >&2
-		wireless_set_retry 0
-		return 1
-	elif [ -f "$morse_test_module_config_file" ]; then
-		# If test module config file is available, use the test mode driver.
-		morse_module_config_file="$morse_test_module_config_file"
+	if [ "$chan_test_mode" = "1" ]; then
+		morse_module_name="morse_test_mode"
+		dot11ah_module_name="dot11ah_test_mode"
 	fi
 
 	local inserted_module=0
-	if change_module_parameters dot11ah "$dot11ah_module_config_file" "$DOT11AH_MOD_PARAMS"; then
+	if change_module_parameters "$dot11ah_module_name" "$dot11ah_module_config_file" "$DOT11AH_MOD_PARAMS"; then
 		is_module_loaded morse && rmmod morse
 		is_module_loaded dot11ah && rmmod dot11ah
 	fi
 
-	if change_module_parameters morse "$morse_module_config_file" "$MOD_PARAMS" || ! is_module_loaded morse; then
-		is_module_loaded && rmmod morse
+	if change_module_parameters "$morse_module_name" "$morse_module_config_file" "$MOD_PARAMS" || ! is_module_loaded morse; then
+		rmmod morse
 		# This needs to be separate to force kmodloader to
 		# read the dot11ah modparams.
 		/sbin/kmodloader $dot11ah_module_config_file

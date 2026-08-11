@@ -32,6 +32,9 @@ exec 2>/dev/null  # ensure only stdout is returned to ubus
 
 MORSE="morse"
 DOT11AH="dot11ah"
+# The test-mode driver's .ko files, which carry the same module names inside.
+MORSE_TEST="morse_test_mode"
+DOT11AH_TEST="dot11ah_test_mode"
 MORSE_DRIVER_PATH="/lib/firmware/morse"
 MM81X="mm81x"
 # The mm81x driver is split into a core module plus per-bus modules. The bus
@@ -104,7 +107,7 @@ get_valid_bus_from_driver_full() {
 # blacklisting so no variant can auto-load, regardless of which bus is present.
 modules_for_driver_all() {
     case "$1" in
-        "$MORSE") echo "$DOT11AH $MORSE" ;;
+        "$MORSE") echo "$DOT11AH $MORSE $DOT11AH_TEST $MORSE_TEST" ;;
         "$MM81X") echo "$MM81X_CORE $MM81X_SDIO $MM81X_USB" ;;
     esac
 }
