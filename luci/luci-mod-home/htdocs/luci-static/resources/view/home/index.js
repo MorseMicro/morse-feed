@@ -57,6 +57,13 @@ const callGetBuiltinEthernetPorts = rpc.declare({
 	expect: { result: [] },
 });
 
+const callGetBridgeFDB = rpc.declare({
+	object: 'luci-rpc',
+	method: 'getBridgeFDB',
+	params: ['bridge', 'mac'],
+	expect: { '': {} },
+});
+
 const callSystemBoard = rpc.declare({
 	object: 'system',
 	method: 'board',
@@ -275,33 +282,73 @@ function getL2Devices(netIface) {
 	}
 }
 
-function getBestDevice(netIface) {
-	// Determine best possible device for 'Uplink'
-	// (in a bridge, hard to determine which device we actually want for DHCP client,
-	// so preference wifi stations over ethernet over AP).
+/* Find the bridge port the default gateway was learnt on.
+ *
+ * On a bridge every port shares the interface's IP, so only the flow db says
+ * which one faces upstream: the gateway's MAC is learnt on that port alone.
+ */
+async function getUplinkPortName(netIface, hostHints) {
+	const bridge = netIface.getL2Device();
+
+	if (!bridge?.isBridge()) {
+		return null;
+	}
+
+	const gatewayAddr = netIface.getGatewayAddr();
+	const gatewayMac = gatewayAddr && hostHints.getMACAddrByIPAddr(gatewayAddr);
+
+	if (!gatewayMac) {
+		return null;
+	}
+
+	const result = await callGetBridgeFDB(bridge.getName(), gatewayMac).catch(() => null);
+
+	return result?.fdb?.[0]?.port ?? null;
+}
+
+// Determine the best device for 'Uplink'.
+function getBestUplinkDevice(netIface) {
 	const devices = getL2Devices(netIface);
 
 	if (devices.length === 0) {
 		return null;
 	}
 
-	// Find the device on bridge most likely to represent the 'upstream'.
-	const scoreDevice = (wifiNetwork) => {
+	// The flow db observed where the gateway is, so it beats any guess from the
+	// role. getL2Devices drops WDS ifaces, so fall back to the parent of one.
+	const uplinkPortName = netIface.uplinkPortName;
+	const uplinkPort = uplinkPortName && (
+		devices.find(d => d.getName() === uplinkPortName)
+		?? devices.find(d => uplinkPortName.startsWith(`${d.getName()}.`))
+	);
+
+	if (uplinkPort) {
+		return uplinkPort;
+	}
+
+	// No flow db entry: the role of the device decides.
+	function scoreDeviceRole(device) {
+		const wifiNetwork = device.getWifiNetwork();
+
 		if (!wifiNetwork) {
 			return 2;
 		} else if (wifiNetwork.isDisabled()) {
 			return 0;
 		} else if (wifiNetwork.getMode() === 'ap') {
-			// It would be surprising if the device was configured with an
-			// AP for the 'upstream'.
+			// Surprising to configure an AP as the 'upstream'.
 			return 1;
 		} else {
 			return 3;
 		}
-	};
+	}
 
-	return devices.reduce((best, current) =>
-		scoreDevice(current.getWifiNetwork()) > scoreDevice(best.getWifiNetwork()) ? current : best);
+	const bestRole = Math.max(...devices.map(scoreDeviceRole));
+	const candidates = devices.filter(d => scoreDeviceRole(d) === bestRole);
+
+	// Carrier breaks a tie between equal roles, otherwise the first candidate wins.
+	const scoreDevice = device => (device.getCarrier() ? 1 : 0);
+	return candidates.reduce((best, current) =>
+		scoreDevice(current) > scoreDevice(best) ? current : best);
 }
 
 // Copied from luci-mod-network view/network/wireless.js
@@ -677,8 +724,8 @@ async function updateUplinkWifiConnectMethods(connectMethods, isUp) {
 	}
 }
 
-async function createUplinkCard(netIface, wifiDevices, wifiNetworks, hasQRCode) {
-	const device = getBestDevice(netIface);
+async function createUplinkCard(netIface, wifiDevices, wifiNetworks, hostHints, hasQRCode) {
+	const device = getBestUplinkDevice(netIface);
 	const wifiNetwork = device.getWifiNetwork() && wifiNetworks[device.getWifiNetwork().getName()];
 
 	let mode, method, speed, ssid, meshId, country, encryption, chanInfo, signalInfo, assocInfo;
@@ -1624,14 +1671,42 @@ return view.extend({
 		const wifiDevices = makeObj(await network.getWifiDevices());
 		const wanNetworks = makeObj(await network.getWANNetworks());
 		const wan6Networks = makeObj(await network.getWAN6Networks());
-		const wifiNetworks = makeObj(await network.getWifiNetworks().then(
-			networks => Promise.all(networks.map(async (network) => {
+
+		// Split the interfaces up here rather than at point of use, so the uplinks
+		// are known in time for their gateway lookups below.
+		const localNetworks = [];
+		const uplinks = [];
+		for (const netIface of networks) {
+			const devices = getL2Devices(netIface);
+			if (devices.length === 0) {
+				continue;
+			}
+
+			const name = netIface.getName();
+			if (wanNetworks[name] || wan6Networks[name] || netIface.getProtocol() === 'dhcp') {
+				uplinks.push(netIface);
+			} else if (netIface.getProtocol() === 'static' && netIface.getDevice()?.getName() !== 'lo') {
+				localNetworks.push(netIface);
+			}
+		}
+
+		// Issued together because LuCI batches everything queued within one animation
+		// frame into a single request (see isQueueableRequest in luci.js); awaiting
+		// them separately would cost a request each.
+		const wifiNetworkArray = await network.getWifiNetworks();
+		await Promise.all([
+			...wifiNetworkArray.map(async (network) => {
 				// Patch assoclist into wifi networks.
 				// Ugly, but this is what status page and dashboard do...
 				const assoclist = await network.getAssocList();
 				network.assoclist = assoclist.toSorted((a, b) => a.mac > b.mac);
-				return network;
-			}))));
+			}),
+			// Patch the uplink port name into the uplinks the same way.
+			...uplinks.map(async (netIface) => {
+				netIface.uplinkPortName = await getUplinkPortName(netIface, hostHints);
+			}),
+		]);
+		const wifiNetworks = makeObj(wifiNetworkArray);
 
 		const cards = [];
 		const nonHaLowCards = [];
@@ -1663,28 +1738,12 @@ return view.extend({
 			cards.push(prplmeshCard);
 		}
 
-		const localNetworks = [];
-		const uplinks = [];
-		for (const netIface of networks) {
-			const devices = getL2Devices(netIface);
-			if (devices.length === 0) {
-				continue;
-			}
-
-			const name = netIface.getName();
-			if (wanNetworks[name] || wan6Networks[name] || netIface.getProtocol() === 'dhcp') {
-				uplinks.push(netIface);
-			} else if (netIface.getProtocol() === 'static' && netIface.getDevice()?.getName() !== 'lo') {
-				localNetworks.push(netIface);
-			}
-		}
-
 		if (localNetworks.length > 0) {
 			cards.push(createLocalNetworksCard(localNetworks, dhcpLeases, hostHints));
 		}
 
 		for (const uplink of uplinks) {
-			cards.push(await createUplinkCard(uplink, wifiDevices, wifiNetworks, hasQRCode));
+			cards.push(await createUplinkCard(uplink, wifiDevices, wifiNetworks, hostHints, hasQRCode));
 		}
 
 		// List non-HaLow APs later
