@@ -260,6 +260,9 @@ drv_morse_init_device_config() {
 	config_add_int chan_test_bw
 	config_add_int chan_test_prim_chwidth
 	config_add_int chan_test_prim_chan_index
+	# A string, as this is a percentage that may have a fractional part.
+	config_add_string chan_test_duty_cycle
+	config_add_int chan_test_duty_cycle_mode
 
 	#module parameters
 	config_add_string bcf  # handled separately due to boost bcf
@@ -445,6 +448,26 @@ morse_set_chan_test_freq() {
 
 	morse_cli -i "$ifname" channel -c "$freq" -o "$bw" -p "$prim_chwidth" -n "$prim_chan_index" || {
 		echo "Failed to set channel test frequency parameters via morse_cli" >&2
+		return 1
+	}
+
+	return 0
+}
+
+morse_set_chan_test_duty_cycle() {
+	local ifname="$1"
+	local duty_cycle="$2"
+	local mode="$3"
+
+	# Default mode for duty cycle is spread
+	set_default mode 0
+
+	if [ -z "$duty_cycle" ]; then
+		morse_cli -i "$ifname" duty_cycle disable
+	else
+		morse_cli -i "$ifname" duty_cycle enable "$duty_cycle" -m "$mode"
+	fi || {
+		echo "Failed to set channel test duty cycle via morse_cli" >&2
 		return 1
 	}
 
@@ -657,9 +680,11 @@ drv_morse_setup() {
 
 		if [ "$chan_test_mode" = "1" ]; then
 			json_select config
-			json_get_vars chan_test_freq chan_test_bw chan_test_prim_chwidth chan_test_prim_chan_index chan_test_mode
+			json_get_vars chan_test_freq chan_test_bw chan_test_prim_chwidth chan_test_prim_chan_index chan_test_mode \
+				chan_test_duty_cycle chan_test_duty_cycle_mode
 			json_select ..
 			morse_set_chan_test_freq "$ifname" "$chan_test_freq" "$chan_test_bw" "$chan_test_prim_chwidth" "$chan_test_prim_chan_index"
+			morse_set_chan_test_duty_cycle "$ifname" "$chan_test_duty_cycle" "$chan_test_duty_cycle_mode"
 		fi
 	fi
 
