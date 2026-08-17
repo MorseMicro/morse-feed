@@ -60,6 +60,7 @@ define Build/Compile
 
 	mkdir -p $(PKG_BUILD_DIR)/artefacts
 	python3 fix_channelization_info.py < artefacts/repo_channels.csv > $(PKG_BUILD_DIR)/artefacts/channels.csv
+	python3 gen_s1g_opclasses.py > $(PKG_BUILD_DIR)/artefacts/s1g_opclasses.csv
 endef
 
 define Package/morse-regdb/install
@@ -68,6 +69,7 @@ define Package/morse-regdb/install
 	# Make channels.csv accessible from the web.
 	$(INSTALL_DIR) $(1)/www
 	ln -sf /usr/share/morse-regdb/channels.csv $(1)/www/halow-channels.csv
+	ln -sf /usr/share/morse-regdb/s1g_opclasses.csv $(1)/www/halow-opclasses.csv
 endef
 
 $(eval $(call BuildPackage,morse-regdb))
