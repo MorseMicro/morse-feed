@@ -33,6 +33,15 @@ MM_MOD_STRING="serial country test_mode debug_mask macaddr_octet mcs_mask dhcpc_
 MM_MOD_UNKNOWN=
 MOD_PARAMS=
 
+# In test mode the driver ignores the configured channel and reports every
+# received frame on a dummy channel derived from that frame's own bandwidth
+# 1/2/4/8MHz -> US 43/42/40/44. hostapd still derives its primary channel 
+# from country/channel and drops probe requests that don't arrive on it, 
+# so the two have to agree.
+CHAN_TEST_COUNTRY="US"
+CHAN_TEST_CHANNEL="44"
+CHAN_TEST_CHANBW="8"
+
 TX_Q_CONFIGS=" tx_queue_data3_aifs tx_queue_data3_cwmin tx_queue_data3_cwmax tx_queue_data3_burst
 			   tx_queue_data2_aifs tx_queue_data2_cwmin tx_queue_data2_cwmax tx_queue_data2_burst
 			   tx_queue_data1_aifs tx_queue_data1_cwmin tx_queue_data1_cwmax tx_queue_data1_burst
@@ -497,6 +506,21 @@ drv_morse_setup() {
 		echo "Cannot set country=$country as device is locked to $mm_region" >&2
 		wireless_set_retry 0
 		return 1
+	fi
+
+	if [ "$chan_test_mode" = "1" ]; then
+		country="$CHAN_TEST_COUNTRY"
+		channel="$CHAN_TEST_CHANNEL"
+		s1g_chanbw="$CHAN_TEST_CHANBW"
+		s1g_chzn=
+		op_class=
+		s1g_prim_chwidth=
+		s1g_prim_1mhz_chan_index=
+		auto_channel=0
+
+		json_select config
+		json_add_string country "$country"
+		json_select ..
 	fi
 
 	build_mod_params
@@ -1143,7 +1167,10 @@ morse_set_chan_info() {
 	fi
 
 	json_select config
-	json_get_vars s1g_prim_1mhz_chan_index s1g_prim_chwidth
+	# In channel test mode the primary is derived from the pinned channel
+	if [ "$chan_test_mode" != "1" ]; then
+		json_get_vars s1g_prim_1mhz_chan_index s1g_prim_chwidth
+	fi
 
 	if [ -n "$s1g_chanbw" ] && [ -n "$s1g_prim_chwidth" ] && [ "$s1g_prim_chwidth" -gt "$s1g_chanbw" ]; then
 		s1g_prim_chwidth=
