@@ -6,8 +6,8 @@ config camera_encoder encoder_defaults
 	option resolution__width 1280
 	option resolution__height 720
 	option quality 1
-	option bitrate 600
+	option bitrate 1000
 	option govlength 60
 	option encoding 'H264'
 	option profile 'High'
-	option framerate 25
+	option framerate 30
