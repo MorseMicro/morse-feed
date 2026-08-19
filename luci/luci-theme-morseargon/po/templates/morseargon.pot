@@ -112,8 +112,9 @@ msgstr ""
 
 #: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:281
 msgid ""
-"The HaLow Wi-Fi driver being used is the test mode version. Perform a "
-"factory reset to restore the normal production driver."
+"The HaLow Wi-Fi driver currently loaded is in test mode. This is not "
+"intended for normal use and may violate your local regulatory requirements. "
+"In addition, the UI may not display the correct channel."
 msgstr ""
 
 #: luci/luci-theme-morseargon/luasrc/view/themes/morseargon/header.htm:263
