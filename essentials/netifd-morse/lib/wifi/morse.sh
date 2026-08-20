@@ -120,7 +120,7 @@ EOF
 					bcf=bcf_mm_hl2_ext.bin
 				;;
 				morse,rd14)
-					bcf=bcf_mm8108_m20_us.bin
+					bcf=bcf_rd14_ext.bin
 				;;
 				*)
 					if [[ $path  = *usb* ]]; then
