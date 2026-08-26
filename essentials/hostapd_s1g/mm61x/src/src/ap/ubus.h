@@ -84,6 +84,14 @@ void hostapd_ubus_notify_authorized(struct hostapd_data *hapd, struct sta_info *
 
 struct hostapd_ubus_bss {};
 
+static inline void hostapd_s1g_ubus_add_main(struct hapd_interfaces *interfaces)
+{
+}
+
+static inline void hostapd_s1g_ubus_free_main(void)
+{
+}
+
 static inline void hostapd_ubus_add_iface(struct hostapd_iface *iface)
 {
 }

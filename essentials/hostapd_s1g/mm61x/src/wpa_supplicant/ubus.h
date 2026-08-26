@@ -11,6 +11,7 @@
 
 struct wpa_supplicant;
 struct wpa_global;
+struct dpp_config_obj;
 
 #include "wps_supplicant.h"
 
@@ -52,7 +53,11 @@ static inline void wpas_ubus_notify_type(struct wpa_supplicant *wpa_s, const cha
 {
 }
 
-static inline void wpas_ubus_notify(struct wpa_supplicant *wpa_s, struct wps_credential *cred)
+static inline void wpas_ubus_event_state(struct wpa_supplicant *wpa_s, const char *state)
+{
+}
+
+static inline void wpas_ubus_notify(struct wpa_supplicant *wpa_s, const struct wps_credential *cred)
 {
 }
 

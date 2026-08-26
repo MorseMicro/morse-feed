@@ -32,7 +32,7 @@ define Package/hostapd_s1g
   CATEGORY:=Morse Micro
   SUBMENU:=Essentials
   TITLE:=Morse Micro HaLow hostapd
-  DEPENDS:= kmod-morse +!MORSE_CUSTOM_CFG80211:kmod-cfg80211 +morsecli +libnl +libopenssl +libubus +libblobmsg-json
+  DEPENDS:= kmod-morse +!MORSE_CUSTOM_CFG80211:kmod-cfg80211 +morsecli +libnl +libopenssl +MORSE_HOSTAPD_S1G_UBUS:libubus +MORSE_HOSTAPD_S1G_UBUS:libblobmsg-json
   USERID:=network=101:network=101
 endef
 
@@ -52,6 +52,16 @@ define Package/hostapd_s1g/config
 
 	if PACKAGE_hostapd_s1g
 
+		config MORSE_HOSTAPD_S1G_UBUS
+			bool "Enable ubus support"
+			default y
+			help
+				Expose hostapd on ubus (including DPP notifications).
+				Required for AP+STA support and dpp-handler.
+
+				Disable when building against ubus/uloop libraries
+				which are incompatible with the patches here.
+
 		config MORSE_HOSTAPD_S1G_EAP
 			bool
 			default n
@@ -66,10 +76,12 @@ define Package/hostapd_s1g/config
 				to "acs_survey" or "0". Eventually, other ACS algorithms can be added in
 				similar way.
 
-		config MORSE_HOSTAPD_APSTA_HANDLER
+		config MORSE_HOSTAPD_S1G_APSTA_HANDLER
 			bool
 			default n
 			depends on PACKAGE_wpa_supplicant_s1g
+			select MORSE_HOSTAPD_S1G_UBUS
+			select MORSE_WPA_SUPPLICANT_S1G_UBUS
 			select PACKAGE_ucode
 			select PACKAGE_ucode-mod-log
 			select PACKAGE_ucode-mod-fs
@@ -94,7 +106,7 @@ define Package/wpa_supplicant_s1g
   CATEGORY:=Morse Micro
   SUBMENU:=Essentials
   TITLE:=Morse Micro HaLow wpa_supplicant
-  DEPENDS:= kmod-morse +!MORSE_CUSTOM_CFG80211:kmod-cfg80211 +morsecli +libnl +libopenssl +libubus +MORSE_WPA_SUPPLICANT_S1G_DBUS:dbus +MORSE_WPA_SUPPLICANT_S1G_DBUS:libdbus +libblobmsg-json
+  DEPENDS:= kmod-morse +!MORSE_CUSTOM_CFG80211:kmod-cfg80211 +morsecli +libnl +libopenssl +MORSE_WPA_SUPPLICANT_S1G_UBUS:libubus +MORSE_WPA_SUPPLICANT_S1G_DBUS:dbus +MORSE_WPA_SUPPLICANT_S1G_DBUS:libdbus +MORSE_WPA_SUPPLICANT_S1G_UBUS:libblobmsg-json
   USERID:=network=101:network=101
 endef
 
@@ -112,6 +124,16 @@ endef
 
 define Package/wpa_supplicant_s1g/config
 	if PACKAGE_wpa_supplicant_s1g
+
+		config MORSE_WPA_SUPPLICANT_S1G_UBUS
+			bool "Enable ubus support"
+			default y
+			help
+				Expose wpa_supplicant on ubus (including DPP notifications).
+				Required for AP+STA support and dpp-handler.
+
+				Disable when building against an OpenWrt whose ubus/libubox is too
+				old for this code; the ubus calls then compile out to empty stubs.
 
 		config MORSE_WPA_SUPPLICANT_S1G_MESH_NETWORKING
 			bool
@@ -166,8 +188,11 @@ MMHOSTAPD_CONFIG_ENABLE = \
 	CONFIG_WPS_UPNP \
 	CONFIG_WPS_NFC
 
-MMHOSTAPD_CONFIG_SET = \
-	CONFIG_UBUS
+MMHOSTAPD_CONFIG_SET =
+
+ifeq ($(CONFIG_MORSE_HOSTAPD_S1G_UBUS),y)
+	MMHOSTAPD_CONFIG_SET += CONFIG_UBUS
+endif
 
 MMHOSTAPD_CONFIG_DISABLE = \
     CONFIG_DRIVER_NONE \
@@ -194,8 +219,11 @@ else
 		CONFIG_NO_RADIUS
 endif
 
-MMWPA_SUPPLICANT_CONFIG_SET = \
-	CONFIG_UBUS
+MMWPA_SUPPLICANT_CONFIG_SET =
+
+ifeq ($(CONFIG_MORSE_WPA_SUPPLICANT_S1G_UBUS),y)
+	MMWPA_SUPPLICANT_CONFIG_SET += CONFIG_UBUS
+endif
 
 MMWPA_SUPPLICANT_CONFIG_ENABLE = \
 	CONFIG_IEEE80211AC \
@@ -299,7 +327,16 @@ TARGET_LDFLAGS += -lm -lpthread -lcrypto -lssl
 TARGET_LDFLAGS += -lrt
 TARGET_LDFLAGS_C += -lrt
 
-TARGET_LDFLAGS += -lubox -lubus -lblobmsg_json -lm
+TARGET_LDFLAGS += -lm
+
+# ubus is configured per-binary, so only add the libs to the build that needs them.
+UBUS_LDFLAGS := -lubox -lubus -lblobmsg_json
+ifeq ($(CONFIG_MORSE_HOSTAPD_S1G_UBUS),y)
+LDFLAGS_hostapd += $(UBUS_LDFLAGS)
+endif
+ifeq ($(CONFIG_MORSE_WPA_SUPPLICANT_S1G_UBUS),y)
+LDFLAGS_wpa_supplicant += $(UBUS_LDFLAGS)
+endif
 
 # Use of old OpenSSL functions in dpp_supplicant.c
 TARGET_CFLAGS += -Wno-deprecated-declarations
@@ -309,7 +346,7 @@ define Build/RunMake
 	$(MAKE) $(MAKE_FLAGS) $(PKG_JOBS) -C $(PKG_BUILD_DIR)/$(1) \
 		$(TARGET_CONFIGURE_OPTS) \
 		$(DRIVER_MAKEOPTS) \
-		LIBS="$(TARGET_LDFLAGS)" \
+		LIBS="$(TARGET_LDFLAGS) $(LDFLAGS_$(1))" \
 		LIBS_c="$(TARGET_LDFLAGS_C)" \
 		AR="$(TARGET_CROSS)gcc-ar" \
 		BCHECK= \

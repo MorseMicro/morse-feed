@@ -721,17 +721,19 @@ Subject: [PATCH 2/5] 600-ubus_support.patch
  
  extern const char *const wpa_supplicant_version;
  extern const char *const wpa_supplicant_license;
-@@ -344,6 +345,9 @@
+@@ -344,6 +345,11 @@
  #endif /* CONFIG_WIFI_DISPLAY */
  
  	struct psk_list_entry *add_psk; /* From group formation */
 +
++#ifdef UBUS_SUPPORT
 +	struct ubus_object ubus_global;
++#endif
 +
  #ifdef CONFIG_MORSE_STANDBY_MODE
  	char *standby_session_dir;
  #endif
-@@ -748,6 +752,7 @@
+@@ -748,6 +754,7 @@
  	unsigned char own_addr[ETH_ALEN];
  	unsigned char perm_addr[ETH_ALEN];
  	char ifname[100];
