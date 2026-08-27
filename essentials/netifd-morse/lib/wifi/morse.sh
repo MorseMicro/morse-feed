@@ -119,7 +119,7 @@ EOF
 				morse,halowlink2)
 					bcf=bcf_mm_hl2_ext.bin
 				;;
-				morse,rd14)
+				morse,rd14*)
 					bcf=bcf_rd14_ext.bin
 				;;
 				*)
