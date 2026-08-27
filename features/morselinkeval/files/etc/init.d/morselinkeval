@@ -84,12 +84,6 @@ start_service() {
 	fi
 }
 
-# Config is read once at launch and passed as arguments, so a config change
-# can only take effect by relaunching with the new arguments.
-reload_service() {
-	restart
-}
-
 service_triggers() {
 	procd_add_reload_trigger "$CONFIG" wireless
 }

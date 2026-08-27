@@ -55,8 +55,7 @@ const Service = {
 			s.sampler.ifname, s.sampler.peer_mac);
 		s.stop();
 		delete this.peer_link_sessions[peer];
-		gc();
-		DBG("end_peer_link_session: gc done, object count=%d", gc("count"));
+		DBG("end_peer_link_session: object count=%d", gc("count"));
 	},
 
 	/* Tear down every active peer_link session. */
@@ -68,8 +67,7 @@ const Service = {
 			s.stop();
 		}
 		this.peer_link_sessions = {};
-		gc();
-		DBG("end_all_peer_link_sessions: gc done, object count=%d", gc("count"));
+		DBG("end_all_peer_link_sessions: object count=%d", gc("count"));
 	},
 
 	/* Tear down the active planner session and disable medium_eval. */
@@ -80,8 +78,7 @@ const Service = {
 			this.planner_session.stop();
 			this.planner_session = null;
 			collect.set_medium_eval(ifname, false);
-			gc();
-			DBG("end_planner_session: gc done, object count=%d", gc("count"));
+			DBG("end_planner_session: object count=%d", gc("count"));
 		}
 	},
 
@@ -112,12 +109,12 @@ const Service = {
 				return { error: "Invalid peer MAC address" };
 
 			if (!collect.get_station_info(ifname, peer))
-				return { error: "Station %s is not connected with %s ", peer, ifname };
+				return { error: `Station ${peer} is not connected with ${ifname}` };
 
 			return { peer, iftype };
 		}
 
-		return { error: "Invalid interface type(%s) : %s ", iftype, ifname };
+		return { error: `Invalid interface type(${iftype}) : ${ifname}` };
 	},
 
 	validate_plan_args: function (args) {
