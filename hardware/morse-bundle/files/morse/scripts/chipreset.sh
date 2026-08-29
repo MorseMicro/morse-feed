@@ -29,6 +29,15 @@ reset_chip() {
     ucode -e 'sleep(50)'
 }
 
+# Check for the reset GPIO before touching any MMC/SDIO controller.  Some
+# Raspberry Pi MM6108 device trees do not expose an MM_RESET line.  In that
+# case the reset is optional, but unbinding the controller and exiting before
+# the matching bind leaves the Morse device unavailable for this boot.
+if ! gpioinfo -s --by-name MM_RESET > /dev/null 2>&1; then
+    2>&1 echo 'morsechipreset: MM_RESET is unavailable; skipping reset without unbinding SDIO'
+    exit 0
+fi
+
 
 # This finds something like:
 #    /sys/devices/platform/10130000.mmc/mmc_host
