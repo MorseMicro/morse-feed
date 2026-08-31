@@ -10,12 +10,13 @@
 # Because this uci-defaults (i.e. this script) is run before syslog
 # is configured, we send the output to /dev/kmsg.
 
-# States are changed either by this script or BTN_0 (see rc.d/BTN_0).
+# States are changed either by this script or the button handler
+# (see rc.button/reset_override).
 #
 # Currently:
 #   0. script: unset -> ap
-#   1. BTN_0 for 5 to 10 seconds:  ap
-#   2. BTN_0 for 10 or more seconds:  sta
+#   1. button held 5 to 10 seconds:  ap
+#   2. button held 10 or more seconds:  sta
 
 # This must run after 95-morse-wireless-defaults and before
 # 99-morse-client-config.

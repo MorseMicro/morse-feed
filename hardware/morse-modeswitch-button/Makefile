@@ -16,6 +16,7 @@ define Package/morse-modeswitch-button
   TITLE:=Morse Micro Button Functionality
   MAINTAINER:=Morse Micro
   DEPENDS:=+netifd-morse persistent-vars-storage
+  CONFLICTS:=morse-button
 endef
 
 define Package/morse-modeswitch-button/description
@@ -28,7 +29,7 @@ endef
 
 define Package/morse-modeswitch-button/install
 	$(INSTALL_DIR) $(1)/etc/rc.button
-	$(INSTALL_BIN) ./files/etc/rc.button/BTN_0 $(1)/etc/rc.button/
+	$(INSTALL_BIN) ./files/etc/rc.button/reset_override $(1)/etc/rc.button/
 	$(INSTALL_DIR) $(1)/etc/uci-defaults
 	$(INSTALL_BIN) ./files/etc/uci-defaults/* $(1)/etc/uci-defaults/.
 endef
