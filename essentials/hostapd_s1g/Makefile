@@ -297,9 +297,8 @@ MMWPA_SUPPLICANT_CONFIG = $(PKG_BUILD_DIR)/wpa_supplicant/.config
 MMHOSTAPD_CONFIG = $(PKG_BUILD_DIR)/hostapd/.config
 
 define Build/Prepare
-	$(PKG_UNPACK)
-	$(CP) ./$(MORSE_CHIP_DIR)/src/. $(PKG_BUILD_DIR)
-	$(Build/Patch)
+	$(call Build/Prepare/Default)
+	$(if $(PKG_SKIP_DOWNLOAD),,$(CP) ./$(MORSE_CHIP_DIR)/src/. $(PKG_BUILD_DIR))
 	$(CP) $(PKG_BUILD_DIR)/wpa_supplicant/defconfig $(MMWPA_SUPPLICANT_CONFIG)
 	sed -i $(patsubst %,-e 's/^#\(%=\)/\1/',$(MMWPA_SUPPLICANT_CONFIG_ENABLE)) \
 		$(patsubst %,-e 's/^\(%=\)/#\1/',$(MMWPA_SUPPLICANT_CONFIG_DISABLE)) \
