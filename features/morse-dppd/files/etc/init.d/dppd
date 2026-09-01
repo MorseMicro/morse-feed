@@ -69,7 +69,6 @@ start_service() {
         procd_append_param command --tls-cert=/etc/dppd/server.pem --tls-key=/etc/dppd/server.key
         procd_append_param command --configurator-key=/etc/dppd/key.pem --configurator-private-key=/etc/dppd/ppkey.pem
         procd_append_param command daemon
-        procd_set_param limits as="15000000 15000000"
         procd_set_param respawn 3600 5 50
         procd_close_instance
 }
