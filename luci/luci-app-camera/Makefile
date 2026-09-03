@@ -9,6 +9,9 @@ include $(TOPDIR)/rules.mk
 LUCI_TITLE:=LuCI Camera Viewer
 LUCI_DEPENDS:=+rpcd-mod-onvif +luci-lib-httpclient +mediamtx
 
+# Because we're using newer CSS, csstidy makes a mess.
+CONFIG_LUCI_CSSTIDY:=
+
 PKG_LICENSE:=Apache-2.0
 
 include $(TOPDIR)/feeds/luci/luci.mk

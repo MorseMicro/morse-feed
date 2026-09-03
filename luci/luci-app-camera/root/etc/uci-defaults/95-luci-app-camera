@@ -1,0 +1,14 @@
+# We require a uhttpd reverse proxy setup so that https serving
+# works properly.
+if [ -x /etc/init.d/uhttpd ]; then
+	if ! uci -q get uhttpd.main.reverse_proxy | grep -q mediamtx; then
+		webrtc_address="$(uci -q get mediamtx.@mediamtx[0].webrtc_address)"
+		if [ -n "$webrtc_address" ]; then
+			uci add_list uhttpd.main.reverse_proxy="/mediamtx/webrtc=127.0.0.1$webrtc_address/"
+		fi
+		hls_address="$(uci -q get mediamtx.@mediamtx[0].hls_address)"
+		if [ -n "$hls_address" ]; then
+			uci add_list uhttpd.main.reverse_proxy="/mediamtx/hls=127.0.0.1$hls_address/"
+		fi
+	fi
+fi

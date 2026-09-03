@@ -556,7 +556,7 @@ class ONVIFDevice {
 
 		this.videoLive = E('video-live', videoAttributes);
 
-		this.receiver = new Receiver(this.videoLive, this.proxyUrls.webrtc);
+		this.receiver = new Receiver(this.videoLive, new URL(this.proxyUrls.webrtc, location.origin));
 
 		// We stop/start the receiver so we don't stream things unnecessarily.
 		// Note that mediamtx will also stop proxying once it has no connections.
@@ -1081,9 +1081,9 @@ return view.extend({
 		const host = window.location.hostname;
 
 		return {
-			webrtc: ports.webrtc && `http://${host}:${ports.webrtc}/${path}/`,
+			webrtc: ports.webrtc && `/mediamtx/webrtc/${path}/`,
 			rtsp: ports.rtsp && `rtsp://${host}:${ports.rtsp}/${path}`,
-			hls: ports.hls && `http://${host}:${ports.hls}/${path}/`,
+			hls: ports.hls && `/mediamtx/hls/${path}/`,
 		};
 	},
 
@@ -1360,17 +1360,6 @@ return view.extend({
 	},
 
 	render([devices]) {
-		if (window.location.protocol === 'https:') {
-			// The interface will work fine except that the live view will fail
-			// (due to mixed content blocking affecting the WebRTC requests).
-			const httpUrl = new URL(window.location);
-			httpUrl.protocol = 'http:';
-			return E('div', { class: 'alert-message error' }, _(`
-				Camera viewing is currently not supported via https.
-				<a href="%s">Connect via http</a>.
-			`).format(httpUrl));
-		}
-
 		this.numProbes = Number(uci.get('cameras', 'luci', 'num_probes') || 10);
 		this.numAutoplay = Number(uci.get('cameras', 'luci', 'num_autoplay') || 3);
 		this.encoderDefaults = new EncoderDefaults();
