@@ -51,16 +51,6 @@ get_drv_ver()
     fi
 }
 
-get_d11_ver()
-{
-    local output=`strings /lib/modules/$(uname -r)/dot11ah.ko | grep "^0-" | head -n 1`
-    if [ "$output" ];then
-        printf "$output"
-    else
-        printf "N/A"
-    fi
-}
-
 get_mcli_ver()
 {
     local output=`morse_cli version 2>/dev/null | grep Morse_cli`
@@ -161,7 +151,6 @@ get_owrt_ver()
 echo -ne "Morse Versions:
 - Firmware       = `get_fw_ver`
 - Morse Driver   = `get_drv_ver`
-- Dot11ah Driver = `get_d11_ver`
 - morse_cli      = `get_mcli_ver`
 - Morsectrl      = `get_mctrl_ver`
 - Hostapd        = `get_hapd_ver`

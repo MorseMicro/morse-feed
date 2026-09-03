@@ -4,11 +4,7 @@
 #
 
 remove_driver() {
-    modules="morse dot11ah"
-
-    for module in morse dot11ah; do
-        rmmod "$module" > /dev/null
-    done
+    rmmod morse > /dev/null
 }
 
 reset_chip() {

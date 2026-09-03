@@ -165,13 +165,13 @@ build_mod_params() {
 
 	case "$s1g_chzn" in
 	80211_2020)
-		DOT11AH_MOD_PARAMS="channelization_scheme=1"
+		MOD_PARAMS="$MOD_PARAMS channelization_scheme=1"
 		;;
 	80211_2024)
-		DOT11AH_MOD_PARAMS="channelization_scheme=2"
+		MOD_PARAMS="$MOD_PARAMS channelization_scheme=2"
 		;;
 	80211_revmf)
-		DOT11AH_MOD_PARAMS="channelization_scheme=3"
+		MOD_PARAMS="$MOD_PARAMS channelization_scheme=3"
 		;;
 	esac
 
@@ -526,26 +526,15 @@ drv_morse_setup() {
 	build_mod_params
 
 	local morse_module_config_file="/etc/modules.d/morse"
-	local dot11ah_module_config_file="/etc/modules.d/dot11ah"
 	local morse_module_name="morse"
-	local dot11ah_module_name="dot11ah"
 
 	if [ "$chan_test_mode" = "1" ]; then
 		morse_module_name="morse_test_mode"
-		dot11ah_module_name="dot11ah_test_mode"
 	fi
 
 	local inserted_module=0
-	if change_module_parameters "$dot11ah_module_name" "$dot11ah_module_config_file" "$DOT11AH_MOD_PARAMS"; then
-		is_module_loaded morse && rmmod morse
-		is_module_loaded dot11ah && rmmod dot11ah
-	fi
-
 	if change_module_parameters "$morse_module_name" "$morse_module_config_file" "$MOD_PARAMS" || ! is_module_loaded morse; then
 		rmmod morse
-		# This needs to be separate to force kmodloader to
-		# read the dot11ah modparams.
-		/sbin/kmodloader $dot11ah_module_config_file
 		/sbin/kmodloader $morse_module_config_file
 		# Give time for 15-morse-wifi-re-enable to run, otherwise
 		# if this script finishes very quickly after reinsertion
