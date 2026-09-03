@@ -27,9 +27,8 @@ define KernelPackage/morse
   SUBMENU:=Essentials
   TITLE:=Morse Micro Wi-Fi HaLow driver for MM61x
   DEPENDS:= +kmod-mmc +!MORSE_CUSTOM_MAC80211:kmod-mac80211 +kmod-trelay +kmod-lib-crc7 morse-fw +morse-board-config +MORSE_USB:kmod-usb-core
-  FILES:=\
-    $(PKG_BUILD_DIR)/morse.ko \
-    $(PKG_BUILD_DIR)/dot11ah/dot11ah.ko
+  # dot11ah is linked into morse.ko; it is no longer a separate module.
+  FILES:=$(PKG_BUILD_DIR)/morse.ko
   AUTOLOAD:=$(call AutoProbe,morse)
   MODPARAMS.morse:=country=US
   PROVIDES:=kmod-morse
