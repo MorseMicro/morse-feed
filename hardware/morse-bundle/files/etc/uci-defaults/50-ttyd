@@ -1,8 +1,26 @@
-# ttyd listens on '@lan', which is not enough for all our configuration variants (wlan).
-# Instead listen everywhere and rely on the wan firewall to block access.
-# This makes ttyd the same as dropbear.
+defaults_version="$(uci -q get ttyd.@ttyd[0].defaults_version)"
+defaults_version="${defaults_version:-0}"
 
-uci del ttyd.@ttyd[0].interface
+if [ "$defaults_version" -lt 1 ]; then
+	# ttyd listens on '@lan', which is not enough for all our configuration variants (wlan).
+	# Instead listen everywhere and rely on the wan firewall to block access.
+	# This makes ttyd the same as dropbear.
+	if uci -q del ttyd.@ttyd[0].interface; then
+		# If we successfully deleted (i.e. the deletion has not already
+		# happened so this is really our first run), disable by default.
+		# Necessary since defaults_version is new.
+		uci set ttyd.@ttyd[0].enable=0
+	fi
 
-# Disable by default due to security concerns:
-uci set ttyd.@ttyd[0].enable=0
+	port="$(uci -q get ttyd.@ttyd[0].port)"
+	port="${port:-7681}"
+
+	# Reverse proxy setup if using uhttpd
+	if [ -x /etc/init.d/uhttpd ]; then
+		uci del_list uhttpd.main.reverse_proxy="/ttyd=127.0.0.1:$port/"
+		uci add_list uhttpd.main.reverse_proxy="/ttyd=127.0.0.1:$port/"
+		uci set ttyd.@ttyd[0].url_override='/ttyd'
+	fi
+fi
+
+uci set ttyd.@ttyd[0].defaults_version=1
