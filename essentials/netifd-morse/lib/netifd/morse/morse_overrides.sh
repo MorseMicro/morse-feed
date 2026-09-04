@@ -346,6 +346,10 @@ morse_override_hostapd_set_bss_options() {
 		append bss_conf "wps_independent=$wps_independent" "$N"
 		[ -n "$wps_ap_setup_locked" ] && append bss_conf "ap_setup_locked=$wps_ap_setup_locked" "$N"
 		[ "$wps_pbc_in_m1" -gt 0 ] && append bss_conf "pbc_in_m1=$wps_pbc_in_m1" "$N"
+		[ "$multi_ap" = 3 ] && [ -n "$key" ] && {
+			set_default multi_ap_backhaul_ssid "$ssid"
+			set_default multi_ap_backhaul_key "$key"
+		}
 		[ "$multi_ap" -gt 0 ] && [ -n "$multi_ap_backhaul_ssid" ] && {
 			append bss_conf "multi_ap_backhaul_ssid=\"$multi_ap_backhaul_ssid\"" "$N"
 			if [ -z "$multi_ap_backhaul_key" ]; then
