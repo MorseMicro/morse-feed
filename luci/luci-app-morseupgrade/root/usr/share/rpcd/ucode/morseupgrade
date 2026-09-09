@@ -10,6 +10,7 @@
 //
 // The ubus object exposes:
 //   query()               -> device board/version info
+//   trust()               -> is the running firmware a signed Morse build?
 //   search()              -> locate an applicable upgrade image on the server
 //   download(url, sum)    -> start a background download of an image
 //   stat()                -> report on the state of a running/finished download
@@ -42,6 +43,9 @@ return {
 	morseupgrade: {
 		query: {
 			call: handlers.query,
+		},
+		trust: {
+			call: handlers.image_trust,
 		},
 		search: {
 			call: handlers.search,

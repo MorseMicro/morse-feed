@@ -18,14 +18,18 @@
 //     warn,          // optional warning sink; defaults to the warn builtin
 //   }
 //
-// The pure helpers (parse_version/is_newer/get_upgrade_rule/format_size) are
-// exported directly for straightforward unit tests.
+// The pure helpers (parse_version/is_newer/get_upgrade_rule/is_not_release_version/
+// format_size) are exported directly for straightforward unit tests.
 
 'use strict';
 
 const OUTPUTBIN = '/tmp/sysupgrade.bin';
 const STATUS_FILE = '/tmp/sysupgrade.status';
 const PID_FILE = '/tmp/sysupgrade.pid';
+
+// Set only when an unsigned image was flashed (value is the version_code)
+// absent means nothing is claimed.
+const UNSIGNED_FLAG_KEY = 'mm_image_unsigned';
 
 function parse_version(v) {
 	v ??= '';
@@ -70,6 +74,12 @@ function get_upgrade_rule(latest_json, board_info, bucket) {
 		return null;
 
 	return rule;
+}
+
+// True unless the version code is Morse-*<n>.<n>.<n>.<optional_n>
+function is_not_release_version(morse_version) {
+	return type(morse_version) != 'string'
+		|| match(morse_version, /^Morse-([A-Za-z]+-)*[0-9]+\.[0-9]+\.[0-9]+(\.[0-9]+)?$/) == null;
 }
 
 // Format a raw byte count the way `du -h` does ("4.0K", "11.4M").
@@ -275,6 +285,39 @@ function create(env) {
 		return get_sysupgrade_image(board_info, upgrade_rule);
 	}
 
+	function read_persistent_var(key) {
+		const proc = env.fs.popen(`persistent_vars_storage.sh READ ${key} 2>/dev/null`);
+		if (!proc)
+			return null;
+
+		const out = proc.read('all') ?? '';
+		proc.close();
+
+		return trim(out);
+	}
+
+	// Check the state of the image trust
+	function image_trust(request) {
+		const board_info = get_board_info();
+		const morse_version = board_info.morse_version;
+
+		if (!morse_version)
+			return { state: 'unknown', source: 'none' };
+
+		const flagged = read_persistent_var(UNSIGNED_FLAG_KEY) ?? '';
+		if (length(flagged)) {
+			if (flagged == morse_version)
+				return { state: 'unsigned', source: 'persistent' };
+
+			log(`stale image_unsigned flag for ${flagged}, running ${morse_version}`);
+		}
+
+		if (is_not_release_version(morse_version))
+			return { state: 'unsigned', source: 'version' };
+
+		return { state: 'unknown', source: 'none' };
+	}
+
 	function download(request) {
 		const url = request.args?.url;
 		const sum = request.args?.sum;
@@ -376,9 +419,9 @@ function create(env) {
 		return { status: 'VerifyOK', message: 'Success' };
 	}
 
-	return { query, search, download, stat, verify };
+	return { query, search, image_trust, download, stat, verify };
 }
 
 // `export { ... }` (rather than `export function name()`) for compatibility
 // with the ucode on target, whose parser predates the export-declaration form.
-export { parse_version, is_newer, get_upgrade_rule, format_size, create };
+export { parse_version, is_newer, get_upgrade_rule, is_not_release_version, format_size, create };

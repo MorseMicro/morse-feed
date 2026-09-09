@@ -96,6 +96,8 @@ function mock_cursor(cfg) {
 //   files                : in-memory {path: content} for readfile/writefile/unlink
 //   sizes                : {path: byte-count} for stat().size
 //   procs                : {path: bool} for access()
+//   persistent           : stdout for `persistent_vars_storage.sh READ ...`
+//   capture              : array every popen command is appended to
 function mock_fs(opts) {
 	const files = opts.files ?? {};
 	const sizes = opts.sizes ?? {};
@@ -103,10 +105,14 @@ function mock_fs(opts) {
 	return {
 		_files: files,
 		popen: (cmd) => {
+			if (opts.capture != null)
+				push(opts.capture, cmd);
 			if (opts.null_popen)
 				return null;
 			let body = "", rc = 0;
-			if (index(cmd, "latest.json") >= 0)
+			if (index(cmd, "persistent_vars_storage.sh") >= 0)
+				body = opts.persistent ?? "";
+			else if (index(cmd, "latest.json") >= 0)
 				opts.fail_latest ? (rc = 1) : (body = opts.latest ?? LATEST);
 			else if (index(cmd, "profiles.json") >= 0)
 				opts.fail_profiles ? (rc = 1) : (body = opts.profiles ?? PROFILES);
@@ -147,8 +153,30 @@ function env_flow(o) {
 			latest: o.latest, profiles: o.profiles,
 			fail_latest: o.fail_latest, fail_profiles: o.fail_profiles,
 			null_popen: o.null_popen,
+			persistent: o.persistent, capture: o.capture, files: o.files,
 		}),
 	});
+}
+
+// image_trust env: board and persistent-vars stdout. Returns the fs mock
+// alongside the handlers so tests can inspect what it was asked to run.
+function trust_env(o) {
+	const fs = mock_fs({
+		persistent: o.persistent, capture: o.capture, files: o.files ?? {},
+	});
+
+	return {
+		fs,
+		h: mk({
+			ubus: mock_ubus(o.board ?? board_of({
+				board: "morse,halowlink2",
+				morse_version: "Morse-3.1.4",
+				target: "ramips/mt7621",
+			})),
+			cursor: mock_cursor(o.cfg ?? CFG_OK),
+			fs,
+		}),
+	};
 }
 
 // ---------------------------------------------------------------------------
@@ -186,6 +214,53 @@ return {
 	},
 	parse_version_short: function () {
 		assert(join(",", core.parse_version("Morse-3")) == "3,0,0,0");
+	},
+
+	// ---- is_not_release_version -------------------------------------------------
+	is_not_release_version_hash_and_date: function () {
+		assert(core.is_not_release_version("Morse-b62e7378e69-2026-09-07"));
+	},
+	is_not_release_version_unprocessed_seed: function () {
+		assert(core.is_not_release_version("Morse-3.1-dev"));
+	},
+	is_not_release_version_release_plain: function () {
+		assert(!core.is_not_release_version("Morse-3.2.2"));
+		// A component can be more than one digit.
+		assert(!core.is_not_release_version("Morse-2.11.13"));
+	},
+	is_not_release_version_release_tagged: function () {
+		assert(!core.is_not_release_version("Morse-RTK-1.1.0"));
+	},
+	// NFP is Not For Public, so a hand-cut customer build is not a release.
+	is_not_release_version_nfp_suffix: function () {
+		assert(core.is_not_release_version("Morse-2.11.12-NFP_JP850"));
+	},
+	is_not_release_version_build_number: function () {
+		assert(!core.is_not_release_version("Morse-3.2.0.5"));
+	},
+	// Too few components to be a release, so a date stamp cannot pass as a very
+	// large version number.
+	is_not_release_version_date_stamp: function () {
+		assert(core.is_not_release_version("Morse-260301"));
+		assert(core.is_not_release_version("Morse-260301-abc1234"));
+	},
+	is_not_release_version_short: function () {
+		assert(core.is_not_release_version("Morse-3"));
+		assert(core.is_not_release_version("Morse-3.2"));
+	},
+	is_not_release_version_no_prefix: function () {
+		assert(core.is_not_release_version("3.2.0"));
+	},
+	is_not_release_version_release_candidate: function () {
+		assert(core.is_not_release_version("Morse-3.2.0rc1"));
+	},
+	// Unrecognisable is not a release. image_trust() cannot reach this - it
+	// rejects a missing version code first.
+	is_not_release_version_null: function () {
+		assert(core.is_not_release_version(null));
+	},
+	is_not_release_version_empty: function () {
+		assert(core.is_not_release_version(""));
 	},
 
 	// ---- is_newer -----------------------------------------------------
@@ -470,10 +545,95 @@ return {
 		assert(h.verify({ args: { sum: "abcdef" } }).status == "SHAMismatchError");
 	},
 
+	// ---- image_trust (flag only; never touches the network) ------------
+	image_trust_persistent_unsigned: function () {
+		const e = trust_env({ persistent: "Morse-3.1.4\n" });
+		const r = e.h.image_trust({});
+		assert(r.state == "unsigned" && r.source == "persistent", `${r.state}/${r.source}`);
+	},
+	// image_trust answers from what sysupgrade recorded, so it must never block
+	// rpcd on a fetch, whatever the flag says.
+	image_trust_never_fetches: function () {
+		let capture = [];
+		const e = trust_env({ capture, persistent: "" });
+		assert(e.h.image_trust({}).state == "unknown");
+
+		for (let cmd in capture)
+			assert(index(cmd, "uclient-fetch") < 0, `image_trust fetched: ${cmd}`);
+	},
+	// Absence is not a claim of 'signed' - it is also every board with read-only
+	// persistent storage, so it must not warn.
+	image_trust_no_flag_is_unknown: function () {
+		const e = trust_env({ persistent: "" });
+		const r = e.h.image_trust({});
+		assert(r.state == "unknown" && r.source == "none", `${r.state}/${r.source}`);
+	},
+	// A flag naming another version means the image was replaced without going
+	// through sysupgrade (U-Boot recovery, an mtd write, or a sysupgrade from an
+	// image predating this feature), so it must not warn about the wrong one.
+	image_trust_stale_flag_is_unknown: function () {
+		const e = trust_env({ persistent: "Morse-3.0.0\n" });
+		assert(e.h.image_trust({}).state == "unknown");
+	},
+	// A leftover mm_image_signed-era pair is not a version code.
+	image_trust_legacy_pair_value_is_stale: function () {
+		const e = trust_env({ persistent: "Morse-3.1.4:0\n" });
+		assert(e.h.image_trust({}).state == "unknown");
+	},
+	image_trust_no_version_is_unknown: function () {
+		const e = trust_env({
+			board: board_of({ board: "morse,halowlink2", morse_version: "", target: "ramips/mt7621" }),
+		});
+		assert(e.h.image_trust({}).state == "unknown");
+	},
+	// A dev build is answered by its version code alone, without reading the flag.
+	image_trust_dev_version_is_unsigned: function () {
+		let capture = [];
+		const e = trust_env({
+			capture,
+			board: board_of({
+				board: "morse,halowlink2", morse_version: "Morse-b62e7378e69-2026-09-07", target: "ramips/mt7621",
+			}),
+		});
+		const r = e.h.image_trust({});
+		assert(r.state == "unsigned" && r.source == "version", `${r.state}/${r.source}`);
+		for (let cmd in capture)
+			assert(index(cmd, "uclient-fetch") < 0, `dev check fetched: ${cmd}`);
+	},
+	// The flag is an observed openssl result and the version string is only an
+	// inference, so a dev build that recorded one must report the stronger of
+	// the two - the home page shows a harsher notice for it.
+	image_trust_flag_beats_dev_version: function () {
+		const e = trust_env({
+			persistent: "Morse-b62e7378e69-2026-09-07\n",
+			board: board_of({
+				board: "morse,halowlink2", morse_version: "Morse-b62e7378e69-2026-09-07", target: "ramips/mt7621",
+			}),
+		});
+		const r = e.h.image_trust({});
+		assert(r.state == "unsigned" && r.source == "persistent", `${r.state}/${r.source}`);
+	},
+	image_trust_unprocessed_seed_is_unsigned: function () {
+		const e = trust_env({
+			board: board_of({ board: "morse,halowlink2", morse_version: "Morse-3.1-dev", target: "ramips/mt7621" }),
+		});
+		const r = e.h.image_trust({});
+		assert(r.state == "unsigned" && r.source == "version", `${r.state}/${r.source}`);
+	},
+	// Answered by shape, so it does not matter that the flag names another version.
+	// A flag naming another build is discarded, so the version code answers.
+	image_trust_dev_version_beats_stale_flag: function () {
+		const e = trust_env({
+			persistent: "Morse-3.0.0\n",
+			board: board_of({ board: "morse,halowlink2", morse_version: "Morse-3.1-dev", target: "ramips/mt7621" }),
+		});
+		assert(e.h.image_trust({}).state == "unsigned");
+	},
+
 	// ---- create smoke -------------------------------------------------
 	create_returns_all_handlers: function () {
 		const h = env_flow({});
-		for (let m in ["query", "search", "download", "stat", "verify"])
+		for (let m in ["query", "search", "image_trust", "download", "stat", "verify"])
 			assert(type(h[m]) == "function", `${m} missing`);
 	},
 };
