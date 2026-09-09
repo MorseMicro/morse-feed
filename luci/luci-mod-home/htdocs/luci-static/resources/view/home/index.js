@@ -74,6 +74,11 @@ const callMorseModeQuery = rpc.declare({
 	method: 'query',
 });
 
+const callImageTrust = rpc.declare({
+	object: 'morseupgrade',
+	method: 'trust',
+});
+
 const callSessionAccess = rpc.declare({
 	object: 'session',
 	method: 'access',
@@ -481,6 +486,12 @@ function handleUpgradeSearch() {
 		).catch(() => null);
 }
 
+// Whether the running firmware is a signed Morse release, as recorded by
+// sysupgrade when it was flashed. Null when morseupgrade is not installed.
+async function handleImageTrust() {
+	return await callImageTrust().catch(() => null);
+}
+
 async function startDPP(mode) {
 	const result = await callDPPPushButton(mode);
 	if (!result || (result && result.error_code)) {
@@ -504,7 +515,35 @@ async function startDPP(mode) {
 	}
 }
 
-function createSystemCard(boardinfo, upgradeVersion) {
+const FIRMWARE_TRUST_NOTICES = {
+	persistent: {
+		class: 'firmware-trust unverified',
+		label: _('Unverified firmware'),
+		tooltip: _('The current firmware is not a verified Morse Micro release.'),
+	},
+	version: {
+		class: 'firmware-trust unknown',
+		label: _('Unknown firmware'),
+		tooltip: _('The version code of the current firmware does not align with a verified Morse Micro release.'),
+	},
+};
+
+// Note when the running firmware is not a signed Morse release. An unrecognised
+// source says nothing rather than guessing at how serious it is.
+function createFirmwareTrustLine(imageTrust) {
+	if (imageTrust?.state !== 'unsigned')
+		return null;
+
+	const notice = FIRMWARE_TRUST_NOTICES[imageTrust.source];
+	if (!notice)
+		return null;
+
+	return E('div', { class: notice.class }, [
+		E('span', { 'data-tooltip': notice.tooltip }, [notice.label]),
+	]);
+}
+
+function createSystemCard(boardinfo, upgradeVersion, imageTrust) {
 	// Currently no nice way to get this.
 	const morseVersion = boardinfo.release.description.split(' ').pop().replace('Morse-', '');
 
@@ -512,6 +551,7 @@ function createSystemCard(boardinfo, upgradeVersion) {
 		heading: _('System'),
 		link: { href: L.url('admin', 'system', 'system'), title: _('System Configuration') },
 		contents: [
+			createFirmwareTrustLine(imageTrust),
 			E('dl', [
 				E('dt', _('Model')),
 				E('dd', boardinfo.model),
@@ -526,7 +566,7 @@ function createSystemCard(boardinfo, upgradeVersion) {
 				E('div', { 'class': 'medium-number', 'data-tooltip': boardinfo.release.description }, morseVersion),
 				E('div', { class: 'big-text' }, _('Version')),
 			]),
-		],
+		].filter(e => e),
 	});
 
 	// Show a link to the upgrade page if a newer version is available
@@ -1542,6 +1582,11 @@ return view.extend({
 			this.upgradeVersion = upgradeVersion;
 		});
 
+		// Trigger a non-blocking image search (if the morseupgrade is installed).
+		handleImageTrust().then((imageTrust) => {
+			this.imageTrust = imageTrust;
+		});
+
 		const [hasQRCode, ..._] = await Promise.all([
 			fetch(DPP_QRCODE_PATH, { method: 'HEAD' }).then(r => r.ok).catch(_e => false),
 			configDiagram.loadTemplate(),
@@ -1751,7 +1796,7 @@ return view.extend({
 
 		cards.push(createModeCard(morseMode, morseuci.getEthernetPorts(builtinEthernetPorts, networkDevices)));
 		cards.push(createNetworkInterfacesCard(networks, wifiDevices));
-		cards.push(createSystemCard(boardinfo, this.upgradeVersion));
+		cards.push(createSystemCard(boardinfo, this.upgradeVersion, this.imageTrust));
 
 		return cards;
 	},

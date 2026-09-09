@@ -414,3 +414,33 @@ dd {
 .no-transition * {
 	transition: none !important;
 }
+
+.firmware-trust {
+	width: 100%;
+	text-align: center;
+	font-size: 0.9rem;
+}
+
+.firmware-trust span::before {
+	margin-right: 0.35rem;
+	font-weight: normal;
+}
+
+/* Observed at flash time: the signature was checked and it was not ours. */
+.firmware-trust.unverified {
+	font-weight: bold;
+	color: var(--danger, #f5365c);
+}
+
+.firmware-trust.unverified span::before {
+	content: "\26a0";
+}
+
+/* Inferred from the version code alone, so stated rather than flagged. */
+.firmware-trust.unknown {
+	color: var(--gray, #8898aa);
+}
+
+.firmware-trust.unknown span::before {
+	content: "\2139";
+}
