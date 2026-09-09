@@ -1,6 +1,6 @@
-From 16c73f444dfd43e8340d8e8f6ca7745a2c4fdda8 Mon Sep 17 00:00:00 2001
+From 2dba80f8e2fd367a361a52d3692717ff16714bbc Mon Sep 17 00:00:00 2001
 From: syang <samuele.yang@morsemicro.com>
-Date: Mon, 6 Jul 2026 13:40:44 +1000
+Date: Wed, 9 Sep 2026 14:44:35 +1000
 Subject: [PATCH] morse-regdb: (APP-7331) remove 800MHz channels & fix 5GHz
  mappings for SG
 
@@ -12,7 +12,7 @@ diff --git a/artefacts/repo_channels.csv b/artefacts/repo_channels.csv
 index e44bd139..9e479c3f 100644
 --- a/artefacts/repo_channels.csv
 +++ b/artefacts/repo_channels.csv
-@@ -443,25 +443,21 @@ SE,,1,9,6,66,867.5,10.0,2.8,Sweden,16.13,False,0.0,0.0,0.0,44
+@@ -1050,25 +1050,21 @@ SE,,1,9,6,66,867.5,10.0,2.8,Sweden,16.13,False,0.0,0.0,0.0,44
  SE,,1,31,30,77,916.9,10.0,2.8,Sweden,16.13,False,0.0,0.0,0.0,120
  SE,,1,33,30,77,917.9,10.0,2.8,Sweden,16.13,False,0.0,0.0,0.0,124
  SE,,1,35,30,77,918.9,10.0,2.8,Sweden,16.13,False,0.0,0.0,0.0,128
@@ -53,6 +53,6 @@ index e44bd139..9e479c3f 100644
  SI,,1,1,6,66,863.5,10.0,2.8,Slovenia,16.13,False,0.0,0.0,0.0,132
  SI,,1,3,6,66,864.5,10.0,2.8,Slovenia,16.13,False,0.0,0.0,0.0,136
  SI,,1,5,6,66,865.5,10.0,2.8,Slovenia,16.13,False,0.0,0.0,0.0,36
--- 
+--
 2.34.1
 
