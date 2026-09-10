@@ -224,6 +224,7 @@ build_mod_params() {
 	# APP-4887: Keep powersave disabled by default on USB-based Morse devices to ensure the LED remains functional.
 	is_usb=0
 	case "$path" in *usb*) is_usb=1 ;; esac
+	[ "$is_usb" -eq 1 ] && MOD_PARAMS="$MOD_PARAMS enable_hw_leds=y"
 
 	ps_disabled_by_modparam=0
 	if [ "$num_iface" -gt 1 ]; then
