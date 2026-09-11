@@ -1,0 +1,40 @@
+From 4371ce91340baff9deb7bd727269e34215f357d7 Mon Sep 17 00:00:00 2001
+From: Andrew Pope <andrew.pope@morsemicro.com>
+Date: Tue, 18 Aug 2026 03:24:38 +0000
+Subject: [PATCH] SW-22694 Ignore non-primary RXd DPP action frames (pull
+ request #476)
+
+An AP is able to occasionally receive traffic on frequencies that
+overlap or are adjacent to its primary channel. When this occurs
+during DPP, this triggers "offchannel" exchanges where the AP attempts
+to complete DPP on a non-primary frequency (i.e. triggers a channel
+change). These exchanges typically fail and delay/prevent DPP from
+succeeding on the primary channel.
+
+When receiving DPP action frames as the AP, ignore any frames that
+are not from the configured interface frequency. This is dependent
+on the earlier change in 2fce55c3.
+---
+ src/ap/dpp_hostapd.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/src/ap/dpp_hostapd.c b/src/ap/dpp_hostapd.c
+index 781152f8a..c68c59ae3 100644
+--- a/src/ap/dpp_hostapd.c
++++ b/src/ap/dpp_hostapd.c
+@@ -3059,6 +3059,12 @@ void hostapd_dpp_rx_action(struct hostapd_data *hapd, const u8 *src,
+ 	if (!hapd->iface->interfaces || !hapd->iface->interfaces->dpp)
+ 		return;
+ 
++	/* Discard DPP Action frames from devices on adjacent/overlapping
++	 * channels. This is to avoid exchanging DPP offchannel.
++	 */
++	if ((int) freq != hapd->iface->freq)
++		return;
++
+ 	if (len < DPP_HDR_LEN)
+ 		return;
+ 	if (WPA_GET_BE24(buf) != OUI_WFA || buf[3] != DPP_OUI_TYPE)
+-- 
+2.53.0
+

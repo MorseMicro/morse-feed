@@ -1,0 +1,129 @@
+From 4c9eb569d6c9fd74e4059eb59cf7c2a24a7c8884 Mon Sep 17 00:00:00 2001
+From: Andrew Pope <andrew.pope@morsemicro.com>
+Date: Thu, 20 Aug 2026 10:02:02 +0000
+Subject: [PATCH] SW-22694 Fix S1G primary-channel mapping for JP overlap
+ channels (pull request #480)
+
+morse_s1g_conf_get_prim_ht_freq() always applied the JP/AU
+overlap-channel offset, even when the primary spans the operating
+channel's full width and needed no disambiguation. This caused hostapd
+to compute the wrong frequency for JP S1G channel 4 and 4371ce913's
+adjacent-channel discard check silently dropped
+legitimate DPP action frames.
+
+Fix morse_s1g_chan_get_primary_chan_freq_ht() and its shared helper
+morse_s1g_chan_to_ht20_prim_chan() to skip the offset only when the
+primary occupies the whole operating channel, and document why
+morse_s1g_oper_ie_get_prim_ht_freq() intentionally uses a
+different condition so the two aren't conflated again.
+
+Adds regression tests covering both the previously-broken channel 4
+and channel 38's narrower embedded primary, which an earlier, overly
+broad fix attempt had regressed. Also adds a diagnostic wpa_printf()
+to hostapd_dpp_rx_action() for any future "ignoring frame" reports.
+---
+ src/ap/dpp_hostapd.c |  6 ++++-
+ src/utils/morse.c    | 28 +++++++++++++++++++-----
+ src/utils/morse.h    | 12 +++++++---
+
+diff --git a/src/ap/dpp_hostapd.c b/src/ap/dpp_hostapd.c
+index c68c59ae3..843cb5985 100644
+--- a/src/ap/dpp_hostapd.c
++++ b/src/ap/dpp_hostapd.c
+@@ -3062,8 +3062,12 @@ void hostapd_dpp_rx_action(struct hostapd_data *hapd, const u8 *src,
+ 	/* Discard DPP Action frames from devices on adjacent/overlapping
+ 	 * channels. This is to avoid exchanging DPP offchannel.
+ 	 */
+-	if ((int) freq != hapd->iface->freq)
++	if ((int) freq != hapd->iface->freq) {
++		wpa_printf(MSG_DEBUG, "DPP: ignoring frame from "
++			   MACSTR " freq=%u (!= %d)", MAC2STR(src), freq,
++			   hapd->iface->freq);
+ 		return;
++	}
+ 
+ 	if (len < DPP_HDR_LEN)
+ 		return;
+diff --git a/src/utils/morse.c b/src/utils/morse.c
+index eb133bce4..1491311fb 100644
+--- a/src/utils/morse.c
++++ b/src/utils/morse.c
+@@ -1613,21 +1613,30 @@ int morse_ht_freq_to_s1g_chan(int ht_freq, char *country)
+ 	return morse_ht_chan_to_s1g_chan(ht_chan);
+ }
+ 
+-int morse_s1g_chan_to_ht20_prim_chan(int s1g_op_channel, int s1g_prim_1MHz_channel, char *cc)
++int morse_s1g_chan_to_ht20_prim_chan(int s1g_op_channel, int s1g_prim_channel, char *cc)
+ {
+ 	int ht_chan;
+ 	int offset;
+ 
+-	ht_chan = morse_s1g_chan_to_ht_chan(s1g_prim_1MHz_channel);
++	ht_chan = morse_s1g_chan_to_ht_chan(s1g_prim_channel);
++	if (ht_chan < 0)
++		return MORSE_S1G_RETURN_ERROR;
++
++	/* A primary that spans the operating channel's full width has no narrower
++	 * position within it left to disambiguate, so no offset is needed.
++	 */
++	if (s1g_op_channel == s1g_prim_channel)
++		return ht_chan;
++
+ 	if (strncmp(cc, "JP", COUNTRY_CODE_LEN) == 0)
+-		offset = morse_ht_chan_offset_jp(s1g_op_channel, s1g_prim_1MHz_channel, 0);
++		offset = morse_ht_chan_offset_jp(s1g_op_channel, s1g_prim_channel, 0);
+ 	else if (morse_cc_uses_au_channelization(cc) &&
+ 		 !morse_dot11_2020_channelization_is_in_use())
+-		offset = morse_ht_chan_offset_au(s1g_op_channel, s1g_prim_1MHz_channel, false);
++		offset = morse_ht_chan_offset_au(s1g_op_channel, s1g_prim_channel, false);
+ 	else
+ 		offset = 0;
+ 
+-	if (ht_chan < 0 || offset < 0)
++	if (offset < 0)
+ 		return MORSE_S1G_RETURN_ERROR;
+ 
+ 	return ht_chan + offset;
+@@ -2594,6 +2603,15 @@ int morse_s1g_oper_ie_get_prim_ht_freq(const struct ieee80211_s1g_operation *s1g
+ 	if (morse_s1g_op_class_to_country(s1g_oper->s1g_oper_class, cc) != MORSE_SUCCESS)
+ 		return MORSE_S1G_RETURN_ERROR;
+ 
++	/* When greater than 1MHz, the primary channel communicated in the S1G operation IE
++	 * does not require context of the wider channel it's embedded within. Translation from
++	 * S1G to HT is performed directly from the channel map. We do not want to apply any
++	 * offsets for overlapping regdoms maintained in morse_s1g_chan_to_ht20_prim_chan().
++	 *
++	 * When the channel is 1MHz, this table alone cannot perform the conversion. This is
++	 * especially true of regdoms where channels overlap. Which HT channel we map to is
++	 * dependent on the wider context of the operating channel it is within.
++	 */
+ 	prim_bw = morse_s1g_chan_to_bw(s1g_oper->s1g_primary_ch);
+ 	if (prim_bw > IEEE80211_CHAN_1MHZ)
+ 		ht_prim_chan = morse_s1g_chan_to_ht_chan(s1g_oper->s1g_primary_ch);
+diff --git a/src/utils/morse.h b/src/utils/morse.h
+index 2791698ca..e95504291 100644
+--- a/src/utils/morse.h
++++ b/src/utils/morse.h
+@@ -457,13 +457,19 @@ int morse_insert_supported_op_class(struct wpabuf *buf, char *cc, int s1g_chwidt
+ /**
+  * morse_s1g_chan_to_ht20_prim_chan() - Convert S1G Primary channel to HT20 channel.
+  *
++ * Applies the country-specific overlap-channel offset that resolves where a primary channel
++ * sits within a wider operating channel it's embedded in. Maps @s1g_prim_channel directly (no
++ * offset) when it equals @s1g_op_channel, since a full-width primary has no narrower position
++ * to disambiguate. Some callers bypass this function entirely for other reasons -- see
++ * morse_s1g_oper_ie_get_prim_ht_freq().
++ *
+  * @s1g_op_channel: S1G Operating Channel
+- * @s1g_prim_1MHz_channel: S1G 1MHz primary channel
++ * @s1g_prim_channel: S1G primary channel
+  * @cc: Country code
+  *
+- * Returns: HT20 Channel if mapping is successful, 0 otherwise
++ * Returns: HT20 Channel if mapping is successful, MORSE_S1G_RETURN_ERROR otherwise
+  */
+-int morse_s1g_chan_to_ht20_prim_chan(int s1g_op_channel, int s1g_prim_1MHz_channel, char *cc);
++int morse_s1g_chan_to_ht20_prim_chan(int s1g_op_channel, int s1g_prim_channel, char *cc);
+ 
+ /**
+  * morse_s1g_get_start_freq_for_country() - Get starting frequency for given country.
