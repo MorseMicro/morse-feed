@@ -184,6 +184,19 @@ wait_for_s1g_device() {
 	done
 }
 
+# SW-21463 means that setting any EU (ETSI) regdom here causes
+# issues. For now, default to 00.
+_sw_21463_workaround() {
+	local config="$1"
+	config_get type "$config" type
+	config_get country "$config" country
+
+	if [ "$mm_region" = EU -a "$type" = mac80211 -a "$country" = DE ]; then
+		uci set "wireless.$config.country=00"
+	fi
+}
+
 config_load wireless
 wait_for_s1g_device
 config_foreach _change_device_defaults wifi-device
+config_foreach _sw_21463_workaround wifi-device
