@@ -21,12 +21,13 @@ persistent_vars_storage() {
 	fi
 }
 
-default_ssid=$(uci get system.@system[0].hostname 2>/dev/null)
-default_wifi_key="$(persistent_vars_storage READ default_wifi_key)"
+default_ssid="$(uci -q get system.@system[0].hostname 2>/dev/null)"
+default_wifi_key="$(uci -q get system.@system[0].default_wifi_key)"
 if [ -z "$default_wifi_key" ]; then
-	default_wifi_key=$(tr -dc 'A-Za-z0-9' < /dev/urandom 2>/dev/null | head -c 8)
+	default_wifi_key="$(persistent_vars_storage READ default_wifi_key)"
+	[ -z "$default_wifi_key" ] && default_wifi_key=$(tr -dc 'A-Za-z0-9' < /dev/urandom 2>/dev/null | head -c 8)
+	uci set "system.@system[0].default_wifi_key=$default_wifi_key"
 fi
-uci set "system.@system[0].default_wifi_key=$default_wifi_key"
 mm_region="$(persistent_vars_storage READ mm_region)"
 
 _get_iface() {
