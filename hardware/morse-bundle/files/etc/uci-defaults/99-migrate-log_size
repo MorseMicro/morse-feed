@@ -1,0 +1,17 @@
+#!/bin/sh
+
+OLD_LOG_SIZE=64
+
+mem_total_kb="$(awk '/^MemTotal:/ {print $2}' /proc/meminfo)"
+
+if [ "$mem_total_kb" -ge 204800 ]; then
+	new_log_size=8192
+elif [ "$mem_total_kb" -ge 102400 ]; then
+	new_log_size=1024
+else
+	new_log_size=256
+fi
+
+if [ "$(uci get system.@system[0].log_size || echo $OLD_LOG_SIZE)" = "$OLD_LOG_SIZE" ]; then
+	uci set system.@system[0].log_size=$new_log_size
+fi
