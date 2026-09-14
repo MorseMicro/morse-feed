@@ -221,19 +221,11 @@ build_mod_params() {
 	ps_requested_by_iface=0
 	for_each_interface "ap sta adhoc mesh none monitor" check_powersave_iface
 
-	# APP-4887: Keep powersave disabled by default on USB-based Morse devices to ensure the LED remains functional.
-	is_usb=0
-	case "$path" in *usb*) is_usb=1 ;; esac
-	[ "$is_usb" -eq 1 ] && MOD_PARAMS="$MOD_PARAMS enable_hw_leds=y"
-
 	ps_disabled_by_modparam=0
 	if [ "$num_iface" -gt 1 ]; then
 		MOD_PARAMS="$MOD_PARAMS enable_ps=0"
 		ps_disabled_by_modparam=1
 		[ "$ps_requested_by_iface" -eq 1 ] && echo "WARNING: Power save feature is not supported in multi interface"
-	elif [ "$ps_requested_by_iface" -eq 0 ] && [ "$is_usb" -eq 1 ]; then
-		MOD_PARAMS="$MOD_PARAMS enable_ps=0"
-		ps_disabled_by_modparam=1
 	fi
 
 	MOD_PARAMS=`echo $MOD_PARAMS | xargs`
@@ -812,8 +804,7 @@ morse_iface_create() {
 
 			# When power save was disabled by mod param, skip iw powersave.
 			if [ "$ps_disabled_by_modparam" -eq 0 ]; then
-				# Keep powersave disabled by default for USB mode (APP-3745)
-				[ "$is_usb" -eq 1 ] && set_default powersave 0 || set_default powersave 1
+				set_default powersave 1
 				[ "$powersave" -gt 0 ] && powersave="on" || powersave="off"
 				iw dev "$ifname" set power_save "$powersave"
 			fi
