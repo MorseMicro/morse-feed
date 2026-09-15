@@ -403,22 +403,9 @@ change_module_parameters() {
 	local module="$1"
 	local module_config_file="$2"
 	local params="$3"
-	local extra_params=""
-
-	if [ "$module" = morse -o "$module" = morse_test_mode ]; then
-		# These are parameters that we use morse_cli to configure,
-		# but because we have no way to revert back to the original
-		# state any change requires us to reload the module.
-		#
-		# Therefore we store these as a comment in /etc/modules.d/morse
-		# (and changing this comment will mean that we will decide
-		# to reload the module; see use of cmp below).
-		extra_params="# Extra params: forced_listen_interval=$forced_listen_interval"
-	fi
 
 	local proposed_module="$(mktemp)"
 	cat > "$proposed_module" <<-END
-	$extra_params
 	$module $params
 	END
 
@@ -643,9 +630,11 @@ drv_morse_setup() {
 	for_each_interface "monitor" morse_setup_monitor
 	for_each_interface "none" morse_setup_none
 
-	# Ideally, this would also be in the hostapd/wpa_supplicant config,
+	# Ideally, these settings would also be in the hostapd/wpa_supplicant config,
 	# but for now they don't have support so we use morse_cli.
 	set_default ampdu 1
+	# A forced_listen_interval of 0 disables the forcing.
+	set_default forced_listen_interval 0
 
 	# There will only be an ifname if at least one interface is brought up.
 	# If no interfaces, it doesn't matter if we don't set these
@@ -659,30 +648,27 @@ drv_morse_setup() {
 			morse_cli -i $ifname ampdu disable
 		fi
 
-		if [ -n "$forced_listen_interval" ]
-		then
-			# 802.11ah supports listen intervals beyond 65535 by
-			# using the first two bits as a scale factor.
-			# We calculate this transformation here to keep the UI/config simple.
-			local max_val=16383
-			local scale_factor
-			local unscaled_interval
-			if [ "$forced_listen_interval" -gt $((1000 * $max_val)) ]; then
-				scale_factor=3
-				unscaled_interval=$(($forced_listen_interval / 10000))
-			elif [ "$forced_listen_interval" -gt $((10 * $max_val)) ]; then
-				scale_factor=2
-				unscaled_interval=$(($forced_listen_interval / 1000))
-			elif [ "$forced_listen_interval" -gt $max_val ]; then
-				scale_factor=1
-				unscaled_interval=$(($forced_listen_interval / 10))
-			else
-				scale_factor=0
-				unscaled_interval="$forced_listen_interval"
-			fi
-
-			morse_cli -i $ifname li $unscaled_interval $scale_factor
+		# 802.11ah supports listen intervals beyond 65535 by
+		# using the first two bits as a scale factor.
+		# We calculate this transformation here to keep the UI/config simple.
+		local max_val=16383
+		local scale_factor
+		local unscaled_interval
+		if [ "$forced_listen_interval" -gt $((1000 * $max_val)) ]; then
+			scale_factor=3
+			unscaled_interval=$(($forced_listen_interval / 10000))
+		elif [ "$forced_listen_interval" -gt $((10 * $max_val)) ]; then
+			scale_factor=2
+			unscaled_interval=$(($forced_listen_interval / 1000))
+		elif [ "$forced_listen_interval" -gt $max_val ]; then
+			scale_factor=1
+			unscaled_interval=$(($forced_listen_interval / 10))
+		else
+			scale_factor=0
+			unscaled_interval="$forced_listen_interval"
 		fi
+
+		morse_cli -i $ifname li $unscaled_interval $scale_factor
 
 		if [ "$chan_test_mode" = "1" ]; then
 			json_select config
