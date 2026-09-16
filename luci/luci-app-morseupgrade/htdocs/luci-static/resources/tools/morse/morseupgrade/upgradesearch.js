@@ -56,6 +56,13 @@ const UpgradeSearch = baseclass.extend({
 		return out;
 	},
 
+	// True unless the version code is Morse-*<n>.<n>.<n>.<optional_n>
+	// Mirrors is_not_release_version() in core.uc.
+	isNotReleaseVersion(morseVersion) {
+		return typeof morseVersion != 'string'
+			|| !/^Morse-([A-Za-z]+-)*[0-9]+\.[0-9]+\.[0-9]+(\.[0-9]+)?$/.test(morseVersion);
+	},
+
 	// True if the server version is strictly newer than the device version.
 	isNewer(serverVersion, deviceVersion) {
 		const a = this.parseVersion(serverVersion);
@@ -153,7 +160,6 @@ const UpgradeSearch = baseclass.extend({
 			filesystem: image.filesystem,
 			sum: image.sha256,
 			url: `${this.repo}/${base}/${image.name}`,
-			server: upgradeRule.server,
 			notes: profilesJson.notes,
 			notes_url: profilesJson.notes_url,
 		};
@@ -182,7 +188,9 @@ const UpgradeSearch = baseclass.extend({
 		if (!upgradeRule || (!upgradeRule.version && !upgradeRule.server))
 			return { status: 'NoUpdateNeededOK', message: 'Already up to date!' };
 
-		if (!this.isNewer(upgradeRule.version, boardInfo.morse_version))
+		// Always offer the latest to anything that is not a release
+		if (!this.isNotReleaseVersion(boardInfo.morse_version)
+			&& !this.isNewer(upgradeRule.version, boardInfo.morse_version))
 			return { status: 'NoUpdateNeededOK', message: 'Already up to date!' };
 
 		return this.getSysupgradeImage(boardInfo, upgradeRule);
@@ -201,10 +209,8 @@ const UpgradeSearch = baseclass.extend({
 	 * `ubusStatus`.
 	 *
 	 * A successful search result where an ugprade image was found only via RPC
-	 * will return an object like this. `server` is the repo-relative directory
-	 * the matching latest.json rule pointed at, whose second segment names a
-	 * hardware platform ("halowlink2", "ekh-bcm2711-mm6108") rather than a board
-	 * or an OpenWrt target; release notes are looked up relative to it.
+	 * will return an object like this. `notes` is whatever release notes the
+	 * build's profiles.json carried, and is absent when it carried none.
 	 * ```
 	 *   {
 	 *       "browser": {
@@ -219,7 +225,7 @@ const UpgradeSearch = baseclass.extend({
 	 *           "filesystem": "squashfs",
 	 *           "sum": "97c13d9808e19920062cc13463a5323ab970dcdf1c96cc6b9c8fede05cc61037",
 	 *           "url": "https://repo.apps.morsemicro.com/openwrt/platform_releases/<version>/<platform>/targets/bcm27xx/bcm2711/openwrt-morse-2.8.5-morsemicro-mm6108-ekh01-03-squashfs-sysupgrade.img.gz",
-	 *           "server": "<version>/<platform>"
+	 *           "notes": ["First bullet.", "Second bullet."]
 	 *       }
 	 *   }
 	 * ```

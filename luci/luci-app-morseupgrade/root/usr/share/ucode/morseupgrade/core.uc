@@ -281,7 +281,9 @@ function create(env) {
 		if (!upgrade_rule || (!upgrade_rule.version && !upgrade_rule.server))
 			return { status: 'NoUpdateNeededOK', message: 'Already up to date!' };
 
-		if (!is_newer(upgrade_rule.version, board_info.morse_version))
+		// Offer the latest version for anything that is not a release
+		if (!is_not_release_version(board_info.morse_version)
+			&& !is_newer(upgrade_rule.version, board_info.morse_version))
 			return { status: 'NoUpdateNeededOK', message: 'Already up to date!' };
 
 		return get_sysupgrade_image(board_info, upgrade_rule);

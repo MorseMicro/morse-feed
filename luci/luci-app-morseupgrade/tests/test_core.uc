@@ -400,6 +400,16 @@ return {
 		const h = env_flow({ board: board_of({ board: "morse,halowlink2", morse_version: "Morse-9.9.9", target: "ramips/mt7621" }) });
 		assert(h.search({}).status == "NoUpdateNeededOK");
 	},
+	// parse_version() takes the tail after the last dash, so this dev code
+	// yields [7,0,0,0] and the comparison would call 3.2.0 older.
+	search_dev_dated_offered_upgrade: function () {
+		const h = env_flow({ board: board_of({ board: "morse,halowlink2", morse_version: "Morse-b62e7378e69-2026-09-07", target: "ramips/mt7621" }) });
+		assert(h.search({}).status == "UpdateImageFoundOK", h.search({}).status);
+	},
+	search_dev_suffix_offered_upgrade: function () {
+		const h = env_flow({ board: board_of({ board: "morse,halowlink2", morse_version: "Morse-9.9.9-dev", target: "ramips/mt7621" }) });
+		assert(h.search({}).status == "UpdateImageFoundOK", h.search({}).status);
+	},
 	search_version_bucket_precedence: function () {
 		// Running Morse-2.12.6 -> the version-specific bucket (server bucket-2126)
 		// must win over the "latest" bucket (server 3.0.2/mm6108).
