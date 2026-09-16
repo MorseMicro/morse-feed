@@ -687,15 +687,42 @@ return view.extend({
 				this.deviceUpgradeButtonContainer.querySelector('.upgrade-page-button-subtitle').classList.toggle('hidden', this.deviceConnectionAvailable);
 				this.browserUpgradeButtonContainer.querySelector('.upgrade-page-button-subtitle').classList.toggle('hidden', this.browserConnectionAvailable);
 
+				this.renderReleaseNotes();
+
 				break;
 			case states.ERROR:
 				this.retrySysupgradeButton.classList.remove('hidden');
+				this.releaseNotesSection.classList.add('hidden');
 				break;
 			default:
 				this.sysupgradeButton.classList.add('hidden');
 				this.upgradeButtonContainer.classList.add('hidden');
 				break;
 		}
+	},
+
+	renderReleaseNotes: function () {
+		const search = this.search;
+
+		if (!Array.isArray(search?.notes) || !search.notes.length) {
+			this.releaseNotesSection.classList.add('hidden');
+			return;
+		}
+
+		const children = [
+			E('h3', {}, [_('Highlights for %s').format(search.version)]),
+			E('ul', {}, search.notes.map(note => E('li', {}, [note]))),
+		];
+
+		if (search.notes_url) {
+			children.push(E('p', {},
+				_('Please consult the relevant <a href="%s" target="_blank">release notes</a> for more details.')
+					.format(search.notes_url)));
+		}
+
+		this.releaseNotesSection.replaceChildren(...children);
+
+		this.releaseNotesSection.classList.remove('hidden');
 	},
 
 	pollState: async function () {
@@ -953,6 +980,8 @@ return view.extend({
 
 		this.messageBox = E('div', { id: 'message', class: 'hidden', style: 'margin-top: 40px; text-align: center; display: block;' });
 
+		this.releaseNotesSection = E('div', { class: 'upgrade-release-notes hidden' });
+
 		this.foundUpgrade = false;
 		this.browserConnectionAvailable = false;
 		this.deviceConnectionAvailable = false;
@@ -973,6 +1002,7 @@ return view.extend({
 			]),
 			this.stateElement,
 			this.messageBox,
+			this.releaseNotesSection,
 			this.startButton,
 			this.upgradeButtonContainer,
 			this.sysupgradeButton,

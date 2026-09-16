@@ -91,3 +91,34 @@
 	-webkit-mask-image: var(--warning-icon);
 	-webkit-mask-size: cover;
 }
+.upgrade-release-notes {
+	max-width: 34rem;
+	margin: 1.5rem auto 0;
+	padding: 1rem 1.25rem;
+	border: 1px solid var(--box-shadow, #e0e2e4);
+	border-radius: .5rem;
+	background: var(--card-color, #f0f0f1);
+	text-align: left;
+}
+
+.upgrade-release-notes > h3 {
+	margin: 0 0 .5rem;
+	font-size: 1rem;
+	font-weight: bold;
+}
+
+.upgrade-release-notes ul {
+	margin: 0;
+	padding-left: 1.25rem;
+}
+
+.upgrade-release-notes > p {
+	margin: .75rem 0 0;
+}
+
+/* cascade.css sets `li { list-style-type: none }` theme-wide */
+.upgrade-release-notes li {
+	display: list-item;
+	list-style: disc outside;
+	padding: .15rem 0;
+}
