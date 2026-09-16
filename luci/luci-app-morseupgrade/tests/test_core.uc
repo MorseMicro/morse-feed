@@ -57,6 +57,16 @@ const PROFILES_NOSQUASH = '{"version_code": "Morse-9.8.7", "profiles": {"p1": ' 
 	'{"type": "factory", "filesystem": "squashfs", "name": "f.bin", "sha256": "aa"},' +
 	'{"type": "sysupgrade", "filesystem": "ext4", "name": "e.bin", "sha256": "bb"}]}}}';
 
+// profiles.json carrying release notes, injected by the release tooling.
+const PROFILES_NOTES = '{' +
+	'"version_code": "Morse-9.8.7",' +
+	'"notes": ["Added hardware revision C support.", "Fixed DHCP renewal in mesh mode."],' +
+	'"notes_url": "https://docs.morsemicro.com/software-releases/halowlink2-software-release-notes",' +
+	'"profiles": {"p1": {' +
+		'"supported_devices": ["morse,halowlink2"],' +
+		'"images": [{"type": "sysupgrade", "filesystem": "squashfs", "name": "s.bin", "sha256": "aa"}]' +
+	'}}}';
+
 // ---------------------------------------------------------------------------
 // Mocks
 // ---------------------------------------------------------------------------
@@ -628,6 +638,21 @@ return {
 			board: board_of({ board: "morse,halowlink2", morse_version: "Morse-3.1-dev", target: "ramips/mt7621" }),
 		});
 		assert(e.h.image_trust({}).state == "unsigned");
+	},
+
+	// ---- search carries the notes -------------------------------------
+	search_returns_notes_from_profiles: function () {
+		const h = env_flow({ board: board_of({ board: "morse,halowlink2", morse_version: "Morse-1.0.0", target: "ramips/mt7621" }), profiles: PROFILES_NOTES });
+		const r = h.search({});
+		assert(r.status == "UpdateImageFoundOK", r.status);
+		assert(length(r.notes) == 2, `${r.notes}`);
+		assert(r.notes[0] == "Added hardware revision C support.", r.notes[0]);
+		assert(r.notes_url == "https://docs.morsemicro.com/software-releases/halowlink2-software-release-notes", r.notes_url);
+	},
+	search_no_notes_when_profiles_has_none: function () {
+		const h = env_flow({ board: board_of({ board: "morse,halowlink2", morse_version: "Morse-1.0.0", target: "ramips/mt7621" }) });
+		const r = h.search({});
+		assert(r.notes == null && r.notes_url == null);
 	},
 
 	// ---- create smoke -------------------------------------------------

@@ -251,6 +251,8 @@ function create(env) {
 			filesystem: image.filesystem,
 			sum: image.sha256,
 			url: `${config.repo}/${base}/${image.name}`,
+			notes: profiles_json.notes,
+			notes_url: profiles_json.notes_url,
 		};
 	}
 

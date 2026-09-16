@@ -153,6 +153,9 @@ const UpgradeSearch = baseclass.extend({
 			filesystem: image.filesystem,
 			sum: image.sha256,
 			url: `${this.repo}/${base}/${image.name}`,
+			server: upgradeRule.server,
+			notes: profilesJson.notes,
+			notes_url: profilesJson.notes_url,
 		};
 	},
 
@@ -198,7 +201,10 @@ const UpgradeSearch = baseclass.extend({
 	 * `ubusStatus`.
 	 *
 	 * A successful search result where an ugprade image was found only via RPC
-	 * will return an object like this:
+	 * will return an object like this. `server` is the repo-relative directory
+	 * the matching latest.json rule pointed at, whose second segment names a
+	 * hardware platform ("halowlink2", "ekh-bcm2711-mm6108") rather than a board
+	 * or an OpenWrt target; release notes are looked up relative to it.
 	 * ```
 	 *   {
 	 *       "browser": {
@@ -212,7 +218,8 @@ const UpgradeSearch = baseclass.extend({
 	 *           "version": "Morse-2.8.5",
 	 *           "filesystem": "squashfs",
 	 *           "sum": "97c13d9808e19920062cc13463a5323ab970dcdf1c96cc6b9c8fede05cc61037",
-	 *           "url": "https://repo.apps.morsemicro.com/openwrt/releases/<version>/<board>/targets/bcm27xx/bcm2711/openwrt-morse-2.8.5-morsemicro-mm6108-ekh01-03-squashfs-sysupgrade.img.gz"
+	 *           "url": "https://repo.apps.morsemicro.com/openwrt/platform_releases/<version>/<platform>/targets/bcm27xx/bcm2711/openwrt-morse-2.8.5-morsemicro-mm6108-ekh01-03-squashfs-sysupgrade.img.gz",
+	 *           "server": "<version>/<platform>"
 	 *       }
 	 *   }
 	 * ```
