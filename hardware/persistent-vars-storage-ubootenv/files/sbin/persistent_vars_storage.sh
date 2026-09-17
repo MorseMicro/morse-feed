@@ -2,7 +2,6 @@
 #
 # Copyright (C) 2023 MorseMicro
 #
-
 set -eu
 trap exit_handler EXIT
 
@@ -47,12 +46,69 @@ show_raw_partition_data()
 # This is here so we can iterate over all currently set keys.
 FACTORY_KEYS="device_password default_wifi_key mm_region mm_region_unlocked mm_sku hw_version manufacturer mm_mode mp_fw serial_id serial_number dpp_priv_key"
 
+IS_NOT_PRODUCT=
+DEVICE_PRODUCT=
+. /etc/device_info
+
+BOARD_NAME=
+if [ -e /tmp/sysinfo/board_name ]; then
+	BOARD_NAME=$(cat /tmp/sysinfo/board_name)
+elif [ -e /proc/device-tree/compatible ]; then
+	BOARD_NAME="$(strings /proc/device-tree/compatible | head -1)"
+fi
+
+# Use secondary uboot env in preference
+# (this one is less likely to be the 'real' uboot env).
+# The disadvantage of using the real uboot env is that if it's empty/fails the CRC
+# uboot-envtools decides to write the 'default' environment that it understands.
+# Unfortunately, this is very unlikely to be consistent with the default environment
+# compiled into the uboot, so it causes issues.
+if [ -e /etc/fw_sys.config ]; then
+	conffile=/etc/fw_sys.config
+elif [ -e /etc/fw_env.config ]; then
+	conffile=/etc/fw_env.config
+else
+	# Neither config file is present which means that we are in a firstboot scenario.
+	# This happens because mount_root uses a tmpfs overlay whilst the flash-backed
+	# jffs2 (empty on first boot, erased during factory reset) is being prepared.
+	# When mount_root pivots to the "real" but empty overlay there is a period where
+	# uboot-envtools uci-defaults have not yet generated the required /etc/fw_*.config
+	# files.
+	#
+	# To work around this we create a temporary config in /tmp based on the known
+	# partition layout for particular board_names which allows fw_printenv/fw_setenv
+	# to work. This file is not cleaned up because it will disappear on reboot.
+	#
+	# The values below are MTD addresses which match their corresponding entries in
+	# package/boot/uboot-envtools/files/ramips.
+	case "$BOARD_NAME" in
+		morse,halowlink1|\
+		morse,halowlink2|\
+		morse,halowlink-apx)
+			conffile=/tmp/fw_sys_fallback.config
+			echo '/dev/mtd1 0x0 0x8000 0x1000' > "$conffile"
+			;;
+		*)
+			conffile=/etc/fw_env.config
+			;;
+	esac
+fi
+
+# APP-7666: if DEVICE_PRODUCT has defaulted to "Generic" then we are not using a retail product image
+if [ "$DEVICE_PRODUCT" = "Generic" ]; then
+	IS_NOT_PRODUCT=1
+fi
+
 show_factory_data()
 {
-	local mm_region
-	local board_name="$(cat /tmp/sysinfo/board_name)"
+	# APP-7666: non-product images should always resolve to having the region
+	# unlocked when reading the factory partition. uboot-env can be modified.
+	if [ "$IS_NOT_PRODUCT" = "1" -a "$1" = "mm_region_unlocked" ]; then
+		echo 1
+		return
+	fi
 
-	case "$board_name" in
+	case "$BOARD_NAME" in
 		morse,halowlink1 |\
 		morse,halowlink2)
 			case "$1" in
@@ -66,7 +122,7 @@ show_factory_data()
 					show_raw_partition_data factory 0x40c0 2
 				;;
 				mm_region_unlocked)
-					if [ "$board_name" = "morse,halowlink1" ]; then
+					if [ "$BOARD_NAME" = "morse,halowlink1" ]; then
 						echo 1
 					fi
 				;;
@@ -128,49 +184,6 @@ show_factory_data()
 	esac
 }
 
-# Use secondary uboot env in preference
-# (this one is less likely to be the 'real' uboot env).
-# The disadvantage of using the real uboot env is that if it's empty/fails the CRC
-# uboot-envtools decides to write the 'default' environment that it understands.
-# Unfortunately, this is very unlikely to be consistent with the default environment
-# compiled into the uboot, so it causes issues.
-if [ -e /etc/fw_sys.config ]; then
-	conffile=/etc/fw_sys.config
-elif [ -e /etc/fw_env.config ]; then
-	conffile=/etc/fw_env.config
-else
-	# Neither config file is present which means that we are in a firstboot scenario.
-	# This happens because mount_root uses a tmpfs overlay whilst the flash-backed
-	# jffs2 (empty on first boot, erased during factory reset) is being prepared.
-	# When mount_root pivots to the "real" but empty overlay there is a period where
-	# uboot-envtools uci-defaults have not yet generated the required /etc/fw_*.config
-	# files.
-	#
-	# To work around this we create a temporary config in /tmp based on the known
-	# partition layout for particular board_names which allows fw_printenv/fw_setenv
-	# to work. This file is not cleaned up because it will disappear on reboot.
-	#
-	# The values below are MTD addresses which match their corresponding entries in
-	# package/boot/uboot-envtools/files/ramips.
-	_board_name=""
-	if [ -e /tmp/sysinfo/board_name ]; then
-		_board_name=$(cat /tmp/sysinfo/board_name)
-	elif [ -e /proc/device-tree/compatible ]; then
-		_board_name="$(strings /proc/device-tree/compatible | head -1)"
-	fi
-	case "$_board_name" in
-		morse,halowlink1|\
-		morse,halowlink2|\
-		morse,halowlink-apx)
-			conffile=/tmp/fw_sys_fallback.config
-			echo '/dev/mtd1 0x0 0x8000 0x1000' > "$conffile"
-			;;
-		*)
-			conffile=/etc/fw_env.config
-			;;
-	esac
-fi
-
 operation="$1"
 
 # Does factory data exist for this key?
@@ -182,11 +195,13 @@ factory_has_key() {
 case "$operation" in
 	READ)
 		key="$2"
+
 		# If this key is marked ERASED, do not try to read it
 		erased_flag=$(fw_printenv -n -c "$conffile" "${key}_ERASED" 2> /dev/null || true)
 		if [ "$erased_flag" = "1" ]; then
 			exit 0
 		fi
+
 		if ! fw_printenv -n -c "$conffile" "$key" 2> /dev/null; then
 			# If the user asks for env data that's not available, fall back to factory
 			# defaults for the device (if available).
