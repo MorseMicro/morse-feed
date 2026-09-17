@@ -3313,6 +3313,7 @@ span[data-tooltip] .label {
   position: absolute;
   z-index: 1000;
   left: -1000px;
+  top: -1000px;
   transition: opacity 0.25s ease-out;
   white-space: pre-wrap;
   pointer-events: none;
