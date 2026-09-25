@@ -1,0 +1,187 @@
+From aacad62bfd2e6e9cdf70b2365168f02cd9a64e66 Mon Sep 17 00:00:00 2001
+From: Inian Pavel Sakthi <inian.sakthi@morsemicro.com>
+Date: Mon, 21 Sep 2026 17:07:30 +1000
+Subject: [PATCH] SW-23514 use 80211 ac values for accessing queue (pull
+ request #2324)
+
+When using pull queue interface, incorrect AC values were
+being used to access queues. Changes done to use
+IEEE80211_AC enums instead of Morse specific
+enums when accessing tx queues.
+---
+ debugfs_sta.c |  2 +-
+ mac.c         | 22 ++++++++--------------
+ morse.h       | 10 +++++-----
+ pageset.c     |  4 ++--
+ yaps.c        |  7 ++-----
+ 5 files changed, 18 insertions(+), 27 deletions(-)
+
+--- a/debugfs_sta.c
++++ b/debugfs_sta.c
+@@ -464,7 +464,7 @@ static ssize_t morse_sta_traffic_stats_r
+ 	struct ieee80211_sta *sta = file->private_data;
+ 	struct morse_sta *mors_sta = (struct morse_sta *)sta->drv_priv;
+ 	struct morse_sta_stats *stats = mors_sta->bss_stats_sta.stats;
+-	static const char * const ac_names[] = { "BE", "BK", "VI", "VO" };
++	static const char * const ac_names[] = { "VO", "VI", "BE", "BK" };
+ 	ssize_t bufsz = 1024;
+ 	ssize_t ret;
+ 	char *buf, *p;
+--- a/mac.c
++++ b/mac.c
+@@ -2465,7 +2465,7 @@ static int morse_txq_send(struct morse *
+ 	return test_bit(MORSE_STATE_FLAG_DATA_QS_STOPPED, &mors->state_flags);
+ }
+ 
+-static bool morse_txq_schedule_list(struct morse *mors, enum morse_page_aci aci)
++static bool morse_txq_schedule_list(struct morse *mors, u8 aci)
+ {
+ 	struct ieee80211_txq *txq;
+ 	bool tx_stopped = false;
+@@ -2483,13 +2483,10 @@ static bool morse_txq_schedule_list(stru
+ 	return tx_stopped;
+ }
+ 
+-static bool morse_txq_schedule(struct morse *mors, enum morse_page_aci aci)
++static bool morse_txq_schedule(struct morse *mors, u8 aci)
+ {
+ 	bool tx_stopped = false;
+ 
+-	if (aci > MORSE_ACI_VO)
+-		return 0;
+-
+ 	rcu_read_lock();
+ 
+ 	ieee80211_txq_schedule_start(mors->hw, aci);
+@@ -2503,22 +2500,18 @@ static bool morse_txq_schedule(struct mo
+ 
+ static void morse_txq_tasklet(struct tasklet_struct *t)
+ {
+-	s16 aci;
++	u8 aci;
+ 	bool tx_stopped;
+ 	struct morse *mors = from_tasklet(mors, t, tasklet_txq);
+ 
+ 	if (test_bit(MORSE_STATE_FLAG_DATA_QS_STOPPED, &mors->state_flags))
+ 		return;
+-
+-	for (aci = MORSE_ACI_VO; aci >= 0; aci--) {
+-		tx_stopped = morse_txq_schedule(mors, (enum morse_page_aci)aci);
++	for (aci = IEEE80211_AC_VO; aci < IEEE80211_NUM_ACS; aci++) {
++		tx_stopped = morse_txq_schedule(mors, aci);
+ 
+ 		if (tx_stopped)
+ 			/* Queues are stopped, probably filled */
+ 			break;
+-
+-		if (aci == MORSE_ACI_BE)
+-			break;
+ 	}
+ }
+ 
+@@ -2683,7 +2676,7 @@ void morse_mac_stop_tx_queues(struct mor
+ 
+ 	/* Wake/Stop mac80211 queues is not needed when using pull interface */
+ 	if (!morse_mac_is_airtime_fairness_enabled())
+-		for (queue = IEEE80211_AC_VO; queue <= IEEE80211_AC_BK; queue++)
++		for (queue = IEEE80211_AC_VO; queue < IEEE80211_NUM_ACS; queue++)
+ 			ieee80211_stop_queue(mors->hw, queue);
+ 
+ 	mors->debug.page_stats.queue_stop++;
+@@ -2700,7 +2693,7 @@ void morse_mac_wake_tx_queues(struct mor
+ 
+ 	/* Wake/Stop mac80211 queues is not needed when using pull interface */
+ 	if (!morse_mac_is_airtime_fairness_enabled())
+-		for (queue = IEEE80211_AC_VO; queue <= IEEE80211_AC_BK; queue++)
++		for (queue = IEEE80211_AC_VO; queue < IEEE80211_NUM_ACS; queue++)
+ 			ieee80211_wake_queue(mors->hw, queue);
+ 
+ 	clear_bit(MORSE_STATE_FLAG_DATA_QS_STOPPED, &mors->state_flags);
+@@ -4896,6 +4889,7 @@ morse_mac_ops_conf_tx(struct ieee80211_h
+ 	struct morse_vif *mors_vif = ieee80211_vif_to_morse_vif(vif);
+ 
+ 	mutex_lock(&mors->lock);
++	/* Maps the 802.11 queue to its corresponding HW ACI index */
+ 	mqp.aci = map_mac80211q_2_morse_aci(queue);
+ 	mqp.aifs = params->aifs;
+ 	mqp.cw_max = params->cw_max;
+--- a/morse.h
++++ b/morse.h
+@@ -1489,22 +1489,22 @@ static inline u8 map_mac80211q_2_morse_a
+  *
+  * @return QoS AC index
+  */
+-static inline enum morse_page_aci dot11_tid_to_ac(enum qos_tid_up_index tid)
++static inline enum ieee80211_ac_numbers dot11_tid_to_ac(enum qos_tid_up_index tid)
+ {
+ 	switch (tid) {
+ 	case MORSE_QOS_TID_UP_BK:
+ 	case MORSE_QOS_TID_UP_xx:
+-		return MORSE_ACI_BK;
++		return IEEE80211_AC_BK;
+ 	case MORSE_QOS_TID_UP_CL:
+ 	case MORSE_QOS_TID_UP_VI:
+-		return MORSE_ACI_VI;
++		return IEEE80211_AC_VI;
+ 	case MORSE_QOS_TID_UP_VO:
+ 	case MORSE_QOS_TID_UP_NC:
+-		return MORSE_ACI_VO;
++		return IEEE80211_AC_VO;
+ 	case MORSE_QOS_TID_UP_BE:
+ 	case MORSE_QOS_TID_UP_EE:
+ 	default:
+-		return MORSE_ACI_BE;
++		return IEEE80211_AC_BE;
+ 	}
+ }
+ 
+--- a/pageset.c
++++ b/pageset.c
+@@ -691,7 +691,7 @@ static bool pageset_tx_from_data_qs(stru
+ 	unsigned long flags;
+ 
+ 	mutex_lock(&pageset->lock);
+-	for (aci = MORSE_ACI_VO; aci >= 0; aci--) {
++	for (aci = IEEE80211_AC_VO; aci < IEEE80211_NUM_ACS; aci++) {
+ 		int ret;
+ 
+ 		if (!morse_is_data_tx_allowed(mors))
+@@ -1206,7 +1206,7 @@ static void pagesets_flush_tx_data(struc
+ 	if (q)
+ 		morse_skbq_tx_flush(q);
+ 
+-	for (aci = MORSE_ACI_BE; aci <= MORSE_ACI_VO; aci++) {
++	for (aci = IEEE80211_AC_VO; aci < IEEE80211_NUM_ACS; aci++) {
+ 		q = skbq_pageset_get_q(mors, MORSE_SKB_CHAN_DATA, aci);
+ 		if (q)
+ 			morse_skbq_tx_flush(q);
+--- a/yaps.c
++++ b/yaps.c
+@@ -389,7 +389,7 @@ static bool morse_yaps_tx_data_handler(s
+ 	u32 count = 0;
+ 	struct morse *mors = yaps->mors;
+ 
+-	for (aci = MORSE_ACI_VO; aci >= 0; aci--) {
++	for (aci = IEEE80211_AC_VO; aci < IEEE80211_NUM_ACS; aci++) {
+ 		struct morse_skbq *data_q = skbq_yaps_tc_q_from_aci(mors, aci);
+ 
+ 		if (!morse_is_data_tx_allowed(mors))
+@@ -400,9 +400,6 @@ static bool morse_yaps_tx_data_handler(s
+ 
+ 		if (yaps->chip_queue_full.is_full)
+ 			break;
+-
+-		if (aci == MORSE_ACI_BE)
+-			break;
+ 	}
+ 
+ 	/* Data has potentially been transmitted from the data SKBQs.
+@@ -806,7 +803,7 @@ int morse_yaps_benchmark(struct morse *m
+ 	struct sk_buff *skb;
+ 	struct morse_yaps *yaps = mors->chip_if->yaps;
+ 	struct morse_skb_tx_info tx_info = { 0 };
+-	struct morse_skbq *mq = skbq_yaps_tc_q_from_aci(mors, MORSE_ACI_VO);
++	struct morse_skbq *mq = skbq_yaps_tc_q_from_aci(mors, IEEE80211_AC_VO);
+ 	unsigned long start_time, end_time, max_time;
+ 	unsigned long time_taken_sec, time_taken_msec;
+ 	char *body = kmalloc(BENCHMARK_PKT_LEN, GFP_KERNEL);

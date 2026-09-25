@@ -14,11 +14,9 @@ Subject: [PATCH] APP-4107 : Export 4.3v FEM support via sysfs
  usb.c   | 14 +++++++-------
  8 files changed, 173 insertions(+), 21 deletions(-)
 
-diff --git a/hw.c b/hw.c
-index 0e8bc84b..61afb64e 100644
 --- a/hw.c
 +++ b/hw.c
-@@ -39,6 +39,10 @@ module_param(reattach_hw, bool, 0644);
+@@ -41,6 +41,10 @@ module_param(reattach_hw, bool, 0644);
  MODULE_PARM_DESC(reattach_hw,
  	"Do not reset hardware state during module exit, attempt to reattach during module init");
  
@@ -29,9 +27,9 @@ index 0e8bc84b..61afb64e 100644
  static const struct morse_chip_series *chip_series[] = {
  	&mm61xx_chip_series,
  	&mm81xx_chip_series,
-@@ -864,3 +868,58 @@ void morse_hw_set_state(struct morse *mors, enum morse_hw_state next)
- 	mors->hw_state = next;
- 	MORSE_WARN_ON(FEATURE_ID_DEFAULT, !transition_okay);
+@@ -936,3 +940,58 @@ int morse_hw_coredump_if_stopped(struct
+ 
+ 	return ret;
  }
 +
 +int morse_4v3_fem_init(struct morse *mors)
@@ -88,11 +86,9 @@ index 0e8bc84b..61afb64e 100644
 +		gpio_free(mors->cfg->gpios.fem_4v3);
 +	return 0;
 +}
-diff --git a/hw.h b/hw.h
-index a5620446..ed6c08b3 100644
 --- a/hw.h
 +++ b/hw.h
-@@ -312,6 +312,7 @@ struct morse_gpios {
+@@ -299,6 +299,7 @@ struct morse_gpios {
  	int wake;
  	int busy;
  	int spi_irq;
@@ -100,9 +96,9 @@ index a5620446..ed6c08b3 100644
  };
  
  struct morse_hw_cfg {
-@@ -815,4 +816,56 @@ static inline bool morse_hw_ps_gpios_are_supported(struct morse_gpios *gpios)
- 	return gpio_is_valid(gpios->wake) && gpio_is_valid(gpios->busy);
- }
+@@ -840,4 +841,56 @@ void morse_hw_clear_aon(struct morse *mo
+  */
+ int morse_hw_coredump_if_stopped(struct morse *mors);
  
 +/**
 + * morse_4v3_fem_init - Initialise the 4.3V FEM GPIO
@@ -157,36 +153,32 @@ index a5620446..ed6c08b3 100644
 +int morse_4v3_fem_free(struct morse *mors);
 +
  #endif /* !_MORSE_HW_H_ */
-diff --git a/mac.c b/mac.c
-index f580b66f..c327ba99 100644
 --- a/mac.c
 +++ b/mac.c
-@@ -8047,6 +8047,10 @@ int morse_mac_register(struct morse *mors)
- 	INIT_WORK(&mors->recovery.driver_restart, morse_mac_restart_work);
- 	mors->recovery.is_ready = true;
+@@ -7935,6 +7935,10 @@ int morse_mac_register(struct morse *mor
+ 		goto err;
+ 	}
  
 +	ret = morse_4v3_fem_init(mors);
 +	if (ret)
-+		MORSE_ERR(mors, "Unable to initialise 4.3V FEM GPIO \n");
++	MORSE_ERR(mors, "Unable to initialise 4.3V FEM GPIO \n");
 +
- 	ret = morse_init_debug(mors);
+ 	ret = morse_init_debug(mors, mors->wiphy->debugfsdir);
  	if (ret)
  		MORSE_ERR(mors, "Unable to create debugfs files\n");
-@@ -8216,6 +8220,7 @@ void morse_mac_unregister(struct morse *mors)
+@@ -8103,6 +8107,7 @@ void morse_mac_unregister(struct morse *
  	cancel_work_sync(&mors->recovery.driver_restart);
- 	cancel_work_sync(&mors->recovery.bus_reset);
+ 
  
 +	morse_4v3_fem_free(mors);
  	morse_led_exit(mors);
  	morse_deinit_debug(mors);
  
-diff --git a/of.c b/of.c
-index 1092d36e..0fa4b10e 100644
 --- a/of.c
 +++ b/of.c
-@@ -37,6 +37,10 @@ int morse_of_probe(struct device *dev, struct morse_gpios *gpios,
+@@ -69,6 +69,10 @@ int morse_of_probe(struct device *dev, s
  			/* Don't error on spi-irq-gpios - this might not be a SPI device */
- 			gpio_pin = of_get_named_gpio(np, "spi-irq-gpios", 0);
+ 			gpio_pin = morse_of_get_gpio(np, MORSE_OF_GPIO_PROP("spi-irq"), 0);
  			gpios->spi_irq = gpio_pin;
 +
 +			/* Don't error on optional 4v3_fem_gpio */
@@ -195,11 +187,9 @@ index 1092d36e..0fa4b10e 100644
  			return 0;
  		}
  		dev_err(dev, "%s: Couldn't match device table\n", __func__);
-diff --git a/sdio.c b/sdio.c
-index aa7237a0..38314522 100644
 --- a/sdio.c
 +++ b/sdio.c
-@@ -828,13 +828,6 @@ static int morse_sdio_probe(struct sdio_func *func, const struct sdio_device_id
+@@ -838,13 +838,6 @@ static int morse_sdio_probe(struct sdio_
  		goto err_exit;
  	}
  
@@ -213,9 +203,9 @@ index aa7237a0..38314522 100644
  	morse_hw_headless_init(mors);
  
  	sdio = (struct morse_sdio *)mors->drv_priv;
-@@ -881,6 +874,13 @@ static int morse_sdio_probe(struct sdio_func *func, const struct sdio_device_id
- 	mors->cfg->gpios = gpios;
- 	reset_gpio = gpios.reset;
+@@ -874,6 +867,13 @@ static int morse_sdio_probe(struct sdio_
+ 		goto err_exit;
+ 	}
  
 +	ret = morse_sysfs_init(mors);
 +	if (ret) {
@@ -227,11 +217,9 @@ index aa7237a0..38314522 100644
  	/* Digital reset the chip now if external (host) xtal initialisation is required */
  	if (enable_ext_xtal_init) {
  		MORSE_DBG(mors, "Resetting chip early for external xtal init");
-diff --git a/spi.c b/spi.c
-index 9b8db0e6..792f53cd 100644
 --- a/spi.c
 +++ b/spi.c
-@@ -1409,13 +1409,6 @@ static int morse_spi_probe(struct spi_device *spi)
+@@ -1489,13 +1489,6 @@ static int morse_spi_probe(struct spi_de
  		return -ENOMEM;
  	}
  
@@ -245,7 +233,7 @@ index 9b8db0e6..792f53cd 100644
  	morse_hw_headless_init(mors);
  
  	/* update chip configuration */
-@@ -1537,6 +1530,13 @@ static int morse_spi_probe(struct spi_device *spi)
+@@ -1619,6 +1612,13 @@ static int morse_spi_probe(struct spi_de
  
  	morse_spi_config_burst_mode(mors, false);
  
@@ -259,8 +247,6 @@ index 9b8db0e6..792f53cd 100644
  	mors->board_serial = serial;
  	MORSE_SPI_INFO(mors, "Board serial: %s\n", mors->board_serial);
  
-diff --git a/sysfs.c b/sysfs.c
-index e7499e60..50dc6cb2 100644
 --- a/sysfs.c
 +++ b/sysfs.c
 @@ -1,6 +1,8 @@
@@ -272,7 +258,7 @@ index e7499e60..50dc6cb2 100644
  #include "sysfs.h"
  #include "debug.h"
  #include "mac.h"
-@@ -87,6 +89,24 @@ static const struct attribute_group sysfs_attr_group = {
+@@ -98,6 +100,24 @@ static const struct attribute_group sysf
  	.attrs = sysfs_attrs,
  };
  
@@ -297,7 +283,7 @@ index e7499e60..50dc6cb2 100644
  static ssize_t aid_show(struct device *dev,
  			struct device_attribute *attr, char *buf)
  {
-@@ -203,8 +223,16 @@ int morse_sysfs_init(struct morse *mors)
+@@ -210,8 +230,16 @@ int morse_sysfs_init(struct morse *mors)
  	if (ret < 0)
  		goto err_finish_scan_cache;
  
@@ -314,7 +300,7 @@ index e7499e60..50dc6cb2 100644
  err_finish_scan_cache:
  	scan_result_cache_sysfs_finish(mors);
  err:
-@@ -214,6 +242,9 @@ err:
+@@ -221,6 +249,9 @@ err:
  
  void morse_sysfs_finish(struct morse *mors)
  {
@@ -324,11 +310,9 @@ index e7499e60..50dc6cb2 100644
  	sysfs_remove_group(&mors->dev->kobj, &sysfs_attr_group);
  	scan_result_cache_sysfs_finish(mors);
  }
-diff --git a/usb.c b/usb.c
-index 9466a096..6d5814e7 100644
 --- a/usb.c
 +++ b/usb.c
-@@ -819,13 +819,6 @@ static int morse_usb_probe(struct usb_interface *interface, const struct usb_dev
+@@ -821,13 +821,6 @@ static int morse_usb_probe(struct usb_in
  		return -ENOMEM;
  	}
  
@@ -342,7 +326,7 @@ index 9466a096..6d5814e7 100644
  	morse_hw_headless_init(mors);
  
  	mors->bus_ops = &morse_usb_ops;
-@@ -856,6 +849,13 @@ static int morse_usb_probe(struct usb_interface *interface, const struct usb_dev
+@@ -858,6 +851,13 @@ static int morse_usb_probe(struct usb_in
  	}
  	MORSE_USB_INFO(mors, "Morse Micro USB device found, chip ID=0x%04x\n", mors->chip_id);
  
@@ -356,5 +340,3 @@ index 9466a096..6d5814e7 100644
  #ifdef CONFIG_MORSE_ENABLE_TEST_MODES
  	if (test_mode == MORSE_CONFIG_TEST_MODE_BUS) {
  		morse_bus_test(mors, "USB");
--- 
-2.34.1
