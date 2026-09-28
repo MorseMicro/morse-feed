@@ -9,6 +9,12 @@ if [ -f /sysupgrade.tgz ]; then
     exit 0
 fi
 
+# Without the web interface or halowlink-agent, SSH is the only way to
+# configure the device.
+if [ ! -e /www/cgi-bin/luci ] && [ ! -e /usr/sbin/halowlink-agent ]; then
+    exit 0
+fi
+
 # Disable SSH by default
 uci set dropbear.@dropbear[0].enable=0
 
