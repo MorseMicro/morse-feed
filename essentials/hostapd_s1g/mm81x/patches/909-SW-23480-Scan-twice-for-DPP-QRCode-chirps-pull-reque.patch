@@ -1,0 +1,100 @@
+From 417fb63667c9be7c4ff63c2ce06865e588a10970 Mon Sep 17 00:00:00 2001
+From: James Haggerty <james.haggerty@morsemicro.com>
+Date: Fri, 25 Sep 2026 03:58:29 +0000
+Subject: [PATCH 4/5] SW-23480 Scan twice for DPP QRCode chirps (pull request
+ #505)
+
+This is the same behaviour introduced for DPP PB chirps to reduce
+the chance of missing the AP.
+
+Just like PB, the cost of missing here is quite high, as
+the spec behaviour is not to rescan until 4 chirp rounds are done
+(with 30s between each chirp round).
+
+Approved-by: Andrew Pope
+Approved-by: Adam Baumann
+Approved-by: Feddrick Aquino
+Approved-by: Joshua Wilkinson
+---
+ wpa_supplicant/dpp_supplicant.c   | 27 +++++++++++++++++++++------
+ wpa_supplicant/wpa_supplicant_i.h |  1 +
+ 2 files changed, 22 insertions(+), 6 deletions(-)
+
+diff --git a/wpa_supplicant/dpp_supplicant.c b/wpa_supplicant/dpp_supplicant.c
+index b7896e791..427ac96bc 100644
+--- a/wpa_supplicant/dpp_supplicant.c
++++ b/wpa_supplicant/dpp_supplicant.c
+@@ -42,7 +42,8 @@
+ #endif
+ #ifdef CONFIG_DPP3
+ #define PUSH_BUTTON_CHIRP_FOREVER_START_DELAY_S (30)
+-#define PUSH_BUTTON_RETRY_SCAN_DWELL_TU         (200)
++#define DPP_RETRY_SCAN_DWELL_TU                 (200)
++#define DPP_PRESENCE_ANNOUNCEMENT_SCAN_TRIES    (2)
+ #endif
+ 
+ static int wpas_dpp_listen_start(struct wpa_supplicant *wpa_s,
+@@ -5734,11 +5735,24 @@ static void wpas_dpp_chirp_scan_res_handler(struct wpa_supplicant *wpa_s,
+ 	if (!bi && !wpa_s->dpp_reconfig_ssid)
+ 		return;
+ 
+-	wpa_s->dpp_chirp_scan_done = 1;
++	if (!wpa_s->dpp_chirp_scan_retries) {
++		os_free(wpa_s->dpp_chirp_freqs_khz);
++		wpa_s->dpp_chirp_freqs_khz = wpas_dpp_presence_ann_channels(wpa_s, bi);
++	}
+ 
+-	os_free(wpa_s->dpp_chirp_freqs_khz);
+-	wpa_s->dpp_chirp_freqs_khz = wpas_dpp_presence_ann_channels(wpa_s, bi);
++	wpa_s->dpp_chirp_scan_retries++;
+ 	wpas_dpp_presence_ann_append_scan_results(wpa_s, &wpa_s->dpp_chirp_freqs_khz);
++
++	if (wpa_s->dpp_chirp_scan_retries < DPP_PRESENCE_ANNOUNCEMENT_SCAN_TRIES) {
++		wpa_s->scan_req = MANUAL_SCAN_REQ;
++		wpa_s->scan_res_handler = wpas_dpp_chirp_scan_res_handler;
++		wpa_s->next_scan_dwell_duration = DPP_RETRY_SCAN_DWELL_TU;
++		wpa_supplicant_req_scan(wpa_s, 0, 500000);
++		return;
++	}
++
++	wpa_s->dpp_chirp_scan_retries = 0;
++	wpa_s->dpp_chirp_scan_done = 1;
+ 	log_dpp_presence_ann_channels(wpa_s, wpa_s->dpp_chirp_freqs_khz);
+ 
+ 	if (!wpa_s->dpp_chirp_freqs_khz ||
+@@ -5774,6 +5788,7 @@ static void wpas_dpp_chirp_next(void *eloop_ctx, void *timeout_ctx)
+ 			wpa_s->scan_req = MANUAL_SCAN_REQ;
+ 			wpa_s->scan_res_handler =
+ 				wpas_dpp_chirp_scan_res_handler;
++			wpa_s->dpp_chirp_scan_retries = 0;
+ 			wpa_supplicant_req_scan(wpa_s, 0, 0);
+ 			return;
+ 		}
+@@ -6370,10 +6385,10 @@ static void wpas_dpp_pb_scan_res_handler(struct wpa_supplicant *wpa_s,
+ 	wpa_s->dpp_pb_scan_retries++;
+ 	wpas_dpp_presence_ann_append_scan_results(wpa_s, &wpa_s->dpp_pb_freqs_khz);
+ 
+-	if (wpa_s->dpp_pb_scan_retries < 2) {
++	if (wpa_s->dpp_pb_scan_retries < DPP_PRESENCE_ANNOUNCEMENT_SCAN_TRIES) {
+ 		wpa_s->scan_req = MANUAL_SCAN_REQ;
+ 		wpa_s->scan_res_handler = wpas_dpp_pb_scan_res_handler;
+-		wpa_s->next_scan_dwell_duration = PUSH_BUTTON_RETRY_SCAN_DWELL_TU;
++		wpa_s->next_scan_dwell_duration = DPP_RETRY_SCAN_DWELL_TU;
+ 		wpa_supplicant_cancel_sched_scan(wpa_s);
+ 		wpa_supplicant_req_scan(wpa_s, 0, 500000);
+ 		return;
+diff --git a/wpa_supplicant/wpa_supplicant_i.h b/wpa_supplicant/wpa_supplicant_i.h
+index a18a1a290..97b6fd66c 100644
+--- a/wpa_supplicant/wpa_supplicant_i.h
++++ b/wpa_supplicant/wpa_supplicant_i.h
+@@ -1608,6 +1608,7 @@ struct wpa_supplicant {
+ 	int dpp_chirp_iter;
+ 	int dpp_chirp_round;
+ 	int dpp_chirp_scan_done;
++	int dpp_chirp_scan_retries;
+ 	int dpp_chirp_listen;
+ 	int dpp_chirp_listen_offset;
+ 	struct wpa_ssid *dpp_reconfig_ssid;
+-- 
+2.53.0
+

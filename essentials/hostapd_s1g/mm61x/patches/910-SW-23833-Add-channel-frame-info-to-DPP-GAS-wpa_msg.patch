@@ -1,0 +1,980 @@
+From 45128fc4e963222448b5c54b372b457882d4fb30 Mon Sep 17 00:00:00 2001
+From: James Haggerty <james.haggerty@morsemicro.com>
+Date: Wed, 23 Sep 2026 15:07:19 +1000
+Subject: [PATCH 5/5] SW-23833 Add channel/frame info to DPP/GAS wpa_msg
+
+Make these more human readable/useful.
+---
+ src/ap/dpp_hostapd.c            | 150 +++++++++++++++-------
+ src/ap/gas_query_ap.c           |   9 +-
+ src/common/dpp.c                |  52 ++++++++
+ src/common/dpp.h                |   1 +
+ src/common/ieee802_11_common.c  |  35 ++++++
+ src/common/ieee802_11_common.h  |   2 +
+ wpa_supplicant/dpp_supplicant.c | 213 +++++++++++++++++++++++---------
+ wpa_supplicant/gas_query.c      |  11 +-
+ 8 files changed, 368 insertions(+), 105 deletions(-)
+
+diff --git a/src/ap/dpp_hostapd.c b/src/ap/dpp_hostapd.c
+index 9f6247b22..a99c0f1c6 100644
+--- a/src/ap/dpp_hostapd.c
++++ b/src/ap/dpp_hostapd.c
+@@ -15,6 +15,7 @@
+ #include "utils/eloop.h"
+ #include "common/dpp.h"
+ #include "common/gas.h"
++#include "common/ieee802_11_common.h"
+ #include "common/wpa_ctrl.h"
+ #include "crypto/random.h"
+ #include "hostapd.h"
+@@ -52,6 +53,17 @@ static int hostapd_dpp_process_conf_obj(void *ctx,
+ static const u8 broadcast[ETH_ALEN] = { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };
+ 
+ 
++static const char *hostapd_dpp_country(struct hostapd_data *hapd)
++{
++#ifdef CONFIG_IEEE80211AH
++	/* country is overwritten with "ZZ" for S1G; op_country holds the real one */
++	if (hapd->iconf->ieee80211ah)
++		return hapd->iconf->op_country;
++#endif /* CONFIG_IEEE80211AH */
++	return hapd->iconf->country;
++}
++
++
+ /**
+  * hostapd_dpp_qr_code - Parse and add DPP bootstrapping info from a QR Code
+  * @hapd: Pointer to hostapd_data
+@@ -72,9 +84,12 @@ int hostapd_dpp_qr_code(struct hostapd_data *hapd, const char *cmd)
+ 		wpa_printf(MSG_DEBUG,
+ 			   "DPP: Sending out pending authentication response");
+ 		wpa_msg(hapd->msg_ctx, MSG_INFO, DPP_EVENT_TX "dst=" MACSTR
+-			" freq=%u type=%d",
++			" freq=%u chan=%d type=%d type_str=%s",
+ 			MAC2STR(auth->peer_mac_addr), auth->curr_freq,
+-			DPP_PA_AUTHENTICATION_RESP);
++			ieee80211_freq_to_display_chan(auth->curr_freq, 0,
++						       hostapd_dpp_country(hapd)),
++			DPP_PA_AUTHENTICATION_RESP,
++			dpp_pa_frame_type_txt(DPP_PA_AUTHENTICATION_RESP));
+ 		hostapd_drv_send_action(hapd, auth->curr_freq, 0,
+ 					auth->peer_mac_addr,
+ 					wpabuf_head(hapd->dpp_auth->resp_msg),
+@@ -184,9 +199,12 @@ static void hostapd_dpp_auth_resp_retry_timeout(void *eloop_ctx,
+ 	wpa_printf(MSG_INFO,
+ 		   "DPP: Retry Authentication Response after timeout");
+ 	wpa_msg(hapd->msg_ctx, MSG_INFO, DPP_EVENT_TX "dst=" MACSTR
+-		" freq=%u type=%d",
++		" freq=%u chan=%d type=%d type_str=%s",
+ 		MAC2STR(auth->peer_mac_addr), auth->curr_freq,
+-		DPP_PA_AUTHENTICATION_RESP);
++		ieee80211_freq_to_display_chan(auth->curr_freq, 0,
++					       hostapd_dpp_country(hapd)),
++		DPP_PA_AUTHENTICATION_RESP,
++		dpp_pa_frame_type_txt(DPP_PA_AUTHENTICATION_RESP));
+ 	hostapd_drv_send_action(hapd, auth->curr_freq, 500, auth->peer_mac_addr,
+ 				wpabuf_head(auth->resp_msg),
+ 				wpabuf_len(auth->resp_msg));
+@@ -451,9 +469,13 @@ static int hostapd_dpp_pkex_init(struct hostapd_data *hapd,
+ 		}
+ 	}
+ 	wpa_msg(hapd->msg_ctx, MSG_INFO, DPP_EVENT_TX "dst=" MACSTR
+-		" freq=%u type=%d", MAC2STR(broadcast), pkex->freq,
++		" freq=%u chan=%d type=%d type_str=%s", MAC2STR(broadcast), pkex->freq,
++		ieee80211_freq_to_display_chan(pkex->freq, 0,
++					       hostapd_dpp_country(hapd)),
+ 		v2 ? DPP_PA_PKEX_EXCHANGE_REQ :
+-		DPP_PA_PKEX_V1_EXCHANGE_REQ);
++		DPP_PA_PKEX_V1_EXCHANGE_REQ,
++		dpp_pa_frame_type_txt(v2 ? DPP_PA_PKEX_EXCHANGE_REQ :
++				      DPP_PA_PKEX_V1_EXCHANGE_REQ));
+ 	hostapd_drv_send_action(hapd, pkex->freq, 0, broadcast,
+ 				wpabuf_head(msg), wpabuf_len(msg));
+ 	pkex->exch_req_wait_time = wait_time;
+@@ -511,10 +533,14 @@ static void hostapd_dpp_pkex_retry_timeout(void *eloop_ctx, void *timeout_ctx)
+ 	wpa_printf(MSG_INFO, "DPP: Retransmit PKEX Exchange Request (try %u)",
+ 		   pkex->exch_req_tries);
+ 	wpa_msg(hapd->msg_ctx, MSG_INFO, DPP_EVENT_TX "dst=" MACSTR
+-		" freq=%u type=%d",
++		" freq=%u chan=%d type=%d type_str=%s",
+ 		MAC2STR(dst), pkex->freq,
++		ieee80211_freq_to_display_chan(pkex->freq, 0,
++					       hostapd_dpp_country(hapd)),
+ 		pkex->v2 ? DPP_PA_PKEX_EXCHANGE_REQ :
+-		DPP_PA_PKEX_V1_EXCHANGE_REQ);
++		DPP_PA_PKEX_V1_EXCHANGE_REQ,
++		dpp_pa_frame_type_txt(pkex->v2 ? DPP_PA_PKEX_EXCHANGE_REQ :
++				      DPP_PA_PKEX_V1_EXCHANGE_REQ));
+ 	hostapd_drv_send_action(hapd, pkex->freq, pkex->exch_req_wait_time,
+ 				dst, wpabuf_head(pkex->exchange_req),
+ 				wpabuf_len(pkex->exchange_req));
+@@ -871,8 +897,11 @@ static int hostapd_dpp_auth_init_next(struct hostapd_data *hapd)
+ 			   freq, auth->neg_freq);
+ 	}
+ 	wpa_msg(hapd->msg_ctx, MSG_INFO, DPP_EVENT_TX "dst=" MACSTR
+-		" freq=%u type=%d",
+-		MAC2STR(dst), freq, DPP_PA_AUTHENTICATION_REQ);
++		" freq=%u chan=%d type=%d type_str=%s",
++		MAC2STR(dst), freq,
++		ieee80211_freq_to_display_chan(freq, 0, hostapd_dpp_country(hapd)),
++		DPP_PA_AUTHENTICATION_REQ,
++		dpp_pa_frame_type_txt(DPP_PA_AUTHENTICATION_REQ));
+ 	auth->auth_req_ack = 0;
+ 	os_get_reltime(&hapd->dpp_last_init);
+ 	return hostapd_drv_send_action(hapd, freq, wait_time,
+@@ -1196,9 +1225,12 @@ static void hostapd_dpp_rx_auth_req(struct hostapd_data *hapd, const u8 *src,
+ 	os_memcpy(hapd->dpp_auth->peer_mac_addr, src, ETH_ALEN);
+ 
+ 	wpa_msg(hapd->msg_ctx, MSG_INFO, DPP_EVENT_TX "dst=" MACSTR
+-		" freq=%u type=%d",
++		" freq=%u chan=%d type=%d type_str=%s",
+ 		MAC2STR(src), hapd->dpp_auth->curr_freq,
+-		DPP_PA_AUTHENTICATION_RESP);
++		ieee80211_freq_to_display_chan(hapd->dpp_auth->curr_freq, 0,
++					       hostapd_dpp_country(hapd)),
++		DPP_PA_AUTHENTICATION_RESP,
++		dpp_pa_frame_type_txt(DPP_PA_AUTHENTICATION_RESP));
+ 	hostapd_drv_send_action(hapd, hapd->dpp_auth->curr_freq, 0,
+ 				src, wpabuf_head(hapd->dpp_auth->resp_msg),
+ 				wpabuf_len(hapd->dpp_auth->resp_msg));
+@@ -1401,9 +1433,12 @@ fail:
+ 			goto fail2;
+ 
+ 		wpa_msg(hapd->msg_ctx, MSG_INFO,
+-			DPP_EVENT_TX "dst=" MACSTR " freq=%u type=%d",
++			DPP_EVENT_TX "dst=" MACSTR " freq=%u chan=%d type=%d type_str=%s",
+ 			MAC2STR(addr), auth->curr_freq,
+-			DPP_PA_CONFIGURATION_RESULT);
++			ieee80211_freq_to_display_chan(auth->curr_freq, 0,
++						       hostapd_dpp_country(hapd)),
++			DPP_PA_CONFIGURATION_RESULT,
++			dpp_pa_frame_type_txt(DPP_PA_CONFIGURATION_RESULT));
+ 		hostapd_drv_send_action(hapd, auth->curr_freq, 0,
+ 					addr, wpabuf_head(msg),
+ 					wpabuf_len(msg));
+@@ -1536,8 +1571,11 @@ static void hostapd_dpp_rx_auth_resp(struct hostapd_data *hapd, const u8 *src,
+ 	os_memcpy(auth->peer_mac_addr, src, ETH_ALEN);
+ 
+ 	wpa_msg(hapd->msg_ctx, MSG_INFO, DPP_EVENT_TX "dst=" MACSTR
+-		" freq=%u type=%d", MAC2STR(src), auth->curr_freq,
+-		DPP_PA_AUTHENTICATION_CONF);
++		" freq=%u chan=%d type=%d type_str=%s", MAC2STR(src), auth->curr_freq,
++		ieee80211_freq_to_display_chan(auth->curr_freq, 0,
++					       hostapd_dpp_country(hapd)),
++		DPP_PA_AUTHENTICATION_CONF,
++		dpp_pa_frame_type_txt(DPP_PA_AUTHENTICATION_CONF));
+ 	hostapd_drv_send_action(hapd, auth->curr_freq, 0, src,
+ 				wpabuf_head(msg), wpabuf_len(msg));
+ 	wpabuf_free(msg);
+@@ -1943,8 +1981,11 @@ hostapd_dpp_rx_reconfig_announcement(struct hostapd_data *hapd, const u8 *src,
+ 	wait_time -= 10;
+ 
+ 	wpa_msg(hapd->msg_ctx, MSG_INFO, DPP_EVENT_TX "dst=" MACSTR
+-		" freq=%u type=%d",
+-		MAC2STR(src), freq, DPP_PA_RECONFIG_AUTH_REQ);
++		" freq=%u chan=%d type=%d type_str=%s",
++		MAC2STR(src), freq,
++		ieee80211_freq_to_display_chan(freq, 0, hostapd_dpp_country(hapd)),
++		DPP_PA_RECONFIG_AUTH_REQ,
++		dpp_pa_frame_type_txt(DPP_PA_RECONFIG_AUTH_REQ));
+ 	if (hostapd_drv_send_action(hapd, freq, wait_time, src,
+ 				    wpabuf_head(auth->reconfig_req_msg),
+ 				    wpabuf_len(auth->reconfig_req_msg)) < 0) {
+@@ -1985,8 +2026,11 @@ hostapd_dpp_rx_reconfig_auth_resp(struct hostapd_data *hapd, const u8 *src,
+ 			     hapd, NULL);
+ 
+ 	wpa_msg(hapd->msg_ctx, MSG_INFO, DPP_EVENT_TX "dst=" MACSTR
+-		" freq=%u type=%d",
+-		MAC2STR(src), freq, DPP_PA_RECONFIG_AUTH_CONF);
++		" freq=%u chan=%d type=%d type_str=%s",
++		MAC2STR(src), freq,
++		ieee80211_freq_to_display_chan(freq, 0, hostapd_dpp_country(hapd)),
++		DPP_PA_RECONFIG_AUTH_CONF,
++		dpp_pa_frame_type_txt(DPP_PA_RECONFIG_AUTH_CONF));
+ 	if (hostapd_drv_send_action(hapd, freq, 500, src,
+ 				    wpabuf_head(conf), wpabuf_len(conf)) < 0) {
+ 		wpabuf_free(conf);
+@@ -2125,8 +2169,10 @@ skip_proto_ver:
+ 	wpa_printf(MSG_DEBUG, "DPP: Send Peer Discovery Response to " MACSTR
+ 		   " status=%d", MAC2STR(src), status);
+ 	wpa_msg(hapd->msg_ctx, MSG_INFO, DPP_EVENT_TX "dst=" MACSTR
+-		" freq=%u type=%d status=%d", MAC2STR(src), freq,
+-		DPP_PA_PEER_DISCOVERY_RESP, status);
++		" freq=%u chan=%d type=%d type_str=%s status=%d", MAC2STR(src), freq,
++		ieee80211_freq_to_display_chan(freq, 0, hostapd_dpp_country(hapd)),
++		DPP_PA_PEER_DISCOVERY_RESP,
++		dpp_pa_frame_type_txt(DPP_PA_PEER_DISCOVERY_RESP), status);
+ 	hostapd_drv_send_action(hapd, freq, 0, src,
+ 				wpabuf_head(msg), wpabuf_len(msg));
+ 	wpabuf_free(msg);
+@@ -2332,8 +2378,10 @@ hostapd_dpp_rx_pkex_exchange_req(struct hostapd_data *hapd, const u8 *src,
+ 
+ 	msg = hapd->dpp_pkex->exchange_resp;
+ 	wpa_msg(hapd->msg_ctx, MSG_INFO, DPP_EVENT_TX "dst=" MACSTR
+-		" freq=%u type=%d", MAC2STR(src), freq,
+-		DPP_PA_PKEX_EXCHANGE_RESP);
++		" freq=%u chan=%d type=%d type_str=%s", MAC2STR(src), freq,
++		ieee80211_freq_to_display_chan(freq, 0, hostapd_dpp_country(hapd)),
++		DPP_PA_PKEX_EXCHANGE_RESP,
++		dpp_pa_frame_type_txt(DPP_PA_PKEX_EXCHANGE_RESP));
+ 	hostapd_drv_send_action(hapd, freq, 0, src,
+ 				wpabuf_head(msg), wpabuf_len(msg));
+ 	if (hapd->dpp_pkex->failed) {
+@@ -2395,8 +2443,10 @@ hostapd_dpp_rx_pkex_exchange_resp(struct hostapd_data *hapd, const u8 *src,
+ 		   MAC2STR(src));
+ 
+ 	wpa_msg(hapd->msg_ctx, MSG_INFO, DPP_EVENT_TX "dst=" MACSTR
+-		" freq=%u type=%d", MAC2STR(src), freq,
+-		DPP_PA_PKEX_COMMIT_REVEAL_REQ);
++		" freq=%u chan=%d type=%d type_str=%s", MAC2STR(src), freq,
++		ieee80211_freq_to_display_chan(freq, 0, hostapd_dpp_country(hapd)),
++		DPP_PA_PKEX_COMMIT_REVEAL_REQ,
++		dpp_pa_frame_type_txt(DPP_PA_PKEX_COMMIT_REVEAL_REQ));
+ 	hostapd_drv_send_action(hapd, freq, 0, src,
+ 				wpabuf_head(msg), wpabuf_len(msg));
+ }
+@@ -2437,8 +2487,10 @@ hostapd_dpp_rx_pkex_commit_reveal_req(struct hostapd_data *hapd, const u8 *src,
+ 		   MACSTR, MAC2STR(src));
+ 
+ 	wpa_msg(hapd->msg_ctx, MSG_INFO, DPP_EVENT_TX "dst=" MACSTR
+-		" freq=%u type=%d", MAC2STR(src), freq,
+-		DPP_PA_PKEX_COMMIT_REVEAL_RESP);
++		" freq=%u chan=%d type=%d type_str=%s", MAC2STR(src), freq,
++		ieee80211_freq_to_display_chan(freq, 0, hostapd_dpp_country(hapd)),
++		DPP_PA_PKEX_COMMIT_REVEAL_RESP,
++		dpp_pa_frame_type_txt(DPP_PA_PKEX_COMMIT_REVEAL_RESP));
+ 	hostapd_drv_send_action(hapd, freq, 0, src,
+ 				wpabuf_head(msg), wpabuf_len(msg));
+ 	wpabuf_free(msg);
+@@ -2669,8 +2721,10 @@ static void hostapd_dpp_pb_pkex_init(struct hostapd_data *hapd,
+ 
+ send_frame:
+ 	wpa_msg(hapd->msg_ctx, MSG_INFO, DPP_EVENT_TX "dst=" MACSTR
+-		" freq=%u type=%d", MAC2STR(src), freq,
+-		DPP_PA_PKEX_EXCHANGE_REQ);
++		" freq=%u chan=%d type=%d type_str=%s", MAC2STR(src), freq,
++		ieee80211_freq_to_display_chan(freq, 0, hostapd_dpp_country(hapd)),
++		DPP_PA_PKEX_EXCHANGE_REQ,
++		dpp_pa_frame_type_txt(DPP_PA_PKEX_EXCHANGE_REQ));
+ 	hostapd_drv_send_action(hapd, pkex->freq, 0, src,
+ 				wpabuf_head(msg), wpabuf_len(msg));
+ 	pkex->exch_req_wait_time = 2000;
+@@ -2818,8 +2872,10 @@ hostapd_dpp_rx_pb_presence_announcement(struct hostapd_data *hapd,
+ 	ifaces->dpp_pb_last_resp = now;
+ 
+ 	wpa_msg(hapd->msg_ctx, MSG_INFO, DPP_EVENT_TX "dst=" MACSTR
+-		" freq=%u type=%d", MAC2STR(src), freq,
+-		DPP_PA_PB_PRESENCE_ANNOUNCEMENT_RESP);
++		" freq=%u chan=%d type=%d type_str=%s", MAC2STR(src), freq,
++		ieee80211_freq_to_display_chan(freq, 0, hostapd_dpp_country(hapd)),
++		DPP_PA_PB_PRESENCE_ANNOUNCEMENT_RESP,
++		dpp_pa_frame_type_txt(DPP_PA_PB_PRESENCE_ANNOUNCEMENT_RESP));
+ 	hostapd_drv_send_action(hapd, freq, 0, src,
+ 				wpabuf_head(msg), wpabuf_len(msg));
+ 	wpabuf_free(msg);
+@@ -2895,8 +2951,10 @@ hostapd_dpp_rx_priv_peer_intro_query(struct hostapd_data *hapd, const u8 *src,
+ 	wpa_printf(MSG_DEBUG, "DPP: Send Private Peer Introduction Notify to "
+ 		   MACSTR, MAC2STR(src));
+ 	wpa_msg(hapd->msg_ctx, MSG_INFO, DPP_EVENT_TX "dst=" MACSTR
+-		" freq=%u type=%d", MAC2STR(src), freq,
+-		DPP_PA_PRIV_PEER_INTRO_NOTIFY);
++		" freq=%u chan=%d type=%d type_str=%s", MAC2STR(src), freq,
++		ieee80211_freq_to_display_chan(freq, 0, hostapd_dpp_country(hapd)),
++		DPP_PA_PRIV_PEER_INTRO_NOTIFY,
++		dpp_pa_frame_type_txt(DPP_PA_PRIV_PEER_INTRO_NOTIFY));
+ 	hostapd_drv_send_action(hapd, freq, 0, src,
+ 				wpabuf_head(msg), wpabuf_len(msg));
+ 	wpabuf_free(msg);
+@@ -3106,20 +3164,25 @@ void hostapd_dpp_rx_action(struct hostapd_data *hapd, const u8 *src,
+ 		wpa_printf(MSG_DEBUG, "DPP: Unsupported crypto suite %u",
+ 			   crypto_suite);
+ 		wpa_msg(hapd->msg_ctx, MSG_INFO, DPP_EVENT_RX "src=" MACSTR
+-			" freq=%u type=%d ignore=unsupported-crypto-suite rssi=%d",
+-			MAC2STR(src), freq, type, ssi_signal);
++			" freq=%u chan=%d type=%d type_str=%s ignore=unsupported-crypto-suite rssi=%d",
++			MAC2STR(src), freq,
++			ieee80211_freq_to_display_chan(freq, 0, hostapd_dpp_country(hapd)),
++			type, dpp_pa_frame_type_txt(type), ssi_signal);
+ 		return;
+ 	}
+ 	wpa_hexdump(MSG_MSGDUMP, "DPP: Received message attributes", buf, len);
+ 	if (dpp_check_attrs(buf, len) < 0) {
+ 		wpa_msg(hapd->msg_ctx, MSG_INFO, DPP_EVENT_RX "src=" MACSTR
+-			" freq=%u type=%d ignore=invalid-attributes rssi=%d",
+-			MAC2STR(src), freq, type, ssi_signal);
++			" freq=%u chan=%d type=%d type_str=%s ignore=invalid-attributes rssi=%d",
++			MAC2STR(src), freq,
++			ieee80211_freq_to_display_chan(freq, 0, hostapd_dpp_country(hapd)),
++			type, dpp_pa_frame_type_txt(type), ssi_signal);
+ 		return;
+ 	}
+ 	wpa_msg(hapd->msg_ctx, MSG_INFO, DPP_EVENT_RX "src=" MACSTR
+-		" freq=%u type=%d rssi=%d", MAC2STR(src), freq, type,
+-		ssi_signal);
++		" freq=%u chan=%d type=%d type_str=%s rssi=%d", MAC2STR(src), freq,
++		ieee80211_freq_to_display_chan(freq, 0, hostapd_dpp_country(hapd)),
++		type, dpp_pa_frame_type_txt(type), ssi_signal);
+ 
+ #ifdef CONFIG_DPP2
+ 	if (dpp_relay_rx_action(hapd->iface->interfaces->dpp,
+@@ -3762,8 +3825,11 @@ static void hostapd_dpp_chirp_start(struct hostapd_data *hapd)
+ 	type = DPP_PA_PRESENCE_ANNOUNCEMENT;
+ 	wpa_printf(MSG_DEBUG, "DPP: Chirp on %d MHz", hapd->dpp_chirp_freq);
+ 	wpa_msg(hapd->msg_ctx, MSG_INFO, DPP_EVENT_TX "dst=" MACSTR
+-		" freq=%u type=%d",
+-		MAC2STR(broadcast), hapd->dpp_chirp_freq, type);
++		" freq=%u chan=%d type=%d type_str=%s",
++		MAC2STR(broadcast), hapd->dpp_chirp_freq,
++		ieee80211_freq_to_display_chan(hapd->dpp_chirp_freq, 0,
++					       hostapd_dpp_country(hapd)),
++		type, dpp_pa_frame_type_txt(type));
+ 	if (hostapd_drv_send_action(
+ 		    hapd, hapd->dpp_chirp_freq, 2000, broadcast,
+ 		    wpabuf_head(msg), wpabuf_len(msg)) < 0 ||
+diff --git a/src/ap/gas_query_ap.c b/src/ap/gas_query_ap.c
+index 13bb2388e..e348ebc0a 100644
+--- a/src/ap/gas_query_ap.c
++++ b/src/ap/gas_query_ap.c
+@@ -14,6 +14,7 @@
+ #include "utils/eloop.h"
+ #include "utils/list.h"
+ #include "common/ieee802_11_defs.h"
++#include "common/ieee802_11_common.h"
+ #include "common/gas.h"
+ #include "common/wpa_ctrl.h"
+ #include "hostapd.h"
+@@ -146,8 +147,9 @@ static void gas_query_done(struct gas_query_ap *gas,
+ 			   enum gas_query_ap_result result)
+ {
+ 	wpa_msg(gas->msg_ctx, MSG_INFO, GAS_QUERY_DONE "addr=" MACSTR
+-		" dialog_token=%u freq=%d status_code=%u result=%s",
++		" dialog_token=%u freq=%d chan=%d status_code=%u result=%s",
+ 		MAC2STR(query->addr), query->dialog_token, query->freq,
++		ieee80211_freq_to_display_chan(query->freq, 0, gas->hapd->iconf->country),
+ 		query->status_code, gas_result_txt(result));
+ 	if (gas->current == query)
+ 		gas->current = NULL;
+@@ -711,8 +713,9 @@ int gas_query_ap_req(struct gas_query_ap *gas, const u8 *dst, int freq,
+ 	*(wpabuf_mhead_u8(req) + 2) = dialog_token;
+ 
+ 	wpa_msg(gas->msg_ctx, MSG_INFO, GAS_QUERY_START "addr=" MACSTR
+-		" dialog_token=%u freq=%d",
+-		MAC2STR(query->addr), query->dialog_token, query->freq);
++		" dialog_token=%u freq=%d chan=%d",
++		MAC2STR(query->addr), query->dialog_token, query->freq,
++		ieee80211_freq_to_display_chan(query->freq, 0, gas->hapd->iconf->country));
+ 
+ 	gas_query_tx_initial_req(gas, query);
+ 
+diff --git a/src/common/dpp.c b/src/common/dpp.c
+index 967aab13b..9aa87a294 100644
+--- a/src/common/dpp.c
++++ b/src/common/dpp.c
+@@ -172,6 +172,58 @@ void dpp_bootstrap_info_free(struct dpp_bootstrap_info *info)
+ }
+ 
+ 
++const char * dpp_pa_frame_type_txt(enum dpp_public_action_frame_type type)
++{
++	switch (type) {
++	case DPP_PA_AUTHENTICATION_REQ:
++		return "auth-req";
++	case DPP_PA_AUTHENTICATION_RESP:
++		return "auth-resp";
++	case DPP_PA_AUTHENTICATION_CONF:
++		return "auth-conf";
++	case DPP_PA_PEER_DISCOVERY_REQ:
++		return "peer-disc-req";
++	case DPP_PA_PEER_DISCOVERY_RESP:
++		return "peer-disc-resp";
++	case DPP_PA_PKEX_V1_EXCHANGE_REQ:
++		return "pkex-v1-exch-req";
++	case DPP_PA_PKEX_EXCHANGE_RESP:
++		return "pkex-exch-resp";
++	case DPP_PA_PKEX_COMMIT_REVEAL_REQ:
++		return "pkex-commit-reveal-req";
++	case DPP_PA_PKEX_COMMIT_REVEAL_RESP:
++		return "pkex-commit-reveal-resp";
++	case DPP_PA_CONFIGURATION_RESULT:
++		return "conf-result";
++	case DPP_PA_CONNECTION_STATUS_RESULT:
++		return "conn-status-result";
++	case DPP_PA_PRESENCE_ANNOUNCEMENT:
++		return "pres-ann";
++	case DPP_PA_RECONFIG_ANNOUNCEMENT:
++		return "reconf-ann";
++	case DPP_PA_RECONFIG_AUTH_REQ:
++		return "reconf-auth-req";
++	case DPP_PA_RECONFIG_AUTH_RESP:
++		return "reconf-auth-resp";
++	case DPP_PA_RECONFIG_AUTH_CONF:
++		return "reconf-auth-conf";
++	case DPP_PA_PKEX_EXCHANGE_REQ:
++		return "pkex-exch-req";
++	case DPP_PA_PB_PRESENCE_ANNOUNCEMENT:
++		return "pb-pres-ann";
++	case DPP_PA_PB_PRESENCE_ANNOUNCEMENT_RESP:
++		return "pb-pres-ann-resp";
++	case DPP_PA_PRIV_PEER_INTRO_QUERY:
++		return "priv-peer-intro-query";
++	case DPP_PA_PRIV_PEER_INTRO_NOTIFY:
++		return "priv-peer-intro-notify";
++	case DPP_PA_PRIV_PEER_INTRO_UPDATE:
++		return "priv-peer-intro-update";
++	}
++	return "??";
++}
++
++
+ const char * dpp_bootstrap_type_txt(enum dpp_bootstrap_type type)
+ {
+ 	switch (type) {
+diff --git a/src/common/dpp.h b/src/common/dpp.h
+index 0ec701e59..97c3dafbd 100644
+--- a/src/common/dpp.h
++++ b/src/common/dpp.h
+@@ -592,6 +592,7 @@ extern size_t dpp_nonce_override_len;
+ #endif /* CONFIG_TESTING_OPTIONS */
+ 
+ void dpp_bootstrap_info_free(struct dpp_bootstrap_info *info);
++const char * dpp_pa_frame_type_txt(enum dpp_public_action_frame_type type);
+ const char * dpp_bootstrap_type_txt(enum dpp_bootstrap_type type);
+ int dpp_parse_uri_chan_list(struct dpp_bootstrap_info *bi,
+ 			    const char *chan_list);
+diff --git a/src/common/ieee802_11_common.c b/src/common/ieee802_11_common.c
+index df449f54f..c6beac0f8 100644
+--- a/src/common/ieee802_11_common.c
++++ b/src/common/ieee802_11_common.c
+@@ -16,6 +16,7 @@
+ #include "qca-vendor.h"
+ #include "ieee802_11_defs.h"
+ #include "ieee802_11_common.h"
++#include "utils/morse.h"
+ 
+ 
+ static int ieee802_11_parse_vendor_specific(const u8 *pos, size_t elen,
+@@ -1432,6 +1433,40 @@ enum hostapd_hw_mode ieee80211_freq_to_chan(int freq, u8 *channel)
+ }
+ 
+ 
++/**
++ * ieee80211_freq_to_display_chan - Convert a frequency into a channel number
++ * for logging/display purposes only (e.g. control interface events).
++ * @freq: Frequency (MHz) to convert
++ * @freq_offset: Frequency offset (kHz), currently unused
++ * @country: Country code, or NULL
++ * Returns: Channel number, or -1 if the frequency could not be mapped
++ */
++int ieee80211_freq_to_display_chan(unsigned int freq, unsigned int freq_offset,
++				   const char *country)
++{
++	u8 channel;
++
++	(void) freq_offset;
++
++	if (!freq)
++		return -1;
++
++#ifdef CONFIG_MORSE_5GHZ_MAPPED
++	{
++		int chan = morse_ht_freq_to_s1g_chan(freq, (char *) country);
++
++		if (chan != MORSE_S1G_RETURN_ERROR)
++			return chan;
++	}
++#endif /* CONFIG_MORSE_5GHZ_MAPPED */
++
++	if (ieee80211_freq_to_chan(freq, &channel) != NUM_HOSTAPD_MODES)
++		return channel;
++
++	return -1;
++}
++
++
+ /**
+  * ieee80211_freq_to_channel_ext - Convert frequency into channel info
+  * for HT40, VHT, and HE. DFS channels are not covered.
+diff --git a/src/common/ieee802_11_common.h b/src/common/ieee802_11_common.h
+index 908c8886e..62139387c 100644
+--- a/src/common/ieee802_11_common.h
++++ b/src/common/ieee802_11_common.h
+@@ -251,6 +251,8 @@ struct hostapd_tx_queue_params {
+ int hostapd_config_tx_queue(struct hostapd_tx_queue_params queue[],
+ 			    const char *name, const char *val);
+ enum hostapd_hw_mode ieee80211_freq_to_chan(int freq, u8 *channel);
++int ieee80211_freq_to_display_chan(unsigned int freq, unsigned int freq_offset,
++				   const char *country);
+ int ieee80211_chan_to_freq(const char *country, u8 op_class, u8 chan);
+ int ieee80211_chan_to_freq_khz(const char *country, u8 op_class, u8 chan);
+ enum hostapd_hw_mode
+diff --git a/wpa_supplicant/dpp_supplicant.c b/wpa_supplicant/dpp_supplicant.c
+index 427ac96bc..1a764541c 100644
+--- a/wpa_supplicant/dpp_supplicant.c
++++ b/wpa_supplicant/dpp_supplicant.c
+@@ -21,6 +21,7 @@
+ #include "common/dpp.h"
+ #include "common/gas.h"
+ #include "common/gas_server.h"
++#include "common/ieee802_11_common.h"
+ #include "crypto/random.h"
+ #include "rsn_supp/wpa.h"
+ #include "rsn_supp/pmksa_cache.h"
+@@ -107,9 +108,12 @@ int wpas_dpp_qr_code(struct wpa_supplicant *wpa_s, const char *cmd)
+ 		wpa_printf(MSG_DEBUG,
+ 			   "DPP: Sending out pending authentication response");
+ 		wpa_msg(wpa_s, MSG_INFO, DPP_EVENT_TX "dst=" MACSTR
+-			" freq=%u freq_offset=%u type=%d",
++			" freq=%u freq_offset=%u chan=%d type=%d type_str=%s",
+ 			MAC2STR(auth->peer_mac_addr), auth->curr_freq, auth->curr_freq_offset,
+-			DPP_PA_AUTHENTICATION_RESP);
++			ieee80211_freq_to_display_chan(auth->curr_freq, auth->curr_freq_offset,
++						       wpa_s->conf->country),
++			DPP_PA_AUTHENTICATION_RESP,
++			dpp_pa_frame_type_txt(DPP_PA_AUTHENTICATION_RESP));
+ 		offchannel_send_action(wpa_s, auth->curr_freq, auth->curr_freq_offset,
+ 				       auth->peer_mac_addr, wpa_s->own_addr,
+ 				       broadcast,
+@@ -241,9 +245,12 @@ static void wpas_dpp_auth_resp_retry_timeout(void *eloop_ctx, void *timeout_ctx)
+ 	wpa_printf(MSG_INFO,
+ 		   "DPP: Retry Authentication Response after timeout");
+ 	wpa_msg(wpa_s, MSG_INFO, DPP_EVENT_TX "dst=" MACSTR
+-		" freq=%u freq_offset=%u type=%d",
++		" freq=%u freq_offset=%u chan=%d type=%d type_str=%s",
+ 		MAC2STR(auth->peer_mac_addr), auth->curr_freq, auth->curr_freq_offset,
+-		DPP_PA_AUTHENTICATION_RESP);
++		ieee80211_freq_to_display_chan(auth->curr_freq, auth->curr_freq_offset,
++					       wpa_s->conf->country),
++		DPP_PA_AUTHENTICATION_RESP,
++		dpp_pa_frame_type_txt(DPP_PA_AUTHENTICATION_RESP));
+ 	offchannel_send_action(wpa_s, auth->curr_freq, auth->curr_freq_offset,
+ 			       auth->peer_mac_addr, wpa_s->own_addr, broadcast,
+ 			       wpabuf_head(auth->resp_msg),
+@@ -473,9 +480,12 @@ void wpas_dpp_send_conn_status_result(struct wpa_supplicant *wpa_s,
+ 	}
+ 
+ 	wpa_msg(wpa_s, MSG_INFO,
+-		DPP_EVENT_TX "dst=" MACSTR " freq=%u freq_offset=%u  type=%d",
++		DPP_EVENT_TX "dst=" MACSTR " freq=%u freq_offset=%u chan=%d type=%d type_str=%s",
+ 		MAC2STR(auth->peer_mac_addr), auth->curr_freq, auth->curr_freq_offset,
+-		DPP_PA_CONNECTION_STATUS_RESULT);
++		ieee80211_freq_to_display_chan(auth->curr_freq, auth->curr_freq_offset,
++					       wpa_s->conf->country),
++		DPP_PA_CONNECTION_STATUS_RESULT,
++		dpp_pa_frame_type_txt(DPP_PA_CONNECTION_STATUS_RESULT));
+ 	offchannel_send_action(wpa_s, auth->curr_freq, auth->curr_freq_offset,
+ 			       auth->peer_mac_addr, wpa_s->own_addr, broadcast,
+ 			       wpabuf_head(msg), wpabuf_len(msg),
+@@ -573,8 +583,10 @@ static void wpas_dpp_tx_status(struct wpa_supplicant *wpa_s,
+ 		   " dst=" MACSTR " result=%s",
+ 		   freq, freq_offset, MAC2STR(dst), res_txt);
+ 	wpa_msg(wpa_s, MSG_INFO, DPP_EVENT_TX_STATUS "dst=" MACSTR
+-		" freq=%u freq_offset=%u result=%s",
+-		MAC2STR(dst), freq, freq_offset, res_txt);
++		" freq=%u freq_offset=%u chan=%d result=%s",
++		MAC2STR(dst), freq, freq_offset,
++		ieee80211_freq_to_display_chan(freq, freq_offset, wpa_s->conf->country),
++		res_txt);
+ 
+ 	if (!wpa_s->dpp_auth) {
+ 		wpa_printf(MSG_DEBUG,
+@@ -896,8 +908,11 @@ static int wpas_dpp_auth_init_next(struct wpa_supplicant *wpa_s)
+ 			   "DPP: Initiate on %u MHz and move to neg_freq %u MHz for response",
+ 			   freq, auth->neg_freq);
+ 	}
+-	wpa_msg(wpa_s, MSG_INFO, DPP_EVENT_TX "dst=" MACSTR " freq=%u type=%d",
+-		MAC2STR(dst), freq, DPP_PA_AUTHENTICATION_REQ);
++	wpa_msg(wpa_s, MSG_INFO, DPP_EVENT_TX "dst=" MACSTR " freq=%u chan=%d type=%d type_str=%s",
++		MAC2STR(dst), freq,
++		ieee80211_freq_to_display_chan(freq, 0, wpa_s->conf->country),
++		DPP_PA_AUTHENTICATION_REQ,
++		dpp_pa_frame_type_txt(DPP_PA_AUTHENTICATION_REQ));
+ 	auth->auth_req_ack = 0;
+ 	os_get_reltime(&wpa_s->dpp_last_init);
+ 	return offchannel_send_action(wpa_s, freq, 0, dst,
+@@ -1240,9 +1255,13 @@ static void wpas_dpp_tx_auth_resp(struct wpa_supplicant *wpa_s)
+ 	if (!auth)
+ 		return;
+ 
+-	wpa_msg(wpa_s, MSG_INFO, DPP_EVENT_TX "dst=" MACSTR " freq=%u freq_offset=%u type=%d",
++	wpa_msg(wpa_s, MSG_INFO, DPP_EVENT_TX "dst=" MACSTR
++		" freq=%u freq_offset=%u chan=%d type=%d type_str=%s",
+ 		MAC2STR(auth->peer_mac_addr), auth->curr_freq, auth->curr_freq_offset,
+-		DPP_PA_AUTHENTICATION_RESP);
++		ieee80211_freq_to_display_chan(auth->curr_freq, auth->curr_freq_offset,
++					       wpa_s->conf->country),
++		DPP_PA_AUTHENTICATION_RESP,
++		dpp_pa_frame_type_txt(DPP_PA_AUTHENTICATION_RESP));
+ 	offchannel_send_action(wpa_s, auth->curr_freq, auth->curr_freq_offset,
+ 			       auth->peer_mac_addr, wpa_s->own_addr, broadcast,
+ 			       wpabuf_head(auth->resp_msg),
+@@ -2124,9 +2143,13 @@ fail:
+ 			goto fail2;
+ 
+ 		wpa_msg(wpa_s, MSG_INFO,
+-			DPP_EVENT_TX "dst=" MACSTR " freq=%u freq_offset=%u  type=%d",
++			DPP_EVENT_TX "dst=" MACSTR
++			" freq=%u freq_offset=%u chan=%d type=%d type_str=%s",
+ 			MAC2STR(addr), auth->curr_freq, auth->curr_freq_offset,
+-			DPP_PA_CONFIGURATION_RESULT);
++			ieee80211_freq_to_display_chan(auth->curr_freq, auth->curr_freq_offset,
++						       wpa_s->conf->country),
++			DPP_PA_CONFIGURATION_RESULT,
++			dpp_pa_frame_type_txt(DPP_PA_CONFIGURATION_RESULT));
+ 		offchannel_send_action(wpa_s, auth->curr_freq, auth->curr_freq_offset,
+ 				       addr, wpa_s->own_addr, broadcast,
+ 				       wpabuf_head(msg),
+@@ -2300,8 +2323,13 @@ static void wpas_dpp_rx_auth_resp(struct wpa_supplicant *wpa_s, const u8 *src,
+ 	}
+ 	os_memcpy(auth->peer_mac_addr, src, ETH_ALEN);
+ 
+-	wpa_msg(wpa_s, MSG_INFO, DPP_EVENT_TX "dst=" MACSTR " freq=%u freq_offset=%u type=%d",
+-		MAC2STR(src), auth->curr_freq, auth->curr_freq_offset, DPP_PA_AUTHENTICATION_CONF);
++	wpa_msg(wpa_s, MSG_INFO, DPP_EVENT_TX "dst=" MACSTR
++		" freq=%u freq_offset=%u chan=%d type=%d type_str=%s",
++		MAC2STR(src), auth->curr_freq, auth->curr_freq_offset,
++		ieee80211_freq_to_display_chan(auth->curr_freq, auth->curr_freq_offset,
++					       wpa_s->conf->country),
++		DPP_PA_AUTHENTICATION_CONF,
++		dpp_pa_frame_type_txt(DPP_PA_AUTHENTICATION_CONF));
+ 	offchannel_send_action(wpa_s, auth->curr_freq, auth->curr_freq_offset,
+ 			       src, wpa_s->own_addr, broadcast,
+ 			       wpabuf_head(msg), wpabuf_len(msg),
+@@ -2792,8 +2820,12 @@ wpas_dpp_rx_reconfig_announcement(struct wpa_supplicant *wpa_s, const u8 *src,
+ 
+ 	wpas_dpp_stop_listen_for_tx(wpa_s, freq, freq_offset, wait_time);
+ 
+-	wpa_msg(wpa_s, MSG_INFO, DPP_EVENT_TX "dst=" MACSTR " freq=%u freq_offset=%u type=%d",
+-		MAC2STR(src), freq, freq_offset, DPP_PA_RECONFIG_AUTH_REQ);
++	wpa_msg(wpa_s, MSG_INFO, DPP_EVENT_TX "dst=" MACSTR
++		" freq=%u freq_offset=%u chan=%d type=%d type_str=%s",
++		MAC2STR(src), freq, freq_offset,
++		ieee80211_freq_to_display_chan(freq, freq_offset, wpa_s->conf->country),
++		DPP_PA_RECONFIG_AUTH_REQ,
++		dpp_pa_frame_type_txt(DPP_PA_RECONFIG_AUTH_REQ));
+ 	if (offchannel_send_action(wpa_s, freq, freq_offset, src, wpa_s->own_addr, broadcast,
+ 				   wpabuf_head(auth->reconfig_req_msg),
+ 				   wpabuf_len(auth->reconfig_req_msg),
+@@ -2851,8 +2883,12 @@ wpas_dpp_rx_reconfig_auth_req(struct wpa_supplicant *wpa_s, const u8 *src,
+ 
+ 	wpas_dpp_chirp_stop(wpa_s);
+ 
+-	wpa_msg(wpa_s, MSG_INFO, DPP_EVENT_TX "dst=" MACSTR " freq=%u freq_offset=%u type=%d",
+-		MAC2STR(src), freq, freq_offset, DPP_PA_RECONFIG_AUTH_RESP);
++	wpa_msg(wpa_s, MSG_INFO, DPP_EVENT_TX "dst=" MACSTR
++		" freq=%u freq_offset=%u chan=%d type=%d type_str=%s",
++		MAC2STR(src), freq, freq_offset,
++		ieee80211_freq_to_display_chan(freq, freq_offset, wpa_s->conf->country),
++		DPP_PA_RECONFIG_AUTH_RESP,
++		dpp_pa_frame_type_txt(DPP_PA_RECONFIG_AUTH_RESP));
+ 	if (offchannel_send_action(wpa_s, freq, freq_offset, src, wpa_s->own_addr, broadcast,
+ 				   wpabuf_head(auth->reconfig_resp_msg),
+ 				   wpabuf_len(auth->reconfig_resp_msg),
+@@ -2892,8 +2928,12 @@ wpas_dpp_rx_reconfig_auth_resp(struct wpa_supplicant *wpa_s, const u8 *src,
+ 
+ 	eloop_cancel_timeout(wpas_dpp_reconfig_reply_wait_timeout, wpa_s, NULL);
+ 
+-	wpa_msg(wpa_s, MSG_INFO, DPP_EVENT_TX "dst=" MACSTR " freq=%u freq_offset=%u type=%d",
+-		MAC2STR(src), freq, freq_offset, DPP_PA_RECONFIG_AUTH_CONF);
++	wpa_msg(wpa_s, MSG_INFO, DPP_EVENT_TX "dst=" MACSTR
++		" freq=%u freq_offset=%u chan=%d type=%d type_str=%s",
++		MAC2STR(src), freq, freq_offset,
++		ieee80211_freq_to_display_chan(freq, freq_offset, wpa_s->conf->country),
++		DPP_PA_RECONFIG_AUTH_CONF,
++		dpp_pa_frame_type_txt(DPP_PA_RECONFIG_AUTH_CONF));
+ 	if (offchannel_send_action(wpa_s, freq, freq_offset, src, wpa_s->own_addr, broadcast,
+ 				   wpabuf_head(conf), wpabuf_len(conf),
+ 				   500, wpas_dpp_tx_status, 0) < 0) {
+@@ -3327,10 +3367,14 @@ static int wpas_dpp_pkex_init(struct wpa_supplicant *wpa_s,
+ 		}
+ 	}
+ 	wpa_msg(wpa_s, MSG_INFO, DPP_EVENT_TX "dst=" MACSTR
+-		" freq=%u freq_offset=%u type=%d",
++		" freq=%u freq_offset=%u chan=%d type=%d type_str=%s",
+ 		MAC2STR(broadcast), pkex->freq, pkex->freq_offset,
++		ieee80211_freq_to_display_chan(pkex->freq, pkex->freq_offset,
++					       wpa_s->conf->country),
+ 		v2 ? DPP_PA_PKEX_EXCHANGE_REQ :
+-		DPP_PA_PKEX_V1_EXCHANGE_REQ);
++		DPP_PA_PKEX_V1_EXCHANGE_REQ,
++		dpp_pa_frame_type_txt(v2 ? DPP_PA_PKEX_EXCHANGE_REQ :
++				      DPP_PA_PKEX_V1_EXCHANGE_REQ));
+ 	offchannel_send_action(wpa_s, pkex->freq, pkex->freq_offset, broadcast,
+ 			       wpa_s->own_addr, broadcast,
+ 			       wpabuf_head(msg), wpabuf_len(msg),
+@@ -3374,10 +3418,15 @@ static void wpas_dpp_pkex_retry_timeout(void *eloop_ctx, void *timeout_ctx)
+ 	pkex->exch_req_tries++;
+ 	wpa_printf(MSG_INFO, "DPP: Retransmit PKEX Exchange Request (try %u)",
+ 		   pkex->exch_req_tries);
+-	wpa_msg(wpa_s, MSG_INFO, DPP_EVENT_TX "dst=" MACSTR " freq=%u freq_offset=%u type=%d",
++	wpa_msg(wpa_s, MSG_INFO, DPP_EVENT_TX "dst=" MACSTR
++		" freq=%u freq_offset=%u chan=%d type=%d type_str=%s",
+ 		MAC2STR(broadcast), pkex->freq, pkex->freq_offset,
++		ieee80211_freq_to_display_chan(pkex->freq, pkex->freq_offset,
++					       wpa_s->conf->country),
+ 		pkex->v2 ? DPP_PA_PKEX_EXCHANGE_REQ :
+-		DPP_PA_PKEX_V1_EXCHANGE_REQ);
++		DPP_PA_PKEX_V1_EXCHANGE_REQ,
++		dpp_pa_frame_type_txt(pkex->v2 ? DPP_PA_PKEX_EXCHANGE_REQ :
++				      DPP_PA_PKEX_V1_EXCHANGE_REQ));
+ 	offchannel_send_action(wpa_s, pkex->freq, pkex->freq_offset, broadcast,
+ 			       wpa_s->own_addr, broadcast,
+ 			       wpabuf_head(pkex->exchange_req),
+@@ -3443,8 +3492,10 @@ wpas_dpp_tx_pkex_status(struct wpa_supplicant *wpa_s,
+ 		   " dst=" MACSTR " result=%s (PKEX)",
+ 		   freq, freq_offset, MAC2STR(dst), res_txt);
+ 	wpa_msg(wpa_s, MSG_INFO, DPP_EVENT_TX_STATUS "dst=" MACSTR
+-		" freq=%u freq_offset=%u result=%s",
+-		MAC2STR(dst), freq, freq_offset, res_txt);
++		" freq=%u freq_offset=%u chan=%d result=%s",
++		MAC2STR(dst), freq, freq_offset,
++		ieee80211_freq_to_display_chan(freq, freq_offset, wpa_s->conf->country),
++		res_txt);
+ 
+ 	if (!pkex) {
+ 		wpa_printf(MSG_DEBUG,
+@@ -3569,9 +3620,11 @@ wpas_dpp_rx_pkex_exchange_req(struct wpa_supplicant *wpa_s, const u8 *src,
+ 	if (wait_time > 2000)
+ 		wait_time = 2000;
+ 	wpa_msg(wpa_s, MSG_INFO, DPP_EVENT_TX "dst=" MACSTR
+-		" freq=%u freq_offset=%u type=%d",
++		" freq=%u freq_offset=%u chan=%d type=%d type_str=%s",
+ 		MAC2STR(src), freq, freq_offset,
+-		DPP_PA_PKEX_EXCHANGE_RESP);
++		ieee80211_freq_to_display_chan(freq, freq_offset, wpa_s->conf->country),
++		DPP_PA_PKEX_EXCHANGE_RESP,
++		dpp_pa_frame_type_txt(DPP_PA_PKEX_EXCHANGE_RESP));
+ 	offchannel_send_action(wpa_s, freq, freq_offset,
+ 			       src, wpa_s->own_addr, broadcast,
+ 			       wpabuf_head(msg), wpabuf_len(msg),
+@@ -3614,8 +3667,12 @@ wpas_dpp_rx_pkex_exchange_resp(struct wpa_supplicant *wpa_s, const u8 *src,
+ 	wait_time = wpa_s->max_remain_on_chan;
+ 	if (wait_time > 2000)
+ 		wait_time = 2000;
+-	wpa_msg(wpa_s, MSG_INFO, DPP_EVENT_TX "dst=" MACSTR " freq=%u freq_offset=%u type=%d",
+-		MAC2STR(src), freq, freq_offset, DPP_PA_PKEX_COMMIT_REVEAL_REQ);
++	wpa_msg(wpa_s, MSG_INFO, DPP_EVENT_TX "dst=" MACSTR
++		" freq=%u freq_offset=%u chan=%d type=%d type_str=%s",
++		MAC2STR(src), freq, freq_offset,
++		ieee80211_freq_to_display_chan(freq, freq_offset, wpa_s->conf->country),
++		DPP_PA_PKEX_COMMIT_REVEAL_REQ,
++		dpp_pa_frame_type_txt(DPP_PA_PKEX_COMMIT_REVEAL_REQ));
+ 	offchannel_send_action(wpa_s, freq, freq_offset, src, wpa_s->own_addr,
+ 			       broadcast,
+ 			       wpabuf_head(msg), wpabuf_len(msg),
+@@ -3661,8 +3718,12 @@ wpas_dpp_rx_pkex_commit_reveal_req(struct wpa_supplicant *wpa_s, const u8 *src,
+ 	wait_time = wpa_s->max_remain_on_chan;
+ 	if (wait_time > 2000)
+ 		wait_time = 2000;
+-	wpa_msg(wpa_s, MSG_INFO, DPP_EVENT_TX "dst=" MACSTR " freq=%u freq_offset=%u type=%d",
+-		MAC2STR(src), freq, freq_offset, DPP_PA_PKEX_COMMIT_REVEAL_RESP);
++	wpa_msg(wpa_s, MSG_INFO, DPP_EVENT_TX "dst=" MACSTR
++		" freq=%u freq_offset=%u chan=%d type=%d type_str=%s",
++		MAC2STR(src), freq, freq_offset,
++		ieee80211_freq_to_display_chan(freq, freq_offset, wpa_s->conf->country),
++		DPP_PA_PKEX_COMMIT_REVEAL_RESP,
++		dpp_pa_frame_type_txt(DPP_PA_PKEX_COMMIT_REVEAL_RESP));
+ 	offchannel_send_action(wpa_s, freq, freq_offset, src, wpa_s->own_addr,
+ 			       broadcast,
+ 			       wpabuf_head(msg), wpabuf_len(msg),
+@@ -3791,8 +3852,11 @@ static void wpas_dpp_pb_pkex_init(struct wpa_supplicant *wpa_s,
+ 	wpa_s->dpp_pkex = pkex;
+ 	msg = wpa_s->dpp_pkex->exchange_req;
+ 	wpa_msg(wpa_s, MSG_INFO, DPP_EVENT_TX "dst=" MACSTR
+-		" freq=%u freq_offset=%u type=%d", MAC2STR(src), freq, freq_offset,
+-		DPP_PA_PKEX_EXCHANGE_REQ);
++		" freq=%u freq_offset=%u chan=%d type=%d type_str=%s",
++		MAC2STR(src), freq, freq_offset,
++		ieee80211_freq_to_display_chan(freq, freq_offset, wpa_s->conf->country),
++		DPP_PA_PKEX_EXCHANGE_REQ,
++		dpp_pa_frame_type_txt(DPP_PA_PKEX_EXCHANGE_REQ));
+ 	wait_time = wpa_s->max_remain_on_chan;
+ 	if (wait_time > 2000)
+ 		wait_time = 2000;
+@@ -3953,8 +4017,12 @@ wpas_dpp_rx_pb_presence_announcement(struct wpa_supplicant *wpa_s,
+ 		   MACSTR, MAC2STR(src));
+ 	wpa_s->dpp_pb_last_resp = now;
+ 
+-	wpa_msg(wpa_s, MSG_INFO, DPP_EVENT_TX "dst=" MACSTR " freq=%u freq_offset=%u type=%d",
+-		MAC2STR(src), freq, freq_offset, DPP_PA_PB_PRESENCE_ANNOUNCEMENT_RESP);
++	wpa_msg(wpa_s, MSG_INFO, DPP_EVENT_TX "dst=" MACSTR
++		" freq=%u freq_offset=%u chan=%d type=%d type_str=%s",
++		MAC2STR(src), freq, freq_offset,
++		ieee80211_freq_to_display_chan(freq, freq_offset, wpa_s->conf->country),
++		DPP_PA_PB_PRESENCE_ANNOUNCEMENT_RESP,
++		dpp_pa_frame_type_txt(DPP_PA_PB_PRESENCE_ANNOUNCEMENT_RESP));
+ 	offchannel_send_action(wpa_s, freq, freq_offset, src, wpa_s->own_addr, broadcast,
+ 			       wpabuf_head(msg), wpabuf_len(msg),
+ 			       0, NULL, 0);
+@@ -4076,7 +4144,9 @@ wpas_dpp_tx_priv_intro_status(struct wpa_supplicant *wpa_s,
+ 		   " result=%s (DPP Private Peer Introduction Update)",
+ 		   freq, MAC2STR(dst), res_txt);
+ 	wpa_msg(wpa_s, MSG_INFO, DPP_EVENT_TX_STATUS "dst=" MACSTR
+-		" freq=%u result=%s", MAC2STR(dst), freq, res_txt);
++		" freq=%u chan=%d result=%s", MAC2STR(dst), freq,
++		ieee80211_freq_to_display_chan(freq, 0, wpa_s->conf->country),
++		res_txt);
+ 
+ 	wpa_msg(wpa_s, MSG_INFO, DPP_EVENT_INTRO "peer=" MACSTR " version=%u",
+ 		MAC2STR(src), wpa_s->dpp_intro_peer_version);
+@@ -4177,8 +4247,12 @@ wpas_dpp_send_private_peer_intro_update(struct wpa_supplicant *wpa_s,
+ 	wait_time = wpa_s->max_remain_on_chan;
+ 	if (wait_time > 2000)
+ 		wait_time = 2000;
+-	wpa_msg(wpa_s, MSG_INFO, DPP_EVENT_TX "dst=" MACSTR " freq=%u freq_offset=%u type=%d",
+-		MAC2STR(dst), freq, freq_offset, DPP_PA_PRIV_PEER_INTRO_QUERY);
++	wpa_msg(wpa_s, MSG_INFO, DPP_EVENT_TX "dst=" MACSTR
++		" freq=%u freq_offset=%u chan=%d type=%d type_str=%s",
++		MAC2STR(dst), freq, freq_offset,
++		ieee80211_freq_to_display_chan(freq, freq_offset, wpa_s->conf->country),
++		DPP_PA_PRIV_PEER_INTRO_QUERY,
++		dpp_pa_frame_type_txt(DPP_PA_PRIV_PEER_INTRO_QUERY));
+ 	offchannel_send_action(wpa_s, freq, freq_offset, dst, wpa_s->own_addr, broadcast,
+ 			       wpabuf_head(msg), wpabuf_len(msg),
+ 			       wait_time, wpas_dpp_tx_priv_intro_status, 0);
+@@ -4368,20 +4442,28 @@ void wpas_dpp_rx_action(struct wpa_supplicant *wpa_s, const u8 *src,
+ 		wpa_printf(MSG_INFO, "DPP: Unsupported crypto suite %u",
+ 			   crypto_suite);
+ 		wpa_msg(wpa_s, MSG_INFO, DPP_EVENT_RX "src=" MACSTR
+-			" freq=%u freq_offset=%d type=%d ignore=unsupported-crypto-suite rssi=%d",
+-			MAC2STR(src), freq, freq_offset, type, ssi_signal);
++			" freq=%u freq_offset=%d chan=%d type=%d type_str=%s ignore=unsupported-crypto-suite rssi=%d",
++			MAC2STR(src), freq, freq_offset,
++			ieee80211_freq_to_display_chan(freq, freq_offset,
++						       wpa_s->conf->country),
++			type, dpp_pa_frame_type_txt(type), ssi_signal);
+ 		return;
+ 	}
+ 	wpa_hexdump(MSG_MSGDUMP, "DPP: Received message attributes", buf, len);
+ 	if (dpp_check_attrs(buf, len) < 0) {
+ 		wpa_msg(wpa_s, MSG_INFO, DPP_EVENT_RX "src=" MACSTR
+-			" freq=%u freq_offset=%d type=%d ignore=invalid-attributes rssi=%d",
+-			MAC2STR(src), freq, freq_offset, type, ssi_signal);
++			" freq=%u freq_offset=%d chan=%d type=%d type_str=%s ignore=invalid-attributes rssi=%d",
++			MAC2STR(src), freq, freq_offset,
++			ieee80211_freq_to_display_chan(freq, freq_offset,
++						       wpa_s->conf->country),
++			type, dpp_pa_frame_type_txt(type), ssi_signal);
+ 		return;
+ 	}
+ 	wpa_msg(wpa_s, MSG_INFO, DPP_EVENT_RX "src=" MACSTR
+-		" freq=%u freq_offset=%d type=%d rssi=%d",
+-		MAC2STR(src), freq, freq_offset, type, ssi_signal);
++		" freq=%u freq_offset=%d chan=%d type=%d type_str=%s rssi=%d",
++		MAC2STR(src), freq, freq_offset,
++		ieee80211_freq_to_display_chan(freq, freq_offset, wpa_s->conf->country),
++		type, dpp_pa_frame_type_txt(type), ssi_signal);
+ 
+ 	switch (type) {
+ 	case DPP_PA_AUTHENTICATION_REQ:
+@@ -4748,8 +4830,10 @@ wpas_dpp_tx_introduction_status(struct wpa_supplicant *wpa_s,
+ 		   " dst=" MACSTR " result=%s (DPP Peer Discovery Request)",
+ 		   freq, freq_offset, MAC2STR(dst), res_txt);
+ 	wpa_msg(wpa_s, MSG_INFO, DPP_EVENT_TX_STATUS "dst=" MACSTR
+-		" freq=%u freq_offset=%u result=%s",
+-		MAC2STR(dst), freq, freq_offset, res_txt);
++		" freq=%u freq_offset=%u chan=%d result=%s",
++		MAC2STR(dst), freq, freq_offset,
++		ieee80211_freq_to_display_chan(freq, freq_offset, wpa_s->conf->country),
++		res_txt);
+ 	/* TODO: Time out wait for response more quickly in error cases? */
+ }
+ 
+@@ -4794,8 +4878,13 @@ static int wpas_dpp_start_private_peer_intro(struct wpa_supplicant *wpa_s,
+ 	wait_time = wpa_s->max_remain_on_chan;
+ 	if (wait_time > 2000)
+ 		wait_time = 2000;
+-	wpa_msg(wpa_s, MSG_INFO, DPP_EVENT_TX "dst=" MACSTR " freq=%u freq_offset=%u type=%d",
+-		MAC2STR(bss->bssid), bss->freq, bss->freq_offset, DPP_PA_PRIV_PEER_INTRO_QUERY);
++	wpa_msg(wpa_s, MSG_INFO, DPP_EVENT_TX "dst=" MACSTR
++		" freq=%u freq_offset=%u chan=%d type=%d type_str=%s",
++		MAC2STR(bss->bssid), bss->freq, bss->freq_offset,
++		ieee80211_freq_to_display_chan(bss->freq, bss->freq_offset,
++					       wpa_s->conf->country),
++		DPP_PA_PRIV_PEER_INTRO_QUERY,
++		dpp_pa_frame_type_txt(DPP_PA_PRIV_PEER_INTRO_QUERY));
+ 	offchannel_send_action(wpa_s, bss->freq, bss->freq_offset,
+ 			       bss->bssid, wpa_s->own_addr,
+ 			       broadcast,
+@@ -4963,8 +5052,13 @@ skip_proto_ver:
+ 	wait_time = wpa_s->max_remain_on_chan;
+ 	if (wait_time > 2000)
+ 		wait_time = 2000;
+-	wpa_msg(wpa_s, MSG_INFO, DPP_EVENT_TX "dst=" MACSTR " freq=%u freq_offset=%u type=%d",
+-		MAC2STR(bss->bssid), bss->freq, bss->freq_offset, DPP_PA_PEER_DISCOVERY_REQ);
++	wpa_msg(wpa_s, MSG_INFO, DPP_EVENT_TX "dst=" MACSTR
++		" freq=%u freq_offset=%u chan=%d type=%d type_str=%s",
++		MAC2STR(bss->bssid), bss->freq, bss->freq_offset,
++		ieee80211_freq_to_display_chan(bss->freq, bss->freq_offset,
++					       wpa_s->conf->country),
++		DPP_PA_PEER_DISCOVERY_REQ,
++		dpp_pa_frame_type_txt(DPP_PA_PEER_DISCOVERY_REQ));
+ 	offchannel_send_action(wpa_s, bss->freq, bss->freq_offset,
+ 			       bss->bssid, wpa_s->own_addr,
+ 			       broadcast,
+@@ -5516,8 +5610,10 @@ static void wpas_dpp_chirp_start(struct wpa_supplicant *wpa_s)
+ 	freq_offset = wpa_s->dpp_chirp_freq_khz % 1000;
+ 	wpa_printf(MSG_DEBUG, "DPP: Chirp on %d.%03d MHz", freq, freq_offset);
+ 	wpa_msg(wpa_s, MSG_INFO, DPP_EVENT_TX "dst=" MACSTR " freq=%d"
+-		" freq_offset=%d type=%d",
+-		MAC2STR(broadcast), freq, freq_offset, type);
++		" freq_offset=%d chan=%d type=%d type_str=%s",
++		MAC2STR(broadcast), freq, freq_offset,
++		ieee80211_freq_to_display_chan(freq, freq_offset, wpa_s->conf->country),
++		type, dpp_pa_frame_type_txt(type));
+ 	if (offchannel_send_action(
+ 		    wpa_s, freq, freq_offset, broadcast,
+ 		    wpa_s->own_addr, broadcast,
+@@ -6198,8 +6294,11 @@ static int wpas_dpp_pb_announce(struct wpa_supplicant *wpa_s, int freq, int freq
+ 	type = DPP_PA_PB_PRESENCE_ANNOUNCEMENT;
+ 	if (wpa_s->dpp_pb_announce_count == 1)
+ 		wpa_msg(wpa_s, MSG_INFO,
+-			DPP_EVENT_TX "dst=" MACSTR " freq=%d freq_offset=%d type=%d",
+-			MAC2STR(broadcast), freq, freq_offset, type);
++			DPP_EVENT_TX "dst=" MACSTR
++			" freq=%d freq_offset=%d chan=%d type=%d type_str=%s",
++			MAC2STR(broadcast), freq, freq_offset,
++			ieee80211_freq_to_display_chan(freq, freq_offset, wpa_s->conf->country),
++			type, dpp_pa_frame_type_txt(type));
+ 	if (offchannel_send_action(
+ 		    wpa_s, freq, freq_offset, broadcast, wpa_s->own_addr, broadcast,
+ 		    wpabuf_head(msg), wpabuf_len(msg),
+diff --git a/wpa_supplicant/gas_query.c b/wpa_supplicant/gas_query.c
+index aebcacbca..1ebe16ce3 100644
+--- a/wpa_supplicant/gas_query.c
++++ b/wpa_supplicant/gas_query.c
+@@ -13,6 +13,7 @@
+ #include "common.h"
+ #include "utils/eloop.h"
+ #include "common/ieee802_11_defs.h"
++#include "common/ieee802_11_common.h"
+ #include "common/gas.h"
+ #include "common/wpa_ctrl.h"
+ #include "rsn_supp/wpa.h"
+@@ -168,8 +169,10 @@ static void gas_query_done(struct gas_query *gas,
+ 			   enum gas_query_result result)
+ {
+ 	wpa_msg(gas->wpa_s, MSG_INFO, GAS_QUERY_DONE "addr=" MACSTR
+-		" dialog_token=%u freq=%d status_code=%u result=%s",
++		" dialog_token=%u freq=%d chan=%d status_code=%u result=%s",
+ 		MAC2STR(query->addr), query->dialog_token, query->freq,
++		ieee80211_freq_to_display_chan(query->freq, query->freq_offset,
++					       gas->wpa_s->conf->country),
+ 		query->status_code, gas_result_txt(result));
+ 	if (gas->current == query)
+ 		gas->current = NULL;
+@@ -915,8 +918,10 @@ int gas_query_req(struct gas_query *gas, const u8 *dst, int freq, int freq_offse
+ 	*(wpabuf_mhead_u8(req) + 2) = dialog_token;
+ 
+ 	wpa_msg(gas->wpa_s, MSG_INFO, GAS_QUERY_START "addr=" MACSTR
+-		" dialog_token=%u freq=%d",
+-		MAC2STR(query->addr), query->dialog_token, query->freq);
++		" dialog_token=%u freq=%d chan=%d",
++		MAC2STR(query->addr), query->dialog_token, query->freq,
++		ieee80211_freq_to_display_chan(query->freq, query->freq_offset,
++					       gas->wpa_s->conf->country));
+ 
+ 	if (radio_add_work(gas->wpa_s, freq, freq_offset, "gas-query", 0, gas_query_start_cb,
+ 			   query) < 0) {
+-- 
+2.53.0
+

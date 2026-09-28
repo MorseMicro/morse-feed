@@ -1,0 +1,96 @@
+From a19fa54e4a73c483c01c69665caaf27fa8211f2c Mon Sep 17 00:00:00 2001
+From: James Haggerty <james.haggerty@morsemicro.com>
+Date: Tue, 22 Sep 2026 03:02:09 +0000
+Subject: [PATCH 1/5] SW-22972 Clean up DPP OpenSSL logging (pull request #489)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+crypto_ec_key_get_ecprivate_key() is called on public-only keys by
+dpp_debug_print_key(), which falls back to the SubjectPublicKeyInfo
+encoding when it fails. With OpenSSL 3.x this makes every DPP exchange
+log "OSSL_ENCODER failed: ... not a private key" at MSG_INFO even though
+nothing went wrong, which confuses people looking at DPP logs.
+
+Also, bonus fix: OSSL_PROVIDER_available() tries to activate the
+provider during detection, which puts a message in the error queue that
+isn’t immediately popped (and can be picked up later incorrectly). There
+are actually other instances like this as well.
+
+Approved-by: Aji Gerdiman
+Approved-by: Andrew Pope
+Approved-by: Feddrick Aquino
+Approved-by: Joshua Wilkinson
+---
+ src/crypto/crypto_openssl.c | 27 +++++++++++++++++++++++----
+ 1 file changed, 23 insertions(+), 4 deletions(-)
+
+diff --git a/src/crypto/crypto_openssl.c b/src/crypto/crypto_openssl.c
+index 213d333a3..47308730d 100644
+--- a/src/crypto/crypto_openssl.c
++++ b/src/crypto/crypto_openssl.c
+@@ -212,6 +212,22 @@ static void openssl_disable_fips(void)
+ #if OPENSSL_VERSION_NUMBER >= 0x30000000L
+ static OSSL_PROVIDER *openssl_legacy_provider = NULL;
+ static OSSL_PROVIDER *openssl_default_provider = NULL;
++
++
++/* OSSL_PROVIDER_available() tries to activate the provider, so when fips.so is
++ * not installed it leaves a DSO load failure on the OpenSSL error queue. Clear
++ * it so that it is not reported later by an unrelated operation that pops the
++ * oldest queue entry.
++ */
++static bool openssl_fips_provider_available(void)
++{
++	if (OSSL_PROVIDER_available(NULL, "fips"))
++		return true;
++
++	ERR_clear_error();
++	return false;
++}
++
+ #endif /* OpenSSL version >= 3.0 */
+ 
+ void openssl_load_legacy_provider(void)
+@@ -242,7 +258,7 @@ static void openssl_load_default_provider_if_fips(void)
+ 	if (openssl_default_provider)
+ 		return;
+ 
+-	if (!OSSL_PROVIDER_available(NULL, "fips"))
++	if (!openssl_fips_provider_available())
+ 		return;
+ 
+ 	wpa_printf(MSG_DEBUG,
+@@ -1092,7 +1108,7 @@ err:
+ 	wpabuf_free(*publ);
+ 	*publ = NULL;
+ 
+-	if (OSSL_PROVIDER_available(NULL, "fips")) {
++	if (openssl_fips_provider_available()) {
+ 		openssl_disable_fips();
+ 		openssl_load_default_provider_if_fips();
+ 		propquery = "provider!=fips";
+@@ -1609,7 +1625,7 @@ static int openssl_hmac_vector(char *digest, const u8 *key,
+ 	if (os_strcmp(digest, "MD5") == 0) {
+ 		openssl_need_md5();
+ 		property_query = "provider!=fips";
+-	} else if (key_len < 14 && OSSL_PROVIDER_available(NULL, "fips")) {
++	} else if (key_len < 14 && openssl_fips_provider_available()) {
+ 		/* Need to use non-FIPS provider in OpenSSL to handle cases
+ 		 * where HMAC is used with salt that is less than 112 bits
+ 		 * instead of the HMAC uses with an actual key. */
+@@ -3785,7 +3801,10 @@ struct wpabuf * crypto_ec_key_get_ecprivate_key(struct crypto_ec_key *key,
+ 	ctx = OSSL_ENCODER_CTX_new_for_pkey(pkey, selection, "DER",
+ 					    "type-specific", NULL);
+ 	if (!ctx || OSSL_ENCODER_to_data(ctx, &pdata, &pdata_len) != 1) {
+-		wpa_printf(MSG_INFO, "OpenSSL: OSSL_ENCODER failed: %s",
++		/* Callers such as dpp_debug_print_key() try this on public-only
++		 * keys and fall back to the public key encoding, so a failure
++		 * here is not necessarily an error. */
++		wpa_printf(MSG_DEBUG, "OpenSSL: OSSL_ENCODER failed: %s",
+ 			   ERR_error_string(ERR_get_error(), NULL));
+ 		OSSL_ENCODER_CTX_free(ctx);
+ 		EVP_PKEY_free(copy);
+-- 
+2.53.0
+

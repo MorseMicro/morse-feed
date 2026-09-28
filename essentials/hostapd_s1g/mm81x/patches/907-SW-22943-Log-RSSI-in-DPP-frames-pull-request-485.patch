@@ -1,12 +1,31 @@
-commit d40e6fbe047a4d207b354f29a4da7a808aea41c9
-Author: Prabha Murugesan <prabha.murugesan@morsemicro.com>
-Date:   Tue Mar 31 18:47:31 2026 +1100
+From f2c4cf88e657cdc0cef658cad7c3cd2df7eebdfd Mon Sep 17 00:00:00 2001
+From: James Haggerty <james.haggerty@morsemicro.com>
+Date: Tue, 22 Sep 2026 03:03:02 +0000
+Subject: [PATCH 2/5] SW-22943 Log RSSI in DPP frames (pull request #485)
 
-    DPP: log RSSI for received action frames
+This helps us and customers catch potential DPP issues more easily
+(since it's fragile if the signal strength is too high
+and if it's too low).
 
+
+Approved-by: Andrew Pope
+Approved-by: Feddrick Aquino
+Approved-by: Joshua Wilkinson
+---
+ src/ap/dpp_hostapd.c            | 18 ++++++++++--------
+ src/ap/dpp_hostapd.h            |  3 ++-
+ src/ap/drv_callbacks.c          |  3 ++-
+ src/ap/ieee802_11.c             |  6 +++---
+ wpa_supplicant/dpp_supplicant.c | 19 ++++++++++---------
+ wpa_supplicant/dpp_supplicant.h |  2 +-
+ wpa_supplicant/events.c         |  2 +-
+ 7 files changed, 29 insertions(+), 24 deletions(-)
+
+diff --git a/src/ap/dpp_hostapd.c b/src/ap/dpp_hostapd.c
+index 00117c890..80e115ed5 100644
 --- a/src/ap/dpp_hostapd.c
 +++ b/src/ap/dpp_hostapd.c
-@@ -3058,7 +3058,8 @@
+@@ -3065,7 +3065,8 @@ done:
  
  
  void hostapd_dpp_rx_action(struct hostapd_data *hapd, const u8 *src,
@@ -16,7 +35,7 @@ Date:   Tue Mar 31 18:47:31 2026 +1100
  {
  	u8 crypto_suite;
  	enum dpp_public_action_frame_type type;
-@@ -3082,25 +3083,28 @@
+@@ -3099,25 +3100,26 @@ void hostapd_dpp_rx_action(struct hostapd_data *hapd, const u8 *src,
  
  	wpa_printf(MSG_DEBUG,
  		   "DPP: Received DPP Public Action frame crypto suite %u type %d from "
@@ -30,8 +49,7 @@ Date:   Tue Mar 31 18:47:31 2026 +1100
  		wpa_msg(hapd->msg_ctx, MSG_INFO, DPP_EVENT_RX "src=" MACSTR
 -			" freq=%u type=%d ignore=unsupported-crypto-suite",
 -			MAC2STR(src), freq, type);
-+			" freq=%u type=%d ignore=unsupported-crypto-suite"
-+			" rssi=%d",
++			" freq=%u type=%d ignore=unsupported-crypto-suite rssi=%d",
 +			MAC2STR(src), freq, type, ssi_signal);
  		return;
  	}
@@ -40,21 +58,22 @@ Date:   Tue Mar 31 18:47:31 2026 +1100
  		wpa_msg(hapd->msg_ctx, MSG_INFO, DPP_EVENT_RX "src=" MACSTR
 -			" freq=%u type=%d ignore=invalid-attributes",
 -			MAC2STR(src), freq, type);
-+			" freq=%u type=%d ignore=invalid-attributes"
-+			" rssi=%d",
++			" freq=%u type=%d ignore=invalid-attributes rssi=%d",
 +			MAC2STR(src), freq, type, ssi_signal);
  		return;
  	}
  	wpa_msg(hapd->msg_ctx, MSG_INFO, DPP_EVENT_RX "src=" MACSTR
 -		" freq=%u type=%d", MAC2STR(src), freq, type);
-+		" freq=%u type=%d rssi=%d",
-+		MAC2STR(src), freq, type, ssi_signal);
++		" freq=%u type=%d rssi=%d", MAC2STR(src), freq, type,
++		ssi_signal);
  
  #ifdef CONFIG_DPP2
  	if (dpp_relay_rx_action(hapd->iface->interfaces->dpp,
+diff --git a/src/ap/dpp_hostapd.h b/src/ap/dpp_hostapd.h
+index 55f1fce22..d1c11fbf7 100644
 --- a/src/ap/dpp_hostapd.h
 +++ b/src/ap/dpp_hostapd.h
-@@ -20,7 +20,8 @@
+@@ -20,7 +20,8 @@ int hostapd_dpp_auth_init(struct hostapd_data *hapd, const char *cmd);
  int hostapd_dpp_listen(struct hostapd_data *hapd, const char *cmd);
  void hostapd_dpp_listen_stop(struct hostapd_data *hapd);
  void hostapd_dpp_rx_action(struct hostapd_data *hapd, const u8 *src,
@@ -64,9 +83,11 @@ Date:   Tue Mar 31 18:47:31 2026 +1100
  void hostapd_dpp_tx_status(struct hostapd_data *hapd, const u8 *dst,
  			   const u8 *data, size_t data_len, int ok);
  struct wpabuf *
+diff --git a/src/ap/drv_callbacks.c b/src/ap/drv_callbacks.c
+index 1f25111f9..692dcccfc 100644
 --- a/src/ap/drv_callbacks.c
 +++ b/src/ap/drv_callbacks.c
-@@ -1845,7 +1845,8 @@
+@@ -1853,7 +1853,8 @@ static void hostapd_action_rx(struct hostapd_data *hapd,
  		pos = mgmt->u.action.u.vs_public_action.oui;
  		end = drv_mgmt->frame + drv_mgmt->frame_len;
  		hostapd_dpp_rx_action(hapd, mgmt->sa, pos, end - pos,
@@ -76,18 +97,20 @@ Date:   Tue Mar 31 18:47:31 2026 +1100
  		return;
  	}
  #endif /* CONFIG_DPP */
+diff --git a/src/ap/ieee802_11.c b/src/ap/ieee802_11.c
+index 50d4a7b3b..b9f576dcd 100644
 --- a/src/ap/ieee802_11.c
 +++ b/src/ap/ieee802_11.c
-@@ -6797,7 +6797,7 @@
+@@ -6821,7 +6821,7 @@ static int robust_action_frame(u8 category)
  
  static int handle_action(struct hostapd_data *hapd,
  			 const struct ieee80211_mgmt *mgmt, size_t len,
 -			 unsigned int freq)
-+			 unsigned int freq, int ssi_signal)
++			 unsigned int freq, int ssi_signal __maybe_unused)
  {
  	struct sta_info *sta;
  	u8 *action __maybe_unused;
-@@ -6906,7 +6906,7 @@
+@@ -6948,7 +6948,7 @@ static int handle_action(struct hostapd_data *hapd,
  			pos = mgmt->u.action.u.vs_public_action.oui;
  			end = ((const u8 *) mgmt) + len;
  			hostapd_dpp_rx_action(hapd, mgmt->sa, pos, end - pos,
@@ -96,7 +119,7 @@ Date:   Tue Mar 31 18:47:31 2026 +1100
  			return 1;
  		}
  		if (len >= IEEE80211_HDRLEN + 2 &&
-@@ -7159,7 +7159,7 @@
+@@ -7201,7 +7201,7 @@ int ieee802_11_mgmt(struct hostapd_data *hapd, const u8 *buf, size_t len,
  		break;
  	case WLAN_FC_STYPE_ACTION:
  		wpa_printf(MSG_DEBUG, "mgmt::action");
@@ -105,9 +128,11 @@ Date:   Tue Mar 31 18:47:31 2026 +1100
  		break;
  	default:
  		hostapd_logger(hapd, mgmt->sa, HOSTAPD_MODULE_IEEE80211,
+diff --git a/wpa_supplicant/dpp_supplicant.c b/wpa_supplicant/dpp_supplicant.c
+index cd22f582b..35c3a4f4c 100644
 --- a/wpa_supplicant/dpp_supplicant.c
 +++ b/wpa_supplicant/dpp_supplicant.c
-@@ -4255,7 +4255,7 @@
+@@ -4332,7 +4332,7 @@ fail:
  
  void wpas_dpp_rx_action(struct wpa_supplicant *wpa_s, const u8 *src,
  			const u8 *buf, size_t len, unsigned int freq,
@@ -116,14 +141,24 @@ Date:   Tue Mar 31 18:47:31 2026 +1100
  {
  	u8 crypto_suite;
  	enum dpp_public_action_frame_type type;
-@@ -4290,19 +4290,21 @@
+@@ -4352,8 +4352,8 @@ void wpas_dpp_rx_action(struct wpa_supplicant *wpa_s, const u8 *src,
+ 
+ 	wpa_printf(MSG_DEBUG,
+ 		   "DPP: Received DPP Public Action frame crypto suite %u type %d from "
+-		   MACSTR " freq=%u",
+-		   crypto_suite, type, MAC2STR(src), freq);
++		   MACSTR " freq=%u rssi=%d",
++		   crypto_suite, type, MAC2STR(src), freq, ssi_signal);
+ #ifdef CONFIG_TESTING_OPTIONS
+ 	if (wpa_s->dpp_discard_public_action &&
+ 	    type != DPP_PA_PEER_DISCOVERY_RESP &&
+@@ -4367,19 +4367,20 @@ void wpas_dpp_rx_action(struct wpa_supplicant *wpa_s, const u8 *src,
  		wpa_printf(MSG_DEBUG, "DPP: Unsupported crypto suite %u",
  			   crypto_suite);
  		wpa_msg(wpa_s, MSG_INFO, DPP_EVENT_RX "src=" MACSTR
 -			" freq=%u freq_offset=%d type=%d ignore=unsupported-crypto-suite",
 -			MAC2STR(src), freq, freq_offset, type);
-+			" freq=%u freq_offset=%d type=%d ignore=unsupported-crypto-suite"
-+			" rssi=%d",
++			" freq=%u freq_offset=%d type=%d ignore=unsupported-crypto-suite rssi=%d",
 +			MAC2STR(src), freq, freq_offset, type, ssi_signal);
  		return;
  	}
@@ -132,21 +167,23 @@ Date:   Tue Mar 31 18:47:31 2026 +1100
  		wpa_msg(wpa_s, MSG_INFO, DPP_EVENT_RX "src=" MACSTR
 -			" freq=%u freq_offset=%d type=%d ignore=invalid-attributes",
 -			MAC2STR(src), freq, freq_offset, type);
-+			" freq=%u freq_offset=%d type=%d ignore=invalid-attributes"
-+			" rssi=%d",
++			" freq=%u freq_offset=%d type=%d ignore=invalid-attributes rssi=%d",
 +			MAC2STR(src), freq, freq_offset, type, ssi_signal);
  		return;
  	}
 -	wpa_msg(wpa_s, MSG_INFO, DPP_EVENT_RX "src=" MACSTR " freq=%u freq_offset=%d type=%d",
 -		MAC2STR(src), freq, freq_offset, type);
-+	wpa_msg(wpa_s, MSG_INFO, DPP_EVENT_RX "src=" MACSTR " freq=%u freq_offset=%d type=%d rssi=%d",
++	wpa_msg(wpa_s, MSG_INFO, DPP_EVENT_RX "src=" MACSTR
++		" freq=%u freq_offset=%d type=%d rssi=%d",
 +		MAC2STR(src), freq, freq_offset, type, ssi_signal);
  
  	switch (type) {
  	case DPP_PA_AUTHENTICATION_REQ:
+diff --git a/wpa_supplicant/dpp_supplicant.h b/wpa_supplicant/dpp_supplicant.h
+index 110a541cb..da75ce045 100644
 --- a/wpa_supplicant/dpp_supplicant.h
 +++ b/wpa_supplicant/dpp_supplicant.h
-@@ -28,7 +28,7 @@
+@@ -32,7 +32,7 @@ void wpas_dpp_cancel_remain_on_channel_cb(struct wpa_supplicant *wpa_s,
  void wpas_dpp_tx_wait_expire(struct wpa_supplicant *wpa_s);
  void wpas_dpp_rx_action(struct wpa_supplicant *wpa_s, const u8 *src,
  			const u8 *buf, size_t len, unsigned int freq,
@@ -155,9 +192,11 @@ Date:   Tue Mar 31 18:47:31 2026 +1100
  int wpas_dpp_configurator_sign(struct wpa_supplicant *wpa_s, const char *cmd);
  int wpas_dpp_pkex_add(struct wpa_supplicant *wpa_s, const char *cmd);
  int wpas_dpp_pkex_remove(struct wpa_supplicant *wpa_s, const char *id);
+diff --git a/wpa_supplicant/events.c b/wpa_supplicant/events.c
+index 291e4a90c..0f15b606a 100644
 --- a/wpa_supplicant/events.c
 +++ b/wpa_supplicant/events.c
-@@ -5674,7 +5674,7 @@
+@@ -5839,7 +5839,7 @@ static void wpas_event_rx_mgmt_action(struct wpa_supplicant *wpa_s,
  		payload++;
  		plen--;
  		wpas_dpp_rx_action(wpa_s, mgmt->sa, payload, plen, freq,
@@ -166,3 +205,6 @@ Date:   Tue Mar 31 18:47:31 2026 +1100
  		return;
  	}
  #endif /* CONFIG_DPP */
+-- 
+2.53.0
+

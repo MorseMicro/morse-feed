@@ -1,0 +1,3637 @@
+From f097543396f7637f77c970af97b714de15b72b8f Mon Sep 17 00:00:00 2001
+From: James Haggerty <james.haggerty@morsemicro.com>
+Date: Fri, 25 Sep 2026 00:53:11 +0000
+Subject: [PATCH 3/5] SW-23835 Promote DPP issues to INFO (pull request #504)
+
+Currently, DPP issues are often hidden via DEBUG, which makes debugging
+failures unnecessarily involved.
+
+Approved-by: Andrew Pope
+Approved-by: Feddrick Aquino
+Approved-by: Joshua Wilkinson
+---
+ src/ap/dpp_hostapd.c            | 126 +++++++++++------------
+ src/ap/gas_query_ap.c           |  38 +++----
+ src/ap/gas_serv.c               |  24 ++---
+ src/common/dpp.c                | 164 ++++++++++++++---------------
+ src/common/dpp_auth.c           |   8 +-
+ src/common/dpp_backup.c         |  48 ++++-----
+ src/common/dpp_crypto.c         |  62 +++++------
+ src/common/dpp_pkex.c           |  12 +--
+ src/common/dpp_reconfig.c       |  22 ++--
+ src/common/dpp_tcp.c            | 102 +++++++++---------
+ src/common/gas_server.c         |  18 ++--
+ wpa_supplicant/dpp_supplicant.c | 176 ++++++++++++++++----------------
+ wpa_supplicant/gas_query.c      |  38 +++----
+ 13 files changed, 421 insertions(+), 417 deletions(-)
+
+diff --git a/src/ap/dpp_hostapd.c b/src/ap/dpp_hostapd.c
+index 80e115ed5..9f6247b22 100644
+--- a/src/ap/dpp_hostapd.c
++++ b/src/ap/dpp_hostapd.c
+@@ -181,7 +181,7 @@ static void hostapd_dpp_auth_resp_retry_timeout(void *eloop_ctx,
+ 	if (!auth || !auth->resp_msg)
+ 		return;
+ 
+-	wpa_printf(MSG_DEBUG,
++	wpa_printf(MSG_INFO,
+ 		   "DPP: Retry Authentication Response after timeout");
+ 	wpa_msg(hapd->msg_ctx, MSG_INFO, DPP_EVENT_TX "dst=" MACSTR
+ 		" freq=%u type=%d",
+@@ -219,7 +219,7 @@ static void hostapd_dpp_auth_resp_retry(struct hostapd_data *hapd)
+ 		wait_time = hapd->dpp_resp_retry_time;
+ 	else
+ 		wait_time = 1000;
+-	wpa_printf(MSG_DEBUG,
++	wpa_printf(MSG_INFO,
+ 		   "DPP: Schedule retransmission of Authentication Response frame in %u ms",
+ 		wait_time);
+ 	eloop_cancel_timeout(hostapd_dpp_auth_resp_retry_timeout, hapd, NULL);
+@@ -446,7 +446,7 @@ static int hostapd_dpp_pkex_init(struct hostapd_data *hapd,
+ 	pkex->freq = 2437;
+ 	if (!hostapd_dpp_allow_ir(hapd, pkex->freq)) {
+ 		if (hostapd_dpp_pkex_next_channel(hapd, pkex) < 0) {
+-			wpa_printf(MSG_DEBUG, "DPP: Could not initiate (no channels to try)");
++			wpa_printf(MSG_INFO, "DPP: Could not initiate (no channels to try)");
+ 			return -1;
+ 		}
+ 	}
+@@ -476,7 +476,7 @@ static void hostapd_dpp_pkex_retry_timeout(void *eloop_ctx, void *timeout_ctx)
+ 		if (hostapd_dpp_pkex_next_channel(hapd, pkex) < 0) {
+ #ifdef CONFIG_DPP3
+ 			if (pkex->v2 && !pkex->forced_ver) {
+-				wpa_printf(MSG_DEBUG,
++				wpa_printf(MSG_INFO,
+ 					   "DPP: Fall back to PKEXv1");
+ 				hostapd_dpp_pkex_init(hapd, PKEX_VER_ONLY_1,
+ 						      NULL, 0);
+@@ -495,7 +495,7 @@ static void hostapd_dpp_pkex_retry_timeout(void *eloop_ctx, void *timeout_ctx)
+ 
+ 	if (pkex->exchange_done) {
+ 		pkex->commit_reveal_tries++;
+-		wpa_printf(MSG_DEBUG, "DPP: Retransmit PKEX Commit-Reveal Request (try %d)",
++		wpa_printf(MSG_INFO, "DPP: Retransmit PKEX Commit-Reveal Request (try %d)",
+ 			   pkex->commit_reveal_tries);
+ 		hostapd_drv_send_action(hapd, pkex->freq, 0, pkex->peer_mac,
+ 					wpabuf_head(pkex->commit_reveal_req),
+@@ -508,7 +508,7 @@ static void hostapd_dpp_pkex_retry_timeout(void *eloop_ctx, void *timeout_ctx)
+ 		dst = pkex->peer_mac;
+ 	else
+ 		dst = broadcast;
+-	wpa_printf(MSG_DEBUG, "DPP: Retransmit PKEX Exchange Request (try %u)",
++	wpa_printf(MSG_INFO, "DPP: Retransmit PKEX Exchange Request (try %u)",
+ 		   pkex->exch_req_tries);
+ 	wpa_msg(hapd->msg_ctx, MSG_INFO, DPP_EVENT_TX "dst=" MACSTR
+ 		" freq=%u type=%d",
+@@ -617,7 +617,7 @@ void hostapd_dpp_tx_status(struct hostapd_data *hapd, const u8 *dst,
+ 	}
+ 
+ 	if (!is_broadcast_ether_addr(dst) && !ok) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Unicast DPP Action frame was not ACKed");
+ 		if (auth->waiting_auth_resp) {
+ 			/* In case of DPP Authentication Request frame, move to
+@@ -709,7 +709,7 @@ static void hostapd_dpp_reply_wait_timeout(void *eloop_ctx, void *timeout_ctx)
+ 		/* Authentication Request frame was not ACK'ed and no reply
+ 		 * was receiving within five seconds.
+ 		 */
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Continue Initiator channel iteration");
+ 		hostapd_drv_send_action_cancel_wait(hapd);
+ 		hostapd_dpp_listen_stop(hapd);
+@@ -788,7 +788,7 @@ static void hostapd_dpp_init_timeout(void *eloop_ctx, void *timeout_ctx)
+ 
+ 	if (!hapd->dpp_auth)
+ 		return;
+-	wpa_printf(MSG_DEBUG, "DPP: Retry initiation after timeout");
++	wpa_printf(MSG_INFO, "DPP: Retry initiation after timeout");
+ 	hostapd_dpp_auth_init_next(hapd);
+ }
+ 
+@@ -837,7 +837,7 @@ static int hostapd_dpp_auth_init_next(struct hostapd_data *hapd)
+ 			wait_time = 0;
+ 		else
+ 			wait_time -= used;
+-		wpa_printf(MSG_DEBUG, "DPP: Next init attempt in %u ms",
++		wpa_printf(MSG_INFO, "DPP: Next init attempt in %u ms",
+ 			   wait_time);
+ 		eloop_register_timeout(wait_time / 1000,
+ 				       (wait_time % 1000) * 1000,
+@@ -1183,7 +1183,7 @@ static void hostapd_dpp_rx_auth_req(struct hostapd_data *hapd, const u8 *src,
+ 					 hapd->dpp_qr_mutual,
+ 					 peer_bi, own_bi, freq, 0, hdr, buf, len);
+ 	if (!hapd->dpp_auth) {
+-		wpa_printf(MSG_DEBUG, "DPP: No response generated");
++		wpa_printf(MSG_INFO, "DPP: No response generated");
+ 		return;
+ 	}
+ 	hostapd_dpp_set_testing_options(hapd, hapd->dpp_auth);
+@@ -1332,7 +1332,7 @@ static void hostapd_dpp_gas_resp_cb(void *ctx, const u8 *addr, u8 dialog_token,
+ 	int res;
+ 
+ 	if (!auth || !auth->auth_success) {
+-		wpa_printf(MSG_DEBUG, "DPP: No matching exchange in progress");
++		wpa_printf(MSG_INFO, "DPP: No matching exchange in progress");
+ 		return;
+ 	}
+ 	if (result != GAS_QUERY_AP_SUCCESS ||
+@@ -1432,7 +1432,7 @@ static void hostapd_dpp_start_gas_client(struct hostapd_data *hapd)
+ 					hapd->conf->dpp_extra_conf_req_name,
+ 					hapd->conf->dpp_extra_conf_req_value);
+ 	if (!buf) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: No configuration request data available");
+ 		return;
+ 	}
+@@ -1443,7 +1443,7 @@ static void hostapd_dpp_start_gas_client(struct hostapd_data *hapd)
+ 	res = gas_query_ap_req(hapd->gas, auth->peer_mac_addr, auth->curr_freq,
+ 			       buf, hostapd_dpp_gas_resp_cb, hapd);
+ 	if (res < 0) {
+-		wpa_msg(hapd->msg_ctx, MSG_DEBUG,
++		wpa_msg(hapd->msg_ctx, MSG_INFO,
+ 			"GAS: Failed to send Query Request");
+ 		wpabuf_free(buf);
+ 	} else {
+@@ -1503,14 +1503,14 @@ static void hostapd_dpp_rx_auth_resp(struct hostapd_data *hapd, const u8 *src,
+ 		   MAC2STR(src));
+ 
+ 	if (!auth) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: No DPP Authentication in progress - drop");
+ 		return;
+ 	}
+ 
+ 	if (!is_zero_ether_addr(auth->peer_mac_addr) &&
+ 	    !ether_addr_equal(src, auth->peer_mac_addr)) {
+-		wpa_printf(MSG_DEBUG, "DPP: MAC address mismatch (expected "
++		wpa_printf(MSG_INFO, "DPP: MAC address mismatch (expected "
+ 			   MACSTR ") - drop", MAC2STR(auth->peer_mac_addr));
+ 		return;
+ 	}
+@@ -1530,7 +1530,7 @@ static void hostapd_dpp_rx_auth_resp(struct hostapd_data *hapd, const u8 *src,
+ 			wpa_printf(MSG_DEBUG, "DPP: Wait for full response");
+ 			return;
+ 		}
+-		wpa_printf(MSG_DEBUG, "DPP: No confirm generated");
++		wpa_printf(MSG_INFO, "DPP: No confirm generated");
+ 		return;
+ 	}
+ 	os_memcpy(auth->peer_mac_addr, src, ETH_ALEN);
+@@ -1554,19 +1554,19 @@ static void hostapd_dpp_rx_auth_conf(struct hostapd_data *hapd, const u8 *src,
+ 		   MAC2STR(src));
+ 
+ 	if (!auth) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: No DPP Authentication in progress - drop");
+ 		return;
+ 	}
+ 
+ 	if (!ether_addr_equal(src, auth->peer_mac_addr)) {
+-		wpa_printf(MSG_DEBUG, "DPP: MAC address mismatch (expected "
++		wpa_printf(MSG_INFO, "DPP: MAC address mismatch (expected "
+ 			   MACSTR ") - drop", MAC2STR(auth->peer_mac_addr));
+ 		return;
+ 	}
+ 
+ 	if (dpp_auth_conf_rx(auth, hdr, buf, len) < 0) {
+-		wpa_printf(MSG_DEBUG, "DPP: Authentication failed");
++		wpa_printf(MSG_INFO, "DPP: Authentication failed");
+ 		return;
+ 	}
+ 
+@@ -1664,13 +1664,13 @@ static void hostapd_dpp_rx_conf_result(struct hostapd_data *hapd, const u8 *src,
+ 		   MAC2STR(src));
+ 
+ 	if (!auth || !auth->waiting_conf_result) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: No DPP Configuration waiting for result - drop");
+ 		return;
+ 	}
+ 
+ 	if (!ether_addr_equal(src, auth->peer_mac_addr)) {
+-		wpa_printf(MSG_DEBUG, "DPP: MAC address mismatch (expected "
++		wpa_printf(MSG_INFO, "DPP: MAC address mismatch (expected "
+ 			   MACSTR ") - drop", MAC2STR(auth->peer_mac_addr));
+ 		return;
+ 	}
+@@ -1742,7 +1742,7 @@ static void hostapd_dpp_rx_conn_status_result(struct hostapd_data *hapd,
+ 	wpa_printf(MSG_DEBUG, "DPP: Connection Status Result");
+ 
+ 	if (!auth || !auth->waiting_conn_status_result) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: No DPP Configuration waiting for connection status result - drop");
+ 		return;
+ 	}
+@@ -1795,7 +1795,7 @@ hostapd_dpp_rx_presence_announcement(struct hostapd_data *hapd, const u8 *src,
+ 					src, hdr, buf, len, freq, NULL,
+ 					r_bootstrap, hapd) == 0)
+ 			return;
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: No matching bootstrapping information found");
+ 		hostapd_dpp_relay_needs_controller(
+ 			hapd, src, DPP_PA_PRESENCE_ANNOUNCEMENT);
+@@ -1803,7 +1803,7 @@ hostapd_dpp_rx_presence_announcement(struct hostapd_data *hapd, const u8 *src,
+ 	}
+ 
+ 	if (hapd->dpp_auth) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Ignore Presence Announcement during ongoing Authentication");
+ 		return;
+ 	}
+@@ -1871,7 +1871,7 @@ hostapd_dpp_rx_reconfig_announcement(struct hostapd_data *hapd, const u8 *src,
+ 	u16 group;
+ 
+ 	if (hapd->dpp_auth) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Ignore Reconfig Announcement during ongoing Authentication");
+ 		return;
+ 	}
+@@ -1895,7 +1895,7 @@ hostapd_dpp_rx_reconfig_announcement(struct hostapd_data *hapd, const u8 *src,
+ 					src, hdr, buf, len, freq, NULL,
+ 					NULL, hapd) == 0)
+ 			return;
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: No matching Configurator information found");
+ 		hostapd_dpp_relay_needs_controller(
+ 			hapd, src, DPP_PA_RECONFIG_ANNOUNCEMENT);
+@@ -1966,13 +1966,13 @@ hostapd_dpp_rx_reconfig_auth_resp(struct hostapd_data *hapd, const u8 *src,
+ 		   MACSTR, MAC2STR(src));
+ 
+ 	if (!auth || !auth->reconfig || !auth->configurator) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: No DPP Reconfig Authentication in progress - drop");
+ 		return;
+ 	}
+ 
+ 	if (!ether_addr_equal(src, auth->peer_mac_addr)) {
+-		wpa_printf(MSG_DEBUG, "DPP: MAC address mismatch (expected "
++		wpa_printf(MSG_INFO, "DPP: MAC address mismatch (expected "
+ 			   MACSTR ") - drop", MAC2STR(auth->peer_mac_addr));
+ 		return;
+ 	}
+@@ -2138,13 +2138,13 @@ static bool hapd_dpp_connector_available(struct hostapd_data *hapd)
+ 	if (!hapd->wpa_auth ||
+ 	    !(hapd->conf->wpa_key_mgmt & WPA_KEY_MGMT_DPP) ||
+ 	    !(hapd->conf->wpa & WPA_PROTO_RSN)) {
+-		wpa_printf(MSG_DEBUG, "DPP: DPP AKM not in use");
++		wpa_printf(MSG_INFO, "DPP: DPP AKM not in use");
+ 		return false;
+ 	}
+ 
+ 	if (!hapd->conf->dpp_connector || !hapd->conf->dpp_netaccesskey ||
+ 	    !hapd->conf->dpp_csign) {
+-		wpa_printf(MSG_DEBUG, "DPP: No own Connector/keys set");
++		wpa_printf(MSG_INFO, "DPP: No own Connector/keys set");
+ 		return false;
+ 	}
+ 
+@@ -2184,14 +2184,14 @@ static void hostapd_dpp_rx_peer_disc_req(struct hostapd_data *hapd,
+ 	trans_id = dpp_get_attr(buf, len, DPP_ATTR_TRANSACTION_ID,
+ 			       &trans_id_len);
+ 	if (!trans_id || trans_id_len != 1) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Peer did not include Transaction ID");
+ 		return;
+ 	}
+ 
+ 	connector = dpp_get_attr(buf, len, DPP_ATTR_CONNECTOR, &connector_len);
+ 	if (!connector) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Peer did not include its Connector");
+ 		return;
+ 	}
+@@ -2282,12 +2282,12 @@ hostapd_dpp_rx_pkex_exchange_req(struct hostapd_data *hapd, const u8 *src,
+ 		   MAC2STR(src));
+ 
+ 	if (hapd->dpp_pkex_ver == PKEX_VER_ONLY_1 && v2) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Ignore PKEXv2 Exchange Request when configured to be PKEX v1 only");
+ 		return;
+ 	}
+ 	if (hapd->dpp_pkex_ver == PKEX_VER_ONLY_2 && !v2) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Ignore PKEXv1 Exchange Request when configured to be PKEX v2 only");
+ 		return;
+ 	}
+@@ -2296,7 +2296,7 @@ hostapd_dpp_rx_pkex_exchange_req(struct hostapd_data *hapd, const u8 *src,
+ 	 * values here */
+ 
+ 	if (!hapd->dpp_pkex_code || !hapd->dpp_pkex_bi) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: No PKEX code configured - ignore request");
+ 		goto try_relay;
+ 	}
+@@ -2304,7 +2304,7 @@ hostapd_dpp_rx_pkex_exchange_req(struct hostapd_data *hapd, const u8 *src,
+ #ifdef CONFIG_DPP2
+ 	if (dpp_controller_is_own_pkex_req(hapd->iface->interfaces->dpp,
+ 					   buf, len)) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: PKEX Exchange Request is from local Controller - ignore request");
+ 		return;
+ 	}
+@@ -2312,7 +2312,7 @@ hostapd_dpp_rx_pkex_exchange_req(struct hostapd_data *hapd, const u8 *src,
+ 
+ 	if (hapd->dpp_pkex) {
+ 		/* TODO: Support parallel operations */
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Already in PKEX session - ignore new request");
+ 		goto try_relay;
+ 	}
+@@ -2325,7 +2325,7 @@ hostapd_dpp_rx_pkex_exchange_req(struct hostapd_data *hapd, const u8 *src,
+ 						  hapd->dpp_pkex_code_len,
+ 						  buf, len, v2);
+ 	if (!hapd->dpp_pkex) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Failed to process the request - ignore it");
+ 		goto try_relay;
+ 	}
+@@ -2352,7 +2352,7 @@ try_relay:
+ 	if (v2 && dpp_relay_rx_action(hapd->iface->interfaces->dpp,
+ 				      src, hdr, buf, len, freq, NULL, NULL,
+ 				      hapd) != 0) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: No Relay available for the message");
+ 		hostapd_dpp_relay_needs_controller(hapd, src,
+ 						   DPP_PA_PKEX_EXCHANGE_REQ);
+@@ -2377,7 +2377,7 @@ hostapd_dpp_rx_pkex_exchange_resp(struct hostapd_data *hapd, const u8 *src,
+ 
+ 	if (!hapd->dpp_pkex || !hapd->dpp_pkex->initiator ||
+ 	    hapd->dpp_pkex->exchange_done) {
+-		wpa_printf(MSG_DEBUG, "DPP: No matching PKEX session");
++		wpa_printf(MSG_INFO, "DPP: No matching PKEX session");
+ 		return;
+ 	}
+ 
+@@ -2387,7 +2387,7 @@ hostapd_dpp_rx_pkex_exchange_resp(struct hostapd_data *hapd, const u8 *src,
+ 	msg = dpp_pkex_rx_exchange_resp(hapd->dpp_pkex, src, buf, len);
+ 	hapd->dpp_pkex->commit_reveal_req = msg;
+ 	if (!msg) {
+-		wpa_printf(MSG_DEBUG, "DPP: Failed to process the response");
++		wpa_printf(MSG_INFO, "DPP: Failed to process the response");
+ 		return;
+ 	}
+ 
+@@ -2415,13 +2415,13 @@ hostapd_dpp_rx_pkex_commit_reveal_req(struct hostapd_data *hapd, const u8 *src,
+ 		   MAC2STR(src));
+ 
+ 	if (!pkex || pkex->initiator || !pkex->exchange_done) {
+-		wpa_printf(MSG_DEBUG, "DPP: No matching PKEX session");
++		wpa_printf(MSG_INFO, "DPP: No matching PKEX session");
+ 		return;
+ 	}
+ 
+ 	msg = dpp_pkex_rx_commit_reveal_req(pkex, hdr, buf, len);
+ 	if (!msg) {
+-		wpa_printf(MSG_DEBUG, "DPP: Failed to process the request");
++		wpa_printf(MSG_INFO, "DPP: Failed to process the request");
+ 		if (hapd->dpp_pkex->failed) {
+ 			wpa_printf(MSG_DEBUG, "DPP: Terminate PKEX exchange");
+ 			if (hapd->dpp_pkex->t > hapd->dpp_pkex->own_bi->pkex_t)
+@@ -2467,13 +2467,13 @@ hostapd_dpp_rx_pkex_commit_reveal_resp(struct hostapd_data *hapd, const u8 *src,
+ 		   MAC2STR(src));
+ 
+ 	if (!pkex || !pkex->initiator || !pkex->exchange_done) {
+-		wpa_printf(MSG_DEBUG, "DPP: No matching PKEX session");
++		wpa_printf(MSG_INFO, "DPP: No matching PKEX session");
+ 		return;
+ 	}
+ 
+ 	res = dpp_pkex_rx_commit_reveal_resp(pkex, hdr, buf, len);
+ 	if (res < 0) {
+-		wpa_printf(MSG_DEBUG, "DPP: Failed to process the response");
++		wpa_printf(MSG_INFO, "DPP: Failed to process the response");
+ 		return;
+ 	}
+ 
+@@ -2539,8 +2539,8 @@ static void hostapd_dpp_pb_pkex_init(struct hostapd_data *hapd,
+ 	size_t len;
+ 
+ 	if (hapd->dpp_pkex) {
+-		wpa_printf(MSG_DEBUG,
+-			   "PDP: Sending previously generated PKEX Exchange Request to "
++		wpa_printf(MSG_INFO,
++			   "DPP: Sending previously generated PKEX Exchange Request to "
+ 			   MACSTR, MAC2STR(src));
+ 		msg = hapd->dpp_pkex->exchange_req;
+ 		hostapd_drv_send_action(hapd, freq, 0, src,
+@@ -2703,7 +2703,7 @@ hostapd_dpp_rx_pb_presence_announcement(struct hostapd_data *hapd,
+ 	r_hash = dpp_get_attr(buf, len, DPP_ATTR_R_BOOTSTRAP_KEY_HASH,
+ 			      &r_hash_len);
+ 	if (!r_hash || r_hash_len != SHA256_MAC_LEN) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Missing or invalid required Responder Bootstrapping Key Hash attribute");
+ 		return;
+ 	}
+@@ -2849,7 +2849,7 @@ hostapd_dpp_rx_priv_peer_intro_query(struct hostapd_data *hapd, const u8 *src,
+ 	trans_id = dpp_get_attr(buf, len, DPP_ATTR_TRANSACTION_ID,
+ 			       &trans_id_len);
+ 	if (!trans_id || trans_id_len != 1) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Peer did not include Transaction ID");
+ 		return;
+ 	}
+@@ -2857,7 +2857,7 @@ hostapd_dpp_rx_priv_peer_intro_query(struct hostapd_data *hapd, const u8 *src,
+ 	version = dpp_get_attr(buf, len, DPP_ATTR_PROTOCOL_VERSION,
+ 			       &version_len);
+ 	if (!version || version_len != 1) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Peer did not include Protocol Version");
+ 		return;
+ 	}
+@@ -2944,7 +2944,7 @@ hostapd_dpp_rx_priv_peer_intro_update(struct hostapd_data *hapd, const u8 *src,
+ 	trans_id = dpp_get_attr(buf, len, DPP_ATTR_TRANSACTION_ID,
+ 			       &trans_id_len);
+ 	if (!trans_id || trans_id_len != 1) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Peer did not include Transaction ID");
+ 		return;
+ 	}
+@@ -2952,7 +2952,7 @@ hostapd_dpp_rx_priv_peer_intro_update(struct hostapd_data *hapd, const u8 *src,
+ 	wrapped = dpp_get_attr(buf, len, DPP_ATTR_WRAPPED_DATA,
+ 			       &wrapped_len);
+ 	if (!wrapped) {
+-		wpa_printf(MSG_DEBUG, "DPP: Peer did not include Wrapped Data");
++		wpa_printf(MSG_INFO, "DPP: Peer did not include Wrapped Data");
+ 		return;
+ 	}
+ 
+@@ -2983,7 +2983,7 @@ hostapd_dpp_rx_priv_peer_intro_update(struct hostapd_data *hapd, const u8 *src,
+ 	connector = dpp_get_attr(wpabuf_head(pt), wpabuf_len(pt),
+ 				 DPP_ATTR_CONNECTOR, &connector_len);
+ 	if (!connector) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Peer did not include its Connector");
+ 		goto done;
+ 	}
+@@ -2991,7 +2991,7 @@ hostapd_dpp_rx_priv_peer_intro_update(struct hostapd_data *hapd, const u8 *src,
+ 	version = dpp_get_attr(wpabuf_head(pt), wpabuf_len(pt),
+ 			       DPP_ATTR_PROTOCOL_VERSION, &version_len);
+ 	if (!version || version_len < 1) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Peer did not include Protocol Version");
+ 		goto done;
+ 	}
+@@ -3200,7 +3200,7 @@ void hostapd_dpp_rx_action(struct hostapd_data *hapd, const u8 *src,
+ 		break;
+ #endif /* CONFIG_DPP3 */
+ 	default:
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Ignored unsupported frame subtype %d", type);
+ 		break;
+ 	}
+@@ -3237,12 +3237,12 @@ hostapd_dpp_gas_req_handler(struct hostapd_data *hapd, const u8 *sa,
+ 			return NULL;
+ 		}
+ #endif /* CONFIG_DPP2 */
+-		wpa_printf(MSG_DEBUG, "DPP: No matching exchange in progress");
++		wpa_printf(MSG_INFO, "DPP: No matching exchange in progress");
+ 		return NULL;
+ 	}
+ 
+ 	if (hapd->dpp_auth_ok_on_ack && auth->configurator) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Have not received ACK for Auth Confirm yet - assume it was received based on this GAS request");
+ 		/* hostapd_dpp_auth_success() would normally have been called
+ 		 * from TX status handler, but since there was no such handler
+@@ -3407,12 +3407,12 @@ int hostapd_dpp_pkex_add(struct hostapd_data *hapd, const char *cmd)
+ 	pos += 5;
+ 	own_bi = dpp_bootstrap_get_id(hapd->iface->interfaces->dpp, atoi(pos));
+ 	if (!own_bi) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Identified bootstrap info not found");
+ 		return -1;
+ 	}
+ 	if (own_bi->type != DPP_BOOTSTRAP_PKEX) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Identified bootstrap info not for PKEX");
+ 		return -1;
+ 	}
+@@ -3914,7 +3914,7 @@ static void hostapd_dpp_chirp_next(void *eloop_ctx, void *timeout_ctx)
+ 			os_memset(&params, 0, sizeof(params));
+ 			ret = hostapd_driver_scan(hapd, &params);
+ 			if (ret < 0) {
+-				wpa_printf(MSG_DEBUG,
++				wpa_printf(MSG_INFO,
+ 					   "DPP: Failed to request a scan ret=%d (%s)",
+ 					   ret, strerror(-ret));
+ 				hostapd_dpp_chirp_scan_res_handler(hapd->iface);
+@@ -3933,7 +3933,7 @@ static void hostapd_dpp_chirp_next(void *eloop_ctx, void *timeout_ctx)
+ 			if (hapd->dpp_chirp_freqs[i] == hapd->dpp_chirp_freq)
+ 				break;
+ 		if (!hapd->dpp_chirp_freqs[i]) {
+-			wpa_printf(MSG_DEBUG,
++			wpa_printf(MSG_INFO,
+ 				   "DPP: Previous chirp freq %d not found",
+ 				   hapd->dpp_chirp_freq);
+ 			return;
+@@ -3986,7 +3986,7 @@ int hostapd_dpp_chirp(struct hostapd_data *hapd, const char *cmd)
+ 	pos += 5;
+ 	bi = dpp_bootstrap_get_id(hapd->iface->interfaces->dpp, atoi(pos));
+ 	if (!bi) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Identified bootstrap info not found");
+ 		return -1;
+ 	}
+diff --git a/src/ap/gas_query_ap.c b/src/ap/gas_query_ap.c
+index a471c793c..13bb2388e 100644
+--- a/src/ap/gas_query_ap.c
++++ b/src/ap/gas_query_ap.c
+@@ -212,7 +212,7 @@ void gas_query_ap_tx_status(struct gas_query_ap *gas, const u8 *dst,
+ 	int dur;
+ 
+ 	if (!gas || !gas->current) {
+-		wpa_printf(MSG_DEBUG, "GAS: Unexpected TX status: dst=" MACSTR
++		wpa_printf(MSG_INFO, "GAS: Unexpected TX status: dst=" MACSTR
+ 			   " ok=%d - no query in progress", MAC2STR(dst), ok);
+ 		return;
+ 	}
+@@ -224,14 +224,14 @@ void gas_query_ap_tx_status(struct gas_query_ap *gas, const u8 *dst,
+ 		   " ok=%d query=%p dialog_token=%u dur=%d ms",
+ 		   MAC2STR(dst), ok, query, query->dialog_token, dur);
+ 	if (!ether_addr_equal(dst, query->addr)) {
+-		wpa_printf(MSG_DEBUG, "GAS: TX status for unexpected destination");
++		wpa_printf(MSG_INFO, "GAS: TX status for unexpected destination");
+ 		return;
+ 	}
+ 	os_get_reltime(&query->last_oper);
+ 
+ 	eloop_cancel_timeout(gas_query_timeout, gas, query);
+ 	if (!ok) {
+-		wpa_printf(MSG_DEBUG, "GAS: No ACK to GAS request");
++		wpa_printf(MSG_INFO, "GAS: No ACK to GAS request");
+ 		eloop_register_timeout(0, 250000, gas_query_timeout,
+ 				       gas, query);
+ 	} else {
+@@ -310,7 +310,7 @@ static void gas_query_rx_comeback_timeout(void *eloop_data, void *user_ctx)
+ 	struct gas_query_pending *query = user_ctx;
+ 	int dialog_token;
+ 
+-	wpa_printf(MSG_DEBUG,
++	wpa_printf(MSG_INFO,
+ 		   "GAS: No response to comeback request received (retry=%u)",
+ 		   query->retry);
+ 	if (gas->current != query || query->retry)
+@@ -318,7 +318,7 @@ static void gas_query_rx_comeback_timeout(void *eloop_data, void *user_ctx)
+ 	dialog_token = gas_query_new_dialog_token(gas, query->addr);
+ 	if (dialog_token < 0)
+ 		return;
+-	wpa_printf(MSG_DEBUG,
++	wpa_printf(MSG_INFO,
+ 		   "GAS: Retry GAS query due to comeback response timeout");
+ 	query->retry = 1;
+ 	query->dialog_token = dialog_token;
+@@ -338,7 +338,7 @@ static void gas_query_tx_comeback_timeout(void *eloop_data, void *user_ctx)
+ 	struct gas_query_ap *gas = eloop_data;
+ 	struct gas_query_pending *query = user_ctx;
+ 
+-	wpa_printf(MSG_DEBUG, "GAS: Comeback timeout for request to " MACSTR,
++	wpa_printf(MSG_INFO, "GAS: Comeback timeout for request to " MACSTR,
+ 		   MAC2STR(query->addr));
+ 	gas_query_tx_comeback_req(gas, query);
+ }
+@@ -428,10 +428,10 @@ static void gas_query_rx_comeback(struct gas_query_ap *gas,
+ 	}
+ 
+ 	if (frag_id != query->next_frag_id) {
+-		wpa_printf(MSG_DEBUG, "GAS: Unexpected frag_id in response "
++		wpa_printf(MSG_INFO, "GAS: Unexpected frag_id in response "
+ 			   "from " MACSTR, MAC2STR(query->addr));
+ 		if (frag_id + 1 == query->next_frag_id) {
+-			wpa_printf(MSG_DEBUG, "GAS: Drop frame as possible "
++			wpa_printf(MSG_INFO, "GAS: Drop frame as possible "
+ 				   "retry of previous fragment");
+ 			return;
+ 		}
+@@ -489,17 +489,19 @@ int gas_query_ap_rx(struct gas_query_ap *gas, const u8 *sa, u8 categ,
+ 	prot = categ == WLAN_ACTION_PROTECTED_DUAL;
+ 	pmf = pmf_in_use(gas->hapd, sa);
+ 	if (prot && !pmf) {
+-		wpa_printf(MSG_DEBUG, "GAS: Drop unexpected protected GAS frame when PMF is disabled");
++		wpa_printf(MSG_INFO,
++			   "GAS: Drop unexpected protected GAS frame when PMF is disabled");
+ 		return 0;
+ 	}
+ 	if (!prot && pmf) {
+-		wpa_printf(MSG_DEBUG, "GAS: Drop unexpected unprotected GAS frame when PMF is enabled");
++		wpa_printf(MSG_INFO,
++			   "GAS: Drop unexpected unprotected GAS frame when PMF is enabled");
+ 		return 0;
+ 	}
+ 
+ 	query = gas_query_get_pending(gas, sa, dialog_token);
+ 	if (query == NULL) {
+-		wpa_printf(MSG_DEBUG, "GAS: No pending query found for " MACSTR
++		wpa_printf(MSG_INFO, "GAS: No pending query found for " MACSTR
+ 			   " dialog token %u", MAC2STR(sa), dialog_token);
+ 		return -1;
+ 	}
+@@ -508,14 +510,14 @@ int gas_query_ap_rx(struct gas_query_ap *gas, const u8 *sa, u8 categ,
+ 		   ms_from_time(&query->last_oper), MAC2STR(sa));
+ 
+ 	if (query->wait_comeback && action == WLAN_PA_GAS_INITIAL_RESP) {
+-		wpa_printf(MSG_DEBUG, "GAS: Unexpected initial response from "
++		wpa_printf(MSG_INFO, "GAS: Unexpected initial response from "
+ 			   MACSTR " dialog token %u when waiting for comeback "
+ 			   "response", MAC2STR(sa), dialog_token);
+ 		return 0;
+ 	}
+ 
+ 	if (!query->wait_comeback && action == WLAN_PA_GAS_COMEBACK_RESP) {
+-		wpa_printf(MSG_DEBUG, "GAS: Unexpected comeback response from "
++		wpa_printf(MSG_INFO, "GAS: Unexpected comeback response from "
+ 			   MACSTR " dialog token %u when waiting for initial "
+ 			   "response", MAC2STR(sa), dialog_token);
+ 		return 0;
+@@ -553,14 +555,14 @@ int gas_query_ap_rx(struct gas_query_ap *gas, const u8 *sa, u8 categ,
+ 
+ 	/* Advertisement Protocol element */
+ 	if (pos + 2 > data + len || pos + 2 + pos[1] > data + len) {
+-		wpa_printf(MSG_DEBUG, "GAS: No room for Advertisement "
++		wpa_printf(MSG_INFO, "GAS: No room for Advertisement "
+ 			   "Protocol element in the response from " MACSTR,
+ 			   MAC2STR(sa));
+ 		return 0;
+ 	}
+ 
+ 	if (*pos != WLAN_EID_ADV_PROTO) {
+-		wpa_printf(MSG_DEBUG, "GAS: Unexpected Advertisement "
++		wpa_printf(MSG_INFO, "GAS: Unexpected Advertisement "
+ 			   "Protocol element ID %u in response from " MACSTR,
+ 			   *pos, MAC2STR(sa));
+ 		return 0;
+@@ -571,7 +573,7 @@ int gas_query_ap_rx(struct gas_query_ap *gas, const u8 *sa, u8 categ,
+ 
+ 	/* Query Response Length */
+ 	if (pos + 2 > data + len) {
+-		wpa_printf(MSG_DEBUG, "GAS: No room for GAS Response Length");
++		wpa_printf(MSG_INFO, "GAS: No room for GAS Response Length");
+ 		return 0;
+ 	}
+ 	resp_len = WPA_GET_LE16(pos);
+@@ -579,13 +581,13 @@ int gas_query_ap_rx(struct gas_query_ap *gas, const u8 *sa, u8 categ,
+ 
+ 	left = data + len - pos;
+ 	if (resp_len > left) {
+-		wpa_printf(MSG_DEBUG, "GAS: Truncated Query Response in "
++		wpa_printf(MSG_INFO, "GAS: Truncated Query Response in "
+ 			   "response from " MACSTR, MAC2STR(sa));
+ 		return 0;
+ 	}
+ 
+ 	if (resp_len < left) {
+-		wpa_printf(MSG_DEBUG, "GAS: Ignore %u octets of extra data "
++		wpa_printf(MSG_INFO, "GAS: Ignore %u octets of extra data "
+ 			   "after Query Response from " MACSTR,
+ 			   left - resp_len, MAC2STR(sa));
+ 	}
+diff --git a/src/ap/gas_serv.c b/src/ap/gas_serv.c
+index 13cf766c5..6d9c45ce9 100644
+--- a/src/ap/gas_serv.c
++++ b/src/ap/gas_serv.c
+@@ -60,7 +60,7 @@ gas_dialog_create(struct hostapd_data *hapd, const u8 *addr, u8 dialog_token)
+ 			   "GAS query");
+ 		sta = ap_sta_add(hapd, addr);
+ 		if (!sta) {
+-			wpa_printf(MSG_DEBUG, "Failed to add STA " MACSTR
++			wpa_printf(MSG_INFO, "Failed to add STA " MACSTR
+ 				   " for GAS query", MAC2STR(addr));
+ 			return NULL;
+ 		}
+@@ -113,7 +113,7 @@ gas_serv_dialog_find(struct hostapd_data *hapd, const u8 *addr,
+ 
+ 	sta = ap_get_sta(hapd, addr);
+ 	if (!sta) {
+-		wpa_printf(MSG_DEBUG, "ANQP: could not find STA " MACSTR,
++		wpa_printf(MSG_INFO, "ANQP: could not find STA " MACSTR,
+ 			   MAC2STR(addr));
+ 		return NULL;
+ 	}
+@@ -124,7 +124,7 @@ gas_serv_dialog_find(struct hostapd_data *hapd, const u8 *addr,
+ 		ap_sta_replenish_timeout(hapd, sta, 5);
+ 		return &sta->gas_dialog[i];
+ 	}
+-	wpa_printf(MSG_DEBUG, "ANQP: Could not find dialog for "
++	wpa_printf(MSG_INFO, "ANQP: Could not find dialog for "
+ 		   MACSTR " dialog_token %u", MAC2STR(addr), dialog_token);
+ 	return NULL;
+ }
+@@ -208,7 +208,7 @@ static void anqp_add_elem(struct hostapd_data *hapd, struct wpabuf *buf,
+ 	if (!elem)
+ 		return;
+ 	if (wpabuf_tailroom(buf) < 2 + 2 + wpabuf_len(elem->payload)) {
+-		wpa_printf(MSG_DEBUG, "ANQP: No room for InfoID %u payload",
++		wpa_printf(MSG_INFO, "ANQP: No room for InfoID %u payload",
+ 			   infoid);
+ 		return;
+ 	}
+@@ -942,7 +942,7 @@ static void rx_anqp_query_list_id(struct hostapd_data *hapd, u16 info_id,
+ 			break;
+ 		}
+ 		if (qi->num_extra_req == ANQP_MAX_EXTRA_REQ) {
+-			wpa_printf(MSG_DEBUG,
++			wpa_printf(MSG_INFO,
+ 				   "ANQP: No more room for extra requests - ignore Info Id %u",
+ 				   info_id);
+ 			break;
+@@ -1127,7 +1127,7 @@ static void rx_anqp_vendor_specific(struct hostapd_data *hapd,
+ 	u32 oui;
+ 
+ 	if (end - pos < 4) {
+-		wpa_printf(MSG_DEBUG, "ANQP: Too short vendor specific ANQP "
++		wpa_printf(MSG_INFO, "ANQP: Too short vendor specific ANQP "
+ 			   "Query element");
+ 		return;
+ 	}
+@@ -1335,7 +1335,7 @@ static void gas_serv_rx_gas_initial_req(struct hostapd_data *hapd,
+ 		MAC2STR(sa), dialog_token);
+ 
+ 	if (*pos != WLAN_EID_ADV_PROTO) {
+-		wpa_msg(hapd->msg_ctx, MSG_DEBUG,
++		wpa_msg(hapd->msg_ctx, MSG_INFO,
+ 			"GAS: Unexpected IE in GAS Initial Request: %u", *pos);
+ 		return;
+ 	}
+@@ -1343,7 +1343,7 @@ static void gas_serv_rx_gas_initial_req(struct hostapd_data *hapd,
+ 
+ 	slen = *pos++;
+ 	if (slen > end - pos || slen < 2) {
+-		wpa_msg(hapd->msg_ctx, MSG_DEBUG,
++		wpa_msg(hapd->msg_ctx, MSG_INFO,
+ 			"GAS: Invalid IE in GAS Initial Request");
+ 		return;
+ 	}
+@@ -1361,7 +1361,7 @@ static void gas_serv_rx_gas_initial_req(struct hostapd_data *hapd,
+ 
+ 	if (*pos != ACCESS_NETWORK_QUERY_PROTOCOL) {
+ 		struct wpabuf *buf;
+-		wpa_msg(hapd->msg_ctx, MSG_DEBUG,
++		wpa_msg(hapd->msg_ctx, MSG_INFO,
+ 			"GAS: Unsupported GAS advertisement protocol id %u",
+ 			*pos);
+ 		if (sa[0] & 0x01)
+@@ -1425,7 +1425,7 @@ static void gas_serv_rx_gas_initial_req(struct hostapd_data *hapd,
+ 		pos += 2;
+ 
+ 		if (elen > end - pos) {
+-			wpa_printf(MSG_DEBUG, "ANQP: Invalid Query Request");
++			wpa_printf(MSG_INFO, "ANQP: Invalid Query Request");
+ 			return;
+ 		}
+ 
+@@ -1470,7 +1470,7 @@ static void gas_serv_rx_gas_comeback_req(struct hostapd_data *hapd,
+ 
+ 	dialog = gas_serv_dialog_find(hapd, sa, dialog_token);
+ 	if (!dialog) {
+-		wpa_msg(hapd->msg_ctx, MSG_DEBUG, "GAS: No pending SD "
++		wpa_msg(hapd->msg_ctx, MSG_INFO, "GAS: No pending SD "
+ 			"response fragment for " MACSTR " dialog token %u",
+ 			MAC2STR(sa), dialog_token);
+ 
+@@ -1494,7 +1494,7 @@ static void gas_serv_rx_gas_comeback_req(struct hostapd_data *hapd,
+ 	buf = wpabuf_alloc_copy(wpabuf_head_u8(dialog->sd_resp) +
+ 				dialog->sd_resp_pos, frag_len);
+ 	if (buf == NULL) {
+-		wpa_msg(hapd->msg_ctx, MSG_DEBUG, "GAS: Failed to allocate "
++		wpa_msg(hapd->msg_ctx, MSG_INFO, "GAS: Failed to allocate "
+ 			"buffer");
+ 		gas_serv_dialog_clear(dialog);
+ 		return;
+diff --git a/src/common/dpp.c b/src/common/dpp.c
+index db7a3fc4d..967aab13b 100644
+--- a/src/common/dpp.c
++++ b/src/common/dpp.c
+@@ -132,12 +132,12 @@ int dpp_check_attrs(const u8 *buf, size_t len)
+ 		wpa_printf(MSG_MSGDUMP, "DPP: Attribute ID %04x len %u",
+ 			   id, alen);
+ 		if (alen > end - pos) {
+-			wpa_printf(MSG_DEBUG,
++			wpa_printf(MSG_INFO,
+ 				   "DPP: Truncated message - not enough room for the attribute - dropped");
+ 			return -1;
+ 		}
+ 		if (wrapped_data) {
+-			wpa_printf(MSG_DEBUG,
++			wpa_printf(MSG_INFO,
+ 				   "DPP: An unexpected attribute included after the Wrapped Data attribute");
+ 			return -1;
+ 		}
+@@ -147,7 +147,7 @@ int dpp_check_attrs(const u8 *buf, size_t len)
+ 	}
+ 
+ 	if (end != pos) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Unexpected octets (%d) after the last attribute",
+ 			   (int) (end - pos));
+ 		return -1;
+@@ -237,7 +237,7 @@ int dpp_parse_uri_chan_list(struct dpp_bootstrap_info *bi,
+ 				   "DPP: Ignore unknown URI channel-list channel (opclass=%d channel=%d)",
+ 				   opclass, channel);
+ 		} else if (bi->num_freq == DPP_BOOTSTRAP_MAX_FREQ) {
+-			wpa_printf(MSG_DEBUG,
++			wpa_printf(MSG_INFO,
+ 				   "DPP: Too many channels in URI channel-list - ignore list");
+ 			bi->num_freq = 0;
+ 			break;
+@@ -254,7 +254,7 @@ int dpp_parse_uri_chan_list(struct dpp_bootstrap_info *bi,
+ 
+ 	return 0;
+ fail:
+-	wpa_printf(MSG_DEBUG, "DPP: Invalid URI channel-list");
++	wpa_printf(MSG_INFO, "DPP: Invalid URI channel-list");
+ 	return -1;
+ }
+ 
+@@ -265,7 +265,7 @@ int dpp_parse_uri_mac(struct dpp_bootstrap_info *bi, const char *mac)
+ 		return 0;
+ 
+ 	if (hwaddr_aton2(mac, bi->mac_addr) < 0) {
+-		wpa_printf(MSG_DEBUG, "DPP: Invalid URI mac");
++		wpa_printf(MSG_INFO, "DPP: Invalid URI mac");
+ 		return -1;
+ 	}
+ 
+@@ -292,7 +292,7 @@ int dpp_parse_uri_info(struct dpp_bootstrap_info *bi, const char *info)
+ 	bi->info[end - info] = '\0';
+ 	wpa_printf(MSG_DEBUG, "DPP: URI(information): %s", bi->info);
+ 	if (!dpp_uri_valid_info(bi->info)) {
+-		wpa_printf(MSG_DEBUG, "DPP: Invalid URI information payload");
++		wpa_printf(MSG_INFO, "DPP: Invalid URI information payload");
+ 		return -1;
+ 	}
+ 
+@@ -314,7 +314,7 @@ static int dpp_parse_uri_version(struct dpp_bootstrap_info *bi,
+ 	else if (*version == '3')
+ 		bi->version = 3;
+ 	else
+-		wpa_printf(MSG_DEBUG, "DPP: Unknown URI version");
++		wpa_printf(MSG_INFO, "DPP: Unknown URI version");
+ 
+ 	wpa_printf(MSG_DEBUG, "DPP: URI version: %d", bi->version);
+ #endif /* CONFIG_DPP2 */
+@@ -336,7 +336,7 @@ static int dpp_parse_uri_pk(struct dpp_bootstrap_info *bi, const char *info)
+ 
+ 	data = base64_decode(info, end - info, &data_len);
+ 	if (!data) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Invalid base64 encoding on URI public-key");
+ 		return -1;
+ 	}
+@@ -1722,7 +1722,7 @@ dpp_build_conf_obj_dpp(struct dpp_authentication *auth,
+ 	curve = auth->conf->curve;
+ 	if (dpp_akm_dpp(conf->akm) &&
+ 	    !dpp_supports_curve(curve->name, auth->peer_bi)) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Enrollee does not support C-sign-key curve (%s) - cannot generate config object",
+ 			   curve->name);
+ 		goto fail;
+@@ -1732,7 +1732,7 @@ dpp_build_conf_obj_dpp(struct dpp_authentication *auth,
+ 	else
+ 		nak_curve = auth->curve;
+ 	if (!dpp_supports_curve(nak_curve->name, auth->peer_bi)) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Enrollee does not support netAccessKey curve (%s) - cannot generate config object",
+ 			   nak_curve->name);
+ 		goto fail;
+@@ -1740,7 +1740,7 @@ dpp_build_conf_obj_dpp(struct dpp_authentication *auth,
+ 
+ 	akm = conf->akm;
+ 	if (dpp_akm_ver2(akm) && auth->peer_version < 2) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Convert DPP+legacy credential to DPP-only for peer that does not support version 2");
+ 		akm = DPP_AKM_DPP;
+ 	}
+@@ -1785,7 +1785,7 @@ dpp_build_conf_obj_dpp(struct dpp_authentication *auth,
+ skip_groups:
+ #endif /* CONFIG_TESTING_OPTIONS */
+ 	if (!auth->peer_protocol_key) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: No peer protocol key available to build netAccessKey JWK");
+ 		goto fail;
+ 	}
+@@ -1795,12 +1795,12 @@ skip_groups:
+ 	    !auth->new_key_received) {
+ 		if (!dpp_supports_curve(auth->conf->net_access_key_curve->name,
+ 					auth->peer_bi)) {
+-			wpa_printf(MSG_DEBUG,
++			wpa_printf(MSG_INFO,
+ 				   "DPP: Enrollee does not support the required netAccessKey curve (%s) - cannot generate config object",
+ 				   auth->conf->net_access_key_curve->name);
+ 			goto fail;
+ 		}
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Peer protocol key curve (%s) does not match the required netAccessKey curve (%s) - %s",
+ 			   auth->curve->name,
+ 			   auth->conf->net_access_key_curve->name,
+@@ -1816,7 +1816,7 @@ skip_groups:
+ #endif /* CONFIG_DPP3 */
+ 	if (dpp_build_jwk(dppcon, "netAccessKey", auth->peer_protocol_key, NULL,
+ 			  nak_curve) < 0) {
+-		wpa_printf(MSG_DEBUG, "DPP: Failed to build netAccessKey JWK");
++		wpa_printf(MSG_INFO, "DPP: Failed to build netAccessKey JWK");
+ 		goto fail;
+ 	}
+ 	if (conf->netaccesskey_expiry) {
+@@ -1824,7 +1824,7 @@ skip_groups:
+ 		char expiry[30];
+ 
+ 		if (os_gmtime(conf->netaccesskey_expiry, &tm) < 0) {
+-			wpa_printf(MSG_DEBUG,
++			wpa_printf(MSG_INFO,
+ 				   "DPP: Failed to generate expiry string");
+ 			goto fail;
+ 		}
+@@ -1910,7 +1910,7 @@ skip_groups:
+ 	json_value_sep(buf);
+ 	if (dpp_build_jwk(buf, "csign", auth->conf->csign, auth->conf->kid,
+ 			  curve) < 0) {
+-		wpa_printf(MSG_DEBUG, "DPP: Failed to build csign JWK");
++		wpa_printf(MSG_INFO, "DPP: Failed to build csign JWK");
+ 		goto fail;
+ 	}
+ #ifdef CONFIG_DPP2
+@@ -1918,7 +1918,7 @@ skip_groups:
+ 		json_value_sep(buf);
+ 		if (dpp_build_jwk(buf, "ppKey", auth->conf->pp_key, NULL,
+ 				  curve) < 0) {
+-			wpa_printf(MSG_DEBUG, "DPP: Failed to build ppKey JWK");
++			wpa_printf(MSG_INFO, "DPP: Failed to build ppKey JWK");
+ 			goto fail;
+ 		}
+ 	}
+@@ -1954,7 +1954,7 @@ out:
+ 	wpabuf_free(dppcon);
+ 	return buf;
+ fail:
+-	wpa_printf(MSG_DEBUG, "DPP: Failed to build configuration object");
++	wpa_printf(MSG_INFO, "DPP: Failed to build configuration object");
+ 	wpabuf_free(buf);
+ 	buf = NULL;
+ 	goto out;
+@@ -1973,7 +1973,7 @@ dpp_build_conf_obj_legacy(struct dpp_authentication *auth,
+ #ifdef CONFIG_DPP3
+ 	if (conf->idpass &&
+ 	    !(auth->enrollee_capabilities & DPP_ENROLLEE_CAPAB_SAE_PW_ID)) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Enrollee does not support SAE Password Identifier - cannot generate config object");
+ 		return NULL;
+ 	}
+@@ -2058,14 +2058,14 @@ dpp_build_conf_obj(struct dpp_authentication *auth, enum dpp_netrole netrole,
+ 	if (!conf) {
+ 		if (idx == 0) {
+ 			if (auth->use_config_query) {
+-				wpa_printf(MSG_DEBUG,
++				wpa_printf(MSG_INFO,
+ 					   "DPP: No configuration available for Enrollee(%s) - waiting for configuration",
+ 					   dpp_netrole_str(netrole));
+ 				auth->waiting_config = true;
+ 				dpp_get_peer_bi_id(auth);
+ 				return NULL;
+ 			}
+-			wpa_printf(MSG_DEBUG,
++			wpa_printf(MSG_INFO,
+ 				   "DPP: No configuration available for Enrollee(%s) - reject configuration request",
+ 				   dpp_netrole_str(netrole));
+ 		}
+@@ -2074,12 +2074,12 @@ dpp_build_conf_obj(struct dpp_authentication *auth, enum dpp_netrole netrole,
+ 
+ 	if (conf->akm == DPP_AKM_DOT1X) {
+ 		if (!auth->conf) {
+-			wpa_printf(MSG_DEBUG,
++			wpa_printf(MSG_INFO,
+ 				   "DPP: No Configurator data available");
+ 			return NULL;
+ 		}
+ 		if (!cert_req && !auth->certbag) {
+-			wpa_printf(MSG_DEBUG,
++			wpa_printf(MSG_INFO,
+ 				   "DPP: No certificate data available for dot1x configuration");
+ 			return NULL;
+ 		}
+@@ -2163,7 +2163,7 @@ forced_status:
+ 			   auth->conf->net_access_key_curve->name);
+ 		new_pc = dpp_gen_keypair(auth->conf->net_access_key_curve);
+ 		if (!new_pc) {
+-			wpa_printf(MSG_DEBUG, "DPP: Failed to generate new Pc");
++			wpa_printf(MSG_INFO, "DPP: Failed to generate new Pc");
+ 			return NULL;
+ 		}
+ 		pc = crypto_ec_key_get_pubkey_point(new_pc, 0);
+@@ -2229,7 +2229,7 @@ skip_e_nonce:
+ 		wpabuf_put_le16(clear, wpabuf_len(conf2));
+ 		wpabuf_put_buf(clear, conf2);
+ 	} else if (conf2) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Second Config Object available, but peer does not support more than one");
+ 	}
+ 	if (env_data) {
+@@ -2535,7 +2535,7 @@ dpp_conf_req_rx(struct dpp_authentication *auth, const u8 *attr_start,
+ 		token = token->child;
+ 		while (token) {
+ 			if (token->type != JSON_NUMBER) {
+-				wpa_printf(MSG_DEBUG,
++				wpa_printf(MSG_INFO,
+ 					   "DPP: Invalid bandSupport array member type");
+ 			} else {
+ 				wpa_printf(MSG_DEBUG,
+@@ -2572,7 +2572,7 @@ dpp_conf_req_rx(struct dpp_authentication *auth, const u8 *attr_start,
+ 
+ 		wpa_hexdump_buf(MSG_DEBUG, "DPP: CertificateRequest", cert_req);
+ 		if (dpp_validate_csr(auth, cert_req) < 0) {
+-			wpa_printf(MSG_DEBUG, "DPP: CSR is not valid");
++			wpa_printf(MSG_INFO, "DPP: CSR is not valid");
+ 			auth->force_conf_resp_status = DPP_STATUS_CSR_BAD;
+ 			goto cont;
+ 		}
+@@ -2639,7 +2639,7 @@ static int dpp_parse_cred_legacy(struct dpp_config_obj *conf,
+ 		wpa_hexdump_ascii_key(MSG_DEBUG, "DPP: Legacy passphrase",
+ 				      pass->string, len);
+ 		if (dpp_akm_psk(conf->akm) && (len < 8 || len > 63)) {
+-			wpa_printf(MSG_DEBUG,
++			wpa_printf(MSG_INFO,
+ 				   "DPP: Unexpected pass length %zu for a config object that includes PSK",
+ 				   len);
+ 			return -1;
+@@ -2653,25 +2653,25 @@ static int dpp_parse_cred_legacy(struct dpp_config_obj *conf,
+ #endif /* CONFIG_DPP3 */
+ 	} else if (psk_hex && psk_hex->type == JSON_STRING) {
+ 		if (dpp_akm_sae(conf->akm) && !dpp_akm_psk(conf->akm)) {
+-			wpa_printf(MSG_DEBUG,
++			wpa_printf(MSG_INFO,
+ 				   "DPP: Unexpected psk_hex with akm=sae");
+ 			return -1;
+ 		}
+ 		if (os_strlen(psk_hex->string) != PMK_LEN * 2 ||
+ 		    hexstr2bin(psk_hex->string, conf->psk, PMK_LEN) < 0) {
+-			wpa_printf(MSG_DEBUG, "DPP: Invalid psk_hex encoding");
++			wpa_printf(MSG_INFO, "DPP: Invalid psk_hex encoding");
+ 			return -1;
+ 		}
+ 		wpa_hexdump_key(MSG_DEBUG, "DPP: Legacy PSK",
+ 				conf->psk, PMK_LEN);
+ 		conf->psk_set = 1;
+ 	} else {
+-		wpa_printf(MSG_DEBUG, "DPP: No pass or psk_hex strings found");
++		wpa_printf(MSG_INFO, "DPP: No pass or psk_hex strings found");
+ 		return -1;
+ 	}
+ 
+ 	if (dpp_akm_sae(conf->akm) && !conf->passphrase[0]) {
+-		wpa_printf(MSG_DEBUG, "DPP: No pass for sae found");
++		wpa_printf(MSG_INFO, "DPP: No pass for sae found");
+ 		return -1;
+ 	}
+ 
+@@ -2689,35 +2689,35 @@ struct crypto_ec_key * dpp_parse_jwk(struct json_token *jwk,
+ 
+ 	token = json_get_member(jwk, "kty");
+ 	if (!token || token->type != JSON_STRING) {
+-		wpa_printf(MSG_DEBUG, "DPP: No kty in JWK");
++		wpa_printf(MSG_INFO, "DPP: No kty in JWK");
+ 		goto fail;
+ 	}
+ 	if (os_strcmp(token->string, "EC") != 0) {
+-		wpa_printf(MSG_DEBUG, "DPP: Unexpected JWK kty '%s'",
++		wpa_printf(MSG_INFO, "DPP: Unexpected JWK kty '%s'",
+ 			   token->string);
+ 		goto fail;
+ 	}
+ 
+ 	token = json_get_member(jwk, "crv");
+ 	if (!token || token->type != JSON_STRING) {
+-		wpa_printf(MSG_DEBUG, "DPP: No crv in JWK");
++		wpa_printf(MSG_INFO, "DPP: No crv in JWK");
+ 		goto fail;
+ 	}
+ 	curve = dpp_get_curve_jwk_crv(token->string);
+ 	if (!curve) {
+-		wpa_printf(MSG_DEBUG, "DPP: Unsupported JWK crv '%s'",
++		wpa_printf(MSG_INFO, "DPP: Unsupported JWK crv '%s'",
+ 			   token->string);
+ 		goto fail;
+ 	}
+ 
+ 	x = json_get_member_base64url(jwk, "x");
+ 	if (!x) {
+-		wpa_printf(MSG_DEBUG, "DPP: No x in JWK");
++		wpa_printf(MSG_INFO, "DPP: No x in JWK");
+ 		goto fail;
+ 	}
+ 	wpa_hexdump_buf(MSG_DEBUG, "DPP: JWK x", x);
+ 	if (wpabuf_len(x) != curve->prime_len) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Unexpected JWK x length %u (expected %u for curve %s)",
+ 			   (unsigned int) wpabuf_len(x),
+ 			   (unsigned int) curve->prime_len, curve->name);
+@@ -2726,12 +2726,12 @@ struct crypto_ec_key * dpp_parse_jwk(struct json_token *jwk,
+ 
+ 	y = json_get_member_base64url(jwk, "y");
+ 	if (!y) {
+-		wpa_printf(MSG_DEBUG, "DPP: No y in JWK");
++		wpa_printf(MSG_INFO, "DPP: No y in JWK");
+ 		goto fail;
+ 	}
+ 	wpa_hexdump_buf(MSG_DEBUG, "DPP: JWK y", y);
+ 	if (wpabuf_len(y) != curve->prime_len) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Unexpected JWK y length %u (expected %u for curve %s)",
+ 			   (unsigned int) wpabuf_len(y),
+ 			   (unsigned int) curve->prime_len, curve->name);
+@@ -2766,19 +2766,19 @@ int dpp_key_expired(const char *timestamp, os_time_t *expiry)
+ 	 * YYYY-MM-DDTHH:MM:SS+03:00
+ 	 */
+ 	if (os_strlen(timestamp) < 19) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Too short timestamp - assume expired key");
+ 		return 1;
+ 	}
+ 	if (sscanf(timestamp, "%04u-%02u-%02uT%02u:%02u:%02u",
+ 		   &year, &month, &day, &hour, &min, &sec) != 6) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Failed to parse expiration day - assume expired key");
+ 		return 1;
+ 	}
+ 
+ 	if (os_mktime(year, month, day, hour, min, sec, &utime) < 0) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Invalid date/time information - assume expired key");
+ 		return 1;
+ 	}
+@@ -2792,7 +2792,7 @@ int dpp_key_expired(const char *timestamp, os_time_t *expiry)
+ 		/* Adjust local time to UTC */
+ 		items = sscanf(pos + 1, "%02u:%02u", &hour, &min);
+ 		if (items < 1) {
+-			wpa_printf(MSG_DEBUG,
++			wpa_printf(MSG_INFO,
+ 				   "DPP: Invalid time zone designator (%s) - assume expired key",
+ 				   pos);
+ 			return 1;
+@@ -2808,7 +2808,7 @@ int dpp_key_expired(const char *timestamp, os_time_t *expiry)
+ 				utime -= 60 * min;
+ 		}
+ 	} else {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Invalid time zone designator (%s) - assume expired key",
+ 			   pos);
+ 		return 1;
+@@ -2817,13 +2817,13 @@ int dpp_key_expired(const char *timestamp, os_time_t *expiry)
+ 		*expiry = utime;
+ 
+ 	if (os_get_time(&now) < 0) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Cannot get current time - assume expired key");
+ 		return 1;
+ 	}
+ 
+ 	if (now.sec > utime) {
+-		wpa_printf(MSG_DEBUG, "DPP: Key has expired (%lu < %lu)",
++		wpa_printf(MSG_INFO, "DPP: Key has expired (%lu < %lu)",
+ 			   utime, now.sec);
+ 		return 1;
+ 	}
+@@ -2845,7 +2845,7 @@ static int dpp_parse_connector(struct dpp_authentication *auth,
+ 
+ 	root = json_parse((const char *) payload, payload_len);
+ 	if (!root) {
+-		wpa_printf(MSG_DEBUG, "DPP: JSON parsing of connector failed");
++		wpa_printf(MSG_INFO, "DPP: JSON parsing of connector failed");
+ 		goto fail;
+ 	}
+ 
+@@ -2859,13 +2859,13 @@ static int dpp_parse_connector(struct dpp_authentication *auth,
+ 
+ 		id = json_get_member(token, "groupId");
+ 		if (!id || id->type != JSON_STRING) {
+-			wpa_printf(MSG_DEBUG, "DPP: Missing groupId string");
++			wpa_printf(MSG_INFO, "DPP: Missing groupId string");
+ 			goto fail;
+ 		}
+ 
+ 		role = json_get_member(token, "netRole");
+ 		if (!role || role->type != JSON_STRING) {
+-			wpa_printf(MSG_DEBUG, "DPP: Missing netRole string");
++			wpa_printf(MSG_INFO, "DPP: Missing netRole string");
+ 			goto fail;
+ 		}
+ 		wpa_printf(MSG_DEBUG,
+@@ -2876,7 +2876,7 @@ static int dpp_parse_connector(struct dpp_authentication *auth,
+ skip_groups:
+ 
+ 	if (!rules) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Connector includes no groups");
+ 		goto fail;
+ 	}
+@@ -2889,7 +2889,7 @@ skip_groups:
+ 		wpa_printf(MSG_DEBUG, "DPP: expiry = %s", token->string);
+ 		if (dpp_key_expired(token->string,
+ 				    &auth->net_access_key_expiry)) {
+-			wpa_printf(MSG_DEBUG,
++			wpa_printf(MSG_INFO,
+ 				   "DPP: Connector (netAccessKey) has expired");
+ 			goto fail;
+ 		}
+@@ -2897,7 +2897,7 @@ skip_groups:
+ 
+ 	netkey = json_get_member(root, "netAccessKey");
+ 	if (!netkey || netkey->type != JSON_OBJECT) {
+-		wpa_printf(MSG_DEBUG, "DPP: No netAccessKey object found");
++		wpa_printf(MSG_INFO, "DPP: No netAccessKey object found");
+ 		goto fail;
+ 	}
+ 
+@@ -2907,7 +2907,7 @@ skip_groups:
+ 	dpp_debug_print_key("DPP: Received netAccessKey", key);
+ 
+ 	if (crypto_ec_key_cmp(key, auth->own_protocol_key)) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: netAccessKey in connector does not match own protocol key");
+ #ifdef CONFIG_TESTING_OPTIONS
+ 		if (auth->ignore_netaccesskey_mismatch) {
+@@ -3003,13 +3003,13 @@ static int dpp_parse_cred_dpp(struct dpp_authentication *auth,
+ 
+ 	csign = json_get_member(cred, "csign");
+ 	if (!csign || csign->type != JSON_OBJECT) {
+-		wpa_printf(MSG_DEBUG, "DPP: No csign JWK in JSON");
++		wpa_printf(MSG_INFO, "DPP: No csign JWK in JSON");
+ 		goto fail;
+ 	}
+ 
+ 	csign_pub = dpp_parse_jwk(csign, &key_curve);
+ 	if (!csign_pub) {
+-		wpa_printf(MSG_DEBUG, "DPP: Failed to parse csign JWK");
++		wpa_printf(MSG_INFO, "DPP: Failed to parse csign JWK");
+ 		goto fail;
+ 	}
+ 	dpp_debug_print_key("DPP: Received C-sign-key", csign_pub);
+@@ -3018,12 +3018,12 @@ static int dpp_parse_cred_dpp(struct dpp_authentication *auth,
+ 	if (ppkey && ppkey->type == JSON_OBJECT) {
+ 		pp_pub = dpp_parse_jwk(ppkey, &pp_curve);
+ 		if (!pp_pub) {
+-			wpa_printf(MSG_DEBUG, "DPP: Failed to parse ppKey JWK");
++			wpa_printf(MSG_INFO, "DPP: Failed to parse ppKey JWK");
+ 			goto fail;
+ 		}
+ 		dpp_debug_print_key("DPP: Received ppKey", pp_pub);
+ 		if (key_curve != pp_curve) {
+-			wpa_printf(MSG_DEBUG,
++			wpa_printf(MSG_INFO,
+ 				   "DPP: C-sign-key and ppKey do not use the same curve");
+ 			goto fail;
+ 		}
+@@ -3031,7 +3031,7 @@ static int dpp_parse_cred_dpp(struct dpp_authentication *auth,
+ 
+ 	token = json_get_member(cred, "signedConnector");
+ 	if (!token || token->type != JSON_STRING) {
+-		wpa_printf(MSG_DEBUG, "DPP: No signedConnector string found");
++		wpa_printf(MSG_INFO, "DPP: No signedConnector string found");
+ 		goto fail;
+ 	}
+ 	wpa_hexdump_ascii(MSG_DEBUG, "DPP: signedConnector",
+@@ -3040,7 +3040,7 @@ static int dpp_parse_cred_dpp(struct dpp_authentication *auth,
+ 
+ 	if (os_strchr(signed_connector, '"') ||
+ 	    os_strchr(signed_connector, '\n')) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Unexpected character in signedConnector");
+ 		goto fail;
+ 	}
+@@ -3051,7 +3051,7 @@ static int dpp_parse_cred_dpp(struct dpp_authentication *auth,
+ 
+ 	if (dpp_parse_connector(auth, conf,
+ 				info.payload, info.payload_len) < 0) {
+-		wpa_printf(MSG_DEBUG, "DPP: Failed to parse connector");
++		wpa_printf(MSG_INFO, "DPP: Failed to parse connector");
+ 		goto fail;
+ 	}
+ 
+@@ -3303,7 +3303,7 @@ static int dpp_parse_conf_obj(struct dpp_authentication *auth,
+ 	}
+ 
+ 	if (auth->num_conf_obj == DPP_MAX_CONF_OBJ) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: No room for this many Config Objects - ignore this one");
+ 		ret = 0;
+ 		goto fail;
+@@ -4027,7 +4027,7 @@ static int dpp_configurator_gen_kid(struct dpp_configurator *conf)
+ 	res = sha256_vector(1, addr, len, conf->kid_hash);
+ 	wpabuf_free(csign_pub);
+ 	if (res < 0) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Failed to derive kid for C-sign-key");
+ 		return -1;
+ 	}
+@@ -4085,7 +4085,7 @@ int dpp_configurator_own_config(struct dpp_authentication *auth,
+ 	int ret = -1;
+ 
+ 	if (!auth->conf) {
+-		wpa_printf(MSG_DEBUG, "DPP: No configurator specified");
++		wpa_printf(MSG_INFO, "DPP: No configurator specified");
+ 		return -1;
+ 	}
+ 
+@@ -4172,7 +4172,7 @@ int dpp_connector_match_groups(struct json_token *own_root,
+ 
+ 	groups = json_get_member(peer_root, "groups");
+ 	if (!groups || groups->type != JSON_ARRAY) {
+-		wpa_printf(MSG_DEBUG, "DPP: No peer groups array found");
++		wpa_printf(MSG_INFO, "DPP: No peer groups array found");
+ 		return 0;
+ 	}
+ 
+@@ -4181,14 +4181,14 @@ int dpp_connector_match_groups(struct json_token *own_root,
+ 
+ 		id = json_get_member(token, "groupId");
+ 		if (!id || id->type != JSON_STRING) {
+-			wpa_printf(MSG_DEBUG,
++			wpa_printf(MSG_INFO,
+ 				   "DPP: Missing peer groupId string");
+ 			continue;
+ 		}
+ 
+ 		role = json_get_member(token, "netRole");
+ 		if (!role || role->type != JSON_STRING) {
+-			wpa_printf(MSG_DEBUG,
++			wpa_printf(MSG_INFO,
+ 				   "DPP: Missing peer groups::netRole string");
+ 			continue;
+ 		}
+@@ -4216,18 +4216,18 @@ struct json_token * dpp_parse_own_connector(const char *own_connector)
+ 
+ 	pos = os_strchr(own_connector, '.');
+ 	if (!pos) {
+-		wpa_printf(MSG_DEBUG, "DPP: Own connector is missing the first dot (.)");
++		wpa_printf(MSG_INFO, "DPP: Own connector is missing the first dot (.)");
+ 		return NULL;
+ 	}
+ 	pos++;
+ 	end = os_strchr(pos, '.');
+ 	if (!end) {
+-		wpa_printf(MSG_DEBUG, "DPP: Own connector is missing the second dot (.)");
++		wpa_printf(MSG_INFO, "DPP: Own connector is missing the second dot (.)");
+ 		return NULL;
+ 	}
+ 	own_conn = base64_url_decode(pos, end - pos, &own_conn_len);
+ 	if (!own_conn) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Failed to base64url decode own signedConnector JWS Payload");
+ 		return NULL;
+ 	}
+@@ -4235,7 +4235,7 @@ struct json_token * dpp_parse_own_connector(const char *own_connector)
+ 	own_root = json_parse((const char *) own_conn, own_conn_len);
+ 	os_free(own_conn);
+ 	if (!own_root)
+-		wpa_printf(MSG_DEBUG, "DPP: Failed to parse local connector");
++		wpa_printf(MSG_INFO, "DPP: Failed to parse local connector");
+ 
+ 	return own_root;
+ }
+@@ -4283,13 +4283,13 @@ dpp_peer_intro(struct dpp_introduction *intro, const char *own_connector,
+ 
+ 	root = json_parse((const char *) info.payload, info.payload_len);
+ 	if (!root) {
+-		wpa_printf(MSG_DEBUG, "DPP: JSON parsing of connector failed");
++		wpa_printf(MSG_INFO, "DPP: JSON parsing of connector failed");
+ 		ret = DPP_STATUS_INVALID_CONNECTOR;
+ 		goto fail;
+ 	}
+ 
+ 	if (!dpp_connector_match_groups(own_root, root, false)) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Peer connector does not include compatible group netrole with own connector");
+ 		ret = DPP_STATUS_NO_MATCH;
+ 		goto fail;
+@@ -4302,7 +4302,7 @@ dpp_peer_intro(struct dpp_introduction *intro, const char *own_connector,
+ 	} else {
+ 		wpa_printf(MSG_DEBUG, "DPP: expiry = %s", token->string);
+ 		if (dpp_key_expired(token->string, expiry)) {
+-			wpa_printf(MSG_DEBUG,
++			wpa_printf(MSG_INFO,
+ 				   "DPP: Connector (netAccessKey) has expired");
+ 			ret = DPP_STATUS_INVALID_CONNECTOR;
+ 			goto fail;
+@@ -4319,7 +4319,7 @@ dpp_peer_intro(struct dpp_introduction *intro, const char *own_connector,
+ 
+ 	netkey = json_get_member(root, "netAccessKey");
+ 	if (!netkey || netkey->type != JSON_OBJECT) {
+-		wpa_printf(MSG_DEBUG, "DPP: No netAccessKey object found");
++		wpa_printf(MSG_INFO, "DPP: No netAccessKey object found");
+ 		ret = DPP_STATUS_INVALID_CONNECTOR;
+ 		goto fail;
+ 	}
+@@ -4332,7 +4332,7 @@ dpp_peer_intro(struct dpp_introduction *intro, const char *own_connector,
+ 	dpp_debug_print_key("DPP: Received netAccessKey", intro->peer_key);
+ 
+ 	if (own_curve != curve) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Mismatching netAccessKey curves (%s != %s)",
+ 			   own_curve->name, curve->name);
+ 		ret = DPP_STATUS_INVALID_CONNECTOR;
+@@ -4517,7 +4517,7 @@ static int dpp_parse_supported_curves_list(struct dpp_bootstrap_info *bi,
+ 		} else if (os_strcmp(token, "BP-512") == 0) {
+ 			curves |= BIT(DPP_BOOTSTRAP_CURVE_BP_512);
+ 		} else {
+-			wpa_printf(MSG_DEBUG, "DPP: Unsupported curve '%s'",
++			wpa_printf(MSG_INFO, "DPP: Unsupported curve '%s'",
+ 				   token);
+ 			return -1;
+ 		}
+@@ -4811,13 +4811,13 @@ static int dpp_nfc_update_bi_channel(struct dpp_bootstrap_info *own_bi,
+ 		}
+ 	}
+ 	if (!freq) {
+-		wpa_printf(MSG_DEBUG, "DPP: No common channel found");
++		wpa_printf(MSG_INFO, "DPP: No common channel found");
+ 		return -1;
+ 	}
+ 
+ 	mode = ieee80211_freq_to_channel_ext(freq, 0, 0, &op_class, &channel);
+ 	if (mode == NUM_HOSTAPD_MODES) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Could not determine operating class or channel number for %u MHz",
+ 			   freq);
+ 	}
+@@ -4901,7 +4901,7 @@ int dpp_configurator_add(struct dpp_global *dpp, const char *cmd)
+ 	if (curve) {
+ 		net_access_key_curve = dpp_get_curve_name(curve);
+ 		if (!net_access_key_curve) {
+-			wpa_printf(MSG_DEBUG,
++			wpa_printf(MSG_INFO,
+ 				   "DPP: Unsupported net_access_key_curve: %s",
+ 				   curve);
+ 			goto fail;
+diff --git a/src/common/dpp_auth.c b/src/common/dpp_auth.c
+index ffc3ca446..afdff0e1b 100644
+--- a/src/common/dpp_auth.c
++++ b/src/common/dpp_auth.c
+@@ -850,7 +850,7 @@ dpp_auth_req_rx(struct dpp_global *dpp, void *msg_ctx, u8 dpp_allowed_roles,
+ 	switch (auth->i_capab & DPP_CAPAB_ROLE_MASK) {
+ 	case DPP_CAPAB_ENROLLEE:
+ 		if (!(dpp_allowed_roles & DPP_CAPAB_CONFIGURATOR)) {
+-			wpa_printf(MSG_DEBUG,
++			wpa_printf(MSG_INFO,
+ 				   "DPP: Local policy does not allow Configurator role");
+ 			goto not_compatible;
+ 		}
+@@ -859,7 +859,7 @@ dpp_auth_req_rx(struct dpp_global *dpp, void *msg_ctx, u8 dpp_allowed_roles,
+ 		break;
+ 	case DPP_CAPAB_CONFIGURATOR:
+ 		if (!(dpp_allowed_roles & DPP_CAPAB_ENROLLEE)) {
+-			wpa_printf(MSG_DEBUG,
++			wpa_printf(MSG_INFO,
+ 				   "DPP: Local policy does not allow Enrollee role");
+ 			goto not_compatible;
+ 		}
+@@ -874,7 +874,7 @@ dpp_auth_req_rx(struct dpp_global *dpp, void *msg_ctx, u8 dpp_allowed_roles,
+ 			wpa_printf(MSG_DEBUG, "DPP: Acting as Configurator");
+ 			auth->configurator = 1;
+ 		} else {
+-			wpa_printf(MSG_DEBUG,
++			wpa_printf(MSG_INFO,
+ 				   "DPP: Local policy does not allow Configurator/Enrollee role");
+ 			goto not_compatible;
+ 		}
+@@ -949,7 +949,7 @@ int dpp_notify_new_qr_code(struct dpp_authentication *auth,
+ 		      SHA256_MAC_LEN) != 0)
+ 		return 0;
+ 
+-	wpa_printf(MSG_DEBUG,
++	wpa_printf(MSG_INFO,
+ 		   "DPP: New scanned QR Code has matching public key that was needed to continue DPP Authentication exchange with "
+ 		   MACSTR, MAC2STR(auth->peer_mac_addr));
+ 	auth->peer_bi = peer_bi;
+diff --git a/src/common/dpp_backup.c b/src/common/dpp_backup.c
+index 25c0bd548..f87953878 100644
+--- a/src/common/dpp_backup.c
++++ b/src/common/dpp_backup.c
+@@ -286,7 +286,7 @@ dpp_build_pw_recipient_info(struct dpp_authentication *auth, size_t hash_len,
+ 
+ 	if (dpp_pbkdf2(hash_len, key, key_len, wpabuf_head(salt), 64, 1000,
+ 		       kek, hash_len)) {
+-		wpa_printf(MSG_DEBUG, "DPP: PBKDF2 failed");
++		wpa_printf(MSG_INFO, "DPP: PBKDF2 failed");
+ 		goto fail;
+ 	}
+ 	wpa_hexdump_key(MSG_DEBUG, "DPP: key-encryption key from PBKDF2",
+@@ -455,13 +455,13 @@ struct wpabuf * dpp_build_enveloped_data(struct dpp_authentication *auth)
+ 	size_t hash_len;
+ 
+ 	if (!auth->conf) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: No Configurator instance selected for the session - cannot build DPPEnvelopedData");
+ 		return NULL;
+ 	}
+ 
+ 	if (!auth->provision_configurator) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Configurator provisioning not allowed");
+ 		return NULL;
+ 	}
+@@ -585,7 +585,7 @@ static int dpp_parse_recipient_infos(const u8 *pos, size_t len,
+ 	if (asn1_get_integer(pos, end - pos, &val, &pos) < 0)
+ 		return -1;
+ 	if (val != 0) {
+-		wpa_printf(MSG_DEBUG, "DPP: pwri.version != 0");
++		wpa_printf(MSG_INFO, "DPP: pwri.version != 0");
+ 		return -1;
+ 	}
+ 
+@@ -609,7 +609,7 @@ static int dpp_parse_recipient_infos(const u8 *pos, size_t len,
+ 		char buf[80];
+ 
+ 		asn1_oid_to_str(&oid, buf, sizeof(buf));
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Unexpected KeyDerivationAlgorithmIdentifier %s",
+ 			   buf);
+ 		return -1;
+@@ -642,7 +642,7 @@ static int dpp_parse_recipient_infos(const u8 *pos, size_t len,
+ 	wpa_hexdump(MSG_MSGDUMP, "DPP: salt.specified",
+ 		    hdr.payload, hdr.length);
+ 	if (hdr.length != 64) {
+-		wpa_printf(MSG_DEBUG, "DPP: Unexpected salt length %u",
++		wpa_printf(MSG_INFO, "DPP: Unexpected salt length %u",
+ 			   hdr.length);
+ 		return -1;
+ 	}
+@@ -652,21 +652,21 @@ static int dpp_parse_recipient_infos(const u8 *pos, size_t len,
+ 	if (asn1_get_integer(pos, e_end - pos, &val, &pos) < 0)
+ 		return -1;
+ 	if (val != 1000) {
+-		wpa_printf(MSG_DEBUG, "DPP: Unexpected iterationCount %d", val);
++		wpa_printf(MSG_INFO, "DPP: Unexpected iterationCount %d", val);
+ 		return -1;
+ 	}
+ 
+ 	if (asn1_get_integer(pos, e_end - pos, &val, &pos) < 0)
+ 		return -1;
+ 	if (val != 32 && val != 48 && val != 64) {
+-		wpa_printf(MSG_DEBUG, "DPP: Unexpected keyLength %d", val);
++		wpa_printf(MSG_INFO, "DPP: Unexpected keyLength %d", val);
+ 		return -1;
+ 	}
+ 	data->pbkdf2_key_len = val;
+ 
+ 	if (asn1_get_sequence(pos, e_end - pos, &hdr, NULL) < 0 ||
+ 	    asn1_get_oid(hdr.payload, hdr.length, &oid, &pos) < 0) {
+-		wpa_printf(MSG_DEBUG, "DPP: Could not parse prf");
++		wpa_printf(MSG_INFO, "DPP: Could not parse prf");
+ 		return -1;
+ 	}
+ 	if (asn1_oid_equal(&oid, &asn1_pbkdf2_hmac_sha256_oid)) {
+@@ -679,7 +679,7 @@ static int dpp_parse_recipient_infos(const u8 *pos, size_t len,
+ 		char buf[80];
+ 
+ 		asn1_oid_to_str(&oid, buf, sizeof(buf));
+-		wpa_printf(MSG_DEBUG, "DPP: Unexpected PBKDF2-params.prf %s",
++		wpa_printf(MSG_INFO, "DPP: Unexpected PBKDF2-params.prf %s",
+ 			   buf);
+ 		return -1;
+ 	}
+@@ -700,7 +700,7 @@ static int dpp_parse_recipient_infos(const u8 *pos, size_t len,
+ 		char buf[80];
+ 
+ 		asn1_oid_to_str(&oid, buf, sizeof(buf));
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Unexpected KeyEncryptionAlgorithmIdentifier %s",
+ 			   buf);
+ 		return -1;
+@@ -754,14 +754,14 @@ static int dpp_parse_encrypted_content_info(const u8 *pos, const u8 *end,
+ 
+ 	/* ContentType ::= OBJECT IDENTIFIER */
+ 	if (asn1_get_oid(pos, end - pos, &oid, &pos) < 0) {
+-		wpa_printf(MSG_DEBUG, "DPP: Could not parse ContentType");
++		wpa_printf(MSG_INFO, "DPP: Could not parse ContentType");
+ 		return -1;
+ 	}
+ 	if (!asn1_oid_equal(&oid, &asn1_dpp_asymmetric_key_package_oid)) {
+ 		char buf[80];
+ 
+ 		asn1_oid_to_str(&oid, buf, sizeof(buf));
+-		wpa_printf(MSG_DEBUG, "DPP: Unexpected ContentType %s", buf);
++		wpa_printf(MSG_INFO, "DPP: Unexpected ContentType %s", buf);
+ 		return -1;
+ 	}
+ 
+@@ -774,7 +774,7 @@ static int dpp_parse_encrypted_content_info(const u8 *pos, const u8 *end,
+ 		char buf[80];
+ 
+ 		asn1_oid_to_str(&oid, buf, sizeof(buf));
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Unexpected ContentEncryptionAlgorithmIdentifier %s",
+ 			   buf);
+ 		return -1;
+@@ -837,7 +837,7 @@ static int dpp_parse_enveloped_data(const u8 *env_data, size_t env_data_len,
+ 	if (asn1_get_integer(pos, end - pos, &val, &pos) < 0)
+ 		return -1;
+ 	if (val != 3) {
+-		wpa_printf(MSG_DEBUG, "DPP: EnvelopedData.version != 3");
++		wpa_printf(MSG_INFO, "DPP: EnvelopedData.version != 3");
+ 		return -1;
+ 	}
+ 
+@@ -891,7 +891,7 @@ dpp_parse_one_asymmetric_key(const u8 *buf, size_t len)
+ 	if (asn1_get_integer(pos, end - pos, &val, &pos) < 0)
+ 		goto fail;
+ 	if (val != 0 && val != 1) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Unsupported DPPAsymmetricKeyPackage version %d",
+ 			   val);
+ 		goto fail;
+@@ -903,7 +903,7 @@ dpp_parse_one_asymmetric_key(const u8 *buf, size_t len)
+ 		goto fail;
+ 	if (!asn1_oid_equal(&oid, &asn1_ec_public_key_oid)) {
+ 		asn1_oid_to_str(&oid, txt, sizeof(txt));
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Unsupported PrivateKeyAlgorithmIdentifier %s",
+ 			   txt);
+ 		goto fail;
+@@ -917,7 +917,7 @@ dpp_parse_one_asymmetric_key(const u8 *buf, size_t len)
+ 	 *    -- specifiedCurve	SpecifiedECDomain}
+ 	 */
+ 	if (!params || asn1_get_oid(params, params_len, &oid, &next) < 0) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Could not parse ECParameters.namedCurve");
+ 		goto fail;
+ 	}
+@@ -1008,7 +1008,7 @@ dpp_parse_one_asymmetric_key(const u8 *buf, size_t len)
+ 		goto fail;
+ 	if (!asn1_oid_equal(&oid, &asn1_dpp_config_params_oid)) {
+ 		asn1_oid_to_str(&oid, txt, sizeof(txt));
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Unexpected Attribute identifier %s", txt);
+ 		goto fail;
+ 	}
+@@ -1090,7 +1090,7 @@ dpp_parse_one_asymmetric_key(const u8 *buf, size_t len)
+ 
+ 	return key;
+ fail:
+-	wpa_printf(MSG_DEBUG, "DPP: Failed to parse OneAsymmetricKey");
++	wpa_printf(MSG_INFO, "DPP: Failed to parse OneAsymmetricKey");
+ 	dpp_free_asymmetric_key(key);
+ 	return NULL;
+ }
+@@ -1159,7 +1159,7 @@ int dpp_conf_resp_env_data(struct dpp_authentication *auth,
+ 
+ 	if (dpp_pbkdf2(data.prf_hash_len, key, key_len, data.salt, 64, 1000,
+ 		       kek, data.pbkdf2_key_len)) {
+-		wpa_printf(MSG_DEBUG, "DPP: PBKDF2 failed");
++		wpa_printf(MSG_INFO, "DPP: PBKDF2 failed");
+ 		return -1;
+ 	}
+ 	wpa_hexdump_key(MSG_DEBUG, "DPP: key-encryption key from PBKDF2",
+@@ -1167,7 +1167,7 @@ int dpp_conf_resp_env_data(struct dpp_authentication *auth,
+ 
+ 	if (data.enc_key_len < AES_BLOCK_SIZE ||
+ 	    data.enc_key_len > sizeof(cont_encr_key) + AES_BLOCK_SIZE) {
+-		wpa_printf(MSG_DEBUG, "DPP: Invalid encryptedKey length");
++		wpa_printf(MSG_INFO, "DPP: Invalid encryptedKey length");
+ 		return -1;
+ 	}
+ 	res = aes_siv_decrypt(kek, data.pbkdf2_key_len,
+@@ -1175,7 +1175,7 @@ int dpp_conf_resp_env_data(struct dpp_authentication *auth,
+ 			      0, NULL, NULL, cont_encr_key);
+ 	forced_memzero(kek, data.pbkdf2_key_len);
+ 	if (res < 0) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: AES-SIV decryption of encryptedKey failed");
+ 		return -1;
+ 	}
+@@ -1195,7 +1195,7 @@ int dpp_conf_resp_env_data(struct dpp_authentication *auth,
+ 	forced_memzero(cont_encr_key, cont_encr_key_len);
+ 	if (res < 0) {
+ 		bin_clear_free(key_pkg, key_pkg_len);
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: AES-SIV decryption of encryptedContent failed");
+ 		return -1;
+ 	}
+diff --git a/src/common/dpp_crypto.c b/src/common/dpp_crypto.c
+index f17f95a2c..106c11147 100644
+--- a/src/common/dpp_crypto.c
++++ b/src/common/dpp_crypto.c
+@@ -324,7 +324,7 @@ int dpp_bootstrap_key_hash(struct dpp_bootstrap_info *bi)
+ 			der);
+ 	res = dpp_bi_pubkey_hash(bi, wpabuf_head(der), wpabuf_len(der));
+ 	if (res < 0)
+-		wpa_printf(MSG_DEBUG, "DPP: Failed to hash public key");
++		wpa_printf(MSG_INFO, "DPP: Failed to hash public key");
+ 	wpabuf_free(der);
+ 	return res;
+ }
+@@ -359,7 +359,7 @@ int dpp_keygen(struct dpp_bootstrap_info *bi, const char *curve,
+ 			der);
+ 
+ 	if (dpp_bi_pubkey_hash(bi, wpabuf_head(der), wpabuf_len(der)) < 0) {
+-		wpa_printf(MSG_DEBUG, "DPP: Failed to hash public key");
++		wpa_printf(MSG_INFO, "DPP: Failed to hash public key");
+ 		goto fail;
+ 	}
+ 
+@@ -453,7 +453,7 @@ int dpp_derive_bk_ke(struct dpp_authentication *auth)
+ 	size_t num_elem = 0;
+ 
+ 	if (!auth->Mx_len || !auth->Nx_len) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Mx/Nx not available - cannot derive ke");
+ 		return -1;
+ 	}
+@@ -469,7 +469,7 @@ int dpp_derive_bk_ke(struct dpp_authentication *auth)
+ 	num_elem++;
+ 	if (auth->peer_bi && auth->own_bi) {
+ 		if (!auth->Lx_len) {
+-			wpa_printf(MSG_DEBUG,
++			wpa_printf(MSG_INFO,
+ 				   "DPP: Lx not available - cannot derive ke");
+ 			return -1;
+ 		}
+@@ -577,20 +577,20 @@ int dpp_get_subject_public_key(struct dpp_bootstrap_info *bi,
+ 	struct crypto_ec_key *key;
+ 
+ 	if (dpp_bi_pubkey_hash(bi, data, data_len) < 0) {
+-		wpa_printf(MSG_DEBUG, "DPP: Failed to hash public key");
++		wpa_printf(MSG_INFO, "DPP: Failed to hash public key");
+ 		return -1;
+ 	}
+ 
+ 	key = crypto_ec_key_parse_pub(data, data_len);
+ 	if (!key) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Could not parse URI public-key SubjectPublicKeyInfo");
+ 		return -1;
+ 	}
+ 
+ 	bi->curve = dpp_get_curve_ike_group(crypto_ec_key_group(key));
+ 	if (!bi->curve) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Unsupported SubjectPublicKeyInfo curve: group %d",
+ 			   crypto_ec_key_group(key));
+ 		goto fail;
+@@ -614,26 +614,26 @@ dpp_parse_jws_prot_hdr(const struct dpp_curve_params *curve,
+ 
+ 	root = json_parse((const char *) prot_hdr, prot_hdr_len);
+ 	if (!root) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: JSON parsing failed for JWS Protected Header");
+ 		goto fail;
+ 	}
+ 
+ 	if (root->type != JSON_OBJECT) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: JWS Protected Header root is not an object");
+ 		goto fail;
+ 	}
+ 
+ 	token = json_get_member(root, "typ");
+ 	if (!token || token->type != JSON_STRING) {
+-		wpa_printf(MSG_DEBUG, "DPP: No typ string value found");
++		wpa_printf(MSG_INFO, "DPP: No typ string value found");
+ 		goto fail;
+ 	}
+ 	wpa_printf(MSG_DEBUG, "DPP: JWS Protected Header typ=%s",
+ 		   token->string);
+ 	if (os_strcmp(token->string, "dppCon") != 0) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Unsupported JWS Protected Header typ=%s",
+ 			   token->string);
+ 		goto fail;
+@@ -641,13 +641,13 @@ dpp_parse_jws_prot_hdr(const struct dpp_curve_params *curve,
+ 
+ 	token = json_get_member(root, "alg");
+ 	if (!token || token->type != JSON_STRING) {
+-		wpa_printf(MSG_DEBUG, "DPP: No alg string value found");
++		wpa_printf(MSG_INFO, "DPP: No alg string value found");
+ 		goto fail;
+ 	}
+ 	wpa_printf(MSG_DEBUG, "DPP: JWS Protected Header alg=%s",
+ 		   token->string);
+ 	if (os_strcmp(token->string, curve->jws_alg) != 0) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Unexpected JWS Protected Header alg=%s (expected %s based on C-sign-key)",
+ 			   token->string, curve->jws_alg);
+ 		goto fail;
+@@ -663,7 +663,7 @@ dpp_parse_jws_prot_hdr(const struct dpp_curve_params *curve,
+ 		*hash_func = CRYPTO_HASH_ALG_SHA512;
+ 	} else {
+ 		*hash_func = -1;
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Unsupported JWS Protected Header alg=%s",
+ 			   token->string);
+ 		goto fail;
+@@ -671,7 +671,7 @@ dpp_parse_jws_prot_hdr(const struct dpp_curve_params *curve,
+ 
+ 	kid = json_get_member_base64url(root, "kid");
+ 	if (!kid) {
+-		wpa_printf(MSG_DEBUG, "DPP: No kid string value found");
++		wpa_printf(MSG_INFO, "DPP: No kid string value found");
+ 		goto fail;
+ 	}
+ 	wpa_hexdump_buf(MSG_DEBUG, "DPP: JWS Protected Header kid (decoded)",
+@@ -706,7 +706,7 @@ static int dpp_check_pubkey_match(struct crypto_ec_key *pub,
+ 	if (res < 0)
+ 		return -1;
+ 	if (os_memcmp(hash, wpabuf_head(r_hash), SHA256_MAC_LEN) != 0) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Received hash value does not match calculated public key hash value");
+ 		wpa_hexdump(MSG_DEBUG, "DPP: Calculated hash",
+ 			    hash, SHA256_MAC_LEN);
+@@ -739,13 +739,13 @@ dpp_process_signed_connector(struct dpp_signed_connector_info *info,
+ 	signed_start = pos = connector;
+ 	end = os_strchr(pos, '.');
+ 	if (!end) {
+-		wpa_printf(MSG_DEBUG, "DPP: Missing dot(1) in signedConnector");
++		wpa_printf(MSG_INFO, "DPP: Missing dot(1) in signedConnector");
+ 		ret = DPP_STATUS_INVALID_CONNECTOR;
+ 		goto fail;
+ 	}
+ 	prot_hdr = base64_url_decode(pos, end - pos, &prot_hdr_len);
+ 	if (!prot_hdr) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Failed to base64url decode signedConnector JWS Protected Header");
+ 		ret = DPP_STATUS_INVALID_CONNECTOR;
+ 		goto fail;
+@@ -759,7 +759,7 @@ dpp_process_signed_connector(struct dpp_signed_connector_info *info,
+ 		goto fail;
+ 	}
+ 	if (wpabuf_len(kid) != SHA256_MAC_LEN) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Unexpected signedConnector JWS Protected Header kid length: %u (expected %u)",
+ 			   (unsigned int) wpabuf_len(kid), SHA256_MAC_LEN);
+ 		ret = DPP_STATUS_INVALID_CONNECTOR;
+@@ -769,7 +769,7 @@ dpp_process_signed_connector(struct dpp_signed_connector_info *info,
+ 	pos = end + 1;
+ 	end = os_strchr(pos, '.');
+ 	if (!end) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Missing dot(2) in signedConnector");
+ 		ret = DPP_STATUS_INVALID_CONNECTOR;
+ 		goto fail;
+@@ -777,7 +777,7 @@ dpp_process_signed_connector(struct dpp_signed_connector_info *info,
+ 	signed_end = end - 1;
+ 	info->payload = base64_url_decode(pos, end - pos, &info->payload_len);
+ 	if (!info->payload) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Failed to base64url decode signedConnector JWS Payload");
+ 		ret = DPP_STATUS_INVALID_CONNECTOR;
+ 		goto fail;
+@@ -788,7 +788,7 @@ dpp_process_signed_connector(struct dpp_signed_connector_info *info,
+ 	pos = end + 1;
+ 	signature = base64_url_decode(pos, os_strlen(pos), &signature_len);
+ 	if (!signature) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Failed to base64url decode signedConnector signature");
+ 		ret = DPP_STATUS_INVALID_CONNECTOR;
+ 		goto fail;
+@@ -802,7 +802,7 @@ dpp_process_signed_connector(struct dpp_signed_connector_info *info,
+ 	}
+ 
+ 	if (signature_len & 0x01) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Unexpected signedConnector signature length (%d)",
+ 			   (int) signature_len);
+ 		ret = DPP_STATUS_INVALID_CONNECTOR;
+@@ -835,7 +835,7 @@ dpp_process_signed_connector(struct dpp_signed_connector_info *info,
+ 						 signature + signature_len / 2,
+ 						 signature_len / 2);
+ 	if (res != 1) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: signedConnector signature check failed (res=%d)",
+ 			   res);
+ 		ret = DPP_STATUS_INVALID_CONNECTOR;
+@@ -1708,7 +1708,7 @@ int dpp_reconfig_derive_ke_responder(struct dpp_authentication *auth,
+ 	dpp_debug_print_key("DPP: Received netAccessKey", peer_key);
+ 
+ 	if (auth->curve != curve) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Mismatching netAccessKey curves (own=%s != peer=%s)",
+ 			   auth->curve->name, curve->name);
+ 		goto fail;
+@@ -1812,7 +1812,7 @@ int dpp_reconfig_derive_ke_initiator(struct dpp_authentication *auth,
+ 		goto fail;
+ 	dpp_debug_print_key("DPP: Received netAccessKey", peer_key);
+ 	if (auth->curve != curve) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Mismatching netAccessKey curves (own=%s != peer=%s)",
+ 			   auth->curve->name, curve->name);
+ 		goto fail;
+@@ -1929,11 +1929,11 @@ dpp_build_conn_signature(struct dpp_configurator *conf,
+ 	} else if (curve->hash_len == SHA512_MAC_LEN) {
+ 		ret = sha512_vector(3, vector, vector_len, hash);
+ 	} else {
+-		wpa_printf(MSG_DEBUG, "DPP: Unknown signature algorithm");
++		wpa_printf(MSG_INFO, "DPP: Unknown signature algorithm");
+ 		goto fail;
+ 	}
+ 	if (ret) {
+-		wpa_printf(MSG_DEBUG, "DPP: Hash computation failed");
++		wpa_printf(MSG_INFO, "DPP: Hash computation failed");
+ 		goto fail;
+ 	}
+ 	wpa_hexdump(MSG_DEBUG, "DPP: Hash value for Connector signature",
+@@ -2051,7 +2051,7 @@ int dpp_pfs_process(struct dpp_pfs *pfs, const u8 *peer_ie, size_t peer_ie_len)
+ 	if (peer_ie_len < 2)
+ 		return -1;
+ 	if (WPA_GET_LE16(peer_ie) != pfs->curve->ike_group) {
+-		wpa_printf(MSG_DEBUG, "DPP: Peer used different group for PFS");
++		wpa_printf(MSG_INFO, "DPP: Peer used different group for PFS");
+ 		return -1;
+ 	}
+ 
+@@ -2059,7 +2059,7 @@ int dpp_pfs_process(struct dpp_pfs *pfs, const u8 *peer_ie, size_t peer_ie_len)
+ 					      peer_ie_len - 2);
+ 	pfs->secret = wpabuf_zeropad(pfs->secret, pfs->curve->prime_len);
+ 	if (!pfs->secret) {
+-		wpa_printf(MSG_DEBUG, "DPP: Invalid peer DH public key");
++		wpa_printf(MSG_INFO, "DPP: Invalid peer DH public key");
+ 		return -1;
+ 	}
+ 	wpa_hexdump_buf_key(MSG_DEBUG, "DPP: DH shared secret", pfs->secret);
+@@ -2132,7 +2132,7 @@ struct wpabuf * dpp_build_csr(struct dpp_authentication *auth, const char *name)
+ 	} else if (hash_len == SHA512_MAC_LEN) {
+ 		hash_sign_algo = CRYPTO_HASH_ALG_SHA512;
+ 	} else {
+-		wpa_printf(MSG_DEBUG, "DPP: Unknown signature algorithm");
++		wpa_printf(MSG_INFO, "DPP: Unknown signature algorithm");
+ 		goto fail;
+ 	}
+ 
+diff --git a/src/common/dpp_pkex.c b/src/common/dpp_pkex.c
+index 1ba82fb29..d03a3437f 100644
+--- a/src/common/dpp_pkex.c
++++ b/src/common/dpp_pkex.c
+@@ -316,13 +316,13 @@ static int dpp_pkex_identifier_match(const u8 *attr_id, u16 attr_id_len,
+ 				     const char *identifier)
+ {
+ 	if (!attr_id && identifier) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: No PKEX code identifier received, but expected one");
+ 		return 0;
+ 	}
+ 
+ 	if (attr_id && !identifier) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: PKEX code identifier received, but not expecting one");
+ 		return 0;
+ 	}
+@@ -330,7 +330,7 @@ static int dpp_pkex_identifier_match(const u8 *attr_id, u16 attr_id_len,
+ 	if (attr_id && identifier &&
+ 	    (os_strlen(identifier) != attr_id_len ||
+ 	     os_memcmp(identifier, attr_id, attr_id_len) != 0)) {
+-		wpa_printf(MSG_DEBUG, "DPP: PKEX code identifier mismatch");
++		wpa_printf(MSG_INFO, "DPP: PKEX code identifier mismatch");
+ 		return 0;
+ 	}
+ 
+@@ -579,7 +579,7 @@ out:
+ 	crypto_ec_deinit(ec);
+ 	return pkex;
+ fail:
+-	wpa_printf(MSG_DEBUG, "DPP: PKEX Exchange Request processing failed");
++	wpa_printf(MSG_INFO, "DPP: PKEX Exchange Request processing failed");
+ 	dpp_pkex_free(pkex);
+ 	pkex = NULL;
+ 	goto out;
+@@ -902,7 +902,7 @@ out:
+ 	crypto_ec_deinit(ec);
+ 	return msg;
+ fail:
+-	wpa_printf(MSG_DEBUG, "DPP: PKEX Exchange Response processing failed");
++	wpa_printf(MSG_INFO, "DPP: PKEX Exchange Response processing failed");
+ 	goto out;
+ }
+ 
+@@ -1196,7 +1196,7 @@ out:
+ 	wpabuf_free(Y_pub);
+ 	return msg;
+ fail:
+-	wpa_printf(MSG_DEBUG,
++	wpa_printf(MSG_INFO,
+ 		   "DPP: PKEX Commit-Reveal Request processing failed");
+ 	goto out;
+ }
+diff --git a/src/common/dpp_reconfig.c b/src/common/dpp_reconfig.c
+index 614f8ff21..f5de17b29 100644
+--- a/src/common/dpp_reconfig.c
++++ b/src/common/dpp_reconfig.c
+@@ -215,7 +215,7 @@ dpp_configurator_build_own_connector(struct dpp_configurator *conf,
+ 	json_value_sep(dppcon);
+ 	if (dpp_build_jwk(dppcon, "netAccessKey", conf->connector_key, NULL,
+ 			  curve) < 0) {
+-		wpa_printf(MSG_DEBUG, "DPP: Failed to build netAccessKey JWK");
++		wpa_printf(MSG_INFO, "DPP: Failed to build netAccessKey JWK");
+ 		goto fail;
+ 	}
+ 	json_end_object(dppcon);
+@@ -247,7 +247,7 @@ dpp_reconfig_init(struct dpp_global *dpp, void *msg_ctx,
+ 
+ 	curve = dpp_get_curve_ike_group(group);
+ 	if (!curve) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Unsupported group %u - cannot reconfigure",
+ 			   group);
+ 		return NULL;
+@@ -456,7 +456,7 @@ dpp_reconfig_auth_req_rx(struct dpp_global *dpp, void *msg_ctx,
+ 	trans_id = dpp_get_attr(attr_start, attr_len, DPP_ATTR_TRANSACTION_ID,
+ 			       &trans_id_len);
+ 	if (!trans_id || trans_id_len != 1) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Peer did not include Transaction ID");
+ 		goto fail;
+ 	}
+@@ -464,7 +464,7 @@ dpp_reconfig_auth_req_rx(struct dpp_global *dpp, void *msg_ctx,
+ 	version = dpp_get_attr(attr_start, attr_len, DPP_ATTR_PROTOCOL_VERSION,
+ 			       &version_len);
+ 	if (!version || version_len < 1 || version[0] < 2) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Missing or invalid Protocol Version attribute");
+ 		goto fail;
+ 	}
+@@ -472,7 +472,7 @@ dpp_reconfig_auth_req_rx(struct dpp_global *dpp, void *msg_ctx,
+ 	i_connector = dpp_get_attr(attr_start, attr_len, DPP_ATTR_CONNECTOR,
+ 			       &i_connector_len);
+ 	if (!i_connector) {
+-		wpa_printf(MSG_DEBUG, "DPP: Missing I-Connector attribute");
++		wpa_printf(MSG_INFO, "DPP: Missing I-Connector attribute");
+ 		goto fail;
+ 	}
+ 	wpa_hexdump_ascii(MSG_DEBUG, "DPP: I-Connector",
+@@ -481,7 +481,7 @@ dpp_reconfig_auth_req_rx(struct dpp_global *dpp, void *msg_ctx,
+ 	c_nonce = dpp_get_attr(attr_start, attr_len,
+ 			       DPP_ATTR_CONFIGURATOR_NONCE, &c_nonce_len);
+ 	if (!c_nonce || c_nonce_len > DPP_MAX_NONCE_LEN) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Missing or invalid C-nonce attribute");
+ 		goto fail;
+ 	}
+@@ -490,7 +490,7 @@ dpp_reconfig_auth_req_rx(struct dpp_global *dpp, void *msg_ctx,
+ 	res = dpp_check_signed_connector(&info, csign_key, csign_key_len,
+ 					 i_connector, i_connector_len);
+ 	if (res != DPP_STATUS_OK) {
+-		wpa_printf(MSG_DEBUG, "DPP: Invalid I-Connector");
++		wpa_printf(MSG_INFO, "DPP: Invalid I-Connector");
+ 		goto fail;
+ 	}
+ 
+@@ -498,7 +498,7 @@ dpp_reconfig_auth_req_rx(struct dpp_global *dpp, void *msg_ctx,
+ 	own_root = dpp_parse_own_connector(own_connector);
+ 	if (!root || !own_root ||
+ 	    !dpp_connector_match_groups(own_root, root, true)) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: I-Connector does not include compatible group netrole with own connector");
+ 		goto fail;
+ 	}
+@@ -506,14 +506,14 @@ dpp_reconfig_auth_req_rx(struct dpp_global *dpp, void *msg_ctx,
+ 	token = json_get_member(root, "expiry");
+ 	if (token && token->type == JSON_STRING &&
+ 	    dpp_key_expired(token->string, NULL)) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: I-Connector (netAccessKey) has expired");
+ 		goto fail;
+ 	}
+ 
+ 	token = json_get_member(root, "netAccessKey");
+ 	if (!token || token->type != JSON_OBJECT) {
+-		wpa_printf(MSG_DEBUG, "DPP: No netAccessKey object found");
++		wpa_printf(MSG_INFO, "DPP: No netAccessKey object found");
+ 		goto fail;
+ 	}
+ 
+@@ -539,7 +539,7 @@ dpp_reconfig_auth_req_rx(struct dpp_global *dpp, void *msg_ctx,
+ 		goto fail;
+ 
+ 	if (c_nonce_len != auth->curve->nonce_len) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Unexpected C-nonce length %u (curve nonce len %zu)",
+ 			   c_nonce_len, auth->curve->nonce_len);
+ 		goto fail;
+diff --git a/src/common/dpp_tcp.c b/src/common/dpp_tcp.c
+index 73a33d968..9642625c4 100644
+--- a/src/common/dpp_tcp.c
++++ b/src/common/dpp_tcp.c
+@@ -267,7 +267,7 @@ static int dpp_tcp_send(struct dpp_connection *conn)
+ 		   wpabuf_head_u8(conn->msg_out) + conn->msg_out_pos,
+ 		   wpabuf_len(conn->msg_out) - conn->msg_out_pos, 0);
+ 	if (res < 0) {
+-		wpa_printf(MSG_DEBUG, "DPP: Failed to send buffer: %s",
++		wpa_printf(MSG_INFO, "DPP: Failed to send buffer: %s",
+ 			   strerror(errno));
+ 		dpp_connection_remove(conn);
+ 		return -1;
+@@ -352,7 +352,7 @@ static void dpp_controller_start_gas_client(struct dpp_connection *conn)
+ 					conn->extra_conf_req_name,
+ 					conn->extra_conf_req_value);
+ 	if (!buf) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: No configuration request data available");
+ 		return;
+ 	}
+@@ -439,7 +439,7 @@ static void dpp_relay_conn_timeout(void *eloop_ctx, void *timeout_ctx)
+ {
+ 	struct dpp_connection *conn = eloop_ctx;
+ 
+-	wpa_printf(MSG_DEBUG,
++	wpa_printf(MSG_INFO,
+ 		   "DPP: Timeout while waiting for relayed connection to complete");
+ 	dpp_connection_remove(conn);
+ }
+@@ -455,7 +455,7 @@ dpp_relay_new_conn(struct dpp_relay_controller *ctrl, const u8 *src,
+ 	char txt[100];
+ 
+ 	if (dl_list_len(&ctrl->conn) >= 15) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Too many ongoing Relay connections to the Controller - cannot start a new one");
+ 		return NULL;
+ 	}
+@@ -482,14 +482,14 @@ dpp_relay_new_conn(struct dpp_relay_controller *ctrl, const u8 *src,
+ 		   conn->sock, hostapd_ip_txt(&ctrl->ipaddr, txt, sizeof(txt)));
+ 
+ 	if (fcntl(conn->sock, F_SETFL, O_NONBLOCK) != 0) {
+-		wpa_printf(MSG_DEBUG, "DPP: fnctl(O_NONBLOCK) failed: %s",
++		wpa_printf(MSG_INFO, "DPP: fnctl(O_NONBLOCK) failed: %s",
+ 			   strerror(errno));
+ 		goto fail;
+ 	}
+ 
+ 	if (connect(conn->sock, (struct sockaddr *) &addr, addrlen) < 0) {
+ 		if (errno != EINPROGRESS) {
+-			wpa_printf(MSG_DEBUG, "DPP: Failed to connect: %s",
++			wpa_printf(MSG_INFO, "DPP: Failed to connect: %s",
+ 				   strerror(errno));
+ 			goto fail;
+ 		}
+@@ -789,7 +789,7 @@ static int dpp_controller_rx_auth_req(struct dpp_connection *conn,
+ 				     conn->ctrl->qr_mutual,
+ 				     peer_bi, own_bi, -1, 0, hdr, buf, len);
+ 	if (!conn->auth) {
+-		wpa_printf(MSG_DEBUG, "DPP: No response generated");
++		wpa_printf(MSG_INFO, "DPP: No response generated");
+ 		return -1;
+ 	}
+ 
+@@ -820,7 +820,7 @@ static int dpp_controller_rx_auth_resp(struct dpp_connection *conn,
+ 				   "DPP: Start wait for full response");
+ 			return 0;
+ 		}
+-		wpa_printf(MSG_DEBUG, "DPP: No confirm generated");
++		wpa_printf(MSG_INFO, "DPP: No confirm generated");
+ 		return -1;
+ 	}
+ 
+@@ -839,7 +839,7 @@ static int dpp_controller_rx_auth_conf(struct dpp_connection *conn,
+ 	wpa_printf(MSG_DEBUG, "DPP: Authentication Confirmation");
+ 
+ 	if (!auth) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: No DPP Authentication in progress - drop");
+ 		return -1;
+ 	}
+@@ -884,7 +884,7 @@ static int dpp_controller_rx_conf_result(struct dpp_connection *conn,
+ 	wpa_printf(MSG_DEBUG, "DPP: Configuration Result");
+ 
+ 	if (!auth || !auth->waiting_conf_result) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: No DPP Configuration waiting for result - drop");
+ 		return -1;
+ 	}
+@@ -929,7 +929,7 @@ static int dpp_controller_rx_conn_status_result(struct dpp_connection *conn,
+ 	wpa_printf(MSG_DEBUG, "DPP: Connection Status Result");
+ 
+ 	if (!auth || !auth->waiting_conn_status_result) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: No DPP Configuration waiting for connection status result - drop");
+ 		return -1;
+ 	}
+@@ -968,13 +968,13 @@ static int dpp_controller_rx_presence_announcement(struct dpp_connection *conn,
+ 		    r_bootstrap, r_bootstrap_len);
+ 	peer_bi = dpp_bootstrap_find_chirp(dpp, r_bootstrap);
+ 	if (!peer_bi) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: No matching bootstrapping information found");
+ 		return -1;
+ 	}
+ 
+ 	if (conn->auth) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Ignore Presence Announcement during ongoing Authentication");
+ 		return 0;
+ 	}
+@@ -1005,7 +1005,7 @@ static int dpp_controller_rx_reconfig_announcement(struct dpp_connection *conn,
+ 	u16 group;
+ 
+ 	if (conn->auth) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Ignore Reconfig Announcement during ongoing Authentication");
+ 		return -1;
+ 	}
+@@ -1023,7 +1023,7 @@ static int dpp_controller_rx_reconfig_announcement(struct dpp_connection *conn,
+ 		    csign_hash, csign_hash_len);
+ 	conf = dpp_configurator_find_kid(dpp, csign_hash);
+ 	if (!conf) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: No matching Configurator information found");
+ 		return -1;
+ 	}
+@@ -1066,7 +1066,7 @@ static int dpp_controller_rx_reconfig_auth_resp(struct dpp_connection *conn,
+ 	wpa_printf(MSG_DEBUG, "DPP: Reconfig Authentication Response");
+ 
+ 	if (!auth || !auth->reconfig || !auth->configurator) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: No DPP Reconfig Authentication in progress - drop");
+ 		return -1;
+ 	}
+@@ -1096,13 +1096,13 @@ static int dpp_controller_rx_pkex_exchange_req(struct dpp_connection *conn,
+ 	 * values here */
+ 
+ 	if (!ctrl->pkex_code || !ctrl->pkex_bi) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: No PKEX code configured - ignore request");
+ 		return 0;
+ 	}
+ 
+ 	if (conn->pkex || conn->auth) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Already in PKEX/Authentication session - ignore new PKEX request");
+ 		return 0;
+ 	}
+@@ -1114,7 +1114,7 @@ static int dpp_controller_rx_pkex_exchange_req(struct dpp_connection *conn,
+ 					      os_strlen(ctrl->pkex_code),
+ 					      buf, len, true);
+ 	if (!conn->pkex) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Failed to process the request");
+ 		return -1;
+ 	}
+@@ -1134,13 +1134,13 @@ static int dpp_controller_rx_pkex_exchange_resp(struct dpp_connection *conn,
+ 	wpa_printf(MSG_DEBUG, "DPP: PKEX Exchange Response");
+ 
+ 	if (!pkex || !pkex->initiator || pkex->exchange_done) {
+-		wpa_printf(MSG_DEBUG, "DPP: No matching PKEX session");
++		wpa_printf(MSG_INFO, "DPP: No matching PKEX session");
+ 		return 0;
+ 	}
+ 
+ 	msg = dpp_pkex_rx_exchange_resp(pkex, NULL, buf, len);
+ 	if (!msg) {
+-		wpa_printf(MSG_DEBUG, "DPP: Failed to process the response");
++		wpa_printf(MSG_INFO, "DPP: Failed to process the response");
+ 		return -1;
+ 	}
+ 
+@@ -1163,13 +1163,13 @@ static int dpp_controller_rx_pkex_commit_reveal_req(struct dpp_connection *conn,
+ 	wpa_printf(MSG_DEBUG, "DPP: PKEX Commit-Reveal Request");
+ 
+ 	if (!pkex || pkex->initiator || !pkex->exchange_done) {
+-		wpa_printf(MSG_DEBUG, "DPP: No matching PKEX session");
++		wpa_printf(MSG_INFO, "DPP: No matching PKEX session");
+ 		return 0;
+ 	}
+ 
+ 	msg = dpp_pkex_rx_commit_reveal_req(pkex, hdr, buf, len);
+ 	if (!msg) {
+-		wpa_printf(MSG_DEBUG, "DPP: Failed to process the request");
++		wpa_printf(MSG_INFO, "DPP: Failed to process the request");
+ 		return -1;
+ 	}
+ 
+@@ -1198,13 +1198,13 @@ dpp_controller_rx_pkex_commit_reveal_resp(struct dpp_connection *conn,
+ 	wpa_printf(MSG_DEBUG, "DPP: PKEX Commit-Reveal Response");
+ 
+ 	if (!pkex || !pkex->initiator || !pkex->exchange_done) {
+-		wpa_printf(MSG_DEBUG, "DPP: No matching PKEX session");
++		wpa_printf(MSG_INFO, "DPP: No matching PKEX session");
+ 		return 0;
+ 	}
+ 
+ 	res = dpp_pkex_rx_commit_reveal_resp(pkex, hdr, buf, len);
+ 	if (res < 0) {
+-		wpa_printf(MSG_DEBUG, "DPP: Failed to process the response");
++		wpa_printf(MSG_INFO, "DPP: Failed to process the response");
+ 		return res;
+ 	}
+ 
+@@ -1232,12 +1232,12 @@ static int dpp_controller_rx_action(struct dpp_connection *conn, const u8 *msg,
+ 	if (end - pos < DPP_HDR_LEN ||
+ 	    WPA_GET_BE24(pos) != OUI_WFA ||
+ 	    pos[3] != DPP_OUI_TYPE) {
+-		wpa_printf(MSG_DEBUG, "DPP: Unrecognized header");
++		wpa_printf(MSG_INFO, "DPP: Unrecognized header");
+ 		return -1;
+ 	}
+ 
+ 	if (pos[4] != 1) {
+-		wpa_printf(MSG_DEBUG, "DPP: Unsupported Crypto Suite %u",
++		wpa_printf(MSG_INFO, "DPP: Unsupported Crypto Suite %u",
+ 			   pos[4]);
+ 		return -1;
+ 	}
+@@ -1279,7 +1279,7 @@ static int dpp_controller_rx_action(struct dpp_connection *conn, const u8 *msg,
+ 		return dpp_controller_rx_reconfig_auth_resp(conn, msg, pos,
+ 							    end - pos);
+ 	case DPP_PA_PKEX_V1_EXCHANGE_REQ:
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Ignore PKEXv1 Exchange Request - not supported over TCP");
+ 		return -1;
+ 	case DPP_PA_PKEX_EXCHANGE_REQ:
+@@ -1296,7 +1296,7 @@ static int dpp_controller_rx_action(struct dpp_connection *conn, const u8 *msg,
+ 								 end - pos);
+ 	default:
+ 		/* TODO: missing messages types */
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Unsupported frame subtype %d", type);
+ 		return -1;
+ 	}
+@@ -1398,7 +1398,7 @@ static int dpp_controller_rx_gas_req(struct dpp_connection *conn, const u8 *msg,
+ 
+ 	if (!auth || (!conn->ctrl && !auth->configurator) ||
+ 	    (!auth->auth_success && !auth->reconfig_success)) {
+-		wpa_printf(MSG_DEBUG, "DPP: No matching exchange in progress");
++		wpa_printf(MSG_INFO, "DPP: No matching exchange in progress");
+ 		return -1;
+ 	}
+ 
+@@ -1505,13 +1505,13 @@ static int dpp_controller_rx_gas_comeback_req(struct dpp_connection *conn,
+ 	if (!auth || (!conn->ctrl && !auth->configurator) ||
+ 	    (!auth->auth_success && !auth->reconfig_success) ||
+ 	    !conn->gas_comeback_in_progress) {
+-		wpa_printf(MSG_DEBUG, "DPP: No matching exchange in progress");
++		wpa_printf(MSG_INFO, "DPP: No matching exchange in progress");
+ 		return -1;
+ 	}
+ 
+ 	dialog_token = msg[0];
+ 	if (dialog_token != conn->gas_dialog_token) {
+-		wpa_printf(MSG_DEBUG, "DPP: Dialog token mismatch (%u != %u)",
++		wpa_printf(MSG_INFO, "DPP: Dialog token mismatch (%u != %u)",
+ 			   dialog_token, conn->gas_dialog_token);
+ 		return -1;
+ 	}
+@@ -1595,7 +1595,7 @@ static int dpp_tcp_rx_gas_resp(struct dpp_connection *conn, struct wpabuf *resp)
+ 	}
+ #endif /* CONFIG_DPP3 */
+ 	if (res < 0) {
+-		wpa_printf(MSG_DEBUG, "DPP: Configuration attempt failed");
++		wpa_printf(MSG_INFO, "DPP: Configuration attempt failed");
+ 		return -1;
+ 	}
+ 
+@@ -1668,7 +1668,7 @@ static int dpp_rx_gas_resp(struct dpp_connection *conn, const u8 *msg,
+ 	dialog_token = *pos++;
+ 	status = WPA_GET_LE16(pos);
+ 	if (status != WLAN_STATUS_SUCCESS) {
+-		wpa_printf(MSG_DEBUG, "DPP: Unexpected Status Code %u", status);
++		wpa_printf(MSG_INFO, "DPP: Unexpected Status Code %u", status);
+ 		return -1;
+ 	}
+ 	pos += 2;
+@@ -1724,7 +1724,7 @@ static int dpp_rx_gas_resp(struct dpp_connection *conn, const u8 *msg,
+ 		return dpp_tcp_rx_gas_resp(conn, buf);
+ 
+ 	if (!conn->relay) {
+-		wpa_printf(MSG_DEBUG, "DPP: No matching exchange in progress");
++		wpa_printf(MSG_INFO, "DPP: No matching exchange in progress");
+ 		wpabuf_free(buf);
+ 		return -1;
+ 	}
+@@ -1751,7 +1751,7 @@ static void dpp_controller_rx(int sd, void *eloop_ctx, void *sock_ctx)
+ 		res = recv(sd, &conn->msg_len[conn->msg_len_octets],
+ 			   4 - conn->msg_len_octets, 0);
+ 		if (res < 0) {
+-			wpa_printf(MSG_DEBUG, "DPP: recv failed: %s",
++			wpa_printf(MSG_INFO, "DPP: recv failed: %s",
+ 				   strerror(errno));
+ 			dpp_connection_remove(conn);
+ 			return;
+@@ -1787,7 +1787,7 @@ static void dpp_controller_rx(int sd, void *eloop_ctx, void *sock_ctx)
+ 	}
+ 
+ 	if (!conn->msg) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: No buffer available for receiving the message");
+ 		dpp_connection_remove(conn);
+ 		return;
+@@ -1798,7 +1798,7 @@ static void dpp_controller_rx(int sd, void *eloop_ctx, void *sock_ctx)
+ 
+ 	res = recv(sd, wpabuf_put(conn->msg, 0), wpabuf_tailroom(conn->msg), 0);
+ 	if (res < 0) {
+-		wpa_printf(MSG_DEBUG, "DPP: recv failed: %s", strerror(errno));
++		wpa_printf(MSG_INFO, "DPP: recv failed: %s", strerror(errno));
+ 		dpp_connection_remove(conn);
+ 		return;
+ 	}
+@@ -1849,7 +1849,7 @@ static void dpp_controller_rx(int sd, void *eloop_ctx, void *sock_ctx)
+ 			dpp_connection_remove(conn);
+ 		break;
+ 	default:
+-		wpa_printf(MSG_DEBUG, "DPP: Ignore unsupported message type %u",
++		wpa_printf(MSG_INFO, "DPP: Ignore unsupported message type %u",
+ 			   *pos);
+ 		break;
+ 	}
+@@ -1868,7 +1868,7 @@ static void dpp_controller_tcp_cb(int sd, void *eloop_ctx, void *sock_ctx)
+ 
+ 	fd = accept(ctrl->sock, (struct sockaddr *) &addr, &addr_len);
+ 	if (fd < 0) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Failed to accept new connection: %s",
+ 			   strerror(errno));
+ 		return;
+@@ -1890,7 +1890,7 @@ static void dpp_controller_tcp_cb(int sd, void *eloop_ctx, void *sock_ctx)
+ 	conn->netrole = ctrl->netrole;
+ 
+ 	if (fcntl(conn->sock, F_SETFL, O_NONBLOCK) != 0) {
+-		wpa_printf(MSG_DEBUG, "DPP: fnctl(O_NONBLOCK) failed: %s",
++		wpa_printf(MSG_INFO, "DPP: fnctl(O_NONBLOCK) failed: %s",
+ 			   strerror(errno));
+ 		goto fail;
+ 	}
+@@ -1947,14 +1947,14 @@ int dpp_tcp_pkex_init(struct dpp_global *dpp, struct dpp_pkex *pkex,
+ 		goto fail;
+ 
+ 	if (fcntl(conn->sock, F_SETFL, O_NONBLOCK) != 0) {
+-		wpa_printf(MSG_DEBUG, "DPP: fnctl(O_NONBLOCK) failed: %s",
++		wpa_printf(MSG_INFO, "DPP: fnctl(O_NONBLOCK) failed: %s",
+ 			   strerror(errno));
+ 		goto fail;
+ 	}
+ 
+ 	if (connect(conn->sock, (struct sockaddr *) &saddr, addrlen) < 0) {
+ 		if (errno != EINPROGRESS) {
+-			wpa_printf(MSG_DEBUG, "DPP: Failed to connect: %s",
++			wpa_printf(MSG_INFO, "DPP: Failed to connect: %s",
+ 				   strerror(errno));
+ 			goto fail;
+ 		}
+@@ -2055,14 +2055,14 @@ int dpp_tcp_init(struct dpp_global *dpp, struct dpp_authentication *auth,
+ 		goto fail;
+ 
+ 	if (fcntl(conn->sock, F_SETFL, O_NONBLOCK) != 0) {
+-		wpa_printf(MSG_DEBUG, "DPP: fnctl(O_NONBLOCK) failed: %s",
++		wpa_printf(MSG_INFO, "DPP: fnctl(O_NONBLOCK) failed: %s",
+ 			   strerror(errno));
+ 		goto fail;
+ 	}
+ 
+ 	if (connect(conn->sock, (struct sockaddr *) &saddr, addrlen) < 0) {
+ 		if (errno != EINPROGRESS) {
+-			wpa_printf(MSG_DEBUG, "DPP: Failed to connect: %s",
++			wpa_printf(MSG_INFO, "DPP: Failed to connect: %s",
+ 				   strerror(errno));
+ 			goto fail;
+ 		}
+@@ -2160,7 +2160,7 @@ int dpp_controller_start(struct dpp_global *dpp,
+ 
+ 	if (setsockopt(ctrl->sock, SOL_SOCKET, SO_REUSEADDR,
+ 		       &on, sizeof(on)) < 0) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: setsockopt(SO_REUSEADDR) failed: %s",
+ 			   strerror(errno));
+ 		/* try to continue anyway */
+@@ -2430,7 +2430,7 @@ static void dpp_relay_tcp_cb(int sd, void *eloop_ctx, void *sock_ctx)
+ 
+ 	fd = accept(dpp->relay_sock, (struct sockaddr *) &addr, &addr_len);
+ 	if (fd < 0) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Failed to accept new connection: %s",
+ 			   strerror(errno));
+ 		return;
+@@ -2466,13 +2466,13 @@ static void dpp_relay_tcp_cb(int sd, void *eloop_ctx, void *sock_ctx)
+ 		dpp->tmp_controller = ctrl;
+ 	}
+ 	if (!ctrl) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: No Controller found for that address");
+ 		goto fail;
+ 	}
+ 
+ 	if (dl_list_len(&ctrl->conn) >= 15) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Too many ongoing Relay connections to the Controller - cannot start a new one");
+ 		goto fail;
+ 	}
+@@ -2489,7 +2489,7 @@ static void dpp_relay_tcp_cb(int sd, void *eloop_ctx, void *sock_ctx)
+ 	conn->sock = fd;
+ 
+ 	if (fcntl(conn->sock, F_SETFL, O_NONBLOCK) != 0) {
+-		wpa_printf(MSG_DEBUG, "DPP: fnctl(O_NONBLOCK) failed: %s",
++		wpa_printf(MSG_INFO, "DPP: fnctl(O_NONBLOCK) failed: %s",
+ 			   strerror(errno));
+ 		goto fail;
+ 	}
+@@ -2532,7 +2532,7 @@ int dpp_relay_listen(struct dpp_global *dpp, int port,
+ 	}
+ 
+ 	if (setsockopt(s, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on)) < 0) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: setsockopt(SO_REUSEADDR) failed: %s",
+ 			   strerror(errno));
+ 		/* try to continue anyway */
+diff --git a/src/common/gas_server.c b/src/common/gas_server.c
+index de3a428b4..31aab076a 100644
+--- a/src/common/gas_server.c
++++ b/src/common/gas_server.c
+@@ -62,7 +62,7 @@ static void gas_server_response_timeout(void *eloop_ctx, void *user_ctx)
+ {
+ 	struct gas_server_response *response = eloop_ctx;
+ 
+-	wpa_printf(MSG_DEBUG, "GAS: Response @%p timeout for " MACSTR
++	wpa_printf(MSG_INFO, "GAS: Response @%p timeout for " MACSTR
+ 		   " (dialog_token=%u freq=%d frag_id=%u sent=%lu/%lu) - drop pending data",
+ 		   response, MAC2STR(response->dst), response->dialog_token,
+ 		   response->freq, response->frag_id,
+@@ -181,14 +181,14 @@ gas_server_rx_initial_req(struct gas_server *gas, const u8 *da, const u8 *sa,
+ 	end = data + len;
+ 
+ 	if (end - pos < 2 || pos[0] != WLAN_EID_ADV_PROTO) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "GAS: No Advertisement Protocol element found");
+ 		return -1;
+ 	}
+ 	pos++;
+ 	adv_proto_len = *pos++;
+ 	if (end - pos < adv_proto_len || adv_proto_len < 2) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "GAS: Truncated Advertisement Protocol element");
+ 		return -1;
+ 	}
+@@ -199,13 +199,13 @@ gas_server_rx_initial_req(struct gas_server *gas, const u8 *da, const u8 *sa,
+ 		    adv_proto, adv_proto_len);
+ 
+ 	if (end - pos < 2) {
+-		wpa_printf(MSG_DEBUG, "GAS: No Query Request Length field");
++		wpa_printf(MSG_INFO, "GAS: No Query Request Length field");
+ 		return -1;
+ 	}
+ 	query_req_len = WPA_GET_LE16(pos);
+ 	pos += 2;
+ 	if (end - pos < query_req_len) {
+-		wpa_printf(MSG_DEBUG, "GAS: Truncated Query Request field");
++		wpa_printf(MSG_INFO, "GAS: Truncated Query Request field");
+ 		return -1;
+ 	}
+ 	query_req = pos;
+@@ -259,7 +259,7 @@ gas_server_rx_initial_req(struct gas_server *gas, const u8 *da, const u8 *sa,
+ 		return 0;
+ 	}
+ 
+-	wpa_printf(MSG_DEBUG,
++	wpa_printf(MSG_INFO,
+ 		   "GAS: No registered handler for the requested Advertisement Protocol ID");
+ 	gas_server_free_response(response);
+ 	return -1;
+@@ -360,7 +360,7 @@ gas_server_rx_comeback_req(struct gas_server *gas, const u8 *da, const u8 *sa,
+ 		return 0;
+ 	}
+ 
+-	wpa_printf(MSG_DEBUG, "GAS: No pending GAS response for " MACSTR
++	wpa_printf(MSG_INFO, "GAS: No pending GAS response for " MACSTR
+ 		   " (dialog token %u)", MAC2STR(sa), dialog_token);
+ 	return -1;
+ }
+@@ -433,7 +433,7 @@ static void gas_server_handle_tx_status(struct gas_server_response *response,
+ 	}
+ 
+ 	if (!ack)
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "GAS: No ACK received - drop pending entry");
+ 	else
+ 		wpa_printf(MSG_DEBUG,
+@@ -478,7 +478,7 @@ void gas_server_tx_status(struct gas_server *gas, const u8 *dst, const u8 *data,
+ 		return;
+ 	}
+ 
+-	wpa_printf(MSG_DEBUG, "GAS: No pending response matches TX status");
++	wpa_printf(MSG_INFO, "GAS: No pending response matches TX status");
+ }
+ 
+ 
+diff --git a/wpa_supplicant/dpp_supplicant.c b/wpa_supplicant/dpp_supplicant.c
+index 35c3a4f4c..b7896e791 100644
+--- a/wpa_supplicant/dpp_supplicant.c
++++ b/wpa_supplicant/dpp_supplicant.c
+@@ -237,7 +237,7 @@ static void wpas_dpp_auth_resp_retry_timeout(void *eloop_ctx, void *timeout_ctx)
+ 	if (!auth || !auth->resp_msg)
+ 		return;
+ 
+-	wpa_printf(MSG_DEBUG,
++	wpa_printf(MSG_INFO,
+ 		   "DPP: Retry Authentication Response after timeout");
+ 	wpa_msg(wpa_s, MSG_INFO, DPP_EVENT_TX "dst=" MACSTR
+ 		" freq=%u freq_offset=%u type=%d",
+@@ -282,7 +282,7 @@ static void wpas_dpp_auth_resp_retry(struct wpa_supplicant *wpa_s)
+ 			wait_time = 100;
+ 	}
+ 
+-	wpa_printf(MSG_DEBUG,
++	wpa_printf(MSG_INFO,
+ 		   "DPP: Schedule retransmission of Authentication Response frame in %u ms",
+ 		wait_time);
+ 	eloop_cancel_timeout(wpas_dpp_auth_resp_retry_timeout, wpa_s, NULL);
+@@ -355,7 +355,7 @@ static void wpas_dpp_conn_status_result_timeout(void *eloop_ctx,
+ 	if (no_conn_status_requested)
+ 		return;
+ 
+-	wpa_printf(MSG_DEBUG,
++	wpa_printf(MSG_INFO,
+ 		   "DPP: Connection timeout - report Connection Status Result");
+ 	if (wpa_s->suitable_network)
+ 		result = DPP_STATUS_AUTH_FAILURE;
+@@ -807,7 +807,7 @@ static void wpas_dpp_init_timeout(void *eloop_ctx, void *timeout_ctx)
+ 
+ 	if (!wpa_s->dpp_auth)
+ 		return;
+-	wpa_printf(MSG_DEBUG, "DPP: Retry initiation after timeout");
++	wpa_printf(MSG_INFO, "DPP: Retry initiation after timeout");
+ 	wpas_dpp_auth_init_next(wpa_s);
+ }
+ 
+@@ -860,7 +860,7 @@ static int wpas_dpp_auth_init_next(struct wpa_supplicant *wpa_s)
+ 			wait_time = 0;
+ 		else
+ 			wait_time -= used;
+-		wpa_printf(MSG_DEBUG, "DPP: Next init attempt in %u ms",
++		wpa_printf(MSG_INFO, "DPP: Next init attempt in %u ms",
+ 			   wait_time);
+ 		eloop_register_timeout(wait_time / 1000,
+ 				       (wait_time % 1000) * 1000,
+@@ -1113,7 +1113,7 @@ static void dpp_start_listen_cb(struct wpa_radio_work *work, int deinit)
+ 
+ 	if (wpa_drv_remain_on_channel(wpa_s, lwork->freq, lwork->freq_offset,
+ 				      wpa_s->max_remain_on_chan) < 0) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Failed to request the driver to remain on channel (%u MHz) for listen",
+ 			   lwork->freq);
+ 		wpa_s->dpp_listen_freq = 0;
+@@ -1506,12 +1506,12 @@ static struct wpa_ssid * wpas_dpp_add_network(struct wpa_supplicant *wpa_s,
+ 		      WPA_DRIVER_CAPA_KEY_MGMT_SAE) &&
+ 		    !(wpa_s->drv_flags & WPA_DRIVER_FLAGS_SAE) &&
+ 		    !(wpa_s->drv_flags2 & WPA_DRIVER_FLAGS2_SAE_OFFLOAD_STA)) {
+-			wpa_printf(MSG_DEBUG,
++			wpa_printf(MSG_INFO,
+ 				   "DPP: SAE not supported by the driver");
+ 			return NULL;
+ 		}
+ #else /* CONFIG_SAE */
+-		wpa_printf(MSG_DEBUG, "DPP: SAE not supported in the build");
++		wpa_printf(MSG_INFO, "DPP: SAE not supported in the build");
+ 		return NULL;
+ #endif /* CONFIG_SAE */
+ 	}
+@@ -1757,7 +1757,7 @@ static int wpas_dpp_process_config(struct wpa_supplicant *wpa_s,
+ #ifndef CONFIG_NO_CONFIG_WRITE
+ 	if (wpa_s->conf->update_config &&
+ 	    wpa_config_write(wpa_s->confname, wpa_s->conf))
+-		wpa_printf(MSG_DEBUG, "DPP: Failed to update configuration");
++		wpa_printf(MSG_INFO, "DPP: Failed to update configuration");
+ #endif /* CONFIG_NO_CONFIG_WRITE */
+ 
+ 	return 0;
+@@ -2022,12 +2022,12 @@ static void wpas_dpp_gas_resp_cb(void *ctx, const u8 *addr, u8 dialog_token,
+ 
+ 	if (!auth || (!auth->auth_success && !auth->reconfig_success) ||
+ 	    !ether_addr_equal(addr, auth->peer_mac_addr)) {
+-		wpa_printf(MSG_DEBUG, "DPP: No matching exchange in progress");
++		wpa_printf(MSG_INFO, "DPP: No matching exchange in progress");
+ 		return;
+ 	}
+ 	if (result != GAS_QUERY_SUCCESS ||
+ 	    !resp || status_code != WLAN_STATUS_SUCCESS) {
+-		wpa_printf(MSG_DEBUG, "DPP: GAS query did not succeed (try: %d)",
++		wpa_printf(MSG_INFO, "DPP: GAS query did not succeed (try: %d)",
+ 			auth->conf_req_tries);
+ 
+ 		if (result == GAS_QUERY_DELETED_AT_DEINIT ||
+@@ -2042,7 +2042,7 @@ static void wpas_dpp_gas_resp_cb(void *ctx, const u8 *addr, u8 dialog_token,
+ 
+ 		auth->conf_req_tries++;
+ 		wpas_dpp_start_gas_client(wpa_s);
+-		wpa_printf(MSG_DEBUG, "DPP: Restarting GAS client to resend GAS request");
++		wpa_printf(MSG_INFO, "DPP: Restarting GAS client to resend GAS request");
+ 		return;
+ 	}
+ 
+@@ -2190,7 +2190,7 @@ static void wpas_dpp_start_gas_client(struct wpa_supplicant *wpa_s)
+ 					wpa_s->conf->dpp_extra_conf_req_value);
+ 	os_free(supp_op_classes);
+ 	if (!buf) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: No configuration request data available");
+ 		return;
+ 	}
+@@ -2262,14 +2262,14 @@ static void wpas_dpp_rx_auth_resp(struct wpa_supplicant *wpa_s, const u8 *src,
+ 		   " (freq %u MHz)", MAC2STR(src), freq);
+ 
+ 	if (!auth) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: No DPP Authentication in progress - drop");
+ 		return;
+ 	}
+ 
+ 	if (!is_zero_ether_addr(auth->peer_mac_addr) &&
+ 	    !ether_addr_equal(src, auth->peer_mac_addr)) {
+-		wpa_printf(MSG_DEBUG, "DPP: MAC address mismatch (expected "
++		wpa_printf(MSG_INFO, "DPP: MAC address mismatch (expected "
+ 			   MACSTR ") - drop", MAC2STR(auth->peer_mac_addr));
+ 		return;
+ 	}
+@@ -2294,7 +2294,7 @@ static void wpas_dpp_rx_auth_resp(struct wpa_supplicant *wpa_s, const u8 *src,
+ 			wpas_dpp_listen_start(wpa_s, auth->curr_freq, auth->curr_freq_offset);
+ 			return;
+ 		}
+-		wpa_printf(MSG_DEBUG, "DPP: No confirm generated");
++		wpa_printf(MSG_INFO, "DPP: No confirm generated");
+ 		return;
+ 	}
+ 	os_memcpy(auth->peer_mac_addr, src, ETH_ALEN);
+@@ -2320,13 +2320,13 @@ static void wpas_dpp_rx_auth_conf(struct wpa_supplicant *wpa_s, const u8 *src,
+ 		   MAC2STR(src));
+ 
+ 	if (!auth) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: No DPP Authentication in progress - drop");
+ 		return;
+ 	}
+ 
+ 	if (!ether_addr_equal(src, auth->peer_mac_addr)) {
+-		wpa_printf(MSG_DEBUG, "DPP: MAC address mismatch (expected "
++		wpa_printf(MSG_INFO, "DPP: MAC address mismatch (expected "
+ 			   MACSTR ") - drop", MAC2STR(auth->peer_mac_addr));
+ 		return;
+ 	}
+@@ -2336,7 +2336,7 @@ static void wpas_dpp_rx_auth_conf(struct wpa_supplicant *wpa_s, const u8 *src,
+ 	eloop_cancel_timeout(wpas_dpp_auth_conf_wait_timeout, wpa_s, NULL);
+ 
+ 	if (dpp_auth_conf_rx(auth, hdr, buf, len) < 0) {
+-		wpa_printf(MSG_DEBUG, "DPP: Authentication failed");
++		wpa_printf(MSG_INFO, "DPP: Authentication failed");
+ 		if (was_awaiting_auth_conf) {
+ 			offchannel_send_action_done(wpa_s);
+ 			dpp_auth_deinit(auth);
+@@ -2443,18 +2443,18 @@ static void wpas_dpp_rx_conf_result(struct wpa_supplicant *wpa_s, const u8 *src,
+ 			 * long enough for the Enrollee to have time to send
+ 			 * the next frame before the TX status gets processed
+ 			 * locally. */
+-			wpa_printf(MSG_DEBUG,
++			wpa_printf(MSG_INFO,
+ 				   "DPP: GAS response was sent but TX status not yet received - assume it was ACKed since the Enrollee sent the next frame in the sequence");
+ 			auth->waiting_conf_result = 1;
+ 		} else {
+-			wpa_printf(MSG_DEBUG,
++			wpa_printf(MSG_INFO,
+ 				   "DPP: No DPP Configuration waiting for result - drop");
+ 			return;
+ 		}
+ 	}
+ 
+ 	if (!ether_addr_equal(src, auth->peer_mac_addr)) {
+-		wpa_printf(MSG_DEBUG, "DPP: MAC address mismatch (expected "
++		wpa_printf(MSG_INFO, "DPP: MAC address mismatch (expected "
+ 			   MACSTR ") - drop", MAC2STR(auth->peer_mac_addr));
+ 		return;
+ 	}
+@@ -2535,7 +2535,7 @@ static void wpas_dpp_rx_conn_status_result(struct wpa_supplicant *wpa_s,
+ 	wpa_printf(MSG_DEBUG, "DPP: Connection Status Result");
+ 
+ 	if (!auth || !auth->waiting_conn_status_result) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: No DPP Configuration waiting for connection status result - drop");
+ 		return;
+ 	}
+@@ -2633,7 +2633,7 @@ wpas_dpp_rx_presence_announcement(struct wpa_supplicant *wpa_s, const u8 *src,
+ 		return;
+ 
+ 	if (wpa_s->dpp_auth) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Ignore Presence Announcement during ongoing Authentication");
+ 		return;
+ 	}
+@@ -2654,7 +2654,7 @@ wpas_dpp_rx_presence_announcement(struct wpa_supplicant *wpa_s, const u8 *src,
+ 	dpp_notify_chirp_received(wpa_s, peer_bi ? (int) peer_bi->id : -1, src,
+ 				  freq, r_bootstrap);
+ 	if (!peer_bi) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: No matching bootstrapping information found");
+ 		return;
+ 	}
+@@ -2726,7 +2726,7 @@ wpas_dpp_rx_reconfig_announcement(struct wpa_supplicant *wpa_s, const u8 *src,
+ 		return;
+ 
+ 	if (wpa_s->dpp_auth) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Ignore Reconfig Announcement during ongoing Authentication");
+ 		return;
+ 	}
+@@ -2745,7 +2745,7 @@ wpas_dpp_rx_reconfig_announcement(struct wpa_supplicant *wpa_s, const u8 *src,
+ 		    csign_hash, csign_hash_len);
+ 	conf = dpp_configurator_find_kid(wpa_s->dpp, csign_hash);
+ 	if (!conf) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: No matching Configurator information found");
+ 		return;
+ 	}
+@@ -2817,12 +2817,12 @@ wpas_dpp_rx_reconfig_auth_req(struct wpa_supplicant *wpa_s, const u8 *src,
+ 	if (!wpa_s->dpp)
+ 		return;
+ 	if (wpa_s->dpp_auth) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Not ready for reconfiguration - pending authentication exchange in progress");
+ 		return;
+ 	}
+ 	if (!wpa_s->dpp_reconfig_ssid) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Not ready for reconfiguration - not requested");
+ 		return;
+ 	}
+@@ -2833,7 +2833,7 @@ wpas_dpp_rx_reconfig_auth_req(struct wpa_supplicant *wpa_s, const u8 *src,
+ 	}
+ 	if (!ssid || !ssid->dpp_connector || !ssid->dpp_netaccesskey ||
+ 	    !ssid->dpp_csign) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Not ready for reconfiguration - no matching network profile with Connector found");
+ 		return;
+ 	}
+@@ -2874,13 +2874,13 @@ wpas_dpp_rx_reconfig_auth_resp(struct wpa_supplicant *wpa_s, const u8 *src,
+ 		   MACSTR, MAC2STR(src));
+ 
+ 	if (!auth || !auth->reconfig || !auth->configurator) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: No DPP Reconfig Authentication in progress - drop");
+ 		return;
+ 	}
+ 
+ 	if (!ether_addr_equal(src, auth->peer_mac_addr)) {
+-		wpa_printf(MSG_DEBUG, "DPP: MAC address mismatch (expected "
++		wpa_printf(MSG_INFO, "DPP: MAC address mismatch (expected "
+ 			   MACSTR ") - drop", MAC2STR(auth->peer_mac_addr));
+ 		return;
+ 	}
+@@ -2918,13 +2918,13 @@ wpas_dpp_rx_reconfig_auth_conf(struct wpa_supplicant *wpa_s, const u8 *src,
+ 		   MACSTR, MAC2STR(src));
+ 
+ 	if (!auth || !auth->reconfig || auth->configurator) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: No DPP Reconfig Authentication in progress - drop");
+ 		return;
+ 	}
+ 
+ 	if (!ether_addr_equal(src, auth->peer_mac_addr)) {
+-		wpa_printf(MSG_DEBUG, "DPP: MAC address mismatch (expected "
++		wpa_printf(MSG_INFO, "DPP: MAC address mismatch (expected "
+ 			   MACSTR ") - drop", MAC2STR(auth->peer_mac_addr));
+ 		return;
+ 	}
+@@ -2963,7 +2963,7 @@ static void wpas_dpp_rx_peer_disc_resp(struct wpa_supplicant *wpa_s,
+ 		   MAC2STR(src));
+ 	if (is_zero_ether_addr(wpa_s->dpp_intro_bssid) ||
+ 	    !ether_addr_equal(src, wpa_s->dpp_intro_bssid)) {
+-		wpa_printf(MSG_DEBUG, "DPP: Not waiting for response from "
++		wpa_printf(MSG_INFO, "DPP: Not waiting for response from "
+ 			   MACSTR " - drop", MAC2STR(src));
+ 		return;
+ 	}
+@@ -2975,7 +2975,7 @@ static void wpas_dpp_rx_peer_disc_resp(struct wpa_supplicant *wpa_s,
+ 	}
+ 	if (!ssid || !ssid->dpp_connector || !ssid->dpp_netaccesskey ||
+ 	    !ssid->dpp_csign) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Profile not found for network introduction");
+ 		return;
+ 	}
+@@ -2985,14 +2985,14 @@ static void wpas_dpp_rx_peer_disc_resp(struct wpa_supplicant *wpa_s,
+ 	trans_id = dpp_get_attr(buf, len, DPP_ATTR_TRANSACTION_ID,
+ 			       &trans_id_len);
+ 	if (!trans_id || trans_id_len != 1) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Peer did not include Transaction ID");
+ 		wpa_msg(wpa_s, MSG_INFO, DPP_EVENT_INTRO "peer=" MACSTR
+ 			" fail=missing_transaction_id", MAC2STR(src));
+ 		goto fail;
+ 	}
+ 	if (trans_id[0] != TRANSACTION_ID) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Ignore frame with unexpected Transaction ID %u",
+ 			   trans_id[0]);
+ 		wpa_msg(wpa_s, MSG_INFO, DPP_EVENT_INTRO "peer=" MACSTR
+@@ -3002,13 +3002,13 @@ static void wpas_dpp_rx_peer_disc_resp(struct wpa_supplicant *wpa_s,
+ 
+ 	status = dpp_get_attr(buf, len, DPP_ATTR_STATUS, &status_len);
+ 	if (!status || status_len != 1) {
+-		wpa_printf(MSG_DEBUG, "DPP: Peer did not include Status");
++		wpa_printf(MSG_INFO, "DPP: Peer did not include Status");
+ 		wpa_msg(wpa_s, MSG_INFO, DPP_EVENT_INTRO "peer=" MACSTR
+ 			" fail=missing_status", MAC2STR(src));
+ 		goto fail;
+ 	}
+ 	if (status[0] != DPP_STATUS_OK) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Peer rejected network introduction: Status %u",
+ 			   status[0]);
+ 		wpa_msg(wpa_s, MSG_INFO, DPP_EVENT_INTRO "peer=" MACSTR
+@@ -3021,7 +3021,7 @@ static void wpas_dpp_rx_peer_disc_resp(struct wpa_supplicant *wpa_s,
+ 
+ 	connector = dpp_get_attr(buf, len, DPP_ATTR_CONNECTOR, &connector_len);
+ 	if (!connector) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Peer did not include its Connector");
+ 		wpa_msg(wpa_s, MSG_INFO, DPP_EVENT_INTRO "peer=" MACSTR
+ 			" fail=missing_connector", MAC2STR(src));
+@@ -3122,7 +3122,7 @@ static int wpas_dpp_allow_ir(struct wpa_supplicant *wpa_s, unsigned int freq)
+ 		}
+ 	}
+ 
+-	wpa_printf(MSG_DEBUG,
++	wpa_printf(MSG_INFO,
+ 		   "DPP: Frequency %u MHz not supported or does not allow PKEX initiation in the current channel list",
+ 		   freq);
+ 
+@@ -3321,7 +3321,7 @@ static int wpas_dpp_pkex_init(struct wpa_supplicant *wpa_s,
+ 	pkex->freq_offset = 0;
+ 	if (!wpas_dpp_allow_ir(wpa_s, pkex->freq)) {
+ 		if (wpas_dpp_pkex_next_channel(wpa_s, pkex) < 0) {
+-			wpa_printf(MSG_DEBUG, "DPP: Could not initiate (no channels to try)");
++			wpa_printf(MSG_INFO, "DPP: Could not initiate (no channels to try)");
+ 			return -1;
+ 		}
+ 	}
+@@ -3354,7 +3354,7 @@ static void wpas_dpp_pkex_retry_timeout(void *eloop_ctx, void *timeout_ctx)
+ 		if (wpas_dpp_pkex_next_channel(wpa_s, pkex) < 0) {
+ #ifdef CONFIG_DPP3
+ 			if (pkex->v2 && !pkex->forced_ver) {
+-				wpa_printf(MSG_DEBUG,
++				wpa_printf(MSG_INFO,
+ 					   "DPP: Fall back to PKEXv1");
+ 				wpas_dpp_pkex_init(wpa_s, PKEX_VER_ONLY_1,
+ 						   NULL, 0);
+@@ -3371,7 +3371,7 @@ static void wpas_dpp_pkex_retry_timeout(void *eloop_ctx, void *timeout_ctx)
+ 	}
+ 
+ 	pkex->exch_req_tries++;
+-	wpa_printf(MSG_DEBUG, "DPP: Retransmit PKEX Exchange Request (try %u)",
++	wpa_printf(MSG_INFO, "DPP: Retransmit PKEX Exchange Request (try %u)",
+ 		   pkex->exch_req_tries);
+ 	wpa_msg(wpa_s, MSG_INFO, DPP_EVENT_TX "dst=" MACSTR " freq=%u freq_offset=%u type=%d",
+ 		MAC2STR(broadcast), pkex->freq, pkex->freq_offset,
+@@ -3491,12 +3491,12 @@ wpas_dpp_rx_pkex_exchange_req(struct wpa_supplicant *wpa_s, const u8 *src,
+ 		   MAC2STR(src));
+ 
+ 	if (wpa_s->dpp_pkex_ver == PKEX_VER_ONLY_1 && v2) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Ignore PKEXv2 Exchange Request when configured to be PKEX v1 only");
+ 		return;
+ 	}
+ 	if (wpa_s->dpp_pkex_ver == PKEX_VER_ONLY_2 && !v2) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Ignore PKEXv1 Exchange Request when configured to be PKEX v2 only");
+ 		return;
+ 	}
+@@ -3505,7 +3505,7 @@ wpas_dpp_rx_pkex_exchange_req(struct wpa_supplicant *wpa_s, const u8 *src,
+ 	 * values here */
+ 
+ 	if (!wpa_s->dpp_pkex_code || !wpa_s->dpp_pkex_bi) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: No PKEX code configured - ignore request");
+ 		return;
+ 	}
+@@ -3520,7 +3520,7 @@ wpas_dpp_rx_pkex_exchange_req(struct wpa_supplicant *wpa_s, const u8 *src,
+ 
+ 	if (wpa_s->dpp_pkex && memcmp(src, wpa_s->dpp_pkex->peer_mac, ETH_ALEN)) {
+ 		/* TODO: Support parallel operations */
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Already in PKEX session - ignore new request");
+ 		return;
+ 	}
+@@ -3544,7 +3544,7 @@ wpas_dpp_rx_pkex_exchange_req(struct wpa_supplicant *wpa_s, const u8 *src,
+ 					buf, len, v2);
+ 
+ 		if (!wpa_s->dpp_pkex) {
+-			wpa_printf(MSG_DEBUG,
++			wpa_printf(MSG_INFO,
+ 				   "DPP: Failed to process the request - ignore it");
+ 			return;
+ 		}
+@@ -3594,7 +3594,7 @@ wpas_dpp_rx_pkex_exchange_resp(struct wpa_supplicant *wpa_s, const u8 *src,
+ 
+ 	if (!wpa_s->dpp_pkex || !wpa_s->dpp_pkex->initiator ||
+ 	    wpa_s->dpp_pkex->exchange_done) {
+-		wpa_printf(MSG_DEBUG, "DPP: No matching PKEX session");
++		wpa_printf(MSG_INFO, "DPP: No matching PKEX session");
+ 		return;
+ 	}
+ 
+@@ -3603,7 +3603,7 @@ wpas_dpp_rx_pkex_exchange_resp(struct wpa_supplicant *wpa_s, const u8 *src,
+ 
+ 	msg = dpp_pkex_rx_exchange_resp(wpa_s->dpp_pkex, src, buf, len);
+ 	if (!msg) {
+-		wpa_printf(MSG_DEBUG, "DPP: Failed to process the response");
++		wpa_printf(MSG_INFO, "DPP: Failed to process the response");
+ 		return;
+ 	}
+ 
+@@ -3637,13 +3637,13 @@ wpas_dpp_rx_pkex_commit_reveal_req(struct wpa_supplicant *wpa_s, const u8 *src,
+ 		   MAC2STR(src));
+ 
+ 	if (!pkex || pkex->initiator || !pkex->exchange_done) {
+-		wpa_printf(MSG_DEBUG, "DPP: No matching PKEX session");
++		wpa_printf(MSG_INFO, "DPP: No matching PKEX session");
+ 		return;
+ 	}
+ 
+ 	msg = dpp_pkex_rx_commit_reveal_req(pkex, hdr, buf, len);
+ 	if (!msg) {
+-		wpa_printf(MSG_DEBUG, "DPP: Failed to process the request");
++		wpa_printf(MSG_INFO, "DPP: Failed to process the request");
+ 		if (pkex->failed) {
+ 			wpa_printf(MSG_DEBUG, "DPP: Terminate PKEX exchange");
+ 			if (pkex->t > pkex->own_bi->pkex_t)
+@@ -3686,13 +3686,13 @@ wpas_dpp_rx_pkex_commit_reveal_resp(struct wpa_supplicant *wpa_s, const u8 *src,
+ 		   MAC2STR(src));
+ 
+ 	if (!pkex || !pkex->initiator || !pkex->exchange_done) {
+-		wpa_printf(MSG_DEBUG, "DPP: No matching PKEX session");
++		wpa_printf(MSG_INFO, "DPP: No matching PKEX session");
+ 		return;
+ 	}
+ 
+ 	res = dpp_pkex_rx_commit_reveal_resp(pkex, hdr, buf, len);
+ 	if (res < 0) {
+-		wpa_printf(MSG_DEBUG, "DPP: Failed to process the response");
++		wpa_printf(MSG_INFO, "DPP: Failed to process the response");
+ 		return;
+ 	}
+ 
+@@ -3835,7 +3835,7 @@ wpas_dpp_rx_pb_presence_announcement(struct wpa_supplicant *wpa_s,
+ 	r_hash = dpp_get_attr(buf, len, DPP_ATTR_R_BOOTSTRAP_KEY_HASH,
+ 			      &r_hash_len);
+ 	if (!r_hash || r_hash_len != SHA256_MAC_LEN) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Missing or invalid required Responder Bootstrapping Key Hash attribute");
+ 		return;
+ 	}
+@@ -3996,7 +3996,7 @@ wpas_dpp_rx_pb_presence_announcement_resp(struct wpa_supplicant *wpa_s,
+ 	if (!i_hash || i_hash_len != SHA256_MAC_LEN ||
+ 	    !r_hash || r_hash_len != SHA256_MAC_LEN ||
+ 	    !c_nonce || c_nonce_len > DPP_MAX_NONCE_LEN) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Missing or invalid required attribute");
+ 		return;
+ 	}
+@@ -4115,7 +4115,7 @@ wpas_dpp_send_private_peer_intro_update(struct wpa_supplicant *wpa_s,
+ 	/* Protocol Version */
+ 	conn_ver = dpp_get_connector_version(ssid->dpp_connector);
+ 	if (conn_ver > 0 && ver != conn_ver) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Use Connector version %d instead of current protocol version %d",
+ 			   conn_ver, ver);
+ 		ver = conn_ver;
+@@ -4211,7 +4211,7 @@ wpas_dpp_rx_priv_peer_intro_notify(struct wpa_supplicant *wpa_s,
+ 		   MACSTR, MAC2STR(src));
+ 	if (is_zero_ether_addr(wpa_s->dpp_intro_bssid) ||
+ 	    !ether_addr_equal(src, wpa_s->dpp_intro_bssid)) {
+-		wpa_printf(MSG_DEBUG, "DPP: Not waiting for response from "
++		wpa_printf(MSG_INFO, "DPP: Not waiting for response from "
+ 			   MACSTR " - drop", MAC2STR(src));
+ 		return;
+ 	}
+@@ -4223,7 +4223,7 @@ wpas_dpp_rx_priv_peer_intro_notify(struct wpa_supplicant *wpa_s,
+ 	}
+ 	if (!ssid || !ssid->dpp_connector || !ssid->dpp_netaccesskey ||
+ 	    !ssid->dpp_csign) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Profile not found for network introduction");
+ 		return;
+ 	}
+@@ -4231,14 +4231,14 @@ wpas_dpp_rx_priv_peer_intro_notify(struct wpa_supplicant *wpa_s,
+ 	trans_id = dpp_get_attr(buf, len, DPP_ATTR_TRANSACTION_ID,
+ 			       &trans_id_len);
+ 	if (!trans_id || trans_id_len != 1) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Peer did not include Transaction ID");
+ 		wpa_msg(wpa_s, MSG_INFO, DPP_EVENT_INTRO "peer=" MACSTR
+ 			" fail=missing_transaction_id", MAC2STR(src));
+ 		goto fail;
+ 	}
+ 	if (trans_id[0] != TRANSACTION_ID) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Ignore frame with unexpected Transaction ID %u",
+ 			   trans_id[0]);
+ 		wpa_msg(wpa_s, MSG_INFO, DPP_EVENT_INTRO "peer=" MACSTR
+@@ -4248,7 +4248,7 @@ wpas_dpp_rx_priv_peer_intro_notify(struct wpa_supplicant *wpa_s,
+ 
+ 	connector = dpp_get_attr(buf, len, DPP_ATTR_CONNECTOR, &connector_len);
+ 	if (!connector) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Peer did not include its Connector");
+ 		wpa_msg(wpa_s, MSG_INFO, DPP_EVENT_INTRO "peer=" MACSTR
+ 			" fail=missing_connector", MAC2STR(src));
+@@ -4258,7 +4258,7 @@ wpas_dpp_rx_priv_peer_intro_notify(struct wpa_supplicant *wpa_s,
+ 	version = dpp_get_attr(buf, len, DPP_ATTR_PROTOCOL_VERSION,
+ 			       &version_len);
+ 	if (!version || version_len < 1) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Peer did not include valid Version");
+ 		wpa_msg(wpa_s, MSG_INFO, DPP_EVENT_INTRO "peer=" MACSTR
+ 			" fail=missing_version", MAC2STR(src));
+@@ -4364,7 +4364,7 @@ void wpas_dpp_rx_action(struct wpa_supplicant *wpa_s, const u8 *src,
+ 	}
+ #endif /* CONFIG_TESTING_OPTIONS */
+ 	if (crypto_suite != 1) {
+-		wpa_printf(MSG_DEBUG, "DPP: Unsupported crypto suite %u",
++		wpa_printf(MSG_INFO, "DPP: Unsupported crypto suite %u",
+ 			   crypto_suite);
+ 		wpa_msg(wpa_s, MSG_INFO, DPP_EVENT_RX "src=" MACSTR
+ 			" freq=%u freq_offset=%d type=%d ignore=unsupported-crypto-suite rssi=%d",
+@@ -4462,7 +4462,7 @@ void wpas_dpp_rx_action(struct wpa_supplicant *wpa_s, const u8 *src,
+ #endif /* MM_IOT_DPP_DISABLE_PRIVATE_PEER_INTRO */
+ #endif /* CONFIG_DPP3 */
+ 	default:
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Ignored unsupported frame subtype %d", type);
+ 		break;
+ 	}
+@@ -4508,12 +4508,12 @@ wpas_dpp_gas_req_handler(void *ctx, void *resp_ctx, const u8 *sa,
+ 		   MAC2STR(sa));
+ 	if (!auth || (!auth->auth_success && !auth->reconfig_success) ||
+ 	    !ether_addr_equal(sa, auth->peer_mac_addr)) {
+-		wpa_printf(MSG_DEBUG, "DPP: No matching exchange in progress");
++		wpa_printf(MSG_INFO, "DPP: No matching exchange in progress");
+ 		return NULL;
+ 	}
+ 
+ 	if (wpa_s->dpp_auth_ok_on_ack && auth->configurator) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Have not received ACK for Auth Confirm yet - assume it was received based on this GAS request");
+ 		/* wpas_dpp_auth_success() would normally have been called from
+ 		 * TX status handler, but since there was no such handler call
+@@ -4623,7 +4623,7 @@ wpas_dpp_gas_status_handler(void *ctx, struct wpabuf *resp, int ok)
+ 		return;
+ 	}
+ 	if (auth->conf_resp != resp) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Ignore GAS status report (ok=%d) for unknown response",
+ 			ok);
+ 		wpabuf_free(resp);
+@@ -4776,7 +4776,7 @@ static int wpas_dpp_start_private_peer_intro(struct wpa_supplicant *wpa_s,
+ 
+ 	conn_ver = dpp_get_connector_version(ssid->dpp_connector);
+ 	if (conn_ver > 0 && ver != conn_ver) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Use Connector version %d instead of current protocol version %d",
+ 			   conn_ver, ver);
+ 		ver = conn_ver;
+@@ -4933,7 +4933,7 @@ skip_connector:
+ 
+ 		conn_ver = dpp_get_connector_version(ssid->dpp_connector);
+ 		if (conn_ver > 0 && ver != conn_ver) {
+-			wpa_printf(MSG_DEBUG,
++			wpa_printf(MSG_INFO,
+ 				   "DPP: Use Connector version %d instead of current protocol version %d",
+ 				   conn_ver, ver);
+ 			ver = conn_ver;
+@@ -5018,12 +5018,12 @@ int wpas_dpp_pkex_add(struct wpa_supplicant *wpa_s, const char *cmd)
+ 	pos += 5;
+ 	own_bi = dpp_bootstrap_get_id(wpa_s->dpp, atoi(pos));
+ 	if (!own_bi) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Identified bootstrap info not found");
+ 		return -1;
+ 	}
+ 	if (own_bi->type != DPP_BOOTSTRAP_PKEX) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Identified bootstrap info not for PKEX");
+ 		return -1;
+ 	}
+@@ -5310,7 +5310,7 @@ static int wpas_dpp_build_conf_resp(struct wpa_supplicant *wpa_s,
+ 	eloop_cancel_timeout(wpas_dpp_gas_initial_resp_timeout, wpa_s, NULL);
+ 	if (gas_server_set_resp(wpa_s->gas_server, auth->config_resp_ctx,
+ 				resp) < 0) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Could not find pending GAS response");
+ 		wpabuf_free(resp);
+ 		return -1;
+@@ -5341,7 +5341,7 @@ int wpas_dpp_conf_set(struct wpa_supplicant *wpa_s, const char *cmd)
+ #endif /* CONFIG_DPP2 */
+ 
+ 	if (!auth || !auth->waiting_config) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: No authentication exchange waiting for configuration information");
+ 		return -1;
+ 	}
+@@ -5350,7 +5350,7 @@ int wpas_dpp_conf_set(struct wpa_supplicant *wpa_s, const char *cmd)
+ 	     (unsigned int) peer != auth->peer_bi->id) &&
+ 	    (!auth->tmp_peer_bi ||
+ 	     (unsigned int) peer != auth->tmp_peer_bi->id)) {
+-		wpa_printf(MSG_DEBUG, "DPP: Peer mismatch");
++		wpa_printf(MSG_INFO, "DPP: Peer mismatch");
+ 		return -1;
+ 	}
+ 
+@@ -5468,7 +5468,7 @@ static void wpas_dpp_chirp_tx_status(struct wpa_supplicant *wpa_s,
+ 	eloop_cancel_timeout(wpas_dpp_chirp_tx_status_timeout, wpa_s, NULL);
+ 
+ 	if (result == OFFCHANNEL_SEND_ACTION_FAILED) {
+-		wpa_printf(MSG_DEBUG, "DPP: Failed to send chirp on %d.%03d MHz",
++		wpa_printf(MSG_INFO, "DPP: Failed to send chirp on %d.%03d MHz",
+ 			   freq, freq_offset);
+ 		if (eloop_register_timeout(0, 0, wpas_dpp_chirp_next,
+ 					   wpa_s, NULL) < 0)
+@@ -5539,7 +5539,7 @@ static void log_dpp_presence_ann_channels(struct wpa_supplicant *wpa_s, int *fre
+ 		return;
+ 
+ 	n_freqs = int_array_len(freqs_khz);
+-	wpa_printf(MSG_DEBUG, "DPP: Announcing presence on %d channels", n_freqs);
++	wpa_printf(MSG_INFO, "DPP: Announcing presence on %d channels", n_freqs);
+ 	for (i = 0; i < n_freqs; i++) {
+ 		int freq = freqs_khz[i] / 1000;
+ #ifdef CONFIG_MORSE_5GHZ_MAPPED
+@@ -5547,7 +5547,7 @@ static void log_dpp_presence_ann_channels(struct wpa_supplicant *wpa_s, int *fre
+ 		int chan_s1g = morse_ht_freq_to_s1g_chan(freq, country);
+ 		int op_bw_s1g = morse_s1g_chan_to_bw(chan_s1g);
+ 
+-		wpa_printf(MSG_DEBUG, "DPP:    [%d] %d MHz (S1G operating:%d MHz)", chan_s1g,
++		wpa_printf(MSG_INFO, "DPP:    [%d] %d MHz (S1G operating: %d MHz)", chan_s1g,
+ 			   freq, op_bw_s1g);
+ #else
+ 		int freq_offset = freqs_khz[i] % 1000;
+@@ -5786,7 +5786,7 @@ static void wpas_dpp_chirp_next(void *eloop_ctx, void *timeout_ctx)
+ 			if (wpa_s->dpp_chirp_freqs_khz[i] == wpa_s->dpp_chirp_freq_khz)
+ 				break;
+ 		if (!wpa_s->dpp_chirp_freqs_khz[i]) {
+-			wpa_printf(MSG_DEBUG,
++			wpa_printf(MSG_INFO,
+ 				   "DPP: Previous chirp freq %d not found",
+ 				   wpa_s->dpp_chirp_freq_khz);
+ 			return;
+@@ -5909,7 +5909,7 @@ int wpas_dpp_chirp(struct wpa_supplicant *wpa_s, const char *cmd)
+ 	pos += 5;
+ 	bi = dpp_bootstrap_get_id(wpa_s->dpp, atoi(pos));
+ 	if (!bi) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Identified bootstrap info not found");
+ 		return -1;
+ 	}
+@@ -5984,7 +5984,7 @@ int wpas_dpp_reconfig(struct wpa_supplicant *wpa_s, const char *cmd)
+ 	ssid = wpa_config_get_network(wpa_s->conf, atoi(cmd));
+ 	if (!ssid || !ssid->dpp_connector || !ssid->dpp_netaccesskey ||
+ 	    !ssid->dpp_csign) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Not a valid network profile for reconfiguration");
+ 		return -1;
+ 	}
+@@ -5997,7 +5997,7 @@ int wpas_dpp_reconfig(struct wpa_supplicant *wpa_s, const char *cmd)
+ 	}
+ 
+ 	if (wpa_s->dpp_auth) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Not ready to start reconfiguration - pending authentication exchange in progress");
+ 		return -1;
+ 	}
+@@ -6008,7 +6008,7 @@ int wpas_dpp_reconfig(struct wpa_supplicant *wpa_s, const char *cmd)
+ 						     ssid->dpp_pp_key,
+ 						     ssid->dpp_pp_key_len);
+ 	if (!wpa_s->dpp_reconfig_id) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Failed to generate E-id for reconfiguration");
+ 		return -1;
+ 	}
+@@ -6055,7 +6055,7 @@ int wpas_dpp_ca_set(struct wpa_supplicant *wpa_s, const char *cmd)
+ 	}
+ 
+ 	if (!auth || !auth->waiting_cert) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: No authentication exchange waiting for certificate information");
+ 		return -1;
+ 	}
+@@ -6065,7 +6065,7 @@ int wpas_dpp_ca_set(struct wpa_supplicant *wpa_s, const char *cmd)
+ 	     (unsigned int) peer != auth->peer_bi->id) &&
+ 	    (!auth->tmp_peer_bi ||
+ 	     (unsigned int) peer != auth->tmp_peer_bi->id)) {
+-		wpa_printf(MSG_DEBUG, "DPP: Peer mismatch");
++		wpa_printf(MSG_INFO, "DPP: Peer mismatch");
+ 		return -1;
+ 	}
+ 
+@@ -6130,7 +6130,7 @@ static void wpas_dpp_pb_tx_status(struct wpa_supplicant *wpa_s,
+ 				  enum offchannel_send_action_result result)
+ {
+ 	if (result == OFFCHANNEL_SEND_ACTION_FAILED) {
+-		wpa_printf(MSG_DEBUG,
++		wpa_printf(MSG_INFO,
+ 			   "DPP: Failed to send push button announcement on %d.%03d MHz",
+ 			   freq, freq_offset);
+ 		if (eloop_register_timeout(0, 0, wpas_dpp_pb_next,
+diff --git a/wpa_supplicant/gas_query.c b/wpa_supplicant/gas_query.c
+index 52e1d0f75..aebcacbca 100644
+--- a/wpa_supplicant/gas_query.c
++++ b/wpa_supplicant/gas_query.c
+@@ -256,7 +256,7 @@ static void gas_query_tx_status(struct wpa_supplicant *wpa_s,
+ 	int dur;
+ 
+ 	if (gas->current == NULL) {
+-		wpa_printf(MSG_DEBUG, "GAS: Unexpected TX status: freq=%u"
++		wpa_printf(MSG_INFO, "GAS: Unexpected TX status: freq=%u"
+ 			   " freq_offset=%u dst=" MACSTR " result=%d"
+ 			   " - no query in progress",
+ 			   freq, freq_offset, MAC2STR(dst), result);
+@@ -271,7 +271,7 @@ static void gas_query_tx_status(struct wpa_supplicant *wpa_s,
+ 		   freq, freq_offset, MAC2STR(dst), result, query,
+ 		   query->dialog_token, dur);
+ 	if (!ether_addr_equal(dst, query->addr)) {
+-		wpa_printf(MSG_DEBUG, "GAS: TX status for unexpected destination");
++		wpa_printf(MSG_INFO, "GAS: TX status for unexpected destination");
+ 		return;
+ 	}
+ 	os_get_reltime(&query->last_oper);
+@@ -280,7 +280,7 @@ static void gas_query_tx_status(struct wpa_supplicant *wpa_s,
+ 	    result == OFFCHANNEL_SEND_ACTION_NO_ACK) {
+ 		eloop_cancel_timeout(gas_query_timeout, gas, query);
+ 		if (result == OFFCHANNEL_SEND_ACTION_NO_ACK) {
+-			wpa_printf(MSG_DEBUG, "GAS: No ACK to GAS request");
++			wpa_printf(MSG_INFO, "GAS: No ACK to GAS request");
+ 			eloop_register_timeout(0, 250000,
+ 					       gas_query_timeout, gas, query);
+ 		} else {
+@@ -376,7 +376,7 @@ static void gas_query_rx_comeback_timeout(void *eloop_data, void *user_ctx)
+ 	struct gas_query_pending *query = user_ctx;
+ 	int dialog_token;
+ 
+-	wpa_printf(MSG_DEBUG,
++	wpa_printf(MSG_INFO,
+ 		   "GAS: No response to comeback request received (retry=%u)",
+ 		   query->retry);
+ 	if (gas->current != query || query->retry)
+@@ -384,7 +384,7 @@ static void gas_query_rx_comeback_timeout(void *eloop_data, void *user_ctx)
+ 	dialog_token = gas_query_new_dialog_token(gas, query->addr);
+ 	if (dialog_token < 0)
+ 		return;
+-	wpa_printf(MSG_DEBUG,
++	wpa_printf(MSG_INFO,
+ 		   "GAS: Retry GAS query due to comeback response timeout");
+ 	query->retry = 1;
+ 	query->dialog_token = dialog_token;
+@@ -404,7 +404,7 @@ static void gas_query_tx_comeback_timeout(void *eloop_data, void *user_ctx)
+ 	struct gas_query *gas = eloop_data;
+ 	struct gas_query_pending *query = user_ctx;
+ 
+-	wpa_printf(MSG_DEBUG, "GAS: Comeback timeout for request to " MACSTR,
++	wpa_printf(MSG_INFO, "GAS: Comeback timeout for request to " MACSTR,
+ 		   MAC2STR(query->addr));
+ 	gas_query_tx_comeback_req(gas, query);
+ }
+@@ -499,10 +499,10 @@ static void gas_query_rx_comeback(struct gas_query *gas,
+ 	}
+ 
+ 	if (frag_id != query->next_frag_id) {
+-		wpa_printf(MSG_DEBUG, "GAS: Unexpected frag_id in response "
++		wpa_printf(MSG_INFO, "GAS: Unexpected frag_id in response "
+ 			   "from " MACSTR, MAC2STR(query->addr));
+ 		if (frag_id + 1 == query->next_frag_id) {
+-			wpa_printf(MSG_DEBUG, "GAS: Drop frame as possible "
++			wpa_printf(MSG_INFO, "GAS: Drop frame as possible "
+ 				   "retry of previous fragment");
+ 			return;
+ 		}
+@@ -563,17 +563,19 @@ int gas_query_rx(struct gas_query *gas, const u8 *da, const u8 *sa,
+ 	prot = categ == WLAN_ACTION_PROTECTED_DUAL;
+ 	pmf = pmf_in_use(gas->wpa_s, sa);
+ 	if (prot && !pmf) {
+-		wpa_printf(MSG_DEBUG, "GAS: Drop unexpected protected GAS frame when PMF is disabled");
++		wpa_printf(MSG_INFO,
++			   "GAS: Drop unexpected protected GAS frame when PMF is disabled");
+ 		return 0;
+ 	}
+ 	if (!prot && pmf) {
+-		wpa_printf(MSG_DEBUG, "GAS: Drop unexpected unprotected GAS frame when PMF is enabled");
++		wpa_printf(MSG_INFO,
++			   "GAS: Drop unexpected unprotected GAS frame when PMF is enabled");
+ 		return 0;
+ 	}
+ 
+ 	query = gas_query_get_pending(gas, sa, dialog_token);
+ 	if (query == NULL) {
+-		wpa_printf(MSG_DEBUG, "GAS: No pending query found for " MACSTR
++		wpa_printf(MSG_INFO, "GAS: No pending query found for " MACSTR
+ 			   " dialog token %u", MAC2STR(sa), dialog_token);
+ 		return -1;
+ 	}
+@@ -582,14 +584,14 @@ int gas_query_rx(struct gas_query *gas, const u8 *da, const u8 *sa,
+ 		   ms_from_time(&query->last_oper), MAC2STR(sa));
+ 
+ 	if (query->wait_comeback && action == WLAN_PA_GAS_INITIAL_RESP) {
+-		wpa_printf(MSG_DEBUG, "GAS: Unexpected initial response from "
++		wpa_printf(MSG_INFO, "GAS: Unexpected initial response from "
+ 			   MACSTR " dialog token %u when waiting for comeback "
+ 			   "response", MAC2STR(sa), dialog_token);
+ 		return 0;
+ 	}
+ 
+ 	if (!query->wait_comeback && action == WLAN_PA_GAS_COMEBACK_RESP) {
+-		wpa_printf(MSG_DEBUG, "GAS: Unexpected comeback response from "
++		wpa_printf(MSG_INFO, "GAS: Unexpected comeback response from "
+ 			   MACSTR " dialog token %u when waiting for initial "
+ 			   "response", MAC2STR(sa), dialog_token);
+ 		return 0;
+@@ -629,14 +631,14 @@ int gas_query_rx(struct gas_query *gas, const u8 *da, const u8 *sa,
+ 	adv_proto = pos;
+ 	left = data + len - adv_proto;
+ 	if (left < 2 || adv_proto[1] > left - 2) {
+-		wpa_printf(MSG_DEBUG, "GAS: No room for Advertisement "
++		wpa_printf(MSG_INFO, "GAS: No room for Advertisement "
+ 			   "Protocol element in the response from " MACSTR,
+ 			   MAC2STR(sa));
+ 		return 0;
+ 	}
+ 
+ 	if (*adv_proto != WLAN_EID_ADV_PROTO) {
+-		wpa_printf(MSG_DEBUG, "GAS: Unexpected Advertisement "
++		wpa_printf(MSG_INFO, "GAS: Unexpected Advertisement "
+ 			   "Protocol element ID %u in response from " MACSTR,
+ 			   *adv_proto, MAC2STR(sa));
+ 		return 0;
+@@ -649,7 +651,7 @@ int gas_query_rx(struct gas_query *gas, const u8 *da, const u8 *sa,
+ 
+ 	/* Query Response Length */
+ 	if (pos + 2 > data + len) {
+-		wpa_printf(MSG_DEBUG, "GAS: No room for GAS Response Length");
++		wpa_printf(MSG_INFO, "GAS: No room for GAS Response Length");
+ 		return 0;
+ 	}
+ 	resp_len = WPA_GET_LE16(pos);
+@@ -657,13 +659,13 @@ int gas_query_rx(struct gas_query *gas, const u8 *da, const u8 *sa,
+ 
+ 	left = data + len - pos;
+ 	if (resp_len > left) {
+-		wpa_printf(MSG_DEBUG, "GAS: Truncated Query Response in "
++		wpa_printf(MSG_INFO, "GAS: Truncated Query Response in "
+ 			   "response from " MACSTR, MAC2STR(sa));
+ 		return 0;
+ 	}
+ 
+ 	if (resp_len < left) {
+-		wpa_printf(MSG_DEBUG, "GAS: Ignore %u octets of extra data "
++		wpa_printf(MSG_INFO, "GAS: Ignore %u octets of extra data "
+ 			   "after Query Response from " MACSTR,
+ 			   left - resp_len, MAC2STR(sa));
+ 	}
+-- 
+2.53.0
+
