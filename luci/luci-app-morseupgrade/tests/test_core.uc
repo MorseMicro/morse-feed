@@ -168,6 +168,37 @@ function env_flow(o) {
 	});
 }
 
+// Async search dispatcher env. The dispatcher only touches fs + system + time(),
+// so this stubs stat()/readfile() (result file and pid lock) and spies on
+// system() to record whether a worker was spawned.
+//   stats : {path: statobj}   -> fs.stat()
+//   files : {path: content}   -> fs.readfile()
+function dispatch_env(o) {
+	o ??= {};
+	const files = o.files ?? {};
+	const stats = o.stats ?? {};
+	const spawned = [];
+	return {
+		spawned,
+		h: core.create({
+			ubus: mock_ubus(null),
+			cursor: mock_cursor(CFG_OK),
+			fs: {
+				stat: (p) => stats[p] ?? null,
+				readfile: (p) => files[p] ?? null,
+				writefile: (p, c) => { files[p] = c; return true; },
+				unlink: (p) => { delete files[p]; return true; },
+				popen: () => null,
+				access: () => false,
+			},
+			sha256_file: () => "deadbeef",
+			system: (argv) => { push(spawned, argv); return 0; },
+			log: () => {},
+			warn: () => {},
+		}),
+	};
+}
+
 // image_trust env: board and persistent-vars stdout. Returns the fs mock
 // alongside the handlers so tests can inspect what it was asked to run.
 function trust_env(o) {
@@ -342,42 +373,42 @@ return {
 	// ---- search -------------------------------------------------------
 	search_config_error: function () {
 		const h = env_flow({ board: board_of({ board: "morse,halowlink2", morse_version: "Morse-1.0.0", target: "ramips/mt7621" }), cfg: { user: "u", password: "p" } });
-		assert(h.search({}).status == "ConfigError");
+		assert(h.run_search({}).status == "ConfigError");
 	},
 	search_board_error_no_board: function () {
 		const h = env_flow({ board: board_of({ board: "", morse_version: "Morse-1.0.0", target: "ramips/mt7621" }) });
-		assert(h.search({}).status == "BoardInfoError");
+		assert(h.run_search({}).status == "BoardInfoError");
 	},
 	search_board_error_no_version: function () {
 		const h = env_flow({ board: board_of({ board: "morse,halowlink2", morse_version: "", target: "ramips/mt7621" }) });
-		assert(h.search({}).status == "BoardInfoError");
+		assert(h.run_search({}).status == "BoardInfoError");
 	},
 	search_board_error_no_target: function () {
 		const h = env_flow({ board: board_of({ board: "morse,halowlink2", morse_version: "Morse-1.0.0" }) });
-		assert(h.search({}).status == "BoardInfoError");
+		assert(h.run_search({}).status == "BoardInfoError");
 	},
 	search_http_error_latest_fetch: function () {
 		const h = env_flow({ board: board_of({ board: "morse,halowlink2", morse_version: "Morse-1.0.0", target: "ramips/mt7621" }), fail_latest: true });
-		assert(h.search({}).status == "HTTPError");
+		assert(h.run_search({}).status == "HTTPError");
 	},
 	search_http_error_latest_badjson: function () {
 		const h = env_flow({ board: board_of({ board: "morse,halowlink2", morse_version: "Morse-1.0.0", target: "ramips/mt7621" }), latest: "not json" });
-		assert(h.search({}).status == "HTTPError");
+		assert(h.run_search({}).status == "HTTPError");
 	},
 	search_http_error_popen_null: function () {
 		// popen() itself returns null (spawn failed) -> rc stays '' -> HTTPError.
 		const h = env_flow({ board: board_of({ board: "morse,halowlink2", morse_version: "Morse-1.0.0", target: "ramips/mt7621" }), null_popen: true });
-		assert(h.search({}).status == "HTTPError");
+		assert(h.run_search({}).status == "HTTPError");
 	},
 	search_http_error_latest_empty_body: function () {
 		// Reachable server but empty response (rc 0, length 0) -> HTTPError.
 		const h = env_flow({ board: board_of({ board: "morse,halowlink2", morse_version: "Morse-1.0.0", target: "ramips/mt7621" }), latest: "" });
-		assert(h.search({}).status == "HTTPError");
+		assert(h.run_search({}).status == "HTTPError");
 	},
 	search_http_error_latest_non_object: function () {
 		// Valid JSON that is not an object (an array) -> HTTPError.
 		const h = env_flow({ board: board_of({ board: "morse,halowlink2", morse_version: "Morse-1.0.0", target: "ramips/mt7621" }), latest: "[]" });
-		assert(h.search({}).status == "HTTPError");
+		assert(h.run_search({}).status == "HTTPError");
 	},
 	search_no_update_deprecated_empty_rule: function () {
 		// Board present in latest.json but with an empty rule {} (deprecated):
@@ -386,47 +417,47 @@ return {
 			board: board_of({ board: "morse,halowlink2", morse_version: "Morse-1.0.0", target: "ramips/mt7621" }),
 			latest: '{"latest": {"morse,halowlink2": {}}}',
 		});
-		assert(h.search({}).status == "NoUpdateNeededOK");
+		assert(h.run_search({}).status == "NoUpdateNeededOK");
 	},
 	search_no_update_board_not_listed: function () {
 		const h = env_flow({ board: board_of({ board: "morse,unknown", morse_version: "Morse-1.0.0", target: "ramips/mt7621" }) });
-		assert(h.search({}).status == "NoUpdateNeededOK");
+		assert(h.run_search({}).status == "NoUpdateNeededOK");
 	},
 	search_no_update_equal_version: function () {
 		const h = env_flow({ board: board_of({ board: "morse,halowlink2", morse_version: "Morse-3.2.0", target: "ramips/mt7621" }) });
-		assert(h.search({}).status == "NoUpdateNeededOK");
+		assert(h.run_search({}).status == "NoUpdateNeededOK");
 	},
 	search_no_update_device_newer: function () {
 		const h = env_flow({ board: board_of({ board: "morse,halowlink2", morse_version: "Morse-9.9.9", target: "ramips/mt7621" }) });
-		assert(h.search({}).status == "NoUpdateNeededOK");
+		assert(h.run_search({}).status == "NoUpdateNeededOK");
 	},
 	// parse_version() takes the tail after the last dash, so this dev code
 	// yields [7,0,0,0] and the comparison would call 3.2.0 older.
 	search_dev_dated_offered_upgrade: function () {
 		const h = env_flow({ board: board_of({ board: "morse,halowlink2", morse_version: "Morse-b62e7378e69-2026-09-07", target: "ramips/mt7621" }) });
-		assert(h.search({}).status == "UpdateImageFoundOK", h.search({}).status);
+		assert(h.run_search({}).status == "UpdateImageFoundOK", h.run_search({}).status);
 	},
 	search_dev_suffix_offered_upgrade: function () {
 		const h = env_flow({ board: board_of({ board: "morse,halowlink2", morse_version: "Morse-9.9.9-dev", target: "ramips/mt7621" }) });
-		assert(h.search({}).status == "UpdateImageFoundOK", h.search({}).status);
+		assert(h.run_search({}).status == "UpdateImageFoundOK", h.run_search({}).status);
 	},
 	search_version_bucket_precedence: function () {
 		// Running Morse-2.12.6 -> the version-specific bucket (server bucket-2126)
 		// must win over the "latest" bucket (server 3.0.2/mm6108).
 		const h = env_flow({ board: board_of({ board: "morse,mm6108", morse_version: "Morse-2.12.6", target: "bcm27xx/bcm2711" }) });
-		const r = h.search({});
+		const r = h.run_search({});
 		assert(r.status == "UpdateImageFoundOK");
 		assert(index(r.url, "bucket-2126") >= 0);
 	},
 	search_latest_bucket_fallback: function () {
 		const h = env_flow({ board: board_of({ board: "morse,halowlink2", morse_version: "Morse-1.0.0", target: "ramips/mt7621" }) });
-		const r = h.search({});
+		const r = h.run_search({});
 		assert(r.status == "UpdateImageFoundOK");
 		assert(index(r.url, "3.2.0/halowlink2") >= 0);
 	},
 	search_image_found_fields: function () {
 		const h = env_flow({ board: board_of({ board: "morse,halowlink2", morse_version: "Morse-1.0.0", target: "ramips/mt7621" }) });
-		const r = h.search({});
+		const r = h.run_search({});
 		assert(r.status == "UpdateImageFoundOK");
 		assert(r.name == "sysupgrade-squash.bin");        // skips factory + ext4-sysupgrade
 		assert(r.version == "Morse-9.8.7");                // from profiles.version_code
@@ -436,15 +467,15 @@ return {
 	},
 	search_http_error_profiles_fetch: function () {
 		const h = env_flow({ board: board_of({ board: "morse,halowlink2", morse_version: "Morse-1.0.0", target: "ramips/mt7621" }), fail_profiles: true });
-		assert(h.search({}).status == "HTTPError");
+		assert(h.run_search({}).status == "HTTPError");
 	},
 	search_image_not_found_board_unsupported: function () {
 		const h = env_flow({ board: board_of({ board: "morse,halowlink2", morse_version: "Morse-1.0.0", target: "ramips/mt7621" }), profiles: PROFILES_NOMATCH });
-		assert(h.search({}).status == "UpdateImageNotFoundError");
+		assert(h.run_search({}).status == "UpdateImageNotFoundError");
 	},
 	search_image_not_found_no_squashfs: function () {
 		const h = env_flow({ board: board_of({ board: "morse,halowlink2", morse_version: "Morse-1.0.0", target: "ramips/mt7621" }), profiles: PROFILES_NOSQUASH });
-		assert(h.search({}).status == "UpdateImageNotFoundError");
+		assert(h.run_search({}).status == "UpdateImageNotFoundError");
 	},
 
 	// ---- download -----------------------------------------------------
@@ -653,7 +684,7 @@ return {
 	// ---- search carries the notes -------------------------------------
 	search_returns_notes_from_profiles: function () {
 		const h = env_flow({ board: board_of({ board: "morse,halowlink2", morse_version: "Morse-1.0.0", target: "ramips/mt7621" }), profiles: PROFILES_NOTES });
-		const r = h.search({});
+		const r = h.run_search({});
 		assert(r.status == "UpdateImageFoundOK", r.status);
 		assert(length(r.notes) == 2, `${r.notes}`);
 		assert(r.notes[0] == "Added hardware revision C support.", r.notes[0]);
@@ -661,14 +692,44 @@ return {
 	},
 	search_no_notes_when_profiles_has_none: function () {
 		const h = env_flow({ board: board_of({ board: "morse,halowlink2", morse_version: "Morse-1.0.0", target: "ramips/mt7621" }) });
-		const r = h.search({});
+		const r = h.run_search({});
 		assert(r.notes == null && r.notes_url == null);
+	},
+
+	// ---- async search dispatcher --------------------------------------
+	search_async_starts_worker_when_no_result: function () {
+		const e = dispatch_env({});
+		const r = e.h.search({});
+		assert(r.status == "SearchInProgress", r.status);
+		assert(length(e.spawned) == 1, "worker should be spawned");
+	},
+	search_async_consumes_result_then_searches_fresh: function () {
+		const e = dispatch_env({
+			files: { "/tmp/morseupgrade.search.json": '{"status":"UpdateImageFoundOK","name":"x"}' },
+		});
+		// First call returns the worker's result without spawning anything.
+		const first = e.h.search({});
+		assert(first.status == "UpdateImageFoundOK", first.status);
+		assert(length(e.spawned) == 0, "returning a result should not spawn a worker");
+		// The result was consumed, so the next call starts a fresh search.
+		const second = e.h.search({});
+		assert(second.status == "SearchInProgress", second.status);
+		assert(length(e.spawned) == 1, "consumed result should trigger a fresh worker");
+	},
+	search_async_no_double_spawn_when_worker_running: function () {
+		const e = dispatch_env({
+			files: { "/tmp/morseupgrade.search.lock": "4242\n" },
+			stats: { "/proc/4242": { type: "directory" } },
+		});
+		const r = e.h.search({});
+		assert(r.status == "SearchInProgress", r.status);
+		assert(length(e.spawned) == 0, "should not spawn while a worker is running");
 	},
 
 	// ---- create smoke -------------------------------------------------
 	create_returns_all_handlers: function () {
 		const h = env_flow({});
-		for (let m in ["query", "search", "image_trust", "download", "stat", "verify"])
+		for (let m in ["query", "search", "run_search", "image_trust", "download", "stat", "verify"])
 			assert(type(h[m]) == "function", `${m} missing`);
 	},
 };

@@ -27,6 +27,10 @@ const OUTPUTBIN = '/tmp/sysupgrade.bin';
 const STATUS_FILE = '/tmp/sysupgrade.status';
 const PID_FILE = '/tmp/sysupgrade.pid';
 
+const SEARCH_RESULT = '/tmp/morseupgrade.search.json';
+const SEARCH_LOCK = '/tmp/morseupgrade.search.lock';
+const SEARCH_WORKER = '/usr/share/ucode/morseupgrade/search_worker.uc';
+
 // Set only when an unsigned image was flashed (value is the version_code)
 // absent means nothing is claimed.
 const UNSIGNED_FLAG_KEY = 'mm_image_unsigned';
@@ -159,6 +163,7 @@ function create(env) {
 		let out = '';
 		let rc = '';
 
+		// This runs in a deatched search worker, not the RPCD event loop
 		const proc = env.fs.popen(`uclient-fetch ${uargs} -q -T 10 -O - ${url} 2>/dev/null`);
 
 		if (proc) {
@@ -260,7 +265,7 @@ function create(env) {
 		return get_board_info();
 	}
 
-	function search(request) {
+	function run_search(request) {
 
 		const err = load_config();
 		if (err)
@@ -287,6 +292,38 @@ function create(env) {
 			return { status: 'NoUpdateNeededOK', message: 'Already up to date!' };
 
 		return get_sysupgrade_image(board_info, upgrade_rule);
+	}
+
+	// True while a spawned search worker is still running (lock holds its pid).
+	function search_worker_running() {
+		const pid = trim(env.fs.readfile(SEARCH_LOCK) ?? '');
+		return length(pid) > 0 && env.fs.stat(`/proc/${pid}`) != null;
+	}
+
+	// Spawn the worker detached from the rpcd event loop. The worker writes the
+	// result and clears the lock itself.
+	function start_search_worker() {
+		env.system(`ucode ${SEARCH_WORKER} 2>/dev/null & echo $! > ${SEARCH_LOCK}`);
+	}
+
+	// Non-blocking dispatcher exposed over ubus. If a worker has written a
+	// result, return it and delete it. Otherwise, ensure a working is running and
+	// reporting SearchInProgress.
+	function search(request) {
+		const raw = env.fs.readfile(SEARCH_RESULT);
+		if (raw != null) {
+			env.fs.unlink(SEARCH_RESULT);
+			try {
+				const result = json(raw);
+				if (type(result) == 'object')
+					return result;
+			} catch (e) {}
+		}
+
+		if (!search_worker_running())
+			start_search_worker();
+
+		return { status: 'SearchInProgress', message: 'Upgrade search in progress' };
 	}
 
 	function read_persistent_var(key) {
@@ -423,9 +460,12 @@ function create(env) {
 		return { status: 'VerifyOK', message: 'Success' };
 	}
 
-	return { query, search, image_trust, download, stat, verify };
+	return { query, search, run_search, image_trust, download, stat, verify };
 }
 
 // `export { ... }` (rather than `export function name()`) for compatibility
 // with the ucode on target, whose parser predates the export-declaration form.
 export { parse_version, is_newer, get_upgrade_rule, is_not_release_version, format_size, create };
+
+// Shared with search_worker.uc so the worker and the dispatcher agree on paths.
+export { SEARCH_RESULT, SEARCH_LOCK };
