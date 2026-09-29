@@ -10,11 +10,28 @@ const callUpgradeQuery = rpc.declare({
 	params: [],
 });
 
-const deviceSearch = rpc.declare({
+const callDeviceSearch = rpc.declare({
 	object: 'morseupgrade',
 	method: 'search',
 	params: [],
 });
+
+const DEVICE_SEARCH_DEADLINE_MS = 15000;
+const DEVICE_SEARCH_POLL_MS = 500;
+
+// The device search spawns a detached worker that reports `SearchInProgress` until
+// it returns a result. Check every DEVICE_SEARCH_POLL_MS and timout after DEVICE_SEARCH_DEADLINE_MS.
+async function deviceSearch() {
+	const deadline = Date.now() + DEVICE_SEARCH_DEADLINE_MS;
+	while (true) {
+		const result = await callDeviceSearch();
+		if (!result || result.status != 'SearchInProgress')
+			return result;
+		if (Date.now() >= deadline)
+			return { status: 'HTTPError', error: 'Upgrade search timed out', code: 'timeout' };
+		await new Promise(resolve => setTimeout(resolve, DEVICE_SEARCH_POLL_MS));
+	}
+}
 
 const UpgradeSearch = baseclass.extend({
 	queryResult: null,
