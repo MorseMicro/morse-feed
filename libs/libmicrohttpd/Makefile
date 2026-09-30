@@ -20,6 +20,7 @@ PKG_HASH:=f0b1547b5a42a6c0f724e8e1c1cb5ce9c4c35fb495e7d780b9930d35011ceb4c
 PKG_MAINTAINER:=Alexander Couzens <lynxis@fe80.eu>
 PKG_LICENSE:=LGPL-2.1-or-later
 PKG_LICENSE_FILES:=COPYING
+PKG_CPE_ID:=cpe:/a:gnu:libmicrohttpd
 
 PKG_INSTALL:=1
 PKG_BUILD_PARALLEL:=1
