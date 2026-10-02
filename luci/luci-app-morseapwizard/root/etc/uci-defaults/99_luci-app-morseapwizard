@@ -1,19 +1,11 @@
 #!/bin/sh
 
 . /lib/functions.sh
-
-find_morse_device_country() {
-	config_get type "$1" type
-	config_get country "$1" country
-
-	echo $type $country
-	if [ "$type" = morse -a -n "$country" ]; then
-		morse_country="$country"
-	fi
-}
+. /lib/functions/morse.sh
 
 config_load wireless
-config_foreach find_morse_device_country wifi-device
+morse_config_get_device _morse_device_name
+[ -n "$_morse_device_name" ] && config_get morse_country "$_morse_device_name" country
 
 # This handles both the case where country is set via persistent_vars_storage
 # _and_ when sysupgrades retaining config are done.

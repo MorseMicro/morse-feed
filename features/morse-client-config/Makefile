@@ -16,7 +16,7 @@ define Package/morse-client-config
   # We require LuCI because we use LuCI's http handler to simplify
   # our ucode cgi-bin script. If it was important, this would be easy
   # to split off.
-  DEPENDS:=uhttpd +ucode +ucode-mod-ubus +ucode-mod-uci +luci-base
+  DEPENDS:=uhttpd +ucode +ucode-mod-ubus +ucode-mod-uci +luci-base +netifd-morse
 endef
 
 define Package/morse-client-config/description
