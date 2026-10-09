@@ -39,7 +39,14 @@ morse_generate_default_hostname() {
 	fi
 
 	if [ -n "${DEVICE_PRODUCT}" ] && [ "$DEVICE_PRODUCT" != Generic ]; then
-		prefix="${DEVICE_PRODUCT}"
+		case "$DEVICE_PRODUCT" in
+			halowlink-apx)
+				prefix=hl-apx
+			;;
+			*)
+				prefix="${DEVICE_PRODUCT}"
+			;;
+		esac
 	else
 		case "$(cat /tmp/sysinfo/board_name)" in
 			glinet,gl-mt3000|\
@@ -54,9 +61,6 @@ morse_generate_default_hostname() {
 			;;
 			morse,*ekh04*)
 				prefix=ekh04
-			;;
-			morse,halowlink-apx)
-				prefix=hl-apx
 			;;
 			*)
 				# Strip manufacturer for hostname to keep it short
