@@ -38,6 +38,7 @@ document.querySelector('head').appendChild(E('link', {
 }));
 
 const RESTART_PAUSE = 1000;
+const MAX_RESTART_ATTEMPTS = 5;
 
 var callLuciNetworkDevices = rpc.declare({
 	object: 'luci-rpc',
@@ -753,6 +754,7 @@ class Receiver {
 		this.videoElement = videoElement;
 		this.pc = null;
 		this.restartTimeout = null;
+		this.restartAttempts = 0;
 		this.sessionUrl = '';
 		this.queuedCandidates = [];
 		this.url = new URL('whep', url);
@@ -761,6 +763,11 @@ class Receiver {
 	}
 
 	start() {
+		this.restartAttempts = 0;
+		this.connect();
+	}
+
+	connect() {
 		if (!this.stopped) {
 			return;
 		}
@@ -781,16 +788,22 @@ class Receiver {
 	}
 
 	stop() {
+		this.videoElement.removeAttribute('reconnecting');
+		this.teardown();
+		this.videoElement.setCustomStatus('Stream stopped.');
+	}
+
+	// Like stop(), but leaves the status alone for the caller to set.
+	teardown() {
 		if (this.restartTimeout !== null) {
 			clearTimeout(this.restartTimeout);
+			this.restartTimeout = null;
 		}
 
 		if (this.statsInterval !== null) {
 			clearInterval(this.statsInterval);
 			this.statsInterval = null;
 		}
-
-		this.videoElement.setCustomStatus('Stream stopped.');
 
 		if (this.stopped) {
 			return;
@@ -823,6 +836,21 @@ class Receiver {
 				});
 		}
 		*/
+
+		this.sessionUrl = '';
+		this.queuedCandidates = [];
+	}
+
+	// Give up on the stream, leaving the play button to retry.
+	fail(message) {
+		this.videoElement.removeAttribute('reconnecting');
+		this.teardown();
+		// Without explicitly pausing the video, Chrome only sends a 'suspend'
+		// event when we kill the webrtc stream, which leaves our video still
+		// notionally running (such that the user can't use the play button
+		// to restart it without pausing it themselves).
+		this.videoElement.pause();
+		this.videoElement.setCustomStatus(message, 'error');
 	}
 
 	onIceServers(res) {
@@ -841,7 +869,18 @@ class Receiver {
 
 		this.pc.ontrack = (evt) => {
 			console.log('new track:', evt.track.kind);
-			this.videoElement.video.srcObject = evt.streams[0];
+			// Swap tracks on a persistent stream rather than replacing srcObject,
+			// as that reloads the video element and flashes the controls on every restart.
+			const video = this.videoElement.video;
+			if (!video.srcObject) {
+				video.srcObject = new MediaStream();
+			}
+			for (const track of video.srcObject.getTracks()) {
+				if (track.kind === evt.track.kind) {
+					video.srcObject.removeTrack(track);
+				}
+			}
+			video.srcObject.addTrack(evt.track);
 		};
 
 		this.pc.createOffer()
@@ -918,13 +957,7 @@ class Receiver {
 				) {
 					interruptions += 1;
 					if (interruptions > MAX_INTERRUPTIONS) {
-						this.stop();
-						// Without explicitly pausing the video, Chrome only sends a 'suspend'
-						// event when we kill the webrtc stream, which leaves our video still
-						// notionally running (such that the user can't use the play button
-						// to restart it without pausing it themselves).
-						this.videoElement.pause();
-						this.videoElement.setCustomStatus(_('Disconnected bad stream. Consider decreasing bitrate before restarting.'), 'error');
+						this.fail(_('Disconnected bad stream. Consider decreasing bitrate before restarting.'));
 					} else if (interruptions > 1) {
 						this.videoElement.setCustomStatus(_('Interrupted stream. Consider decreasing bitrate.'), 'throbber');
 					} else {
@@ -946,6 +979,8 @@ class Receiver {
 		}
 
 		if (this.pc.iceConnectionState === 'connected') {
+			this.restartAttempts = 0;
+			this.videoElement.removeAttribute('reconnecting');
 			// Statistic tracking will also remove our loading message.
 			this.trackStatistics();
 		}
@@ -954,6 +989,7 @@ class Receiver {
 
 		switch (this.pc.iceConnectionState) {
 			case 'disconnected':
+			case 'failed':
 				this.scheduleRestart();
 		}
 	}
@@ -1010,18 +1046,21 @@ class Receiver {
 			return;
 		}
 
-		this.stop();
+		if (this.restartAttempts >= MAX_RESTART_ATTEMPTS) {
+			this.fail(_('Failed to load stream. Press play to retry.'));
+			return;
+		}
+
+		this.videoElement.setAttribute('reconnecting', '');
+		this.teardown();
+		this.restartAttempts += 1;
 		this.videoElement.play();
 		this.videoElement.setCustomStatus('Loading...', 'throbber');
 
 		this.restartTimeout = window.setTimeout(() => {
 			this.restartTimeout = null;
-			this.start();
+			this.connect();
 		}, RESTART_PAUSE);
-
-		this.sessionUrl = '';
-
-		this.queuedCandidates = [];
 	}
 }
 

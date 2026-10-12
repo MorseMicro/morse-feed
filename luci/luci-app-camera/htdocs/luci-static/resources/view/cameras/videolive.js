@@ -621,10 +621,18 @@ class VideoLiveElement extends HTMLElement {
 						this._triggeredByControls = false;
 						break;
 					case 'pause':
+						// Tearing down the stream to reconnect pauses/ends the video;
+						// don't flash the controls for it.
+						if (this.elem.hasAttribute('reconnecting')) {
+							break;
+						}
 						this.setPlayButtonState(true);
 						this.setupStatusFader();
 						break;
 					case 'ended':
+						if (this.elem.hasAttribute('reconnecting')) {
+							break;
+						}
 						this.setPlayButtonState(true);
 						this.startFadeIn(this.controlBar);
 						this.setupStatusFader();
