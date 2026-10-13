@@ -155,6 +155,23 @@ s() {
 	done
 }
 
+HOSTAPD_SECRETS="wpa_passphrase wpa_psk sae_password
+	multi_ap_backhaul_wpa_passphrase multi_ap_backhaul_wpa_psk
+	auth_server_shared_secret acct_server_shared_secret radius_das_client
+	private_key_passwd private_key_passwd2
+	auth_server_private_key_passwd acct_server_private_key_passwd
+	wep_key0 wep_key1 wep_key2 wep_key3 ap_pin r0kh r1kh
+	pac_opaque_encr_key wps_nfc_dh_privkey
+	dpp_connector dpp_netaccesskey dpp_csign"
+
+WPA_SUPPLICANT_SECRETS="psk sae_password password private_key_passwd private_key2_passwd
+	pin pin2 machine_password machine_private_key_passwd machine_pin
+	wep_key0 wep_key1 wep_key2 wep_key3 mka_cak wps_nfc_dh_privkey
+	dpp_connector dpp_netaccesskey dpp_csign dpp_pp_key"
+
+UCI_WIRELESS_SECRETS="key key1 key2 key3 key4 sae_password priv_key_pwd priv_key2_pwd
+	auth_secret acct_secret dae_secret multi_ap_backhaul_key wps_pin"
+
 # Sanitise a keyword from a file
 #
 #   sanitise_uci_files [option_name] files/etc/config/wireless
@@ -174,21 +191,28 @@ sanitise_uci_files() {
 sanitise_key_value_files() {
 	key_name=$1
 	shift
-	sed -i "s/^$key_name=.*/$key_name=SANITISED/" "$@"
+	sed -i "s/^\([[:space:]]*$key_name=\).*/\1SANITISED/" "$@"
 }
 
 # Sanitise sensitive fields from hostapd config files
 # (wpa_passphrase, wpa_psk, sae_password, multi_ap_backhaul_wpa_*)
 #
 sanitise_hostapd_conf_files() {
-	local files
+	local files key
 	files=$(find files/var/run -name 'hostapd-*.conf' 2>/dev/null)
 	[ -z "$files" ] && return
-	sanitise_key_value_files wpa_passphrase $files
-	sanitise_key_value_files wpa_psk $files
-	sanitise_key_value_files sae_password $files
-	sanitise_key_value_files multi_ap_backhaul_wpa_passphrase $files
-	sanitise_key_value_files multi_ap_backhaul_wpa_psk $files
+	for key in $HOSTAPD_SECRETS; do
+		sanitise_key_value_files $key $files
+	done
+}
+
+sanitise_wpa_supplicant_conf_files() {
+	local files key
+	files=$(find files/var/run -name 'wpa_supplicant-*.conf' 2>/dev/null)
+	[ -z "$files" ] && return
+	for key in $WPA_SUPPLICANT_SECRETS; do
+		sanitise_key_value_files $key $files
+	done
 }
 
 # Sanitise keys from hostapd PSK files (/var/run/hostapd-*.psk)
@@ -204,10 +228,14 @@ sanitise_hostapd_psk_files() {
 # Remove sensitive data from the dump
 #
 sanitise_dump() {
+	local option
 	sanitise_uci_files password files/etc/config/*
-	sanitise_uci_files key files/etc/config/wireless
+	for option in $UCI_WIRELESS_SECRETS; do
+		sanitise_uci_files $option files/etc/config/wireless
+	done
 	sanitise_uci_files default_wifi_key files/etc/config/system
 	sanitise_hostapd_conf_files
+	sanitise_wpa_supplicant_conf_files
 	sanitise_hostapd_psk_files
 }
 
