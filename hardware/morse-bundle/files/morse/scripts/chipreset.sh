@@ -30,6 +30,30 @@ reset_chip() {
 }
 
 
+# Only look for an SDIO host when the chip is actually on SDIO. On boards where
+# the Morse chip is attached over SPI there is no Morse SDIO function at all,
+# and the first mmc_host found here is the SD card holding the root filesystem.
+# Unbinding that ejects the rootfs mid-boot, which shows up as
+# "mmc0: card 0001 removed" followed by endless SQUASHFS -EIO errors.
+morse_on_spi=
+for spidev in /sys/bus/spi/devices/*; do
+    [ -e "$spidev/of_node/compatible" ] || continue
+    if tr -d '\0' < "$spidev/of_node/compatible" | grep -q '^morse,'; then
+        morse_on_spi=1
+        break
+    fi
+done
+
+if [ -n "$morse_on_spi" ]; then
+    # Nothing to do on an SPI board: the SPI driver resets the chip itself via
+    # its reset-gpios, and there is no SDIO bus to re-enumerate. Continuing
+    # would rmmod a perfectly healthy driver and then abort in reset_chip()
+    # on boards that have no MM_RESET in gpio-line-names, leaving the radio
+    # down for the rest of the boot.
+    echo 'morsechipreset: chip is on SPI; the driver handles reset, nothing to do'
+    exit 0
+fi
+
 # This finds something like:
 #    /sys/devices/platform/10130000.mmc/mmc_host
 # and extracts a driver location and the device (10130000.mmc).
